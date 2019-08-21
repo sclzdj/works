@@ -40,15 +40,13 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
-
         'admin' => [ //填守卫名称
             'driver' => 'session',//填存储驱动
             'provider' => 'system_users',#使用哪个服务提供者，一般填表名
         ],
-
-        'api' => [
-            'driver' => 'token',
-            'provider' => 'users',
+        'users' => [   #守卫名称，可定义多个实现多守卫
+            'driver' => 'jwt',  #使用jwt驱动
+            'provider' => 'users', #使用哪个服务提供者，一般填表名
         ],
     ],
 
@@ -70,20 +68,14 @@ return [
     */
 
     'providers' => [
-        'users' => [
-            'driver' => 'eloquent',
-            'model' => App\User::class,
+        'users' => [#服务提供者名称，可定义多个服务提供者
+            'driver' => 'eloquent',#使用模型驱动
+            'model' => \App\Model\Index\User::class,#模型名称
         ],
-
         'system_users' => [//服务提供者名称
             'driver' => 'eloquent',//填驱动机制
             'model' => \App\Model\Admin\SystemUser::class,//填模型名
         ],
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
     ],
 
     /*
