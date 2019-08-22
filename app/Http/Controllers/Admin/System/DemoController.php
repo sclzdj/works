@@ -48,7 +48,7 @@ class DemoController extends BaseController {
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
 
-            return $this->eResponse($e->getMessage(), $e->getCode());
+            return $this->eResponse($e->getMessage(), 500);
         }
     }
     public function tags() {
@@ -90,7 +90,7 @@ class DemoController extends BaseController {
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
 
-            return $this->eResponse($e->getMessage(), $e->getCode());
+            return $this->eResponse($e->getMessage(), 500);
         }
     }
 
@@ -137,7 +137,7 @@ class DemoController extends BaseController {
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
 
-            return $this->eResponse($e->getMessage(), $e->getCode());
+            return $this->eResponse($e->getMessage(), 500);
         }
     }
 
@@ -180,7 +180,7 @@ class DemoController extends BaseController {
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
 
-            return $this->eResponse($e->getMessage(), $e->getCode());
+            return $this->eResponse($e->getMessage(), 500);
         }
     }
 
@@ -223,7 +223,7 @@ class DemoController extends BaseController {
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
 
-            return $this->eResponse($e->getMessage(), $e->getCode());
+            return $this->eResponse($e->getMessage(), 500);
         }
     }
 
@@ -276,7 +276,7 @@ class DemoController extends BaseController {
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
 
-            return $this->eResponse($e->getMessage(), $e->getCode());
+            return $this->eResponse($e->getMessage(), 500);
         }
     }
 
@@ -329,7 +329,7 @@ class DemoController extends BaseController {
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
 
-            return $this->eResponse($e->getMessage(), $e->getCode());
+            return $this->eResponse($e->getMessage(), 500);
         }
     }
 }

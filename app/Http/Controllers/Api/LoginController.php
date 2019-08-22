@@ -24,7 +24,7 @@ class LoginController extends UserGuardController
      */
     public function mpLogin()
     {
-        //        $data = $this->_wxCode2Session($request->code);
+//                $data = $this->_wxCode2Session($request->code);
         $data = [
             "session_key" => 'TKg5Edd10SeX1Po+NH2y3A1==',
             'openid' => 'oOR6g5uTkJKvRvo2g2kJoTzNals2'

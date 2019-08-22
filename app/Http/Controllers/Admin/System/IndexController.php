@@ -59,7 +59,7 @@ class IndexController extends BaseController
             } catch (\Exception $e) {
                 \DB::rollback();//回滚事务
 
-                return $this->eResponse($e->getMessage(), $e->getCode());
+                return $this->eResponse($e->getMessage(), 500);
             }
         }
         if ($systemConfigRequest->method() == 'PUT') {
@@ -84,7 +84,7 @@ class IndexController extends BaseController
             } catch (\Exception $e) {
                 \DB::rollback();//回滚事务
 
-                return $this->eResponse($e->getMessage(), $e->getCode());
+                return $this->eResponse($e->getMessage(), 500);
             }
         }
         $types = [
@@ -139,7 +139,7 @@ class IndexController extends BaseController
             } catch (\Exception $e) {
                 \DB::rollback();//回滚事务
 
-                return $this->eResponse($e->getMessage(), $e->getCode());
+                return $this->eResponse($e->getMessage(), 500);
             }
         }
 
@@ -173,7 +173,7 @@ class IndexController extends BaseController
             } catch (\Exception $e) {
                 \DB::rollback();//回滚事务
 
-                return $this->eResponse($e->getMessage(), $e->getCode());
+                return $this->eResponse($e->getMessage(), 500);
             }
         }
         $systemUser = auth('admin')->user();

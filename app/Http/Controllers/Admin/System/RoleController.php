@@ -147,7 +147,7 @@ class RoleController extends BaseController
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
 
-            return $this->eResponse($e->getMessage(), $e->getCode());
+            return $this->eResponse($e->getMessage(), 500);
         }
     }
 
@@ -224,7 +224,7 @@ class RoleController extends BaseController
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
 
-            return $this->eResponse($e->getMessage(), $e->getCode());
+            return $this->eResponse($e->getMessage(), 500);
         }
     }
 
@@ -267,7 +267,7 @@ class RoleController extends BaseController
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
 
-            return $this->eResponse($e->getMessage(), $e->getCode());
+            return $this->eResponse($e->getMessage(), 500);
         }
     }
 
@@ -305,7 +305,7 @@ class RoleController extends BaseController
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
 
-            return $this->eResponse($e->getMessage(), $e->getCode());
+            return $this->eResponse($e->getMessage(), 500);
         }
     }
 
@@ -343,7 +343,7 @@ class RoleController extends BaseController
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
 
-            return $this->eResponse($e->getMessage(), $e->getCode());
+            return $this->eResponse($e->getMessage(), 500);
         }
     }
 }
