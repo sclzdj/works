@@ -45,4 +45,16 @@ class User extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $hidden = [];
+
+    public static function allowFields() {
+        return [
+            'username',
+            'nickname',
+            'avatar',
+            'gender',
+            'country',
+            'province',
+            'city',
+        ];
+    }
 }

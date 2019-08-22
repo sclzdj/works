@@ -44,8 +44,6 @@ class LoginController extends UserGuardController
             }
             $user->session_key = $data['session_key'];
             $user->save();
-
-            return $this->response->error('登录失败', 422);
             if (!$token = auth($this->guard)->login($user)) {
                 \DB::rollback();//回滚事务
 
@@ -69,7 +67,8 @@ class LoginController extends UserGuardController
      */
     public function login(UserRequest $request)
     {
-        if (!$token = auth($this->guard)->attempt($request)) {
+        $data = ['username'=>$request->username, 'password'=>$request->password];
+        if (!$token = auth($this->guard)->attempt($data)) {
             return $this->response->error('帐号或密码错误', 422);
         }
 

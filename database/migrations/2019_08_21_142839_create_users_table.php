@@ -20,7 +20,7 @@ class CreateUsersTable extends Migration
             $table->string('password')->default('')->comment('密码');
             $table->string('nickname')->default('')->comment('昵称');
             $table->string('avatar', 1000)->default('')->comment('头像');
-            $table->unsignedTinyInteger('gender')->default(0)->comment('【0:未知;1:是2:女】');
+            $table->unsignedTinyInteger('gender')->default(0)->comment('【0:未知;1:男2:女】');
             $table->string('country')->default('')->comment('国家');
             $table->string('province')->default('')->comment('省份');
             $table->string('city')->default('')->comment('城市');

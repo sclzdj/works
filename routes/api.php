@@ -34,6 +34,9 @@ $api->version('v1',['namespace'=>'\App\Http\Controllers\Api'],function ($api){
     $api->group(['middleware'=>'api.throttle','limit'=>1000,'expires'=>1],function($api){
         $api->get('login', 'LoginController@mpLogin');
         $api->post('login', 'LoginController@login');
+        $api->get('my/logout', 'MyController@logout');
+        $api->get('my/refresh', 'MyController@refresh');
+        $api->post('my/saveInfo', 'MyController@saveInfo');
         $api->get('my/info', 'MyController@info');
     });
 });

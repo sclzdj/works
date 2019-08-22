@@ -26,6 +26,11 @@ class UserRequest extends BaseRequest
                     'password' => 'required',
                 ];
                 break;
+            case 'save_info':
+                $rules = [
+                    'nickname' => 'required',
+                ];
+                break;
         }
 
         return $rules;
@@ -52,6 +57,11 @@ class UserRequest extends BaseRequest
                     'password.required' => '密码必须传递',
                 ];
                 break;
+            case 'save_info':
+                $messages = [
+                    'nickname.required' => '昵称必须传递',
+                ];
+                break;
         }
 
         return $messages;
@@ -67,6 +77,7 @@ class UserRequest extends BaseRequest
         return [
             'mp_login' => ['GET|App\Http\Controllers\Api\LoginController@mpLogin'],
             'login' => ['POST|App\Http\Controllers\Api\LoginController@login'],
+            'save_info' => ['POST|App\Http\Controllers\Api\MyController@saveInfo'],
         ];
     }
 }

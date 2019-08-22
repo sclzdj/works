@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\Auth\UserGuardController;
 use App\Http\Requests\Index\UserRequest;
+use App\Model\Index\User;
+use App\Servers\ArrServer;
 
 class MyController extends UserGuardController
 {
@@ -14,7 +16,7 @@ class MyController extends UserGuardController
      *
      * @return \Dingo\Api\Http\Response
      */
-    public function save(UserRequest $request)
+    public function saveInfo(UserRequest $request)
     {
         $user = auth($this->guard)->user();
         $user->nickname = $request->nickname;
@@ -24,8 +26,14 @@ class MyController extends UserGuardController
         if ($request->gender !== null) {
             $user->gender = $request->gender;
         }
+        if ($request->country !== null) {
+            $user->country = $request->country;
+        }
         if ($request->province !== null) {
             $user->province = $request->province;
+        }
+        if ($request->city !== null) {
+            $user->city = $request->city;
         }
         $user->save();
 
@@ -60,6 +68,8 @@ class MyController extends UserGuardController
      */
     public function info()
     {
-        return $this->response()->item(auth($this->guard)->user());
+        $info=auth($this->guard)->user()->toArray();
+        $info=ArrServer::inData($info,User::allowFields());
+        return $this->responseParseArray($info);
     }
 }
