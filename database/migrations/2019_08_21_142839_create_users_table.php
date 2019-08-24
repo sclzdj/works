@@ -20,12 +20,14 @@ class CreateUsersTable extends Migration
             $table->string('password')->default('')->comment('密码');
             $table->string('nickname')->default('')->comment('昵称');
             $table->string('avatar', 1000)->default('')->comment('头像');
-            $table->unsignedTinyInteger('gender')->default(0)->comment('【0:未知;1:男2:女】');
+            $table->unsignedTinyInteger('gender')->default(0)->comment('性别【0:未知;1:男;2:女】');
             $table->string('country')->default('')->comment('国家');
             $table->string('province')->default('')->comment('省份');
             $table->string('city')->default('')->comment('城市');
             $table->string('openid')->default('')->comment('小程序openid');
             $table->string('session_key')->default('')->comment('小程序session_key');
+            $table->unsignedInteger('photographer_id')->default(0)->comment('摄影师ID');
+            $table->unsignedTinyInteger('identity')->default(0)->comment('身份【0:游客;1:摄影师】');
             $table->rememberToken();
             $table->timestamps();
         }

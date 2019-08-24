@@ -17,15 +17,18 @@ class CreatePhotographersTable extends Migration
             $table->engine = 'innodb';
             $table->increments('id');
             $table->string('name', 50)->default('')->comment('姓名');
+            $table->string('avatar', 1000)->default('')->comment('头像');
+            $table->string('bg_img', 1000)->default('')->comment('背景');
             $table->string('province', 50)->default('')->comment('省份');
             $table->string('city', 50)->default('')->comment('城市');
             $table->string('area', 50)->default('')->comment('地方');
             $table->string('rank', 50)->default('')->comment('头衔');
             $table->string('wechat', 50)->default('')->comment('微信号');
             $table->string('mobile', 20)->unique()->default('')->comment('手机号');
+            $table->unsignedTinyInteger('status')->default(0)->comment('状态【0:草稿;200:成功;500:失败】');
             $table->timestamps();
         });
-        DB::statement("ALTER TABLE `users` COMMENT '前台：摄影师'"); // 表注释
+        DB::statement("ALTER TABLE `photographers` COMMENT '前台：摄影师'"); // 表注释
     }
 
     /**

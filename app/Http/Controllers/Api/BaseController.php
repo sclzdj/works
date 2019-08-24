@@ -30,8 +30,8 @@ class BaseController extends Controller
     {
         $url = "https://api.weixin.qq.com/sns/jscode2session";
         $data = [
-            'appid' => 'wxe1cd43a6ae4a1600',
-            'secret' => '71b7c7f6a68ae20f86e016c27a06e654',
+            'appid' => config('custom.wechat.mp.appid'),
+            'secret' => config('custom.wechat.mp.secret'),
             'js_code' => $js_code,
             'grant_type' => 'authorization_code'
         ];

@@ -13,9 +13,9 @@ class ArrServer
     /**
      * 获取只有id的数据
      *
-     * @param array  $data
+     * @param array $data
      * @param string $field
-     * @param int    $type 0返回数组  1返回字符串
+     * @param int $type 0返回数组  1返回字符串
      *
      * @return array|string
      */
@@ -33,13 +33,15 @@ class ArrServer
     }
 
     /**
-     * @param array  $data
+     * @param array $data
      * @param string $key_field
      * @param string $value_field
      *
      * @return array
      */
-    public static function options($data = [], $key_field = 'id',
+    public static function options(
+        $data = [],
+        $key_field = 'id',
         $value_field = 'name'
     ) {
         $options = [];
@@ -63,11 +65,15 @@ class ArrServer
     {
         if ($retain || $except) {
             foreach ($data as $k => $v) {
-                if ($retain && !in_array($k, $retain)) {
-                    unset($data[$k]);
-                }
-                if ($except && in_array($k, $except)) {
-                    unset($data[$k]);
+                if (is_array($v)) {
+                    $data[$k] = self::inData($v, $retain, $except);
+                } else {
+                    if ($retain && !in_array($k, $retain)) {
+                        unset($data[$k]);
+                    }
+                    if ($except && in_array($k, $except)) {
+                        unset($data[$k]);
+                    }
                 }
             }
         }
@@ -77,13 +83,16 @@ class ArrServer
 
     public static function null2strData($data)
     {
-        $data = array_map(function ($value) {
-            if ($value === null) {
-                return '';
-            } else {
-                return $value;
-            }
-        }, $data);
+        $data = array_map(
+            function ($value) {
+                if ($value === null) {
+                    return '';
+                } else {
+                    return $value;
+                }
+            },
+            $data
+        );
 
         return $data;
     }
@@ -91,14 +100,17 @@ class ArrServer
     /**
      * 递归解析数组
      *
-     * @param array $data  数据
-     * @param int   $pid   上级节点id
+     * @param array $data 数据
+     * @param int $pid 上级节点id
      * @param model $model 模型名称
      *
      * @return array 返回入库后的所有对象合成一个数组
      */
-    public static function parseData($data = [],
-        $model = 'App\Model\Admin\SystemNode', $pid = 0, $level = 1
+    public static function parseData(
+        $data = [],
+        $model = 'App\Model\Admin\SystemNode',
+        $pid = 0,
+        $level = 1
     ) {
         $sort = 1;
         $result = [];
@@ -116,9 +128,15 @@ class ArrServer
             $new = $model::create(array_merge($tmp, $pix));
             $result[] = $new;
             if (isset($d['children'])) {
-                $result = array_merge($result,
-                                      self::parseData($d['children'], $model,
-                                                      $new->id, $level + 1));
+                $result = array_merge(
+                    $result,
+                    self::parseData(
+                        $d['children'],
+                        $model,
+                        $new->id,
+                        $level + 1
+                    )
+                );
             }
             $sort++;
         }

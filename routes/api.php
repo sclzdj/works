@@ -32,12 +32,34 @@ $api=app(\Dingo\Api\Routing\Router::class);
 $api->version('v1',['namespace'=>'\App\Http\Controllers\Api'],function ($api){
     #api.throttle中间件是限制请求次数 每expires分钟只能请求limit次
     $api->group(['middleware'=>'api.throttle','limit'=>1000,'expires'=>1],function($api){
+        //系统通用
+        $api->post('sendSmsCode', 'SystemController@sendSmsCode');
+        //用户登录
         $api->get('login', 'LoginController@mpLogin');
         $api->post('login', 'LoginController@login');
+        //用户中心
         $api->get('my/logout', 'MyController@logout');
         $api->get('my/refresh', 'MyController@refresh');
         $api->post('my/saveInfo', 'MyController@saveInfo');
         $api->get('my/info', 'MyController@info');
+        $api->post('my/photographerInfo', 'MyController@savePhotographerInfo');
+        $api->post('my/photographerAvatar', 'MyController@savePhotographerAvatar');
+        $api->post('my/photographerBgImg', 'MyController@savePhotographerBgImg');
+        $api->get('my/photographerInfo', 'MyController@photographerInfo');
+        $api->get('my/photographerWorks', 'MyController@photographerWorks');
+        $api->get('my/photographerWork', 'MyController@photographerWork');
+        $api->get('my/identity', 'MyController@identity');
+        //摄影师注册
+        $api->get('draft/registerPhotographerWorkImg', 'DraftController@registerPhotographerWorkImg');
+        $api->post('draft/registerPhotographerWorkImg', 'DraftController@registerPhotographerWorkImgStore');
+        $api->get('draft/registerPhotographerWork', 'DraftController@registerPhotographerWork');
+        $api->post('draft/registerPhotographerWork', 'DraftController@registerPhotographerWorkStore');
+        $api->get('draft/registerPhotographer', 'DraftController@registerPhotographer');
+        $api->post('draft/registerPhotographer', 'DraftController@registerPhotographerStore');
+        //摄影师
+        $api->get('photographer/info', 'PhotographerController@info');
+        $api->get('photographer/works', 'PhotographerController@works');
+        $api->get('photographer/work', 'PhotographerController@work');
     });
 });
 

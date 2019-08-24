@@ -13,6 +13,11 @@ use App\Http\Controllers\Api\Auth\UserGuardController;
 use App\Http\Requests\Index\UserRequest;
 use App\Model\Index\User;
 
+/**
+ * 登录相关
+ * Class LoginController
+ * @package App\Http\Controllers\Api
+ */
 class LoginController extends UserGuardController
 {
     /**
@@ -41,6 +46,8 @@ class LoginController extends UserGuardController
                 $user->nickname = $name;
                 $user->remember_token = str_random(10);
                 $user->openid = $data['openid'];
+                $userPresetCreate=User::presetCreate();
+                $user->photographer_id=$userPresetCreate['photographer_id'];
             }
             $user->session_key = $data['session_key'];
             $user->save();
