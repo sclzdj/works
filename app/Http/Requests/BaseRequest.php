@@ -24,34 +24,25 @@ class BaseRequest extends FormRequest
     protected $predefined = [
         'limit' => [
             'rules' => [
-                'limit' => 'numeric|min:1|max:5'
+                'limit' => 'integer|min:1',
             ],
             'messages' => [
-                'limit.numeric' => '条数必须传数字',
-                'limit.min' => '条数最小为1',
-                'limit.max' => '条数最大为5',
-            ]
+                'limit.integer' => '数据条数必须传整数',
+                'limit.min' => '数据条数最小为1',
+            ],
         ],
         'paginate' => [
             'rules' => [
-                'page' => 'numeric|min:1',
-                'pageSize' => 'numeric|min:1',
+                'page' => 'integer|min:1',
+                'pageSize' => 'integer|min:1',
             ],
             'messages' => [
-                'page.numeric' => '页码必须传数字',
+                'page.integer' => '页码必须传整数',
                 'page.min' => '页码最小为1',
-                'pageSize.numeric' => '每页条数必须传数字',
+                'pageSize.integer' => '每页条数必须传整数',
                 'pageSize.min' => '每页条数最小为1',
-            ]
-        ]
-    ];
-    protected $limit = [
-        'rules' => ['limit' => 'numeric|min:1|max:5'],
-        'messages' => [
-            'limit.numeric' => '条数必须传数字',
-            'limit.min' => '条数最小为1',
-            'limit.max' => '条数最大为5',
-        ]
+            ],
+        ],
     ];
 
     /**
@@ -62,7 +53,7 @@ class BaseRequest extends FormRequest
     public function rules()
     {
         $rules = [];
-        switch ($this->getScence()) {
+        switch ($this->getScene()) {
             case 'limit':
                 $rules = $this->predefined['limit']['rules'];
                 break;
@@ -77,7 +68,7 @@ class BaseRequest extends FormRequest
     public function messages()
     {
         $messages = [];
-        switch ($this->getScence()) {
+        switch ($this->getScene()) {
             case 'limit':
                 $messages = $this->predefined['limit']['messages'];
                 break;
@@ -94,7 +85,7 @@ class BaseRequest extends FormRequest
      *
      * @return array
      */
-    protected function scences()
+    protected function scenes()
     {
         return [
             'limit' => [],
@@ -107,29 +98,29 @@ class BaseRequest extends FormRequest
      *
      * @return int|string
      */
-    protected function getScence()
+    protected function getScene()
     {
         $uses = request()->route()->action['uses'];
         $requestMethod = $this->method();
-        $scences = $this->scences();
+        $scenes = $this->scenes();
         $is = false;
-        $scence = '';
-        foreach ($scences as $k => $v) {
-            if (in_array($requestMethod . '|' . $uses, $v)) {
+        $scene = '';
+        foreach ($scenes as $k => $v) {
+            if (in_array($requestMethod.'|'.$uses, $v)) {
                 $is = true;
-                $scence = $k;
+                $scene = $k;
                 break;
             }
         }
         if (!$is) {
-            foreach ($scences as $k => $v) {
+            foreach ($scenes as $k => $v) {
                 if (in_array($uses, $v)) {
-                    $scence = $k;
+                    $scene = $k;
                     break;
                 }
             }
         }
 
-        return $scence;
+        return $scene;
     }
 }

@@ -4,7 +4,7 @@ namespace App\Servers;
 
 use App\Model\Admin\SystemArea;
 use App\Model\Index\PhotographerWork;
-use App\Model\Index\PhotographerWorkImg;
+use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\SmsCode;
 
 class SystemServer
@@ -117,22 +117,32 @@ class SystemServer
     /**
      * 格式化作品集封面数据
      * @param $data 数据
+     * @param $random 是否随机取一张图片，否则取第一张
      * @return array
      */
-    public static function parsePhotographerWorkCover($data)
+    public static function parsePhotographerWorkCover($data, $random = false)
     {
         foreach ($data as $k => $v) {
             if (is_array($v)) {
                 $data[$k] = self::parsePhotographerWorkCover($v, false);
             } else {
-                if ($k=='id' && !isset($data['cover'])){
-                    $PhotographerWorkImg=PhotographerWorkImg::where(['photographer_work_id'=>$v]);
-                    $total = $PhotographerWorkImg->count();
-                    $data['cover']='';
-                    if($total>0){
-                        $skip = mt_rand(0, $total-1);
-                        $photographer_work_img=$PhotographerWorkImg->skip($skip)->take(1)->first();
-                        $data['cover']=$photographer_work_img->img_url;
+                if ($k == 'id' && !isset($data['cover'])) {
+                    $where = ['photographer_work_id' => $v, 'type' => 'image'];
+                    $total = PhotographerWorkSource::where($where)->count();
+                    $data['cover'] = '';
+                    if ($total > 0) {
+                        if ($random) {
+                            $skip = mt_rand(0, $total - 1);
+                            $photographer_work_source = PhotographerWorkSource::where($where)->select(
+                                PhotographerWorkSource::allowFields()
+                            )->skip($skip)->take(1)->first()->toArray();
+                            $data['cover'] = $photographer_work_source;
+                        } else {
+                            $photographer_work_source = PhotographerWorkSource::where($where)->select(
+                                PhotographerWorkSource::allowFields()
+                            )->orderBy('sort', 'asc')->first()->toArray();
+                            $data['cover'] = $photographer_work_source;
+                        }
                     }
                     break;
                 }

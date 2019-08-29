@@ -12,6 +12,7 @@ class PhotographerWork extends Model
      * @var array
      */
     protected $fillable = [
+        'photographer_id',
         'customer_name',
         'customer_industry',
         'project_amount',
@@ -38,6 +39,7 @@ class PhotographerWork extends Model
     public static function allowFields() {
         return [
             'id',
+            'photographer_id',
             'customer_name',
             'customer_industry',
             'project_amount',
@@ -54,9 +56,9 @@ class PhotographerWork extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function photographerWorkImgs()
+    public function photographerWorkSources()
     {
-        return $this->hasMany(PhotographerWorkImg::class);
+        return $this->hasMany(PhotographerWorkSource::class);
     }
 
     /**

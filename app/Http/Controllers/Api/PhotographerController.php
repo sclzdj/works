@@ -12,9 +12,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\Index\PhotographerRequest;
 use App\Model\Index\Photographer;
 use App\Model\Index\PhotographerWork;
-use App\Model\Index\PhotographerWorkImg;
+use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\PhotographerWorkTag;
 use App\Model\Index\User;
+use App\Model\Index\ViewRecord;
 use App\Servers\ArrServer;
 use App\Servers\SystemServer;
 
@@ -38,7 +39,6 @@ class PhotographerController extends BaseController
         }
         $photographer = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
         $photographer = SystemServer::parseRegionName($photographer);
-
         return $this->responseParseArray($photographer);
     }
 
@@ -63,6 +63,10 @@ class PhotographerController extends BaseController
             $all_tags[] = $photographer_work_tags;
         }
         $photographer_works = SystemServer::parsePaginate($photographer_works->toArray());
+        $photographer_works = ArrServer::toNullStrData(
+            $photographer_works,
+            ['project_amount', 'sheets_number', 'shooting_duration']
+        );
         $photographer_works['data'] = ArrServer::inData($photographer_works['data'], PhotographerWork::allowFields());
         foreach ($photographer_works['data'] as $k => $v) {
             $photographer_works['data'][$k]['tags'] = $all_tags[$k];
@@ -73,7 +77,7 @@ class PhotographerController extends BaseController
     }
 
     /**
-     * 摄影师作品集列表
+     * 摄影师作品集信息
      * @param PhotographerRequest $request
      */
     public function work(PhotographerRequest $request)
@@ -88,15 +92,19 @@ class PhotographerController extends BaseController
         if (!$photographer || $photographer->status != 200) {
             return $this->response->error('摄影师不存在', 500);
         }
-        $photographer_work_imgs = $photographer_work->photographerWorkImgs()->select(
-            PhotographerWorkImg::allowFields()
+        $photographer_work_sources = $photographer_work->photographerWorkSources()->select(
+            PhotographerWorkSource::allowFields()
         )->orderBy('sort', 'asc')->get()->toArray();
         $photographer_work_tags = $photographer_work->photographerWorkTags()->select(
             PhotographerWorkTag::allowFields()
         )->get()->toArray();
         $photographer_work = ArrServer::inData($photographer_work->toArray(), PhotographerWork::allowFields());
+        $photographer_work = ArrServer::toNullStrData(
+            $photographer_work,
+            ['project_amount', 'sheets_number', 'shooting_duration']
+        );
         $photographer_work = SystemServer::parsePhotographerWorkCover($photographer_work);
-        $photographer_work['imgs'] = $photographer_work_imgs;
+        $photographer_work['sources'] = $photographer_work_sources;
         $photographer_work['tags'] = $photographer_work_tags;
 
         return $this->response->array($photographer_work);

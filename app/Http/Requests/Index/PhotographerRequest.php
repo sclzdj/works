@@ -14,13 +14,15 @@ class PhotographerRequest extends BaseRequest
     public function rules()
     {
         $rules = [];
-        switch ($this->getScence()) {
-            case 'registerPhotographerWorkImgStore':
+        switch ($this->getScene()) {
+            case 'savePhotographerWorkSourceStore':
                 $rules = [
-                    'img_urls' => 'required|array|between:5,20',
+                    'sources' => 'required|array|min:1',
+                    'sources.*.url' => 'required',
+                    'sources.*.type' => 'required|in:image,video',
                 ];
                 break;
-            case 'registerPhotographerWorkStore':
+            case 'savePhotographerWorkStore':
                 $rules = [
                     'customer_name' => 'required|max:50',
                     'customer_industry' => 'required|max:100',
@@ -32,9 +34,10 @@ class PhotographerRequest extends BaseRequest
                     'hide_shooting_duration' => 'required|in:0,1',
                     'category' => 'required|max:100',
                     'tags' => 'array',
+                    'tags.*' => 'required|max:50',
                 ];
                 break;
-            case 'registerPhotographerStore':
+            case 'savePhotographerStore':
                 $rules = [
                     'name' => 'required|max:10',
                     'province' => 'required|integer',
@@ -55,7 +58,7 @@ class PhotographerRequest extends BaseRequest
                 $rules = [
                     'photographer_id' => 'required|integer',
                 ];
-                $rules = array_merge($rules,$this->predefined['paginate']['rules']);
+                $rules = array_merge($rules, $this->predefined['paginate']['rules']);
                 break;
             case 'photographerWork':
                 $rules = [
@@ -75,15 +78,18 @@ class PhotographerRequest extends BaseRequest
     public function messages()
     {
         $messages = [];
-        switch ($this->getScence()) {
-            case 'registerPhotographerWorkImgStore':
+        switch ($this->getScene()) {
+            case 'savePhotographerWorkSourceStore':
                 $messages = [
-                    'img_urls.required' => '图片不能为空',
-                    'img_urls.array' => '图片集合必须是数组',
-                    'img_urls.between' => '图片至少5张，至多20张',
+                    'sources.required' => '资源不能为空',
+                    'sources.array' => '资源必须是数组',
+                    'sources.min' => '资源至少1个',
+                    'sources.*.url.required' => '资源url不能为空',
+                    'sources.*.type.required' => '资源类型不能为空',
+                    'sources.*.type.in' => '资源类型错误',
                 ];
                 break;
-            case 'registerPhotographerWorkStore':
+            case 'savePhotographerWorkStore':
                 $messages = [
                     'customer_name.required' => '客户名称不能为空',
                     'customer_name.max' => '客户名称长度最大为50',
@@ -106,9 +112,11 @@ class PhotographerRequest extends BaseRequest
                     'hide_shooting_duration.in' => '隐藏拍摄时长传递错误',
                     'category.required' => '分类不能为空',
                     'tags.array' => '标签必须是数组',
+                    'tags.*.required' => '标签名称不能为空',
+                    'tags.*.max' => '标签名称长度最大为50',
                 ];
                 break;
-            case 'registerPhotographerStore':
+            case 'savePhotographerStore':
                 $messages = [
                     'name.required' => '摄影师名称不能为空',
                     'name.max' => '摄影师名称长度最大为10',
@@ -138,7 +146,7 @@ class PhotographerRequest extends BaseRequest
                     'photographer_id.required' => '摄影师id必须传递',
                     'photographer_id.integer' => '摄影师id必须为数字',
                 ];
-                $messages = array_merge($messages,$this->predefined['paginate']['messages']);
+                $messages = array_merge($messages, $this->predefined['paginate']['messages']);
                 break;
             case 'photographerWork':
                 $messages = [
@@ -156,12 +164,12 @@ class PhotographerRequest extends BaseRequest
      *
      * @return array
      */
-    public function scences()
+    public function scenes()
     {
         return [
-            'registerPhotographerWorkImgStore' => ['POST|App\Http\Controllers\Api\DraftController@registerPhotographerWorkImgStore'],
-            'registerPhotographerWorkStore' => ['POST|App\Http\Controllers\Api\DraftController@registerPhotographerWorkStore'],
-            'registerPhotographerStore' => ['POST|App\Http\Controllers\Api\DraftController@registerPhotographerStore'],
+            'savePhotographerWorkSourceStore' => ['POST|App\Http\Controllers\Api\DraftController@registerPhotographerWorkSourceStore','POST|App\Http\Controllers\Api\DraftController@addPhotographerWorkSourceStore'],
+            'savePhotographerWorkStore' => ['POST|App\Http\Controllers\Api\DraftController@registerPhotographerWorkStore','POST|App\Http\Controllers\Api\DraftController@addPhotographerWorkStore'],
+            'savePhotographerStore' => ['POST|App\Http\Controllers\Api\DraftController@registerPhotographerStore','POST|App\Http\Controllers\Api\MyController@savePhotographerInfo'],
             'photographerInfo' => ['GET|App\Http\Controllers\Api\PhotographerController@info'],
             'photographerWorks' => ['GET|App\Http\Controllers\Api\PhotographerController@works'],
             'photographerWork' => ['GET|App\Http\Controllers\Api\PhotographerController@work'],

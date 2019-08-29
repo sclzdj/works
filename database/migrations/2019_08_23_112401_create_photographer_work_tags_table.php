@@ -17,7 +17,7 @@ class CreatePhotographerWorkTagsTable extends Migration
             $table->engine = 'innodb';
             $table->increments('id');
             $table->unsignedInteger('photographer_work_id')->default(0)->comment('摄影师作品集ID');
-            $table->string('name')->default('')->comment('标签名');
+            $table->string('name',50)->default('')->comment('标签名');
         });
         DB::statement("ALTER TABLE `photographer_work_tags` COMMENT '前台：摄影师作品集标签'"); // 表注释
     }

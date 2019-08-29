@@ -53,6 +53,41 @@ class ArrServer
     }
 
     /**
+     * 把0和null的字段转成空字符串
+     * @param $data 数据
+     * @param null $fields 字段集合，为null时全部转换，支持字符串和数组
+     * @return mixed
+     */
+    public static function toNullStrData($data, $fields = null)
+    {
+        foreach ($data as $k => $v) {
+            if (is_array($v)) {
+                $data[$k] = self::toNullStrData($v, $fields);
+            } else {
+                if (empty($fields)) {
+                    if ($v === 0 || $v === null) {
+                        $data[$k] = '';
+                    }
+                } elseif (is_array($fields)) {
+                    if (in_array($k, $fields)) {
+                        if ($v === 0 || $v === null) {
+                            $data[$k] = '';
+                        }
+                    }
+                } else {
+                    if ($k == $fields) {
+                        if ($v === 0 || $v === null) {
+                            $data[$k] = '';
+                        }
+                    }
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    /**
      * 保留数组有效部分并排除数组无效部分，方便入库
      *
      * @param       $data
@@ -142,5 +177,25 @@ class ArrServer
         }
 
         return $result;
+    }
+
+    /**
+     * 删除数组指定值元素
+     * @param $arr 数组
+     * @param $value 值
+     * @return array
+     */
+    public function delByValue($arr, $value)
+    {
+        if (!is_array($arr)) {
+            return $arr;
+        }
+        foreach ($arr as $k => $v) {
+            if ($v === $value) {
+                unset($arr[$k]);
+            }
+        }
+
+        return $arr;
     }
 }

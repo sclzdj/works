@@ -34,6 +34,13 @@ $api->version('v1',['namespace'=>'\App\Http\Controllers\Api'],function ($api){
     $api->group(['middleware'=>'api.throttle','limit'=>1000,'expires'=>1],function($api){
         //系统通用
         $api->post('sendSmsCode', 'SystemController@sendSmsCode');
+        $api->get('getHelpNotes', 'SystemController@getHelpNotes');
+        $api->get('getProvinces', 'SystemController@getProvinces');
+        $api->get('getCitys', 'SystemController@getCitys');
+        $api->get('getAreas', 'SystemController@getAreas');
+        $api->get('photographerRanks', 'SystemController@photographerRanks');
+        $api->get('photographerWorkCategorys', 'SystemController@photographerWorkCategorys');
+        $api->get('visitorTags', 'SystemController@visitorTags');
         //用户登录
         $api->get('login', 'LoginController@mpLogin');
         $api->post('login', 'LoginController@login');
@@ -49,9 +56,16 @@ $api->version('v1',['namespace'=>'\App\Http\Controllers\Api'],function ($api){
         $api->get('my/photographerWorks', 'MyController@photographerWorks');
         $api->get('my/photographerWork', 'MyController@photographerWork');
         $api->get('my/identity', 'MyController@identity');
+        $api->get('my/addPhotographerWork', 'DraftController@addPhotographerWork');
+        $api->Post('my/addPhotographerWork', 'DraftController@addPhotographerWorkStore');
+        $api->get('my/addPhotographerWorkSource', 'DraftController@addPhotographerWorkSource');
+        $api->post('my/addPhotographerWorkSource', 'DraftController@addPhotographerWorkSourceStore');
+        $api->post('my/savePhotographerWorkInfo', 'MyController@savePhotographerWorkInfo');
+        $api->get('my/viewRecords', 'MyController@viewRecords');
+        $api->get('my/viewRecords', 'MyController@viewRecords');
         //摄影师注册
-        $api->get('draft/registerPhotographerWorkImg', 'DraftController@registerPhotographerWorkImg');
-        $api->post('draft/registerPhotographerWorkImg', 'DraftController@registerPhotographerWorkImgStore');
+        $api->get('draft/registerPhotographerWorkSource', 'DraftController@registerPhotographerWorkSource');
+        $api->post('draft/registerPhotographerWorkSource', 'DraftController@registerPhotographerWorkSourceStore');
         $api->get('draft/registerPhotographerWork', 'DraftController@registerPhotographerWork');
         $api->post('draft/registerPhotographerWork', 'DraftController@registerPhotographerWorkStore');
         $api->get('draft/registerPhotographer', 'DraftController@registerPhotographer');
@@ -60,6 +74,17 @@ $api->version('v1',['namespace'=>'\App\Http\Controllers\Api'],function ($api){
         $api->get('photographer/info', 'PhotographerController@info');
         $api->get('photographer/works', 'PhotographerController@works');
         $api->get('photographer/work', 'PhotographerController@work');
+        //游客
+        $api->get('randomPhotographers', 'MyController@randomPhotographers');
+        //访问
+        $api->post('visit/inRecord', 'VisitController@inRecord');
+        $api->post('visit/shareRecord', 'VisitController@shareRecord');
+        $api->post('visit/remind', 'VisitController@setRemind');
+        $api->post('visit/tag', 'VisitController@setTag');
+        $api->get('visit/tags', 'VisitController@tags');
+        $api->get('visit/visitors', 'VisitController@visitors');
+        $api->get('visit/visitor', 'VisitController@visitor');
+        $api->get('visit/visitorRecords', 'VisitController@visitorRecords');
     });
 });
 

@@ -26,7 +26,7 @@ class CreatePhotographerWorksTable extends Migration
             $table->unsignedInteger('shooting_duration')->default(0)->comment('拍摄时长，小时');
             $table->unsignedTinyInteger('hide_shooting_duration')->default(0)->comment('拍摄时长保密【0:否;1:是】');
             $table->string('category', 100)->default('')->comment('作品分类');
-            $table->unsignedTinyInteger('status')->default(0)->comment('状态【0:草稿;200:成功;500:失败】');
+            $table->unsignedSmallInteger('status')->default(0)->comment('状态【0:草稿;200:成功;500:失败】');
             $table->timestamps();
         });
         DB::statement("ALTER TABLE `photographer_works` COMMENT '前台：摄影师作品集'"); // 表注释

@@ -32,7 +32,7 @@ class LoginController extends UserGuardController
 //                $data = $this->_wxCode2Session($request->code);
         $data = [
             "session_key" => 'TKg5Edd10SeX1Po+NH2y3A1==',
-            'openid' => 'oOR6g5uTkJKvRvo2g2kJoTzNals2'
+            'openid' => 'oOR6g5uTkJKvRvo2g2kJoTzNals1'
         ];
 
         \DB::beginTransaction();//开启事务
@@ -41,7 +41,7 @@ class LoginController extends UserGuardController
             if (!$user) {
                 $user = User::create();
                 $name = 'works_' . str_random(10);
-                $user->username = 'works_szk1q6GMiB';
+                $user->username = $name;
                 $user->password = bcrypt('works123456');
                 $user->nickname = $name;
                 $user->remember_token = str_random(10);

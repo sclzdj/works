@@ -38,7 +38,9 @@ class User extends Authenticatable implements JWTSubject
         'province',
         'city',
         'photographer_id',
-        'identity'
+        'identity',
+        'openid',
+        'session_key',
     ];
 
     /**
@@ -46,13 +48,16 @@ class User extends Authenticatable implements JWTSubject
      *
      * @var array
      */
-    protected $hidden = [];
+    protected $hidden = [
+
+    ];
 
     /**
      * 允许查询的字段
      * @return array
      */
-    public static function allowFields() {
+    public static function allowFields()
+    {
         return [
             'id',
             'username',
@@ -71,27 +76,29 @@ class User extends Authenticatable implements JWTSubject
      * @param null $photographer_id
      * @return mixed
      */
-    public static function photographer($photographer_id=null,$guard=null)
+    public static function photographer($photographer_id = null, $guard = null)
     {
-        if(empty($photographer_id)){
-            $photographer_id=auth($guard)->user()->photographer_id;
+        if (empty($photographer_id)) {
+            $photographer_id = auth($guard)->user()->photographer_id;
         }
+
         return Photographer::find($photographer_id);
     }
 
     /**
      * 创建用户预设一些东西
      */
-    public static function presetCreate(){
+    public static function presetCreate()
+    {
         //先预设一个摄影师
-        $photographer=Photographer::create();
+        $photographer = Photographer::create();
         //再预设一个作品集
-        $photographer_work=PhotographerWork::create();
-        $photographer_work->photographer_id=$photographer->id;
+        $photographer_work = PhotographerWork::create();
+        $photographer_work->photographer_id = $photographer->id;
         $photographer_work->save();
 
         return [
-            'photographer_id'=>$photographer->id
+            'photographer_id' => $photographer->id,
         ];
     }
 }

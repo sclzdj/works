@@ -14,11 +14,24 @@ class SystemRequest extends BaseRequest
     public function rules()
     {
         $rules = [];
-        switch ($this->getScence()) {
+        switch ($this->getScene()) {
             case 'sendSmsCode':
                 $rules = [
                     'mobile' => 'required|regex:/^1\d{10}$/',
                     'purpose' => 'required',
+                ];
+                break;
+            case 'getHelpNotes':
+                $rules = $this->predefined['limit']['rules'];
+                break;
+            case 'getCitys':
+                $rules = [
+                    'province_id' => 'required|integer',
+                ];
+                break;
+            case 'getAreas':
+                $rules = [
+                    'city_id' => 'required|integer',
                 ];
                 break;
         }
@@ -34,7 +47,7 @@ class SystemRequest extends BaseRequest
     public function messages()
     {
         $messages = [];
-        switch ($this->getScence()) {
+        switch ($this->getScene()) {
             case 'sendSmsCode':
                 $messages = [
                     'mobile.required' => '手机号不能为空',
@@ -42,7 +55,23 @@ class SystemRequest extends BaseRequest
                     'purpose.required' => '用途必须传递',
                 ];
                 break;
+            case 'getHelpNotes':
+                $messages = $this->predefined['limit']['messages'];
+                break;
+            case 'getCitys':
+                $messages = [
+                    'province_id.required' => '省份id必须传递',
+                    'province_id.integer' => '省份id必须为数字',
+                ];
+                break;
+            case 'getAreas':
+                $messages = [
+                    'city_id.required' => '城市id必须传递',
+                    'city_id.integer' => '城市id必须为数字',
+                ];
+                break;
         }
+
         return $messages;
     }
 
@@ -51,10 +80,13 @@ class SystemRequest extends BaseRequest
      *
      * @return array
      */
-    public function scences()
+    public function scenes()
     {
         return [
             'sendSmsCode' => ['POST|App\Http\Controllers\Api\SystemController@sendSmsCode'],
+            'getHelpNotes' => ['GET|App\Http\Controllers\Api\SystemController@getHelpNotes'],
+            'getCitys' => ['GET|App\Http\Controllers\Api\SystemController@getCitys'],
+            'getAreas' => ['GET|App\Http\Controllers\Api\SystemController@getAreas'],
         ];
     }
 }

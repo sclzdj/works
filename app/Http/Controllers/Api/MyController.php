@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\Auth\UserGuardController;
+use App\Http\Requests\Index\PhotographerRequest;
 use App\Http\Requests\Index\UserRequest;
 use App\Model\Index\Photographer;
 use App\Model\Index\PhotographerWork;
-use App\Model\Index\PhotographerWorkImg;
+use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\PhotographerWorkTag;
+use App\Model\Index\RandomPhotographer;
 use App\Model\Index\User;
+use App\Model\Index\ViewRecord;
 use App\Servers\ArrServer;
 use App\Servers\SystemServer;
 
@@ -148,6 +151,10 @@ class MyController extends UserGuardController
         foreach ($photographer_works['data'] as $k => $v) {
             $photographer_works['data'][$k]['tags'] = $all_tags[$k];
         }
+        $photographer_works['data'] = ArrServer::toNullStrData(
+            $photographer_works['data'],
+            ['project_amount', 'sheets_number', 'shooting_duration']
+        );
         $photographer_works['data'] = SystemServer::parsePhotographerWorkCover($photographer_works['data']);
 
         return $this->response->array($photographer_works);
@@ -173,15 +180,19 @@ class MyController extends UserGuardController
         if ($photographer_work->photographer_id != $photographer->id) {
             return $this->response->error('摄影师作品集不存在', 500);
         }
-        $photographer_work_imgs = $photographer_work->photographerWorkImgs()->select(
-            PhotographerWorkImg::allowFields()
+        $photographer_work_sources = $photographer_work->photographerWorkSources()->select(
+            PhotographerWorkSource::allowFields()
         )->orderBy('sort', 'asc')->get()->toArray();
         $photographer_work_tags = $photographer_work->photographerWorkTags()->select(
             PhotographerWorkTag::allowFields()
         )->get()->toArray();
         $photographer_work = ArrServer::inData($photographer_work->toArray(), PhotographerWork::allowFields());
+        $photographer_work = ArrServer::toNullStrData(
+            $photographer_work,
+            ['project_amount', 'sheets_number', 'shooting_duration']
+        );
         $photographer_work = SystemServer::parsePhotographerWorkCover($photographer_work);
-        $photographer_work['imgs'] = $photographer_work_imgs;
+        $photographer_work['sources'] = $photographer_work_sources;
         $photographer_work['tags'] = $photographer_work_tags;
 
         return $this->response->array($photographer_work);
@@ -192,7 +203,7 @@ class MyController extends UserGuardController
      * @param UserRequest $request
      * @return \Dingo\Api\Http\Response|void
      */
-    public function savePhotographerInfo(UserRequest $request)
+    public function savePhotographerInfo(PhotographerRequest $request)
     {
         $this->notPhotographerIdentityVerify();
         \DB::beginTransaction();//开启事务
@@ -210,6 +221,15 @@ class MyController extends UserGuardController
                 return $this->response->error($verify_result['message'], 500);
             }
             $photographer = User::photographer(null, $this->guard);
+            //验证手机号的唯一性
+            $other_photographer = Photographer::where('id', '!=', $photographer->id)->where(
+                ['mobile' => $request->mobile, 'status' => 200]
+            )->first();
+            if ($other_photographer) {
+                \DB::rollback();//回滚事务
+
+                return $this->response->error('该手机号已被注册成为摄影师了', 500);
+            }
             if (!$photographer || $photographer->status != 200) {
                 return $this->response->error('摄影师不存在', 500);
             }
@@ -281,5 +301,203 @@ class MyController extends UserGuardController
 
             return $this->response->error($e->getMessage(), 500);
         }
+    }
+
+    /**
+     * 修改我的摄影师作品集
+     * @param UserRequest $request
+     * @return \Dingo\Api\Http\Response|void
+     */
+    public function savePhotographerWorkInfo(UserRequest $request)
+    {
+        $this->notPhotographerIdentityVerify();
+        \DB::beginTransaction();//开启事务
+        try {
+            $photographer = User::photographer(null, $this->guard);
+            $photographer_work = $photographer->photographerWorks()->where(
+                ['id' => $request->photographer_work_id, 'status' => 200]
+            )->first();
+            if (!$photographer_work) {
+                return $this->response->error('摄影师作品集不存在', 403);
+            }
+            $photographer_work->customer_name = $request->customer_name;
+            $photographer_work->customer_industry = $request->customer_industry;
+            $photographer_work->project_amount = $request->project_amount;
+            $photographer_work->hide_project_amount = $request->hide_project_amount;
+            $photographer_work->sheets_number = $request->sheets_number;
+            $photographer_work->hide_sheets_number = $request->hide_sheets_number;
+            $photographer_work->shooting_duration = $request->shooting_duration;
+            $photographer_work->hide_shooting_duration = $request->hide_shooting_duration;
+            $photographer_work->category = $request->category;
+            $photographer_work->save();
+            PhotographerWorkTag::where(['photographer_work_id' => $photographer_work->id])->delete();
+            if ($request->tags) {
+                foreach ($request->tags as $v) {
+                    $photographer_work_tag = PhotographerWorkTag::create();
+                    $photographer_work_tag->photographer_work_id = $photographer_work->id;
+                    $photographer_work_tag->name = $v;
+                    $photographer_work_tag->save();
+                }
+            }
+            PhotographerWorkSource::where(['photographer_work_id' => $photographer_work->id])->delete();
+            foreach ($request->sources as $k => $v) {
+                $photographer_work_source = PhotographerWorkSource::create();
+                $photographer_work_source->photographer_work_id = $photographer_work->id;
+                $photographer_work_source->url = $v['url'];
+                $photographer_work_source->type = $v['type'];
+                $photographer_work_source->sort = $k + 1;
+                $photographer_work_source->save();
+            }
+            \DB::commit();//提交事务
+
+            return $this->response->noContent();
+        } catch (\Exception $e) {
+            \DB::rollback();//回滚事务
+
+            return $this->response->error($e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * 随机摄影师列表
+     * @return mixed|void
+     */
+    public function randomPhotographers()
+    {
+        $this->notVisitorIdentityVerify();
+        $user = auth($this->guard)->user();
+        $random = config('custom.photographer.random');
+        \DB::beginTransaction();//开启事务
+        try {
+            $randomPhotographers = RandomPhotographer::where('user_id', $user->id)->take($random)->get();
+            $photographers = [];
+            foreach ($randomPhotographers as $randomPhotographer) {
+                $photographer = Photographer::select(Photographer::allowFields())->where(
+                    ['id' => $randomPhotographer->photographer_id, 'status' => 200]
+                )->first();
+                if ($photographer) {
+                    $photographers[] = $photographer->toArray();
+                } else {
+                    $randomPhotographer->delete();
+                }
+            }
+            $differ = $random - count($photographers);
+            if ($differ > 0) {
+                for ($i = 0; $i < $differ; $i++) {
+                    $where = ['status' => 200];
+                    $total = Photographer::where($where)->whereNotIn('id', ArrServer::ids($photographers))->count();
+                    if ($total > 0) {
+                        $skip = mt_rand(0, $total - 1);
+                        $photographer = Photographer::where($where)->whereNotIn(
+                            'id',
+                            ArrServer::ids($photographers)
+                        )->select(
+                            Photographer::allowFields()
+                        )->skip($skip)->take(1)->first();
+                        if ($photographer) {
+                            $randomPhotographer = RandomPhotographer::create();
+                            $randomPhotographer->user_id = $user->id;
+                            $randomPhotographer->photographer_id = $photographer->id;
+                            $randomPhotographer->save();
+                            $photographers[] = $photographer->toArray();
+                        } else {
+                            break;
+                        }
+                    }
+
+                }
+            }
+            if ($photographers) {
+                $fields = array_map(
+                    function ($v) {
+                        return 'photographer_work_sources.'.$v;
+                    },
+                    PhotographerWorkSource::allowFields()
+                );
+                foreach ($photographers as $k => $photographer) {
+                    $photographer_work_sources = PhotographerWorkSource::join(
+                        'photographer_works',
+                        'photographer_work_sources.photographer_work_id',
+                        '=',
+                        'photographer_works.id'
+                    )->select($fields)
+                        ->where(
+                            [
+                                'photographer_works.status' => 200,
+                                'photographer_works.photographer_id' => $photographer['id'],
+                                'photographer_work_sources.type' => 'image',
+                            ]
+                        )
+                        ->orderBy('photographer_work_sources.created_at', 'desc')->take(3)->get()->toArray();
+                    $photographers[$k]['photographer_work_sources'] = $photographer_work_sources;
+                }
+                $photographers = SystemServer::parseRegionName($photographers);
+            }
+            \DB::commit();//提交事务
+
+            return $this->responseParseArray($photographers);
+        } catch (\Exception $e) {
+            \DB::rollback();//回滚事务
+
+            return $this->response->error($e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * 获取我的浏览摄影师记录
+     * @param UserRequest $request
+     * @return mixed
+     */
+    public function viewRecords(UserRequest $request)
+    {
+        $user = auth($this->guard)->user();
+        $fields = array_map(
+            function ($v) {
+                return 'photographers.'.$v;
+            },
+            Photographer::allowFields()
+        );
+        $view_records = ViewRecord::join(
+            'photographers',
+            'view_records.photographer_id',
+            '=',
+            'photographers.id'
+        )->select(
+            $fields
+        )->where(['view_records.user_id' => $user->id, 'photographers.status' => 200])->orderBy(
+            'view_records.created_at',
+            'desc'
+        )->paginate(
+            $request->pageSize
+        );
+        $view_records = SystemServer::parsePaginate($view_records->toArray());
+        $view_records['data'] = SystemServer::parseRegionName($view_records['data']);
+        if ($view_records['data']) {
+            $fields = array_map(
+                function ($v) {
+                    return 'photographer_work_sources.'.$v;
+                },
+                PhotographerWorkSource::allowFields()
+            );
+            foreach ($view_records['data'] as $k => $photographer) {
+                $photographer_work_sources = PhotographerWorkSource::join(
+                    'photographer_works',
+                    'photographer_work_sources.photographer_work_id',
+                    '=',
+                    'photographer_works.id'
+                )->select($fields)
+                    ->where(
+                        [
+                            'photographer_works.status' => 200,
+                            'photographer_works.photographer_id' => $photographer['id'],
+                            'photographer_work_sources.type' => 'image',
+                        ]
+                    )
+                    ->orderBy('photographer_work_sources.created_at', 'desc')->take(3)->get()->toArray();
+                $view_records['data'][$k]['photographer_work_sources'] = $photographer_work_sources;
+            }
+        }
+
+        return $this->response->array($view_records);
     }
 }
