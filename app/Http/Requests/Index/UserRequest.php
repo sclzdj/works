@@ -67,6 +67,21 @@ class UserRequest extends BaseRequest
             case 'viewRecords':
                 $rules = array_merge($rules, $this->predefined['paginate']['rules']);
                 break;
+            case 'saveDocPdf':
+                $rules = [
+                    'name' => 'required|max:100',
+                    'photographer_work_ids' => 'array',
+                    'photographer_work_ids.*' => 'required|integer',
+                ];
+                break;
+            case 'getDocPdfStatus':
+                $rules = [
+                    'doc_pdf_id' => 'required|integer',
+                ];
+                break;
+            case 'docPdfs':
+                $rules = array_merge($rules, $this->predefined['paginate']['rules']);
+                break;
         }
 
         return $rules;
@@ -149,7 +164,25 @@ class UserRequest extends BaseRequest
                 ];
                 break;
             case 'viewRecords':
-                $rules = array_merge($messages, $this->predefined['paginate']['messages']);
+                $messages = array_merge($messages, $this->predefined['paginate']['messages']);
+                break;
+            case 'saveDocPdf':
+                $messages = [
+                    'name.required' => 'PDF名称必须传递',
+                    'name.max' => 'PDF名称长度最大为100',
+                    'photographer_work_ids.array' => 'PDF的作品集id必须是数组',
+                    'photographer_work_ids.*.required' => 'PDF的作品集id不能为空',
+                    'photographer_work_ids.*.integer' => 'PDF的作品集id必须为数字',
+                ];
+                break;
+            case 'getDocPdfStatus':
+                $messages = [
+                    'doc_pdf_id.required' => 'PDFid必须传递',
+                    'doc_pdf_id.integer' => 'PDFid必须为数字',
+                ];
+                break;
+            case 'docPdfs':
+                $messages = array_merge($messages, $this->predefined['paginate']['messages']);
                 break;
         }
 
@@ -173,6 +206,9 @@ class UserRequest extends BaseRequest
             'savePhotographerBgImg' => ['POST|App\Http\Controllers\Api\MyController@savePhotographerBgImg'],
             'savePhotographerWorkInfo' => ['POST|App\Http\Controllers\Api\MyController@savePhotographerWorkInfo'],
             'viewRecords' => ['GET|App\Http\Controllers\Api\MyController@viewRecords'],
+            'saveDocPdf' => ['POST|App\Http\Controllers\Api\MyController@saveDocPdf'],
+            'docPdfs' => ['GET|App\Http\Controllers\Api\MyController@docPdfs'],
+            'getDocPdfStatus' => ['GET|App\Http\Controllers\Api\MyController@getDocPdfStatus'],
         ];
     }
 }

@@ -54,7 +54,9 @@ class DraftController extends UserGuardController
                 $photographer_work_source = PhotographerWorkSource::create();
                 $photographer_work_source->photographer_work_id = $photographer_work->id;
                 $photographer_work_source->url = $v['url'];
+                $photographer_work_source->deal_url = $v['url'];//这里需要用七牛技术处理
                 $photographer_work_source->type = $v['type'];
+                $photographer_work_source->origin = $v['origin'];
                 $photographer_work_source->sort = $k + 1;
                 $photographer_work_source->save();
             }
@@ -249,7 +251,9 @@ class DraftController extends UserGuardController
                 $photographer_work_source = PhotographerWorkSource::create();
                 $photographer_work_source->photographer_work_id = $photographer_work->id;
                 $photographer_work_source->url = $v['url'];
+                $photographer_work_source->deal_url = $v['url'];//这里需要用七牛技术处理
                 $photographer_work_source->type = $v['type'];
+                $photographer_work_source->origin = $v['origin'];
                 $photographer_work_source->sort = $k + 1;
                 $photographer_work_source->save();
             }

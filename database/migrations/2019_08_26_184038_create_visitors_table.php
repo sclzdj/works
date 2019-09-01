@@ -21,7 +21,7 @@ class CreateVisitorsTable extends Migration
                 $table->unsignedInteger('photographer_id')->default(0)->comment('摄影师ID');
                 $table->unsignedInteger('user_id')->default(0)->comment('访客的用户ID');
                 $table->unsignedTinyInteger('is_remind')->default(0)->comment('是否提醒【0:否;1:是】');
-                $table->string('tag', 100)->default('')->comment('标签');
+                $table->string('visitor_tag_id', 100)->default('')->comment('标签id');
                 $table->unsignedInteger('unread_count')->default(0)->comment('未读数量');
                 $table->timestamps();
             }

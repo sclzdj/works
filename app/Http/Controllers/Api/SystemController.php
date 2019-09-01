@@ -12,7 +12,12 @@ use App\Http\Requests\Index\SystemRequest;
 use App\Http\Requests\Index\UserRequest;
 use App\Model\Admin\SystemArea;
 use App\Model\Index\HelpNote;
+use App\Model\Index\Photographer;
+use App\Model\Index\PhotographerRank;
+use App\Model\Index\PhotographerWorkCategory;
+use App\Model\Index\PhotographerWorkCustomerIndustry;
 use App\Model\Index\SmsCode;
+use App\Model\Index\VisitorTag;
 use App\Servers\AliSendShortMessageServer;
 
 /**
@@ -163,38 +168,69 @@ class SystemController extends BaseController
      */
     public function visitorTags()
     {
-        $tags = [
-            "新客",
-            "老客户"
-        ];
+        $tags = VisitorTag::select(VisitorTag::allowFields())->orderBy('sort', 'asc')->get();
 
         return $this->responseParseArray($tags);
     }
 
     /**
-     * 获取摄影师作品的所有分类列表
+     * 获取摄影师作品集的所有分类列表
      * @return mixed
      */
-    public function photographerWorkCategorys()
+    public function photographerWorkCategories()
     {
-        $tags = [
-            "金融",
-            "食品"
-        ];
+        $categories = PhotographerWorkCategory::select(PhotographerWorkCategory::allowFields())->where(
+            ['pid' => 0, 'level' => 1]
+        )->orderBy('sort', 'asc')->get()->toArray();
+        foreach ($categories as $k => $v) {
+            $categories[$k]['children'] = PhotographerWorkCategory::select(
+                PhotographerWorkCategory::allowFields()
+            )->where(
+                ['pid' => $v['id'], 'level' => 2]
+            )->orderBy('sort', 'asc')->get()->toArray();
+        }
 
-        return $this->responseParseArray($tags);
+        return $this->responseParseArray($categories);
     }
+
+    /**
+     * 获取摄影师作品集的所有客户行业列表
+     * @return mixed
+     */
+    public function PhotographerWorkCustomerIndustries()
+    {
+        $industries = PhotographerWorkCustomerIndustry::select(PhotographerWorkCustomerIndustry::allowFields())->where(
+            ['pid' => 0, 'level' => 1]
+        )->orderBy('sort', 'asc')->get()->toArray();
+        foreach ($industries as $k => $v) {
+            $industries[$k]['children'] = PhotographerWorkCustomerIndustry::select(
+                PhotographerWorkCustomerIndustry::allowFields()
+            )->where(
+                ['pid' => $v['id'], 'level' => 2]
+            )->orderBy('sort', 'asc')->get()->toArray();
+        }
+
+        return $this->responseParseArray($industries);
+    }
+
     /**
      * 获取摄影师的所有头衔列表
      * @return mixed
      */
     public function photographerRanks()
     {
-        $tags = [
-            "食品摄影师",
-            "婚礼摄影师"
-        ];
+        $ranks = PhotographerRank::select(PhotographerRank::allowFields())->where(
+            ['pid' => 0, 'level' => 1]
+        )->orderBy('sort', 'asc')->get()->toArray();
+        foreach ($ranks as $k => $v) {
+            $ranks[$k]['children'] = PhotographerRank::select(
+                PhotographerRank::allowFields()
+            )->where(
+                ['pid' => $v['id'], 'level' => 2]
+            )->orderBy('sort', 'asc')->get()->toArray();
+        }
 
-        return $this->responseParseArray($tags);
+
+        return $this->responseParseArray($ranks);
     }
 }

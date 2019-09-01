@@ -16,5 +16,9 @@ class DatabaseSeeder extends Seeder
         $this->call(SystemNodesTableSeeder::class);
         $this->call(SystemConfigsTableSeeder::class);
         $this->call(SystemAreasTableSeeder::class);
+        $this->call(PhotographerRanksTableSeeder::class);
+        $this->call(PhotographerWorkCustomerIndustriesTableSeeder::class);
+        $this->call(PhotographerWorkCategoriesTableSeeder::class);
+        $this->call(VisitorTagsTableSeeder::class);
     }
 }

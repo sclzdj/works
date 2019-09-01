@@ -18,14 +18,14 @@ class CreatePhotographerWorksTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('photographer_id')->default(0)->comment('摄影师ID');
             $table->string('customer_name', 50)->default('')->comment('客户姓名');
-            $table->string('customer_industry', 100)->default('')->comment('客户行业');
+            $table->unsignedInteger('photographer_work_customer_industry_id')->default(0)->comment('客户行业id');
             $table->unsignedInteger('project_amount')->default(0)->comment('项目金额，元');
             $table->unsignedTinyInteger('hide_project_amount')->default(0)->comment('项目金额保密【0:否;1:是】');
             $table->unsignedInteger('sheets_number')->default(0)->comment('成片张数');
             $table->unsignedTinyInteger('hide_sheets_number')->default(0)->comment('成片张数保密【0:否;1:是】');
             $table->unsignedInteger('shooting_duration')->default(0)->comment('拍摄时长，小时');
             $table->unsignedTinyInteger('hide_shooting_duration')->default(0)->comment('拍摄时长保密【0:否;1:是】');
-            $table->string('category', 100)->default('')->comment('作品分类');
+            $table->string('photographer_work_category_id', 100)->default('')->comment('作品分类id');
             $table->unsignedSmallInteger('status')->default(0)->comment('状态【0:草稿;200:成功;500:失败】');
             $table->timestamps();
         });

@@ -10,6 +10,7 @@ use App\Model\Index\PhotographerWork;
 use App\Model\Index\User;
 use App\Model\Index\ViewRecord;
 use App\Model\Index\Visitor;
+use App\Model\Index\VisitorTag;
 use App\Servers\ArrServer;
 use App\Servers\SystemServer;
 
@@ -193,7 +194,7 @@ class VisitController extends UserGuardController
             if (!$visitor || !(User::find($visitor->user_id))) {
                 return $this->response->error('访客不存在', 500);
             }
-            $visitor->tag = $request->tag;
+            $visitor->visitor_tag_id = $request->visitor_tag_id;
             $visitor->save();
             \DB::commit();//提交事务
 
@@ -223,8 +224,8 @@ class VisitController extends UserGuardController
         $Visitor = Visitor::join('users', 'visitors.user_id', '=', 'users.id')->select($fields)->where(
             ['visitors.photographer_id' => $photographer->id]
         );
-        if (!empty($request->tag)) {
-            $Visitor->where('visitors.tag', $request->tag);
+        if (!empty($request->visitor_tag_id) && $request->visitor_tag_id > 0) {
+            $Visitor->where('visitors.visitor_tag_id', $request->visitor_tag_id);
         }
         if (!empty($request->keywords)) {
             $Visitor->where('users.nickname', 'like', '%'.$request->keywords.'%');
@@ -249,10 +250,14 @@ class VisitController extends UserGuardController
     {
         $this->notPhotographerIdentityVerify();
         $photographer = User::photographer(null, $this->guard);
-        $visitors = Visitor::select('tag')->distinct()->where(
-            [['visitors.photographer_id', '=', $photographer->id], ['tag', '!=', '']]
+        $visitors = Visitor::select('visitor_tag_id')->distinct()->where(
+            [['visitors.photographer_id', '=', $photographer->id], ['visitor_tag_id', '!=', 0]]
         )->get();
-        $tags = ArrServer::ids($visitors, 'tag');
+        $visitor_tag_ids = ArrServer::ids($visitors, 'visitor_tag_id');
+        $tags = VisitorTag::select(VisitorTag::allowFields())->whereIn('id', $visitor_tag_ids)->orderBy(
+            'sort',
+            'asc'
+        )->get()->toArray();
 
         return $this->responseParseArray($tags);
     }

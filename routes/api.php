@@ -39,7 +39,8 @@ $api->version('v1',['namespace'=>'\App\Http\Controllers\Api'],function ($api){
         $api->get('getCitys', 'SystemController@getCitys');
         $api->get('getAreas', 'SystemController@getAreas');
         $api->get('photographerRanks', 'SystemController@photographerRanks');
-        $api->get('photographerWorkCategorys', 'SystemController@photographerWorkCategorys');
+        $api->get('photographerWorkCategories', 'SystemController@photographerWorkCategories');
+        $api->get('PhotographerWorkCustomerIndustries', 'SystemController@PhotographerWorkCustomerIndustries');
         $api->get('visitorTags', 'SystemController@visitorTags');
         //用户登录
         $api->get('login', 'LoginController@mpLogin');
@@ -85,6 +86,10 @@ $api->version('v1',['namespace'=>'\App\Http\Controllers\Api'],function ($api){
         $api->get('visit/visitors', 'VisitController@visitors');
         $api->get('visit/visitor', 'VisitController@visitor');
         $api->get('visit/visitorRecords', 'VisitController@visitorRecords');
+        //PDF
+        $api->post('pdf/save', 'MyController@saveDocPdf');
+        $api->get('pdf/list', 'MyController@docPdfs');
+        $api->get('pdf/getStatus', 'MyController@getDocPdfStatus');
     });
 });
 

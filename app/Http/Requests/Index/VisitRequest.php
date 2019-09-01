@@ -40,10 +40,13 @@ class VisitRequest extends BaseRequest
             case 'setTag':
                 $rules = [
                     'visitor_id' => 'required|integer',
-                    'tag' => 'required|max:100',
+                    'visitor_tag_id' => 'required|integer',
                 ];
                 break;
             case 'visitors':
+                $rules = [
+                    'visitor_tag_id' => 'integer',
+                ];
                 $rules = array_merge($rules, $this->predefined['paginate']['rules']);
                 break;
             case 'visitor':
@@ -106,11 +109,14 @@ class VisitRequest extends BaseRequest
                 $messages = [
                     'visitor_id.required' => '访客id必须传递',
                     'visitor_id.integer' => '访客id必须为数字',
-                    'tag.required' => '标签必须传递',
-                    'tag.max' => '标签长度最大为100',
+                    'visitor_tag_id.required' => '访客标签id必须传递',
+                    'visitor_tag_id.integer' => '访客标签id必须为数字',
                 ];
                 break;
             case 'visitors':
+                $messages = [
+                    'visitor_tag_id.integer' => '访客标签id必须为数字',
+                ];
                 $messages = array_merge($messages, $this->predefined['paginate']['messages']);
                 break;
             case 'visitor':
@@ -118,11 +124,13 @@ class VisitRequest extends BaseRequest
                     'visitor_id.required' => '访客id必须传递',
                     'visitor_id.integer' => '访客id必须为数字',
                 ];
+                break;
             case 'visitorRecords':
                 $messages = [
                     'visitor_id.required' => '访客id必须传递',
                     'visitor_id.integer' => '访客id必须为数字',
                 ];
+                break;
         }
 
         return $messages;

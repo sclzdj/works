@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Api\Auth\UserGuardController;
 use App\Http\Requests\Index\PhotographerRequest;
 use App\Http\Requests\Index\UserRequest;
+use App\Model\Index\DocPdf;
+use App\Model\Index\DocPdfPhotographerWork;
 use App\Model\Index\Photographer;
 use App\Model\Index\PhotographerWork;
 use App\Model\Index\PhotographerWorkSource;
@@ -344,7 +346,9 @@ class MyController extends UserGuardController
                 $photographer_work_source = PhotographerWorkSource::create();
                 $photographer_work_source->photographer_work_id = $photographer_work->id;
                 $photographer_work_source->url = $v['url'];
+                $photographer_work_source->deal_url = $v['url'];//这里需要用七牛技术处理
                 $photographer_work_source->type = $v['type'];
+                $photographer_work_source->origin = $v['origin'];
                 $photographer_work_source->sort = $k + 1;
                 $photographer_work_source->save();
             }
@@ -499,5 +503,94 @@ class MyController extends UserGuardController
         }
 
         return $this->response->array($view_records);
+    }
+
+    /**
+     * 保存pdf
+     * @param UserRequest $request
+     * @return \Dingo\Api\Http\Response|void
+     */
+    public function saveDocPdf(UserRequest $request)
+    {
+        $this->notPhotographerIdentityVerify();
+        $photographer = User::photographer(null, $this->guard);
+        \DB::beginTransaction();//开启事务
+        try {
+            $doc_pdf = DocPdf::create();
+            $doc_pdf->photographer_id = $photographer->id;
+            $doc_pdf->name = $request->name;
+            $doc_pdf->estimate_completion_time = 60;//需要处理
+            foreach ($request->photographer_work_ids as $k => $photographer_work_id) {
+                $doc_pdf_photographer_work = DocPdfPhotographerWork::create();
+                $doc_pdf_photographer_work->doc_pdf_id = $doc_pdf->id;
+                $doc_pdf_photographer_work->photographer_work_id = $photographer_work_id;
+                $doc_pdf_photographer_work->sort = $k;
+                $doc_pdf_photographer_work->save();
+            }
+            sleep(100);//需要处理
+            $doc_pdf->url = '';
+            $doc_pdf->status = 200;
+            $doc_pdf->save();
+            \DB::commit();//提交事务
+
+            return $this->response->noContent();
+        } catch (\Exception $e) {
+            \DB::rollback();//回滚事务
+
+            return $this->response->error($e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * pdf列表
+     * @param UserRequest $request
+     * @return mixed
+     */
+    public function docPdfs(UserRequest $request)
+    {
+        $this->notPhotographerIdentityVerify();
+        $photographer = User::photographer(null, $this->guard);
+        $doc_pdfs = DocPdf::select(DocPdf::allowFields())->where('photographer_id', $photographer->id)->whereIn(
+            'status',
+            [0, 200]
+        )->paginate(
+            $request->pageSize
+        );
+        $doc_pdfs = SystemServer::parsePaginate($doc_pdfs->toArray());
+        $now_time = time();
+        foreach ($doc_pdfs['data'] as $k => $doc_pdf) {
+            if ($doc_pdf['status'] == 0) {
+                $doc_pdfs['data'][$k]['residue_estimate_completion_time'] = $doc_pdf['estimate_completion_time'] - ($now_time - strtotime(
+                            $doc_pdf['created_at']
+                        ));
+                $doc_pdfs['data'][$k]['residue_estimate_completion_time'] = max(
+                    0,
+                    $doc_pdfs['data'][$k]['residue_estimate_completion_time']
+                );
+            } else {
+                $doc_pdfs['data'][$k]['residue_estimate_completion_time'] = 0;
+            }
+        }
+
+        return $this->response->array($doc_pdfs);
+    }
+
+    /**
+     * 获取pdf当前状态
+     * @param UserRequest $request
+     * @return mixed|void
+     */
+    public function getDocPdfStatus(UserRequest $request)
+    {
+        $this->notPhotographerIdentityVerify();
+        $photographer = User::photographer(null, $this->guard);
+        $doc_pdf = DocPdf::select(DocPdf::allowFields())->where(
+            ['photographer_id' => $photographer->id, 'doc_pdf_id' => $request->doc_pdf_id]
+        )->first();
+        if (!$doc_pdf) {
+            return $this->response->error('PDF不存在', 500);
+        }
+
+        return $this->responseParseArray(['status' => $doc_pdf->status]);
     }
 }

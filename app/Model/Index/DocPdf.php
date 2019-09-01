@@ -4,7 +4,7 @@ namespace App\Model\Index;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PhotographerWorkSource extends Model
+class DocPdf extends Model
 {
     /**
      * The attributes that are mass assignable.
@@ -12,14 +12,11 @@ class PhotographerWorkSource extends Model
      * @var array
      */
     protected $fillable = [
-        'photographer_work_id',
+        'photographer_id',
+        'name',
+        'estimate_completion_time',
         'url',
-        'init_size',
-        'deal_url',
-        'deal_size',
-        'type',
-        'origin',
-        'sort',
+        'status',
     ];
 
     /**
@@ -33,17 +30,13 @@ class PhotographerWorkSource extends Model
      * 允许查询的字段
      * @return array
      */
-    public static function allowFields()
-    {
+    public static function allowFields() {
         return [
             'id',
-            'photographer_work_id',
+            'photographer_id',
+            'name',
+            'estimate_completion_time',
             'url',
-            'init_size',
-            'deal_url',
-            'deal_size',
-            'type',
-            'origin',
             'created_at',
         ];
     }

@@ -22,7 +22,7 @@ class CreatePhotographersTable extends Migration
             $table->string('province', 50)->default('')->comment('省份');
             $table->string('city', 50)->default('')->comment('城市');
             $table->string('area', 50)->default('')->comment('地方');
-            $table->string('rank', 50)->default('')->comment('头衔');
+            $table->string('photographer_rank_id', 50)->default('')->comment('头衔id');
             $table->string('wechat', 50)->default('')->comment('微信号');
             $table->string('mobile', 20)->index()->default('')->comment('手机号');
             $table->unsignedSmallInteger('status')->default(0)->comment('状态【0:草稿;200:成功;500:失败】');

@@ -4,21 +4,18 @@ namespace App\Model\Index;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PhotographerWorkSource extends Model
+class VisitorTag extends Model
 {
+    public $timestamps = false;//关闭时间维护
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'photographer_work_id',
-        'url',
-        'init_size',
-        'deal_url',
-        'deal_size',
-        'type',
-        'origin',
+        'id',
+        'name',
         'sort',
     ];
 
@@ -37,14 +34,7 @@ class PhotographerWorkSource extends Model
     {
         return [
             'id',
-            'photographer_work_id',
-            'url',
-            'init_size',
-            'deal_url',
-            'deal_size',
-            'type',
-            'origin',
-            'created_at',
+            'name',
         ];
     }
 }
