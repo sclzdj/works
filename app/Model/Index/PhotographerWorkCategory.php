@@ -41,4 +41,22 @@ class PhotographerWorkCategory extends Model
             'name',
         ];
     }
+
+    /*
+    * 查出所有长辈，顺序从父级到根级
+    * 切记此处返回数据千万不要用静态变量，会出现问题，具体不清楚
+    */
+    public static function elderCategories($id, $data = [])
+    {
+        $category = self::select(self::allowFields())->find($id);
+        if ($category && $category->pid > 0 &&
+            $pCategory = self::select(self::allowFields())->find($category->pid)
+        ) {
+            $data[] = $pCategory->toArray();
+
+            return self::elderCategories($pCategory->id, $data);
+        } else {
+            return $data;
+        }
+    }
 }

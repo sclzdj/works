@@ -41,4 +41,22 @@ class PhotographerRank extends Model
             'name',
         ];
     }
+
+    /*
+    * 查出所有长辈，顺序从父级到根级
+    * 切记此处返回数据千万不要用静态变量，会出现问题，具体不清楚
+    */
+    public static function elderRanks($id, $data = [])
+    {
+        $rank = self::select(self::allowFields())->find($id);
+        if ($rank && $rank->pid > 0 &&
+            $pRank = self::select(self::allowFields())->find($rank->pid)
+        ) {
+            $data[] = $pRank->toArray();
+
+            return self::elderRanks($pRank->id, $data);
+        } else {
+            return $data;
+        }
+    }
 }

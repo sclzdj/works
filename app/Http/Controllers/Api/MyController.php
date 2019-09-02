@@ -123,6 +123,7 @@ class MyController extends UserGuardController
         }
         $photographer = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
         $photographer = SystemServer::parseRegionName($photographer);
+        $photographer = SystemServer::parsePhotographerRank($photographer);
 
         return $this->responseParseArray($photographer);
     }
@@ -138,7 +139,27 @@ class MyController extends UserGuardController
         if (!$photographer || $photographer->status != 200) {
             return $this->response->error('摄影师不存在', 500);
         }
-        $photographer_works = $photographer->photographerWorks()->where(['status' => 200])->paginate(
+        $keywords = $request->keywords;
+        $whereRaw = '1';
+        if (!empty($keywords)) {
+            $whereRaw = "(photographer_works.customer_name like '%{$keywords}%' || photographer_work_customer_industries.name like '%{$keywords}%' || photographer_work_categories.name like '%{$keywords}%' || photographer_work_tags.name like '%{$keywords}%')";
+        }
+        $photographer_works = $photographer->photographerWorks()->select('photographer_works.*')->join(
+            'photographer_work_customer_industries',
+            'photographer_works.photographer_work_customer_industry_id',
+            '=',
+            'photographer_work_customer_industries.id'
+        )->join(
+            'photographer_work_categories',
+            'photographer_works.photographer_work_category_id',
+            '=',
+            'photographer_work_categories.id'
+        )->join(
+            'photographer_work_tags',
+            'photographer_work_tags.photographer_work_id',
+            '=',
+            'photographer_works.id'
+        )->where(['photographer_works.status' => 200])->whereRaw($whereRaw)->paginate(
             $request->pageSize
         );
         $all_tags = [];
@@ -158,6 +179,8 @@ class MyController extends UserGuardController
             ['project_amount', 'sheets_number', 'shooting_duration']
         );
         $photographer_works['data'] = SystemServer::parsePhotographerWorkCover($photographer_works['data']);
+        $photographer_works['data'] = SystemServer::parsePhotographerWorkCustomerIndustry($photographer_works['data']);
+        $photographer_works['data'] = SystemServer::parsePhotographerWorkCategory($photographer_works['data']);
 
         return $this->response->array($photographer_works);
     }
@@ -194,6 +217,8 @@ class MyController extends UserGuardController
             ['project_amount', 'sheets_number', 'shooting_duration']
         );
         $photographer_work = SystemServer::parsePhotographerWorkCover($photographer_work);
+        $photographer_work = SystemServer::parsePhotographerWorkCustomerIndustry($photographer_work);
+        $photographer_work = SystemServer::parsePhotographerWorkCategory($photographer_work);
         $photographer_work['sources'] = $photographer_work_sources;
         $photographer_work['tags'] = $photographer_work_tags;
 
@@ -239,7 +264,7 @@ class MyController extends UserGuardController
             $photographer->province = $request->province;
             $photographer->city = $request->city;
             $photographer->area = $request->area;
-            $photographer->rank = $request->rank;
+            $photographer->photographer_rank_id = $request->photographer_rank_id;
             $photographer->wechat = $request->wechat;
             $photographer->mobile = $request->mobile;
             $photographer->save();
@@ -323,14 +348,14 @@ class MyController extends UserGuardController
                 return $this->response->error('摄影师作品集不存在', 403);
             }
             $photographer_work->customer_name = $request->customer_name;
-            $photographer_work->customer_industry = $request->customer_industry;
+            $photographer_work->photographer_work_customer_industry_id = $request->photographer_work_customer_industry_id;
             $photographer_work->project_amount = $request->project_amount;
             $photographer_work->hide_project_amount = $request->hide_project_amount;
             $photographer_work->sheets_number = $request->sheets_number;
             $photographer_work->hide_sheets_number = $request->hide_sheets_number;
             $photographer_work->shooting_duration = $request->shooting_duration;
             $photographer_work->hide_shooting_duration = $request->hide_shooting_duration;
-            $photographer_work->category = $request->category;
+            $photographer_work->photographer_work_category_id = $request->photographer_work_category_id;
             $photographer_work->save();
             PhotographerWorkTag::where(['photographer_work_id' => $photographer_work->id])->delete();
             if ($request->tags) {
@@ -436,6 +461,7 @@ class MyController extends UserGuardController
                     $photographers[$k]['photographer_work_sources'] = $photographer_work_sources;
                 }
                 $photographers = SystemServer::parseRegionName($photographers);
+                $photographers = SystemServer::parsePhotographerRank($photographers);
             }
             \DB::commit();//提交事务
 
@@ -500,6 +526,7 @@ class MyController extends UserGuardController
                     ->orderBy('photographer_work_sources.created_at', 'desc')->take(3)->get()->toArray();
                 $view_records['data'][$k]['photographer_work_sources'] = $photographer_work_sources;
             }
+            $view_records['data'] = SystemServer::parsePhotographerRank($view_records['data']);
         }
 
         return $this->response->array($view_records);

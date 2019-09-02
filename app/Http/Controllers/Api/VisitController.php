@@ -238,6 +238,7 @@ class VisitController extends UserGuardController
             $visitors['data'][$k]['user'] = User::select(User::allowFields())->where('id', $visitor['user_id'])->first(
             )->toArray();
         }
+        $visitors['data'] = SystemServer::parseVisitorTag($visitors['data']);
 
         return $this->response->array($visitors);
     }
@@ -287,10 +288,9 @@ class VisitController extends UserGuardController
             unset($visitor['unread_count']);
             $visitor['user'] = User::select(User::allowFields())->where('id', $visitor['user_id'])->first()->toArray();
             \DB::commit();//提交事务
+            $visitor = SystemServer::parseVisitorTag($visitor);
 
             return $this->responseParseArray($visitor);
-
-            return $this->response->noContent();
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
 

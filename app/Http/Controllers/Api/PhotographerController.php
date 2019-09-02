@@ -39,6 +39,8 @@ class PhotographerController extends BaseController
         }
         $photographer = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
         $photographer = SystemServer::parseRegionName($photographer);
+        $photographer = SystemServer::parsePhotographerRank($photographer);
+
         return $this->responseParseArray($photographer);
     }
 
@@ -52,7 +54,27 @@ class PhotographerController extends BaseController
         if (!$photographer || $photographer->status != 200) {
             return $this->response->error('摄影师不存在', 500);
         }
-        $photographer_works = $photographer->photographerWorks()->where(['status' => 200])->paginate(
+        $keywords = $request->keywords;
+        $whereRaw = '1';
+        if (!empty($keywords)) {
+            $whereRaw = "(photographer_works.customer_name like '%{$keywords}%' || photographer_work_customer_industries.name like '%{$keywords}%' || photographer_work_categories.name like '%{$keywords}%' || photographer_work_tags.name like '%{$keywords}%')";
+        }
+        $photographer_works = $photographer->photographerWorks()->select('photographer_works.*')->join(
+            'photographer_work_customer_industries',
+            'photographer_works.photographer_work_customer_industry_id',
+            '=',
+            'photographer_work_customer_industries.id'
+        )->join(
+            'photographer_work_categories',
+            'photographer_works.photographer_work_category_id',
+            '=',
+            'photographer_work_categories.id'
+        )->join(
+            'photographer_work_tags',
+            'photographer_work_tags.photographer_work_id',
+            '=',
+            'photographer_works.id'
+        )->where(['photographer_works.status' => 200])->whereRaw($whereRaw)->paginate(
             $request->pageSize
         );
         $all_tags = [];
@@ -72,6 +94,8 @@ class PhotographerController extends BaseController
             $photographer_works['data'][$k]['tags'] = $all_tags[$k];
         }
         $photographer_works['data'] = SystemServer::parsePhotographerWorkCover($photographer_works['data']);
+        $photographer_works['data'] = SystemServer::parsePhotographerWorkCustomerIndustry($photographer_works['data']);
+        $photographer_works['data'] = SystemServer::parsePhotographerWorkCategory($photographer_works['data']);
 
         return $this->response->array($photographer_works);
     }
@@ -106,6 +130,8 @@ class PhotographerController extends BaseController
         $photographer_work = SystemServer::parsePhotographerWorkCover($photographer_work);
         $photographer_work['sources'] = $photographer_work_sources;
         $photographer_work['tags'] = $photographer_work_tags;
+        $photographer_work = SystemServer::parsePhotographerWorkCustomerIndustry($photographer_work);
+        $photographer_work = SystemServer::parsePhotographerWorkCategory($photographer_work);
 
         return $this->response->array($photographer_work);
     }

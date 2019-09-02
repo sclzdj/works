@@ -25,14 +25,14 @@ class PhotographerRequest extends BaseRequest
             case 'savePhotographerWorkStore':
                 $rules = [
                     'customer_name' => 'required|max:50',
-                    'customer_industry' => 'required|max:100',
+                    'photographer_work_customer_industry_id' => 'required|exists:photographer_work_customer_industries,id',
                     'project_amount' => 'required|integer|min:1',
                     'hide_project_amount' => 'required|in:0,1',
                     'sheets_number' => 'required|integer|min:1',
                     'hide_sheets_number' => 'required|in:0,1',
                     'shooting_duration' => 'required|integer|min:1',
                     'hide_shooting_duration' => 'required|in:0,1',
-                    'category' => 'required|max:100',
+                    'photographer_work_category_id' => 'required|exists:photographer_work_categories,id',
                     'tags' => 'array',
                     'tags.*' => 'required|max:50',
                 ];
@@ -43,7 +43,7 @@ class PhotographerRequest extends BaseRequest
                     'province' => 'required|integer',
                     'city' => 'required|integer',
                     'area' => 'required|integer',
-                    'rank' => 'required|max:50',
+                    'photographer_rank_id' => 'required|exists:photographer_ranks,id',
                     'wechat' => 'required|max:50',
                     'mobile' => 'required|regex:/^1\d{10}$/',
                     'sms_code' => 'required',
@@ -93,8 +93,8 @@ class PhotographerRequest extends BaseRequest
                 $messages = [
                     'customer_name.required' => '客户名称不能为空',
                     'customer_name.max' => '客户名称长度最大为50',
-                    'customer_industry.required' => '客户行业不能为空',
-                    'customer_industry.max' => '客户行业长度最大为100',
+                    'photographer_work_customer_industry_id.required' => '客户行业不能为空',
+                    'photographer_work_customer_industry_id.exists' => '客户行业不存在',
                     'project_amount.required' => '项目金额不能为空',
                     'project_amount.integer' => '项目金额必须为整数',
                     'project_amount.min' => '项目金额最小为1元',
@@ -110,7 +110,8 @@ class PhotographerRequest extends BaseRequest
                     'shooting_duration.min' => '拍摄时长最小为1小时',
                     'hide_shooting_duration.required' => '隐藏拍摄时长必须传递',
                     'hide_shooting_duration.in' => '隐藏拍摄时长传递错误',
-                    'category.required' => '分类不能为空',
+                    'photographer_work_category_id.required' => '领域不能为空',
+                    'photographer_work_category_id.exists' => '领域不存在',
                     'tags.array' => '标签必须是数组',
                     'tags.*.required' => '标签名称不能为空',
                     'tags.*.max' => '标签名称长度最大为50',
@@ -126,8 +127,8 @@ class PhotographerRequest extends BaseRequest
                     'city.integer' => '摄影师所在城市必须为数字',
                     'area.required' => '摄影师所在地方必须传递',
                     'area.integer' => '摄影师所在地方必须为数字',
-                    'rank.required' => '摄影师头衔不能为空',
-                    'rank.max' => '摄影师头衔长度最大为50',
+                    'photographer_rank_id.required' => '摄影师头衔不能为空',
+                    'photographer_rank_id.exists' => '摄影师头衔不存在',
                     'wechat.required' => '摄影师微信号不能为空',
                     'wechat.max' => '摄影师微信号长度最大为50',
                     'mobile.required' => '摄影师手机号不能为空',
@@ -167,9 +168,18 @@ class PhotographerRequest extends BaseRequest
     public function scenes()
     {
         return [
-            'savePhotographerWorkSourceStore' => ['POST|App\Http\Controllers\Api\DraftController@registerPhotographerWorkSourceStore','POST|App\Http\Controllers\Api\DraftController@addPhotographerWorkSourceStore'],
-            'savePhotographerWorkStore' => ['POST|App\Http\Controllers\Api\DraftController@registerPhotographerWorkStore','POST|App\Http\Controllers\Api\DraftController@addPhotographerWorkStore'],
-            'savePhotographerStore' => ['POST|App\Http\Controllers\Api\DraftController@registerPhotographerStore','POST|App\Http\Controllers\Api\MyController@savePhotographerInfo'],
+            'savePhotographerWorkSourceStore' => [
+                'POST|App\Http\Controllers\Api\DraftController@registerPhotographerWorkSourceStore',
+                'POST|App\Http\Controllers\Api\DraftController@addPhotographerWorkSourceStore',
+            ],
+            'savePhotographerWorkStore' => [
+                'POST|App\Http\Controllers\Api\DraftController@registerPhotographerWorkStore',
+                'POST|App\Http\Controllers\Api\DraftController@addPhotographerWorkStore',
+            ],
+            'savePhotographerStore' => [
+                'POST|App\Http\Controllers\Api\DraftController@registerPhotographerStore',
+                'POST|App\Http\Controllers\Api\MyController@savePhotographerInfo',
+            ],
             'photographerInfo' => ['GET|App\Http\Controllers\Api\PhotographerController@info'],
             'photographerWorks' => ['GET|App\Http\Controllers\Api\PhotographerController@works'],
             'photographerWork' => ['GET|App\Http\Controllers\Api\PhotographerController@work'],

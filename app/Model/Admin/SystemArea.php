@@ -159,8 +159,6 @@ class SystemArea extends Model
         } else {
             return $data;
         }
-
-
     }
 
     /**

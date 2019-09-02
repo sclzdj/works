@@ -88,6 +88,8 @@ class DraftController extends UserGuardController
             ['project_amount', 'sheets_number', 'shooting_duration']
         );
         $photographer_work['tags'] = $photographer_work_tags;
+        $photographer_work = SystemServer::parsePhotographerWorkCustomerIndustry($photographer_work);
+        $photographer_work = SystemServer::parsePhotographerWorkCategory($photographer_work);
 
         return $this->responseParseArray($photographer_work);
     }
@@ -106,14 +108,14 @@ class DraftController extends UserGuardController
                 ['status' => 0]
             )->first();
             $photographer_work->customer_name = $request->customer_name;
-            $photographer_work->customer_industry = $request->customer_industry;
+            $photographer_work->photographer_work_customer_industry_id = $request->photographer_work_customer_industry_id;
             $photographer_work->project_amount = $request->project_amount;
             $photographer_work->hide_project_amount = $request->hide_project_amount;
             $photographer_work->sheets_number = $request->sheets_number;
             $photographer_work->hide_sheets_number = $request->hide_sheets_number;
             $photographer_work->shooting_duration = $request->shooting_duration;
             $photographer_work->hide_shooting_duration = $request->hide_shooting_duration;
-            $photographer_work->category = $request->category;
+            $photographer_work->photographer_work_category_id = $request->photographer_work_category_id;
             $photographer_work->save();
             PhotographerWorkTag::where(['photographer_work_id' => $photographer_work->id])->delete();
             if ($request->tags) {
@@ -144,6 +146,7 @@ class DraftController extends UserGuardController
         $photographer = User::photographer(null, $this->guard);
         $photographer = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
         $photographer = SystemServer::parseRegionName($photographer);
+        $photographer = SystemServer::parsePhotographerRank($photographer);
 
         return $this->responseParseArray($photographer);
 
@@ -187,7 +190,7 @@ class DraftController extends UserGuardController
             $photographer->province = $request->province;
             $photographer->city = $request->city;
             $photographer->area = $request->area;
-            $photographer->rank = $request->rank;
+            $photographer->photographer_rank_id = $request->photographer_rank_id;
             $photographer->wechat = $request->wechat;
             $photographer->mobile = $request->mobile;
             $photographer->status = 200;
@@ -246,6 +249,7 @@ class DraftController extends UserGuardController
                 $photographer_work = PhotographerWork::create();
                 $photographer_work->photographer_id = $photographer->id;
             }
+            $photographer_work->save();
             PhotographerWorkSource::where(['photographer_work_id' => $photographer_work->id])->delete();
             foreach ($request->sources as $k => $v) {
                 $photographer_work_source = PhotographerWorkSource::create();
@@ -293,6 +297,8 @@ class DraftController extends UserGuardController
             }
             $photographer_work['tags'] = [];
         }
+        $photographer_work = SystemServer::parsePhotographerWorkCustomerIndustry($photographer_work);
+        $photographer_work = SystemServer::parsePhotographerWorkCategory($photographer_work);
 
         return $this->responseParseArray($photographer_work);
     }
@@ -316,15 +322,14 @@ class DraftController extends UserGuardController
                 $photographer_work->photographer_id = $photographer->id;
             }
             $photographer_work->customer_name = $request->customer_name;
-            $photographer_work->customer_industry = $request->customer_industry;
+            $photographer_work->photographer_work_customer_industry_id = $request->photographer_work_customer_industry_id;
             $photographer_work->project_amount = $request->project_amount;
             $photographer_work->hide_project_amount = $request->hide_project_amount;
             $photographer_work->sheets_number = $request->sheets_number;
             $photographer_work->hide_sheets_number = $request->hide_sheets_number;
             $photographer_work->shooting_duration = $request->shooting_duration;
             $photographer_work->hide_shooting_duration = $request->hide_shooting_duration;
-            $photographer_work->category = $request->category;
-            $photographer_work->status = 200;
+            $photographer_work->photographer_work_category_id = $request->photographer_work_category_id;
             $photographer_work->save();
             PhotographerWorkTag::where(['photographer_work_id' => $photographer_work->id])->delete();
             if ($request->tags) {

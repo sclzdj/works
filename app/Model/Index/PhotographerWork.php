@@ -14,14 +14,14 @@ class PhotographerWork extends Model
     protected $fillable = [
         'photographer_id',
         'customer_name',
-        'customer_industry',
+        'photographer_work_customer_industry_id',
         'project_amount',
         'hide_project_amount',
         'sheets_number',
         'hide_sheets_number',
         'shooting_duration',
         'hide_shooting_duration',
-        'category',
+        'photographer_work_category_id',
         'status',
     ];
 
@@ -41,14 +41,14 @@ class PhotographerWork extends Model
             'id',
             'photographer_id',
             'customer_name',
-            'customer_industry',
+            'photographer_work_customer_industry_id',
             'project_amount',
             'hide_project_amount',
             'sheets_number',
             'hide_sheets_number',
             'shooting_duration',
             'hide_shooting_duration',
-            'category',
+            'photographer_work_category_id',
             'created_at',
         ];
     }

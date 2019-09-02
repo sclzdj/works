@@ -3,9 +3,13 @@
 namespace App\Servers;
 
 use App\Model\Admin\SystemArea;
+use App\Model\Index\PhotographerRank;
 use App\Model\Index\PhotographerWork;
+use App\Model\Index\PhotographerWorkCategory;
+use App\Model\Index\PhotographerWorkCustomerIndustry;
 use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\SmsCode;
+use App\Model\Index\VisitorTag;
 
 class SystemServer
 {
@@ -143,6 +147,139 @@ class SystemServer
                             )->orderBy('sort', 'asc')->first()->toArray();
                             $data['cover'] = $photographer_work_source;
                         }
+                    }
+                    break;
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * 格式化作品集客户行业数据
+     * @param $data
+     * @param bool $random
+     * @return mixed
+     */
+    public static function parsePhotographerWorkCustomerIndustry($data)
+    {
+        foreach ($data as $k => $v) {
+            if (is_array($v)) {
+                $data[$k] = self::parsePhotographerWorkCustomerIndustry($v);
+            } else {
+                if ($k == 'photographer_work_customer_industry_id' && !isset($data['photographer_work_customer_industry'])) {
+                    $customerIndustry = PhotographerWorkCustomerIndustry::select(
+                        PhotographerWorkCustomerIndustry::allowFields()
+                    )->where(['id' => $data['photographer_work_customer_industry_id']])->first();
+                    $data['photographer_work_customer_industry'] = [];
+                    if ($customerIndustry) {
+                        $customerIndustry = $customerIndustry->toArray();
+                        $data['photographer_work_customer_industry'] = PhotographerWorkCustomerIndustry::elderCustomerIndustries(
+                            $data['photographer_work_customer_industry_id']
+                        );
+                        array_unshift($data['photographer_work_customer_industry'], $customerIndustry);
+                        $data['photographer_work_customer_industry'] = array_reverse(
+                            $data['photographer_work_customer_industry']
+                        );
+                    }
+                    break;
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * 格式化作品集分类数据
+     * @param $data
+     * @param bool $random
+     * @return mixed
+     */
+    public static function parsePhotographerWorkCategory($data)
+    {
+        foreach ($data as $k => $v) {
+            if (is_array($v)) {
+                $data[$k] = self::parsePhotographerWorkCategory($v);
+            } else {
+                if ($k == 'photographer_work_category_id' && !isset($data['photographer_work_category'])) {
+                    $category = PhotographerWorkCategory::select(
+                        PhotographerWorkCategory::allowFields()
+                    )->where(['id' => $data['photographer_work_category_id']])->first();
+                    $data['photographer_work_category'] = [];
+                    if ($category) {
+                        $category = $category->toArray();
+                        $data['photographer_work_category'] = PhotographerWorkCategory::elderCategories(
+                            $data['photographer_work_category_id']
+                        );
+                        array_unshift($data['photographer_work_category'], $category);
+                        $data['photographer_work_category'] = array_reverse(
+                            $data['photographer_work_category']
+                        );
+                    }
+                    break;
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * 格式化作品集分类数据
+     * @param $data
+     * @param bool $random
+     * @return mixed
+     */
+    public static function parsePhotographerRank($data)
+    {
+        foreach ($data as $k => $v) {
+            if (is_array($v)) {
+                $data[$k] = self::parsePhotographerRank($v);
+            } else {
+                if ($k == 'photographer_rank_id' && !isset($data['photographer_rank'])) {
+                    $rank = PhotographerRank::select(
+                        PhotographerRank::allowFields()
+                    )->where(['id' => $data['photographer_rank_id']])->first();
+                    $data['photographer_rank'] = [];
+                    if ($rank) {
+                        $rank = $rank->toArray();
+                        $data['photographer_rank'] = PhotographerRank::elderRanks(
+                            $data['photographer_rank_id']
+                        );
+                        array_unshift($data['photographer_rank'], $rank);
+                        $data['photographer_rank'] = array_reverse(
+                            $data['photographer_rank']
+                        );
+                    }
+                    break;
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * 格式化访客标签数据
+     * @param $data
+     * @param bool $random
+     * @return mixed
+     */
+    public static function parseVisitorTag($data)
+    {
+        foreach ($data as $k => $v) {
+            if (is_array($v)) {
+                $data[$k] = self::parseVisitorTag($v);
+            } else {
+                if ($k == 'visitor_tag_id' && !isset($data['visitor_tag'])) {
+                    $tag = VisitorTag::select(
+                        VisitorTag::allowFields()
+                    )->where(['id' => $data['visitor_tag_id']])->first();
+                    $data['visitor_tag'] = [];
+                    if ($tag) {
+                        $data['visitor_tag'] = $tag->toArray();
                     }
                     break;
                 }

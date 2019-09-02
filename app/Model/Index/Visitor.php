@@ -15,7 +15,7 @@ class Visitor extends Model
         'photographer_id',
         'user_id',
         'is_remind',
-        'tag',
+        'visitor_tag_id',
         'unread_count',
     ];
 
@@ -39,7 +39,7 @@ class Visitor extends Model
             'photographer_id',
             'user_id',
             'is_remind',
-            'tag',
+            'visitor_tag_id',
             'unread_count',
             'created_at',
         ];
