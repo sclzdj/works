@@ -108,7 +108,6 @@ class LoginController extends Controller
     {
         $request->session()->regenerate();
         $this->clearLoginAttempts($request);
-
         return $this->authenticated($request, $this->guard()->user()) ?:
             ($request->ajax() ?
                 response()->json([

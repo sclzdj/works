@@ -34,6 +34,18 @@ class SystemRequest extends BaseRequest
                     'city_id' => 'required|integer',
                 ];
                 break;
+            case 'baiduOauthStore':
+                $rules = [
+                    'user_id' => 'required|integer|exists:users,id',
+                    'access_token' => 'required',
+                    'expires_in' => 'required|integer',
+                ];
+                break;
+            case 'baiduDownAndUpQiniu':
+                $rules = [
+                    'fsids' => 'required|array|min:1|max:18',
+                ];
+                break;
         }
 
         return $rules;
@@ -70,6 +82,27 @@ class SystemRequest extends BaseRequest
                     'city_id.integer' => '城市id必须为数字',
                 ];
                 break;
+            case 'baiduOauthStore':
+                $messages = [
+                    'user_id.required' => '用户id必须传递',
+                    'user_id.integer' => '用户id必须为数字',
+                    'user_id.exists' => '用户不存在',
+                    'access_token.required' => 'access_token必须传递',
+                    'expires_in.required' => 'expires_in必须传递',
+                    'expires_in.integer' => 'expires_in必须为数字',
+                ];
+                break;
+            case 'baiduDownAndUpQiniu':
+                $rules = [
+                    'fsids' => 'required|array|min:1|max:18',
+                ];
+                $messages = [
+                    'fsids.required' => '网盘文件id不能为空',
+                    'fsids.array' => '网盘文件id必须是数组',
+                    'fsids.min' => '网盘文件id至少1个',
+                    'fsids.max' => '网盘文件id至多18个',
+                ];
+                break;
         }
 
         return $messages;
@@ -87,6 +120,8 @@ class SystemRequest extends BaseRequest
             'getHelpNotes' => ['GET|App\Http\Controllers\Api\SystemController@getHelpNotes'],
             'getCitys' => ['GET|App\Http\Controllers\Api\SystemController@getCitys'],
             'getAreas' => ['GET|App\Http\Controllers\Api\SystemController@getAreas'],
+            'baiduOauthStore' => ['POST|App\Http\Controllers\Api\SystemController@baiduOauthStore'],
+            'baiduDownAndUpQiniu' => ['POST|App\Http\Controllers\Api\BaiduController@downAndUpQiniu'],
         ];
     }
 }

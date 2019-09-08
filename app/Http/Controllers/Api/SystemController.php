@@ -11,6 +11,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\Index\SystemRequest;
 use App\Http\Requests\Index\UserRequest;
 use App\Model\Admin\SystemArea;
+use App\Model\Index\BaiduOauth;
 use App\Model\Index\HelpNote;
 use App\Model\Index\Photographer;
 use App\Model\Index\PhotographerRank;
@@ -232,5 +233,33 @@ class SystemController extends BaseController
 
 
         return $this->responseParseArray($ranks);
+    }
+
+    /**
+     * 保存百度授权状态
+     * @return mixed
+     */
+    public function baiduOauthStore(SystemRequest $request)
+    {
+        \DB::beginTransaction();//开启事务
+        try {
+            $expires_in = $request->expires_in;
+            $expired_at = date('Y-m-d H:i:s', time() + $expires_in);
+            $baidu_oauth = BaiduOauth::where(['user_id' => $request->user_id])->first();
+            if (!$baidu_oauth) {
+                $baidu_oauth = BaiduOauth::create();
+                $baidu_oauth->user_id = $request->user_id;
+            }
+            $baidu_oauth->access_token = $request->access_token;
+            $baidu_oauth->expired_at = $expired_at;
+            $baidu_oauth->save();
+            \DB::commit();//提交事务
+
+            return $this->response->noContent();
+        } catch (\Exception $e) {
+            \DB::rollback();//回滚事务
+
+            return $this->response->error($e->getMessage(), 500);
+        }
     }
 }

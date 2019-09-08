@@ -14,7 +14,8 @@
 //Route::get('/', function () {
 //    return view('welcome');
 //});
-
+/*授权*/
+Route::get('/oauth/baidu/pan', 'Index\Oauth\BaiduController@pan');
 /**后台**/
 //重置路由跳回自己的首页
 Route::get('/', 'Admin\Auth\LoginController@showLoginForm');

@@ -56,6 +56,7 @@ $api->version('v1',['namespace'=>'\App\Http\Controllers\Api'],function ($api){
         $api->get('my/photographerInfo', 'MyController@photographerInfo');
         $api->get('my/photographerWorks', 'MyController@photographerWorks');
         $api->get('my/photographerWork', 'MyController@photographerWork');
+        $api->delete('my/photographerWork', 'MyController@photographerWorkDelete');
         $api->get('my/identity', 'MyController@identity');
         $api->get('my/addPhotographerWork', 'DraftController@addPhotographerWork');
         $api->Post('my/addPhotographerWork', 'DraftController@addPhotographerWorkStore');
@@ -90,6 +91,13 @@ $api->version('v1',['namespace'=>'\App\Http\Controllers\Api'],function ($api){
         $api->post('pdf/save', 'MyController@saveDocPdf');
         $api->get('pdf/list', 'MyController@docPdfs');
         $api->get('pdf/getStatus', 'MyController@getDocPdfStatus');
+        $api->delete('pdf/one', 'MyController@docPdfDelete');
+        //百度网盘
+        $api->get('baidu/oauth', 'BaiduController@getOauth');
+        $api->post('baidu/oauth', 'SystemController@baiduOauthStore');
+        $api->get('baidu/fileList', 'BaiduController@getFileList');
+        $api->get('baidu/fileSearch', 'BaiduController@getFileSearch');
+        $api->post('baidu/downAndUpQiniu', 'BaiduController@downAndUpQiniu');
     });
 });
 

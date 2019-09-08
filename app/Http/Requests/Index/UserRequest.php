@@ -48,7 +48,7 @@ class UserRequest extends BaseRequest
             case 'savePhotographerWorkInfo':
                 $rules = [
                     'photographer_work_id' => 'required|integer',
-                    'sources' => 'required|array|min:1',
+                    'sources' => 'required|array|min:1|max:18',
                     'sources.*.url' => 'required',
                     'sources.*.type' => 'required|in:image,video',
                     'customer_name' => 'required|max:50',
@@ -135,6 +135,7 @@ class UserRequest extends BaseRequest
                     'sources.required' => '资源不能为空',
                     'sources.array' => '资源必须是数组',
                     'sources.min' => '资源至少1个',
+                    'sources.max' => '资源至少18个',
                     'sources.*.url.required' => '资源url不能为空',
                     'sources.*.type.required' => '资源类型不能为空',
                     'sources.*.type.in' => '资源类型错误',
@@ -202,14 +203,14 @@ class UserRequest extends BaseRequest
             'login' => ['POST|App\Http\Controllers\Api\LoginController@login'],
             'save_info' => ['POST|App\Http\Controllers\Api\MyController@saveInfo'],
             'photographerWorks' => ['GET|App\Http\Controllers\Api\MyController@photographerWorks'],
-            'photographerWork' => ['GET|App\Http\Controllers\Api\MyController@photographerWork'],
+            'photographerWork' => ['GET|App\Http\Controllers\Api\MyController@photographerWork','DELETE|App\Http\Controllers\Api\MyController@photographerWorkDelete'],
             'savePhotographerAvatar' => ['POST|App\Http\Controllers\Api\MyController@savePhotographerAvatar'],
             'savePhotographerBgImg' => ['POST|App\Http\Controllers\Api\MyController@savePhotographerBgImg'],
             'savePhotographerWorkInfo' => ['POST|App\Http\Controllers\Api\MyController@savePhotographerWorkInfo'],
             'viewRecords' => ['GET|App\Http\Controllers\Api\MyController@viewRecords'],
             'saveDocPdf' => ['POST|App\Http\Controllers\Api\MyController@saveDocPdf'],
             'docPdfs' => ['GET|App\Http\Controllers\Api\MyController@docPdfs'],
-            'getDocPdfStatus' => ['GET|App\Http\Controllers\Api\MyController@getDocPdfStatus'],
+            'getDocPdfStatus' => ['GET|App\Http\Controllers\Api\MyController@getDocPdfStatus','DELETE|App\Http\Controllers\Api\MyController@docPdfDelete'],
         ];
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Servers\SystemServer;
 use Dingo\Api\Routing\Helpers;
 
 class BaseController extends Controller
@@ -33,12 +34,11 @@ class BaseController extends Controller
             'appid' => config('custom.wechat.mp.appid'),
             'secret' => config('custom.wechat.mp.secret'),
             'js_code' => $js_code,
-            'grant_type' => 'authorization_code'
+            'grant_type' => 'authorization_code',
         ];
-        $url .= '?' . http_build_query($data);
-        $response = $this->_request('GET', $url);
+        $response = $this->_request('GET', $url, $data);
         if (isset($response['errcode']) && $response['errcode'] != 0) {
-            return $this->response->error('微信接口报错：' . $response['errmsg'], 500);
+            return $this->response->error('微信接口报错：'.$response['errmsg'], 500);
         }
 
         return $response;
@@ -55,52 +55,13 @@ class BaseController extends Controller
      *
      * @return   返回请求结果
      */
-    protected function _request($type, $url, $data = [], $ssl = true)
+    protected function _request($type, $url, $data = [], $ssl = true, $headers = [])
     {
-        //提交方式
-        if ($type != 'get' && $type != 'GET' && $type != 'post' &&
-            $type != 'POST'
-        ) {
-            return $this->response->error('curl parameter error', 500);
-        }
-        //请求数据处理
-        if (is_array($data)) {
-            $data = json_encode($data);
-        }
-        //curl完成
-        $curl = curl_init();
-        //设置curl选项
-        curl_setopt($curl, CURLOPT_URL, $url);//请求url
-        $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ?
-            $_SERVER['HTTP_USER_AGENT'] :
-            'HTTP_USER_AGENT_' . $data;//配置代理信息
-        curl_setopt($curl, CURLOPT_USERAGENT, $user_agent);//请求代理信息
-        curl_setopt($curl, CURLOPT_AUTOREFERER, true);//referer头，请求来源
-        curl_setopt($curl, CURLOPT_TIMEOUT, 60);//设置请求时间
-        curl_setopt($curl, CURLOPT_FOLLOWLOCATION,
-                    true);//允许请求的链接跳转，可以抓取重定向的链接内容
-        //SSL相关
-        if ($ssl) {
-            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER,
-                        false);//禁用后curl将终止从服务端进行验证
-            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);//检查服务器SSL证书中是否存在一个。。
-        }
-        //post请求相关
-        if ($type == 'post' || $type == 'POST') {
-            curl_setopt($curl, CURLOPT_POST, true);//是否为post请求
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);//处理post请求数据
-        }
-        //处理响应结果
-        curl_setopt($curl, CURLOPT_HEADER, false);//是否处理响应头
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);//curl_exec()是否返回响应结果
-
-        //发出请求
-        $response = curl_exec($curl);
-        $code = curl_errno($curl);
-        if ($code !== 0) {
-            return $this->response->error('curl request error', 500);
+        $response = SystemServer::request($type, $url, $data, $ssl, $headers);
+        if ($response['code'] != 200) {
+            return $this->response->error($response['msg'], $response['code']);
         } else {
-            return json_decode($response, true);
+            return $response['data'];
         }
     }
 }
