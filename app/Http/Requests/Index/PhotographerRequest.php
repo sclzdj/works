@@ -18,6 +18,7 @@ class PhotographerRequest extends BaseRequest
             case 'savePhotographerWorkSourceStore':
                 $rules = [
                     'sources' => 'required|array|min:1|max:18',
+                    'sources.*.key' => 'required',
                     'sources.*.url' => 'required',
                     'sources.*.type' => 'required|in:image,video',
                 ];
@@ -85,6 +86,7 @@ class PhotographerRequest extends BaseRequest
                     'sources.array' => '资源必须是数组',
                     'sources.min' => '资源至少1个',
                     'sources.max' => '资源至多18个',
+                    'sources.*.key.required' => '资源key不能为空',
                     'sources.*.url.required' => '资源url不能为空',
                     'sources.*.type.required' => '资源类型不能为空',
                     'sources.*.type.in' => '资源类型错误',

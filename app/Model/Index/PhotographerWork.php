@@ -22,6 +22,7 @@ class PhotographerWork extends Model
         'shooting_duration',
         'hide_shooting_duration',
         'photographer_work_category_id',
+        'roof',
         'status',
     ];
 
@@ -36,7 +37,8 @@ class PhotographerWork extends Model
      * 允许查询的字段
      * @return array
      */
-    public static function allowFields() {
+    public static function allowFields()
+    {
         return [
             'id',
             'photographer_id',

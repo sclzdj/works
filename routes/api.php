@@ -97,7 +97,12 @@ $api->version('v1',['namespace'=>'\App\Http\Controllers\Api'],function ($api){
         $api->post('baidu/oauth', 'SystemController@baiduOauthStore');
         $api->get('baidu/fileList', 'BaiduController@getFileList');
         $api->get('baidu/fileSearch', 'BaiduController@getFileSearch');
+        $api->post('baidu/downAndUpQiniuVerify', 'BaiduController@downAndUpQiniuVerify');
         $api->post('baidu/downAndUpQiniu', 'BaiduController@downAndUpQiniu');
+        //七牛
+        $api->get('qiniu/getParams', 'QiniuController@getParams');
+        //通知
+        $api->post('notify/qiniu/fop', 'Notify\QiniuController@fop');
     });
 });
 

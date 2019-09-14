@@ -24,7 +24,7 @@ class CreateAsyncDocPdfMakesTable extends Migration
                 $table->timestamps();
             }
         );
-        DB::statement("ALTER TABLE `async_baidu_work_uploads` COMMENT '前台：异步PDF生成'"); // 表注释
+        DB::statement("ALTER TABLE `async_doc_pdf_makes` COMMENT '前台：异步PDF生成'"); // 表注释
     }
 
     /**

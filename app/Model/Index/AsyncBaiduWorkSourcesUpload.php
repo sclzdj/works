@@ -4,7 +4,7 @@ namespace App\Model\Index;
 
 use Illuminate\Database\Eloquent\Model;
 
-class AsyncBaiduWorkUpload extends Model
+class AsyncBaiduWorkSourcesUpload extends Model
 {
     /**
      * The attributes that are mass assignable.
@@ -14,7 +14,6 @@ class AsyncBaiduWorkUpload extends Model
     protected $fillable = [
         'user_id',
         'photographer_work_id',
-        'dlink',
         'status',
     ];
 
@@ -35,7 +34,6 @@ class AsyncBaiduWorkUpload extends Model
             'id',
             'user_id',
             'photographer_work_id',
-            'dlink',
             'status',
             'created_at',
         ];

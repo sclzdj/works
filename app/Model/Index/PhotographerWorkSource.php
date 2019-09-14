@@ -13,12 +13,18 @@ class PhotographerWorkSource extends Model
      */
     protected $fillable = [
         'photographer_work_id',
+        'key',
         'url',
         'init_size',
+        'deal_key',
         'deal_url',
         'deal_size',
+        'rich_key',
+        'rich_url',
+        'rich_size',
         'type',
         'origin',
+        'status',
         'sort',
     ];
 
@@ -38,8 +44,15 @@ class PhotographerWorkSource extends Model
         return [
             'id',
             'photographer_work_id',
+            'key',
             'url',
+            'init_size',
+            'deal_key',
             'deal_url',
+            'deal_size',
+            'rich_key',
+            'rich_url',
+            'rich_size',
             'type',
             'origin',
             'created_at',

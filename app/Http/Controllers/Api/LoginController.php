@@ -10,6 +10,7 @@ namespace App\Http\Controllers\Api;
 
 
 use App\Http\Controllers\Api\Auth\UserGuardController;
+use App\Http\Requests\Index\SystemRequest;
 use App\Http\Requests\Index\UserRequest;
 use App\Model\Index\User;
 
@@ -27,27 +28,29 @@ class LoginController extends UserGuardController
      *
      * @return mixed|void
      */
-    public function mpLogin()
+    public function mpLogin(UserRequest $request)
     {
-//                $data = $this->_wxCode2Session($request->code);
-        $data = [
-            "session_key" => 'TKg5Edd10SeX1Po+NH2y3A1==',
-            'openid' => 'oOR6g5uTkJKvRvo2g2kJoTzNals1'
-        ];
+          $data = $this->_wxCode2Session($request->code);
+//        $data = [
+//            "session_key" => 'TKg5Edd10SeX1Po+NH2y3A1==',
+//            'openid' => 'oOR6g5uTkJKvRvo2g2kJoTzNals1',
+//        ];
 
         \DB::beginTransaction();//开启事务
         try {
             $user = User::where(['openid' => $data['openid']])->first();
             if (!$user) {
                 $user = User::create();
-                $name = 'works_' . str_random(10);
+                $name = 'works_'.str_random(10);
                 $user->username = $name;
                 $user->password = bcrypt('works123456');
                 $user->nickname = $name;
                 $user->remember_token = str_random(10);
                 $user->openid = $data['openid'];
-                $userPresetCreate=User::presetCreate();
-                $user->photographer_id=$userPresetCreate['photographer_id'];
+                $userPresetCreate = User::presetCreate();
+                $user->photographer_id = $userPresetCreate['photographer_id'];
+                $xacode = User::createXacode($userPresetCreate['photographer_id']);
+                $user->xacode = $xacode;
             }
             $user->session_key = $data['session_key'];
             $user->save();
@@ -74,7 +77,7 @@ class LoginController extends UserGuardController
      */
     public function login(UserRequest $request)
     {
-        $data = ['username'=>$request->username, 'password'=>$request->password];
+        $data = ['username' => $request->username, 'password' => $request->password];
         if (!$token = auth($this->guard)->attempt($data)) {
             return $this->response->error('帐号或密码错误', 422);
         }

@@ -11,6 +11,8 @@ use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\SmsCode;
 use App\Model\Index\VisitorTag;
 use Qiniu\Auth;
+use Qiniu\Config;
+use Qiniu\Processing\PersistentFop;
 use Qiniu\Storage\UploadManager;
 use function GuzzleHttp\Psr7\build_query;
 
@@ -378,8 +380,9 @@ class SystemServer
     /**
      * 百度网盘下载传七牛
      */
-    static public function baiduPanDownAndUpQiniu($access_token, $dlink)
+    static public function baiduPanDownAndUpQiniu($access_token, $dlink, $bucket, $category = null, $size = null)
     {
+        $d_t = SystemServer::getMicrotime();
         $response = SystemServer::request(
             'GET',
             $dlink,
@@ -391,29 +394,132 @@ class SystemServer
                 'User-Agent' => 'pan.baidu.com',
             ]
         );
+        $d_t = SystemServer::getMicrotime() - $d_t;
+        $log = json_encode(
+                [
+                    'type' => 'download',
+                    'category' => $category,
+                    'size' => ($size / 1000).'KB',
+                    'used_time' => $d_t,
+                    'log_time' => date('Y-m-d H:i:s'),
+                ]
+            ).PHP_EOL;
         if ($response['code'] == 200) {
             // 用于签名的公钥和私钥
-            $accessKey = '-ME5kiUE5Jha3zH2ipAY89oGSh4sCAacyXpAgFsE';
-            $secretKey = 'Sm_gSAPnP5nlNxuSGBwduFaN4nI5sA4lFGp9vTi-';
+            $accessKey = config('custom.qiniu.accessKey');
+            $secretKey = config('custom.qiniu.secretKey');
             // 初始化签权对象
             $auth = new Auth($accessKey, $secretKey);
-            $bucket = 'zuopin';
             // 生成上传Token
             $upToken = $auth->uploadToken($bucket);
             // 构建 UploadManager 对象
             $uploadMgr = new UploadManager();
-            $r = $uploadMgr->put(
+            $u_t = SystemServer::getMicrotime();
+            list($ret, $err) = $uploadMgr->put(
                 $upToken,
                 null,
-                $response['data'],
-                null,
-                $mime = 'application/octet-stream',
-                null
+                $response['data']
+            );
+            unset($response);
+            unset($uploadMgr);
+            $u_t = SystemServer::getMicrotime() - $u_t;
+            $log .= json_encode(
+                    [
+                        'type' => 'upload',
+                        'category' => $category,
+                        'size' => ($size / 1000).'KB',
+                        'used_time' => $u_t,
+                        'log_time' => date('Y-m-d H:i:s'),
+                    ]
+                ).PHP_EOL;
+            SystemServer::filePutContents(
+                './logs/baidu_down_and_up_qiniu/'.date('Y-m-d').'/'.date('H').'.log',
+                $log.PHP_EOL
+            );
+            if (!empty($err)) {
+                return ['code' => 500, 'msg' => $err['response']['error']];
+            }
+
+            return ['code' => 200, 'msg' => 'ok', 'data' => $ret];
+        } else {
+            SystemServer::filePutContents(
+                './logs/baidu_down_and_up_qiniu/'.date('Y-m-d').'/'.date('H').'.log',
+                $log.PHP_EOL
             );
 
-            return ['code' => 200, 'msg' => 'ok', 'data' => $r];
-        } else {
             return $response;
         }
+    }
+
+    /**
+     * 获取当前格式化后的毫秒时间戳
+     * @return
+     */
+    static public function getMicrotime()
+    {
+        $microtime = explode(' ', microtime());
+        $microtime = $microtime[1] + $microtime[0];
+
+        return $microtime;
+    }
+
+    /**
+     * 添加记录
+     * @param $filename
+     * @param $data
+     * @param int $flags
+     * @param null $context
+     * @return bool|int
+     */
+    static public function filePutContents($filename, $data, $flags = FILE_APPEND, $context = null)
+    {
+        $files = explode('/', $filename);
+        $newFiles = [];
+        foreach ($files as $k => $file) {
+            if ($file !== '') {
+                $newFiles[] = $file;
+            }
+        }
+        $filename = implode('/', $newFiles);
+        if (count($newFiles) > 1) {
+            unset($newFiles[count($newFiles) - 1]);
+            $dir = implode('/', $newFiles);
+            if (!is_dir($dir)) {
+                mkdir($dir, 0777, true);
+            }
+        }
+
+        return file_put_contents($filename, $data, $flags, $context);
+    }
+
+    /**
+     * 七牛持久化
+     * @param $key
+     * @param $fops
+     * @param $pipeline
+     * @param $notifyUrl
+     * @param $useHTTPS
+     */
+    static public function qiniuPfop($bucket, $key, $fops, $pipeline, $notifyUrl, $useHTTPS = true, $force = true)
+    {
+        $accessKey = config('custom.qiniu.accessKey');
+        $secretKey = config('custom.qiniu.secretKey');
+        $config = new Config();
+        if ($useHTTPS) {
+            $config->useHTTPS = true;
+        }
+        $auth = new Auth($accessKey, $secretKey);
+        $pfop = new PersistentFop($auth, $config);
+        //查询转码的进度和状态
+//        list($ret, $err) = $pfop->status('z2.0A2C241D596D180E535D7C7984911E01');
+//        echo "\n====> pfop avthumb status: \n";
+//        if ($err != null) {
+//            var_dump($err);
+//        } else {
+//            var_dump($ret);
+//        }
+//        dd('214');
+        list($id, $err) = $pfop->execute($bucket, $key, $fops, $pipeline, $notifyUrl, $force);
+        return compact('id', 'err');
     }
 }

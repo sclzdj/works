@@ -118,7 +118,7 @@ class PhotographerController extends BaseController
         }
         $photographer_work_sources = $photographer_work->photographerWorkSources()->select(
             PhotographerWorkSource::allowFields()
-        )->orderBy('sort', 'asc')->get()->toArray();
+        )->where('status', 200)->orderBy('sort', 'asc')->get()->toArray();
         $photographer_work_tags = $photographer_work->photographerWorkTags()->select(
             PhotographerWorkTag::allowFields()
         )->get()->toArray();

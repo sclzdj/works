@@ -10,15 +10,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\Auth\UserGuardController;
 use App\Http\Requests\Index\SystemRequest;
-use App\Jobs\AsyncBaiduWorkUploadJob;
-use App\Model\Index\AsyncBaiduWorkUpload;
+use App\Jobs\AsyncBaiduWorkSourcesUploadJob;
+use App\Model\Index\AsyncBaiduWorkSourcesUpload;
+use App\Model\Index\AsyncBaiduWorkSourceUpload;
 use App\Model\Index\BaiduOauth;
 use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\User;
 use App\Servers\SystemServer;
-use Intervention\Image\Facades\Image;
-use Qiniu\Auth;
-use Qiniu\Storage\UploadManager;
 
 /**
  * 百度网盘通用
@@ -71,10 +69,10 @@ class BaiduController extends UserGuardController
     }
 
     /**
-     * 网盘中下载并上传到七牛
+     * 网盘中下载并上传到七牛验证
      * @return \Dingo\Api\Http\Response|void
      */
-    public function downAndUpQiniu(SystemRequest $request)
+    public function downAndUpQiniuVerify(SystemRequest $request)
     {
         \DB::beginTransaction();//开启事务
         try {
@@ -100,30 +98,14 @@ class BaiduController extends UserGuardController
                 true
             );
             if ($response['errno'] === 0) {
-                foreach ($response['list'] as $file) {
-                    if ($file['category'] != 3 && $file['category'] != 1) {
-                        \DB::rollback();//回滚事务
+                if (count($response['list']) > 0) {
+                    foreach ($response['list'] as $file) {
+                        if ($file['category'] != 3 && $file['category'] != 1) {
+                            \DB::rollback();//回滚事务
 
-                        return $this->response->error('必须选择图片或视频', 500);
+                            return $this->response->error('必须选择图片或视频', 500);
+                        }
                     }
-                }
-                $asyncBaiduWorkUploads = [];
-                foreach ($response['list'] as $k => $file) {
-                    $asyncBaiduWorkUpload = AsyncBaiduWorkUpload::create();
-                    $asyncBaiduWorkUpload->user_id = $user_id;
-                    $asyncBaiduWorkUpload->photographer_work_id = $photographer_work->id;
-                    $asyncBaiduWorkUpload->dlink = $file['dlink'];
-                    $asyncBaiduWorkUpload->category = $file['category'];
-                    $asyncBaiduWorkUpload->size = $file['size'];
-                    $asyncBaiduWorkUpload->sort = $k + 1;
-                    $asyncBaiduWorkUploads[] = $asyncBaiduWorkUpload;
-                    $asyncBaiduWorkUpload->save();
-                }
-
-                PhotographerWorkSource::where(['photographer_work_id' => $photographer_work->id])->delete();
-                \DB::commit();//提交事务
-                foreach ($asyncBaiduWorkUploads as $asyncBaiduWorkUpload) {
-                    AsyncBaiduWorkUploadJob::dispatch($asyncBaiduWorkUpload);
                 }
 
                 return $this->response->noContent();
@@ -134,6 +116,118 @@ class BaiduController extends UserGuardController
             }
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
+
+            return $this->response->error($e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * 网盘中下载并上传到七牛
+     * @return \Dingo\Api\Http\Response|void
+     */
+    public function downAndUpQiniu(SystemRequest $request)
+    {
+        \DB::beginTransaction();//开启事务
+        try {
+            $fsids = $request->fsids;
+            $user_id = auth($this->guard)->id();
+            $photographer_work = User::photographer(null, $this->guard)->photographerWorks()->where(
+                ['status' => 0]
+            )->first();
+            if (!$photographer_work) {
+                \DB::rollback();//回滚事务
+                $error = [
+                    'msg' => '作品集不存在',
+                    'fsids' => $fsids,
+                    'log_time' => date('Y-m-d H:i:s'),
+                ];
+                SystemServer::filePutContents(
+                    './logs/baidu_down_and_up_qiniu/error/user_id_'.$user_id.'.log',
+                    json_encode($error).PHP_EOL
+                );
+
+                return $this->response->error('作品集不存在', 500);
+            }
+            $access_token = $this->_getBaiduAccessToken();
+            $url = "https://pan.baidu.com/rest/2.0/xpan/multimedia?method=filemetas";
+            $data['access_token'] = $access_token;
+            $data['fsids'] = '['.implode(',', $fsids).']';
+            $data['dlink'] = 1;
+            $response = $this->_request(
+                'GET',
+                $url,
+                $data,
+                true
+            );
+            if ($response['errno'] === 0) {
+                if (count($response['list']) > 0) {
+                    foreach ($response['list'] as $file) {
+                        if ($file['category'] != 3 && $file['category'] != 1) {
+                            \DB::rollback();//回滚事务
+                            $error = [
+                                'msg' => '必须选择图片或视频',
+                                'fsids' => $fsids,
+                                'log_time' => date('Y-m-d H:i:s'),
+                            ];
+                            SystemServer::filePutContents(
+                                './logs/baidu_down_and_up_qiniu/error/user_id_'.$user_id.'.log',
+                                json_encode($error).PHP_EOL
+                            );
+
+                            return $this->response->error('必须选择图片或视频', 500);
+                        }
+                    }
+                    $asyncBaiduWorkSourcesUpload = AsyncBaiduWorkSourcesUpload::create();
+                    $asyncBaiduWorkSourcesUpload->user_id = $user_id;
+                    $asyncBaiduWorkSourcesUpload->photographer_work_id = $photographer_work->id;
+                    $asyncBaiduWorkSourcesUpload->save();
+                    $sorts = [];
+                    foreach ($fsids as $k => $fs_id) {
+                        $sorts[$fs_id] = $k + 1;
+                    }
+                    foreach ($response['list'] as $k => $file) {
+                        $asyncBaiduWorkSourceUpload = AsyncBaiduWorkSourceUpload::create();
+                        $asyncBaiduWorkSourceUpload->async_baidu_work_sources_upload_id = $asyncBaiduWorkSourcesUpload->id;
+                        $asyncBaiduWorkSourceUpload->dlink = $file['dlink'];
+                        $asyncBaiduWorkSourceUpload->category = $file['category'];
+                        $asyncBaiduWorkSourceUpload->size = $file['size'];
+                        $asyncBaiduWorkSourceUpload->sort = $sorts[$file['fs_id']] ?? 0;
+                        $asyncBaiduWorkSourceUpload->save();
+                    }
+                    PhotographerWorkSource::where(
+                        ['photographer_work_id' => $photographer_work->id, 'status' => 200]
+                    )->update(['status' => 300]);
+                    \DB::commit();//提交事务
+                    AsyncBaiduWorkSourcesUploadJob::dispatch($asyncBaiduWorkSourcesUpload);
+                }
+
+                return $this->response->noContent();
+            } else {
+                \DB::rollback();//回滚事务
+                $error = [
+                    'msg' => '百度网盘获取文件信息接口保存',
+                    'fsids' => $fsids,
+                    'response' => $response,
+                    'log_time' => date('Y-m-d H:i:s'),
+                ];
+                SystemServer::filePutContents(
+                    './logs/baidu_down_and_up_qiniu/error/user_id_'.$user_id.'.log',
+                    json_encode($error).PHP_EOL
+                );
+
+                return $this->response->array($response);
+            }
+        } catch (\Exception $e) {
+            \DB::rollback();//回滚事务
+            $error = [
+                'msg' => $e->getMessage(),
+                'fsids' => $fsids,
+                'log_time' => date('Y-m-d H:i:s'),
+            ];
+            SystemServer::filePutContents(
+                './logs/baidu_down_and_up_qiniu/error/user_id_'.$user_id.'.log',
+                json_encode($error).PHP_EOL
+            );
 
             return $this->response->error($e->getMessage(), 500);
         }

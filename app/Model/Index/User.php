@@ -2,8 +2,10 @@
 
 namespace App\Model\Index;
 
+use App\Servers\WechatServer;
 use Illuminate\Notifications\Notifiable;#必须引用
 use Illuminate\Foundation\Auth\User as Authenticatable;#必须引用
+use Intervention\Image\Facades\Image;
 use Tymon\JWTAuth\Contracts\JWTSubject;#必须引用
 
 class User extends Authenticatable implements JWTSubject
@@ -41,6 +43,7 @@ class User extends Authenticatable implements JWTSubject
         'identity',
         'openid',
         'session_key',
+        'xacode',
     ];
 
     /**
@@ -100,5 +103,24 @@ class User extends Authenticatable implements JWTSubject
         return [
             'photographer_id' => $photographer->id,
         ];
+    }
+
+    /**
+     * 为用户生成小程序吗
+     */
+    public static function createXacode($photographer_id)
+    {
+        $response = WechatServer::getxacodeunlimit($photographer_id);
+        if ($response['code'] == 200) {
+            $filename = 'xacodes/'.$photographer_id.'.png';
+            $xacode = Image::make($response['data'])->resize(184, 184);
+            $bgimg = Image::make('xacodes/bg.png')->resize(200, 200);
+            $bgimg->insert($xacode, 'top-left', 8, 8);
+            $bgimg->save($filename);
+
+            return $filename;
+        } else {
+            return '';
+        }
     }
 }

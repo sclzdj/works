@@ -121,7 +121,7 @@ class SystemRequest extends BaseRequest
             'getCitys' => ['GET|App\Http\Controllers\Api\SystemController@getCitys'],
             'getAreas' => ['GET|App\Http\Controllers\Api\SystemController@getAreas'],
             'baiduOauthStore' => ['POST|App\Http\Controllers\Api\SystemController@baiduOauthStore'],
-            'baiduDownAndUpQiniu' => ['POST|App\Http\Controllers\Api\BaiduController@downAndUpQiniu'],
+            'baiduDownAndUpQiniu' => ['POST|App\Http\Controllers\Api\BaiduController@downAndUpQiniuVerify'],
         ];
     }
 }

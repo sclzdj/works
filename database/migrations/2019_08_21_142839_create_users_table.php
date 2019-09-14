@@ -28,6 +28,7 @@ class CreateUsersTable extends Migration
             $table->string('session_key')->default('')->comment('小程序session_key');
             $table->unsignedInteger('photographer_id')->default(0)->comment('摄影师ID');
             $table->unsignedTinyInteger('identity')->default(0)->comment('身份【0:游客;1:摄影师】');
+            $table->string('xacode',1000)->default('')->comment('小程序码文件');
             $table->rememberToken();
             $table->timestamps();
         }

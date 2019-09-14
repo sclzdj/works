@@ -18,8 +18,10 @@ use App\Model\Index\PhotographerRank;
 use App\Model\Index\PhotographerWorkCategory;
 use App\Model\Index\PhotographerWorkCustomerIndustry;
 use App\Model\Index\SmsCode;
+use App\Model\Index\User;
 use App\Model\Index\VisitorTag;
 use App\Servers\AliSendShortMessageServer;
+use App\Servers\SystemServer;
 
 /**
  * 系统通用
@@ -71,7 +73,7 @@ class SystemController extends BaseController
                     $TemplateCodes[$request->purpose]['TemplateCode']
                 );
                 $AliSendShortMessageServer->SignName = $TemplateCodes[$request->purpose]['SignName'];
-                $AliSendShortMessageServer->PhoneNumbers = '18353621790';
+                $AliSendShortMessageServer->PhoneNumbers = $request->mobile;
                 $AliSendShortMessageServer->TemplateParam = ['code' => $code];
                 $result = $AliSendShortMessageServer->sendSms();
                 if ($result['status'] != 'SUCCESS') {

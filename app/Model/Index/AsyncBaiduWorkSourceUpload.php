@@ -4,7 +4,7 @@ namespace App\Model\Index;
 
 use Illuminate\Database\Eloquent\Model;
 
-class AsyncBaiduWorkUploadErrorLog extends Model
+class AsyncBaiduWorkSourceUpload extends Model
 {
     /**
      * The attributes that are mass assignable.
@@ -12,8 +12,12 @@ class AsyncBaiduWorkUploadErrorLog extends Model
      * @var array
      */
     protected $fillable = [
-        'async_baidu_work_upload_id',
-        'error_info',
+        'async_baidu_work_sources_upload_id',
+        'dlink',
+        'category',
+        'size',
+        'sort',
+        'status',
     ];
 
     /**
@@ -31,8 +35,12 @@ class AsyncBaiduWorkUploadErrorLog extends Model
     {
         return [
             'id',
-            'async_baidu_work_upload_id',
-            'error_info',
+            'async_baidu_work_sources_upload_id',
+            'dlink',
+            'category',
+            'size',
+            'sort',
+            'status',
             'created_at',
         ];
     }
