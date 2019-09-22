@@ -13,7 +13,7 @@ class AsyncBaiduWorkSourceUpload extends Model
      */
     protected $fillable = [
         'async_baidu_work_sources_upload_id',
-        'dlink',
+        'fs_id',
         'category',
         'size',
         'sort',
@@ -36,7 +36,7 @@ class AsyncBaiduWorkSourceUpload extends Model
         return [
             'id',
             'async_baidu_work_sources_upload_id',
-            'dlink',
+            'fs_id',
             'category',
             'size',
             'sort',

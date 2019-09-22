@@ -3,11 +3,15 @@
 namespace App\Http\Controllers\Api\Notify;
 
 use App\Http\Controllers\Api\BaseController;
+use App\Model\Index\AsyncBaiduWorkSourcesUpload;
+use App\Model\Index\AsyncBaiduWorkSourceUpload;
 use App\Model\Index\Photographer;
 use App\Model\Index\PhotographerWork;
 use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\User;
+use App\Servers\ErrLogServer;
 use App\Servers\SystemServer;
+use function AlibabaCloud\Client\json;
 
 /**
  * 七牛相关控制器
@@ -17,70 +21,150 @@ use App\Servers\SystemServer;
 class QiniuController extends BaseController
 {
     /**
+     * 七牛异步第三方抓取通知
+     */
+    public function fetch()
+    {
+        $request_data = \Request::all();
+        $asyncBaiduWorkSourceUpload = AsyncBaiduWorkSourceUpload::where(
+            ['id' => $request_data['async_baidu_work_source_upload_id']]
+        )->first();
+        if (!$asyncBaiduWorkSourceUpload) {
+            return ErrLogServer::QiniuNotifyFetch('AsyncBaiduWorkSourceUpload记录不存在', $request_data);
+        }
+        $asyncBaiduWorkSourcesUpload = AsyncBaiduWorkSourcesUpload::where(
+            ['id' => $asyncBaiduWorkSourceUpload->async_baidu_work_sources_upload_id]
+        )->first();
+        if (!$asyncBaiduWorkSourcesUpload) {
+            return ErrLogServer::QiniuNotifyFetch(
+                'AsyncBaiduWorkSourcesUpload记录不存在',
+                $request_data,
+                $asyncBaiduWorkSourceUpload
+            );
+        }
+        $photographerWork = PhotographerWork::where(
+            ['id' => $asyncBaiduWorkSourcesUpload->photographer_work_id]
+        )->first();
+        if (!$photographerWork) {
+            return ErrLogServer::QiniuNotifyFetch(
+                '作品集不存在',
+                $request_data,
+                $asyncBaiduWorkSourceUpload,
+                $asyncBaiduWorkSourcesUpload
+            );
+        }
+        try {
+            $photographerWorkSource = PhotographerWorkSource::create();
+            $request_data['width'] = $request_data['width'] ?? 0;
+            $request_data['height'] = $request_data['height'] ?? 0;
+            $photographerWorkSource->photographer_work_id = $photographerWork->id;
+            $photographerWorkSource->origin = 'baidu_disk';
+            if ($asyncBaiduWorkSourceUpload->category == 1) {
+                $photographerWorkSource->type = 'video';
+            } elseif ($asyncBaiduWorkSourceUpload->category == 3) {
+                $photographerWorkSource->type = 'image';
+            }
+            $bucket = 'zuopin';
+            $buckets = config('custom.qiniu.buckets');
+            $domain = $buckets[$bucket]['domain'] ?? '';
+            $photographerWorkSource->key = $request_data['key'];
+            $photographerWorkSource->url = $domain.'/'.$request_data['key'];
+            $photographerWorkSource->size = $request_data['size'];
+            $photographerWorkSource->width = $request_data['width'];
+            $photographerWorkSource->height = $request_data['height'];
+            $photographerWorkSource->deal_key = $request_data['key'];
+            $photographerWorkSource->deal_url = $domain.'/'.$request_data['key'];
+            $photographerWorkSource->deal_size = $request_data['size'];
+            $photographerWorkSource->deal_width = $request_data['width'];
+            $photographerWorkSource->deal_height = $request_data['height'];
+            $photographerWorkSource->rich_key = $request_data['key'];
+            $photographerWorkSource->rich_url = $domain.'/'.$request_data['key'];
+            $photographerWorkSource->rich_size = $request_data['size'];
+            $photographerWorkSource->rich_width = $request_data['width'];
+            $photographerWorkSource->rich_height = $request_data['height'];
+            $photographerWorkSource->sort = $asyncBaiduWorkSourceUpload->sort;
+            $photographerWorkSource->status = 200;
+            $photographerWorkSource->save();
+            $asyncBaiduWorkSourceUpload->status = 200;
+            $asyncBaiduWorkSourceUpload->save();
+        } catch (\Exception $e) {
+            return ErrLogServer::QiniuNotifyFetch(
+                $e->getMessage(),
+                $request_data,
+                $asyncBaiduWorkSourceUpload,
+                $asyncBaiduWorkSourcesUpload,
+                $photographerWorkSource
+            );
+        }
+        if ($request_data['is_register_photographer'] == 0) {
+            if ($photographerWorkSource->type == 'image') {
+                $fops = ["imageMogr2/thumbnail/1200x|imageMogr2/colorspace/srgb|imageslim"];
+                $qrst = SystemServer::qiniuPfop(
+                    $bucket,
+                    $request_data['key'],
+                    $fops,
+                    null,
+                    config(
+                        'app.url'
+                    ).'/api/notify/qiniu/fop?photographer_work_source_id='.$photographerWorkSource->id.'&step=1',
+                    true
+                );
+                if ($qrst['err']) {
+                    return ErrLogServer::QiniuNotifyFop(
+                        0,
+                        '持久化请求失败',
+                        $request_data,
+                        $photographerWorkSource,
+                        $qrst['err']
+                    );
+                }
+            }
+        }
+        $count1 = AsyncBaiduWorkSourceUpload::where(
+            ['async_baidu_work_sources_upload_id' => $asyncBaiduWorkSourcesUpload->id]
+        )->count();
+        $count2 = AsyncBaiduWorkSourceUpload::where(
+            ['async_baidu_work_sources_upload_id' => $asyncBaiduWorkSourcesUpload->id, 'status' => 200]
+        )->count();
+        if ($count1 == $count2) {
+            $asyncBaiduWorkSourcesUpload->status = 200;
+            $asyncBaiduWorkSourcesUpload->save();
+        }
+    }
+
+    /**
      * 七牛持久化异步通知
      */
     public function fop()
     {
-        $log_filename = 'logs/qiniu_fop_error/'.date('Y-m-d').'/'.date('H').'.log';
-
         $request_data = \Request::all();
         $photographerWorkSource = PhotographerWorkSource::where(
             ['id' => $request_data['photographer_work_source_id']]
         )->first();
         if (!$photographerWorkSource) {
-            $error = [];
-            $error['log_time'] = date('i:s');
-            $error['step'] = $request_data['step'];
-            $error['msg'] = '作品集资源不存在';
-            $error['response'] = $request_data;
-            SystemServer::filePutContents(
-                $log_filename,
-                json_encode($error).PHP_EOL
-            );
-
-            return;
+            return ErrLogServer::QiniuNotifyFop($request_data['step'], '作品集资源不存在：', $request_data);
         }
         $photographerWork = PhotographerWork::where(['id' => $photographerWorkSource->photographer_work_id])->first();
         if (!$photographerWork) {
-            $error = [];
-            $error['log_time'] = date('i:s');
-            $error['step'] = $request_data['step'];
-            $error['msg'] = '作品集不存在';
-            $error['response'] = $request_data;
-            SystemServer::filePutContents(
-                $log_filename,
-                json_encode($error).PHP_EOL
+            return ErrLogServer::QiniuNotifyFop(
+                $request_data['step'],
+                '作品集不存在',
+                $request_data,
+                $photographerWorkSource
             );
-
-            return;
         }
         $photographer = Photographer::where(['id' => $photographerWork->photographer_id])->first();
         if (!$photographer) {
-            $error = [];
-            $error['log_time'] = date('i:s');
-            $error['step'] = $request_data['step'];
-            $error['msg'] = '摄影师不存在';
-            $error['response'] = $request_data;
-            SystemServer::filePutContents(
-                $log_filename,
-                json_encode($error).PHP_EOL
+            return ErrLogServer::QiniuNotifyFop(
+                $request_data['step'],
+                '摄影师不存在',
+                $request_data,
+                $photographerWorkSource
             );
-
-            return;
         }
         $user = User::where(['photographer_id' => $photographerWork->photographer_id])->first();
         if (!$user) {
-            $error = [];
-            $error['log_time'] = date('i:s');
-            $error['step'] = $request_data['step'];
-            $error['msg'] = '用户不存在';
-            $error['response'] = $request_data;
-            SystemServer::filePutContents(
-                $log_filename,
-                json_encode($error).PHP_EOL
-            );
-
-            return;
+            return ErrLogServer::QiniuNotifyFop($request_data['step'], '用户不存在', $request_data, $photographerWorkSource);
         }
         try {
             if ($request_data['code'] == 0) {
@@ -98,31 +182,37 @@ class QiniuController extends BaseController
                             $response = SystemServer::request('GET', $photographerWorkSource->deal_url.'?imageInfo');
                             if ($response['code'] == 200) {
                                 if (isset($response['data']['code']) && $response['data']['code'] != 200) {
-                                    $error = [];
-                                    $error['log_time'] = date('i:s');
-                                    $error['step'] = $request_data['step'];
-                                    $error['msg'] = '请求图片信息接口返回错误信息';
-                                    $error['response'] = $response['data'];
-                                    SystemServer::filePutContents(
-                                        $log_filename,
-                                        json_encode($error).PHP_EOL
+                                    return ErrLogServer::QiniuNotifyFop(
+                                        $request_data['step'],
+                                        '七牛请求图片信息接口失败',
+                                        $request_data,
+                                        $photographerWorkSource,
+                                        $response['data']
                                     );
-                                    $photographerWorkSource->status = 500;
-                                    $photographerWorkSource->save();
-
-                                    return;
                                 } else {
                                     $photographerWorkSource->deal_size = $response['data']['size'];
+                                    $photographerWorkSource->deal_width = $response['data']['width'];
+                                    $photographerWorkSource->deal_height = $response['data']['height'];
                                     $photographerWorkSource->rich_size = $response['data']['size'];
+                                    $photographerWorkSource->rich_width = $response['data']['width'];
+                                    $photographerWorkSource->rich_height = $response['data']['height'];
                                     $photographerWorkSource->save();
                                     $water1_image = \Qiniu\base64_urlSafeEncode($photographerWorkSource->deal_url);
-                                    $water2_image = \Qiniu\base64_urlSafeEncode(config('app.url').'/'.$user->xacode);
-                                    $water2_image_dy = $response['data']['height'] - 100;
+                                    if ($user->xacode) {
+                                        $water2_image = \Qiniu\base64_urlSafeEncode(
+                                            $user->xacode.'|imageMogr2/thumbnail/210x210!'
+                                        );
+                                    } else {
+                                        $water2_image = $domain.'/'.config(
+                                                'custom.qiniu.crop_work_source_image_bg'
+                                            ).'?imageMogr2/thumbnail/210x210!|roundPic/radius/!50p';
+                                    }
+                                    $water2_image_dy = $response['data']['height'] - 105;
                                     $water3_text = \Qiniu\base64_urlSafeEncode("我是摄影师".$photographer->name);
-                                    $water3_text_dy = $response['data']['height'] + 115;
+                                    $water3_text_dy = $response['data']['height'] + 130;
                                     $water4_text = \Qiniu\base64_urlSafeEncode("微信扫一扫，看我的全部作品");
-                                    $water4_text_dy = $response['data']['height'] + 140;
-                                    $fops = ["imageMogr2/auto-orient/crop/{$response['data']['width']}x".($response['data']['height'] + 185)."|watermark/3/image/{$water1_image}/gravity/North/dx/0/dy/0/image/{$water2_image}/gravity/North/dx/0/dy/{$water2_image_dy}/text/{$water3_text}/fontsize/400/gravity/North/dx/0/dy/{$water3_text_dy}/text/{$water4_text}/fontsize/400/gravity/North/dx/0/dy/{$water4_text_dy}|imageslim"];
+                                    $water4_text_dy = $response['data']['height'] + 160;
+                                    $fops = ["imageMogr2/auto-orient/crop/{$response['data']['width']}x".($response['data']['height'] + 250)."|watermark/3/image/{$water1_image}/gravity/North/dx/0/dy/0/image/{$water2_image}/gravity/North/dx/0/dy/{$water2_image_dy}/text/{$water3_text}/fontsize/500/gravity/North/dx/0/dy/{$water3_text_dy}/text/{$water4_text}/fontsize/500/gravity/North/dx/0/dy/{$water4_text_dy}|imageslim"];
                                     $qrst = SystemServer::qiniuPfop(
                                         $bucket,
                                         config('custom.qiniu.crop_work_source_image_bg'),
@@ -133,32 +223,24 @@ class QiniuController extends BaseController
                                         ).'/api/notify/qiniu/fop?photographer_work_source_id='.$photographerWorkSource->id.'&step=2&width='.$response['data']['width'].'&height='.$response['data']['height'],
                                         true
                                     );
-                                    if (!empty($qrst['err'])) {
-                                        $error = [];
-                                        $error['log_time'] = date('i:s');
-                                        $error['step'] = $request_data['step'];
-                                        $error['msg'] = '持久化请求失败：'.json_encode($qrst['err']);
-                                        SystemServer::filePutContents(
-                                            $log_filename,
-                                            json_encode($error).PHP_EOL
+                                    if ($qrst['err']) {
+                                        return ErrLogServer::QiniuNotifyFop(
+                                            $request_data['step'],
+                                            '持久化请求失败',
+                                            $request_data,
+                                            $photographerWorkSource,
+                                            $qrst['err']
                                         );
-                                        $photographerWorkSource->status = 500;
-                                        $photographerWorkSource->save();
                                     }
                                 }
                             } else {
-                                $error = [];
-                                $error['log_time'] = date('i:s');
-                                $error['step'] = $request_data['step'];
-                                $error['msg'] = '请求图片信息接口失败：'.$response['msg'];
-                                SystemServer::filePutContents(
-                                    $log_filename,
-                                    json_encode($error).PHP_EOL
+                                return ErrLogServer::QiniuNotifyFop(
+                                    $request_data['step'],
+                                    '系统请求七牛图片信息接口时失败：'.$response['msg'],
+                                    $request_data,
+                                    $photographerWorkSource,
+                                    $response
                                 );
-                                $photographerWorkSource->status = 500;
-                                $photographerWorkSource->save();
-
-                                return;
                             }
                         } elseif ($photographerWorkSource->type == 'video') {
 
@@ -171,36 +253,27 @@ class QiniuController extends BaseController
                             $response = SystemServer::request('GET', $photographerWorkSource->rich_url.'?imageInfo');
                             if ($response['code'] == 200) {
                                 if (isset($response['data']['code']) && $response['data']['code'] != 200) {
-                                    $error = [];
-                                    $error['log_time'] = date('i:s');
-                                    $error['step'] = $request_data['step'];
-                                    $error['msg'] = '请求图片信息接口返回错误信息';
-                                    $error['response'] = $response['data'];
-                                    SystemServer::filePutContents(
-                                        $log_filename,
-                                        json_encode($error).PHP_EOL
+                                    return ErrLogServer::QiniuNotifyFop(
+                                        $request_data['step'],
+                                        '七牛请求图片信息接口失败',
+                                        $request_data,
+                                        $photographerWorkSource,
+                                        $response['data']
                                     );
-                                    $photographerWorkSource->status = 500;
-                                    $photographerWorkSource->save();
-
-                                    return;
                                 } else {
                                     $photographerWorkSource->rich_size = $response['data']['size'];
+                                    $photographerWorkSource->rich_width = $response['data']['width'];
+                                    $photographerWorkSource->rich_height = $response['data']['height'];
                                     $photographerWorkSource->save();
                                 }
                             } else {
-                                $error = [];
-                                $error['log_time'] = date('i:s');
-                                $error['step'] = $request_data['step'];
-                                $error['msg'] = '请求图片信息接口失败：'.$response['msg'];
-                                SystemServer::filePutContents(
-                                    $log_filename,
-                                    json_encode($error).PHP_EOL
+                                return ErrLogServer::QiniuNotifyFop(
+                                    $request_data['step'],
+                                    '系统请求七牛图片信息接口时失败：'.$response['msg'],
+                                    $request_data,
+                                    $photographerWorkSource,
+                                    $response
                                 );
-                                $photographerWorkSource->status = 500;
-                                $photographerWorkSource->save();
-
-                                return;
                             }
                         } elseif ($photographerWorkSource->type == 'video') {
 
@@ -209,48 +282,28 @@ class QiniuController extends BaseController
 
                     }
                 } else {
-                    $error = [];
-                    $error['log_time'] = date('i:s');
-                    $error['step'] = $request_data['step'];
-                    $error['msg'] = '七牛接口报错或返回信息不存在';
-                    $error['response'] = $request_data;
-                    SystemServer::filePutContents(
-                        $log_filename,
-                        json_encode($error).PHP_EOL
+                    return ErrLogServer::QiniuNotifyFop(
+                        $request_data['step'],
+                        '七牛持久化接口通知第一条持久化报错或返回信息不存在',
+                        $request_data,
+                        $photographerWorkSource
                     );
-                    $photographerWorkSource->status = 500;
-                    $photographerWorkSource->save();
-
-                    return;
                 }
             } else {
-                $error = [];
-                $error['log_time'] = date('i:s');
-                $error['step'] = $request_data['step'];
-                $error['msg'] = '七牛接口报错';
-                $error['response'] = $request_data;
-                SystemServer::filePutContents(
-                    $log_filename,
-                    json_encode($error).PHP_EOL
+                return ErrLogServer::QiniuNotifyFop(
+                    $request_data['step'],
+                    '七牛持久化接口通知报错',
+                    $request_data,
+                    $photographerWorkSource
                 );
-                $photographerWorkSource->status = 500;
-                $photographerWorkSource->save();
-
-                return;
             }
         } catch (\Exception $e) {
-            $error = [];
-            $error['log_time'] = date('i:s');
-            $error['step'] = $request_data['step'];
-            $error['msg'] = $e->getMessage();
-            SystemServer::filePutContents(
-                $log_filename,
-                json_encode($error).PHP_EOL
+            return ErrLogServer::QiniuNotifyFop(
+                $request_data['step'],
+                $e->getMessage(),
+                $request_data,
+                $photographerWorkSource
             );
-            $photographerWorkSource->status = 500;
-            $photographerWorkSource->save();
-
-            return;
         }
     }
 }

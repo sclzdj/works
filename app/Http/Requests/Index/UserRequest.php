@@ -205,14 +205,21 @@ class UserRequest extends BaseRequest
             'login' => ['POST|App\Http\Controllers\Api\LoginController@login'],
             'save_info' => ['POST|App\Http\Controllers\Api\MyController@saveInfo'],
             'photographerWorks' => ['GET|App\Http\Controllers\Api\MyController@photographerWorks'],
-            'photographerWork' => ['GET|App\Http\Controllers\Api\MyController@photographerWork','DELETE|App\Http\Controllers\Api\MyController@photographerWorkDelete'],
+            'photographerWork' => [
+                'GET|App\Http\Controllers\Api\MyController@photographerWork',
+                'DELETE|App\Http\Controllers\Api\MyController@photographerWorkDelete',
+                'GET|App\Http\Controllers\Api\MyController@setRoof',
+            ],
             'savePhotographerAvatar' => ['POST|App\Http\Controllers\Api\MyController@savePhotographerAvatar'],
             'savePhotographerBgImg' => ['POST|App\Http\Controllers\Api\MyController@savePhotographerBgImg'],
             'savePhotographerWorkInfo' => ['POST|App\Http\Controllers\Api\MyController@savePhotographerWorkInfo'],
             'viewRecords' => ['GET|App\Http\Controllers\Api\MyController@viewRecords'],
             'saveDocPdf' => ['POST|App\Http\Controllers\Api\MyController@saveDocPdf'],
             'docPdfs' => ['GET|App\Http\Controllers\Api\MyController@docPdfs'],
-            'getDocPdfStatus' => ['GET|App\Http\Controllers\Api\MyController@getDocPdfStatus','DELETE|App\Http\Controllers\Api\MyController@docPdfDelete'],
+            'getDocPdfStatus' => [
+                'GET|App\Http\Controllers\Api\MyController@getDocPdfStatus',
+                'DELETE|App\Http\Controllers\Api\MyController@docPdfDelete',
+            ],
         ];
     }
 }

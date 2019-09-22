@@ -2,10 +2,13 @@
 
 namespace App\Model\Index;
 
+use App\Servers\SystemServer;
 use App\Servers\WechatServer;
 use Illuminate\Notifications\Notifiable;#必须引用
 use Illuminate\Foundation\Auth\User as Authenticatable;#必须引用
 use Intervention\Image\Facades\Image;
+use Qiniu\Auth;
+use Qiniu\Storage\UploadManager;
 use Tymon\JWTAuth\Contracts\JWTSubject;#必须引用
 
 class User extends Authenticatable implements JWTSubject
@@ -110,15 +113,42 @@ class User extends Authenticatable implements JWTSubject
      */
     public static function createXacode($photographer_id)
     {
+        $photographer = Photographer::find($photographer_id);
         $response = WechatServer::getxacodeunlimit($photographer_id);
         if ($response['code'] == 200) {
             $filename = 'xacodes/'.$photographer_id.'.png';
-            $xacode = Image::make($response['data'])->resize(184, 184);
-            $bgimg = Image::make('xacodes/bg.png')->resize(200, 200);
-            $bgimg->insert($xacode, 'top-left', 8, 8);
+            $xacode = Image::make($response['data'])->resize(370, 370);
+            $bgimg = Image::make('xacodes/bg.png')->resize(420, 420);
+            $bgimg->insert($xacode, 'top-left', 25, 25);
             $bgimg->save($filename);
+            $bucket = 'zuopin';
+            $buckets = config('custom.qiniu.buckets');
+            $domain = $buckets[$bucket]['domain'] ?? '';
+            //用于签名的公钥和私钥
+            $accessKey = config('custom.qiniu.accessKey');
+            $secretKey = config('custom.qiniu.secretKey');
+            // 初始化签权对象
+            $auth = new Auth($accessKey, $secretKey);
+            // 生成上传Token
+            $upToken = $auth->uploadToken($bucket);
+            // 构建 UploadManager 对象
+            $uploadMgr = new UploadManager();
+            list($ret, $err) = $uploadMgr->putFile($upToken, null, $filename);
+            if ($err) {
+                return '';
+            }
+            @unlink($filename);
+            if (!$photographer->avatar) {
+                return $domain.'/'.$ret['key'].'?roundPic/radius/!50p';
+            }
+            $avatar = $photographer->avatar.'?imageMogr2/thumbnail/170x170!|roundPic/radius/!50p';
+            $avatar_bg = config('app.url').'/xacodes/avatar_bg.png';
 
-            return $filename;
+            return $domain.'/'.$ret['key'].'?watermark/3/image/'.\Qiniu\base64_urlSafeEncode(
+                    $avatar_bg
+                ).'/dx/125/dy/125/image/'.\Qiniu\base64_urlSafeEncode(
+                    $avatar
+                ).'/dx/125/dy/125|roundPic/radius/!50p';
         } else {
             return '';
         }

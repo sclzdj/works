@@ -10,9 +10,11 @@ use App\Model\Index\PhotographerWorkCustomerIndustry;
 use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\SmsCode;
 use App\Model\Index\VisitorTag;
+use Intervention\Image\Facades\Image;
 use Qiniu\Auth;
 use Qiniu\Config;
 use Qiniu\Processing\PersistentFop;
+use Qiniu\Storage\BucketManager;
 use Qiniu\Storage\UploadManager;
 use function GuzzleHttp\Psr7\build_query;
 
@@ -136,7 +138,7 @@ class SystemServer
                 $data[$k] = self::parsePhotographerWorkCover($v, false);
             } else {
                 if ($k == 'id' && !isset($data['cover'])) {
-                    $where = ['photographer_work_id' => $v, 'type' => 'image'];
+                    $where = ['photographer_work_id' => $v, 'type' => 'image', 'status' => 200];
                     $total = PhotographerWorkSource::where($where)->count();
                     $data['cover'] = '';
                     if ($total > 0) {
@@ -335,12 +337,16 @@ class SystemServer
         curl_setopt($curl, CURLOPT_URL, $url);//请求url
         $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ?
             $_SERVER['HTTP_USER_AGENT'] :
-            'HTTP_USER_AGENT_'.$data;//配置代理信息
+            'works';//配置代理信息
         curl_setopt($curl, CURLOPT_USERAGENT, $user_agent);//请求代理信息
         curl_setopt($curl, CURLOPT_AUTOREFERER, true);//referer头，请求来源
         curl_setopt($curl, CURLOPT_TIMEOUT, 60);//设置请求时间
         if ($headers) {
-            curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+            $http_headers = [];
+            foreach ($headers as $k => $v) {
+                $http_headers[] = $k.':'.(is_array($v) ? json_encode($v) : $v);
+            }
+            curl_setopt($curl, CURLOPT_HTTPHEADER, $http_headers);
         }
         curl_setopt(
             $curl,
@@ -378,77 +384,58 @@ class SystemServer
     }
 
     /**
-     * 百度网盘下载传七牛
+     * 百度网盘直接上传到七牛
+     * @param $type
+     * @param $url
+     * @param null $callbackurl
+     * @param null $key
      */
-    static public function baiduPanDownAndUpQiniu($access_token, $dlink, $bucket, $category = null, $size = null)
+    static public function qiniuFetchBaiduPan($type, $url, $callbackurl = null, $key = null)
     {
-        $d_t = SystemServer::getMicrotime();
-        $response = SystemServer::request(
-            'GET',
-            $dlink,
-            [
-                'access_token' => $access_token,
-            ],
-            true,
-            [
-                'User-Agent' => 'pan.baidu.com',
-            ]
-        );
-        $d_t = SystemServer::getMicrotime() - $d_t;
-        $log = json_encode(
-                [
-                    'type' => 'download',
-                    'category' => $category,
-                    'size' => ($size / 1000).'KB',
-                    'used_time' => $d_t,
-                    'log_time' => date('Y-m-d H:i:s'),
-                ]
-            ).PHP_EOL;
-        if ($response['code'] == 200) {
-            // 用于签名的公钥和私钥
-            $accessKey = config('custom.qiniu.accessKey');
-            $secretKey = config('custom.qiniu.secretKey');
-            // 初始化签权对象
-            $auth = new Auth($accessKey, $secretKey);
-            // 生成上传Token
-            $upToken = $auth->uploadToken($bucket);
-            // 构建 UploadManager 对象
-            $uploadMgr = new UploadManager();
-            $u_t = SystemServer::getMicrotime();
-            list($ret, $err) = $uploadMgr->put(
-                $upToken,
-                null,
-                $response['data']
-            );
-            unset($response);
-            unset($uploadMgr);
-            $u_t = SystemServer::getMicrotime() - $u_t;
-            $log .= json_encode(
-                    [
-                        'type' => 'upload',
-                        'category' => $category,
-                        'size' => ($size / 1000).'KB',
-                        'used_time' => $u_t,
-                        'log_time' => date('Y-m-d H:i:s'),
-                    ]
-                ).PHP_EOL;
-            SystemServer::filePutContents(
-                './logs/baidu_down_and_up_qiniu/'.date('Y-m-d').'/'.date('H').'.log',
-                $log.PHP_EOL
-            );
-            if (!empty($err)) {
-                return ['code' => 500, 'msg' => $err['response']['error']];
-            }
-
-            return ['code' => 200, 'msg' => 'ok', 'data' => $ret];
-        } else {
-            SystemServer::filePutContents(
-                './logs/baidu_down_and_up_qiniu/'.date('Y-m-d').'/'.date('H').'.log',
-                $log.PHP_EOL
-            );
-
-            return $response;
+        $accessKey = config('custom.qiniu.accessKey');
+        $secretKey = config('custom.qiniu.secretKey');
+        $bucket = 'zuopin';
+        $auth = new Auth($accessKey, $secretKey);
+        $config = new Config();
+        $config->useHTTPS = true;
+        $ak = $auth->getAccessKey();
+        $apiHost = $config->getApiHost($ak, $bucket);
+        $body = compact('url', 'bucket');
+        if ($key) {
+            $body['key'] = $key;
         }
+        if ($callbackurl) {
+            $body['callbackurl'] = $callbackurl;
+        }
+        if ($type == 'image') {
+            $callbackbody =
+                '{"key":"$(key)","hash":"$(etag)","width":"$(imageInfo.width)","height":"$(imageInfo.height)","size":"$(imageInfo.size)"}';
+        } elseif ($type == 'video') {
+            $callbackbody = '{"key":"$(key)","hash":"$(etag)","size":"$(avinfo.format.size)"}';
+        } else {
+            $callbackbody = '{"key":"$(key)","hash":"$(etag)","size":"$(fsize)"}';
+        }
+        $body['callbackbody'] = $callbackbody;
+        $body['callbackbodytype'] = 'application/json';
+        $headers = [];
+        $headers["Content-Type"] = 'application/json';
+        $apiUrl = $apiHost.'/sisyphus/fetch';
+        $method = 'POST';
+        $authorization = $auth->authorizationV2(
+            $apiUrl,
+            $method,
+            json_encode($body),
+            $headers["Content-Type"]
+        );
+        $headers = array_merge($headers, $authorization);
+
+        return SystemServer::request(
+            $method,
+            $apiUrl,
+            $body,
+            true,
+            $headers
+        );
     }
 
     /**
@@ -510,16 +497,8 @@ class SystemServer
         }
         $auth = new Auth($accessKey, $secretKey);
         $pfop = new PersistentFop($auth, $config);
-        //查询转码的进度和状态
-//        list($ret, $err) = $pfop->status('z2.0A2C241D596D180E535D7C7984911E01');
-//        echo "\n====> pfop avthumb status: \n";
-//        if ($err != null) {
-//            var_dump($err);
-//        } else {
-//            var_dump($ret);
-//        }
-//        dd('214');
         list($id, $err) = $pfop->execute($bucket, $key, $fops, $pipeline, $notifyUrl, $force);
+
         return compact('id', 'err');
     }
 }

@@ -235,6 +235,7 @@ class VisitController extends UserGuardController
         );
         $visitors = SystemServer::parsePaginate($visitors->toArray());
         foreach ($visitors['data'] as $k => $visitor) {
+            $visitors['data'][$k]['describe']='这是访客记录的描述';
             $visitors['data'][$k]['user'] = User::select(User::allowFields())->where('id', $visitor['user_id'])->first(
             )->toArray();
         }

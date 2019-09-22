@@ -32,7 +32,7 @@
             data: data,
             success: function (response) {
                 alert('授权成功');
-                wx.miniProgram.navigateBack();
+                wx.miniProgram.redirectTo('/pages/fileList/fileList');
             },
             error: function (xhr, status, error) {
                 var response = JSON.parse(xhr.responseText);
@@ -52,6 +52,9 @@
                         alert('服务器错误~');
                     }
                 }
+                wx.miniProgram.navigateBack({
+                    delta: 1
+                });
             }
         });
     });

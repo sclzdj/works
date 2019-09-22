@@ -10,8 +10,11 @@ use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\PhotographerWorkTag;
 use App\Model\Index\User;
 use App\Servers\ArrServer;
+use App\Servers\ErrLogServer;
 use App\Servers\SystemServer;
 use Illuminate\Http\Request;
+use Qiniu\Auth;
+use Qiniu\Storage\BucketManager;
 
 /**
  * 草稿相关
@@ -49,9 +52,7 @@ class DraftController extends UserGuardController
             $photographer_work = User::photographer(null, $this->guard)->photographerWorks()->where(
                 ['status' => 0]
             )->first();
-            PhotographerWorkSource::where(['photographer_work_id' => $photographer_work->id, 'status' => 200])->update(
-                ['status' => 300]
-            );
+            $photographer_work->photographerWorkSources()->where(['status' => 200])->update(['status' => 300]);
             foreach ($request->sources as $k => $v) {
                 $photographer_work_source = PhotographerWorkSource::where(
                     ['photographer_work_id' => $photographer_work->id, 'status' => 300, 'key' => $v['key']]
@@ -74,8 +75,68 @@ class DraftController extends UserGuardController
                     $photographer_work_source->sort = $k + 1;
                     $photographer_work_source->status = 200;
                     $photographer_work_source->save();
+                    if ($photographer_work_source->type == 'image') {
+                        $res = SystemServer::request('GET', $photographer_work_source->url.'?imageInfo');
+                        if ($res['code'] == 200) {
+                            if (!isset($res['data']['code']) || $res['data']['code'] == 200) {
+                                $photographer_work_source->size = $res['data']['size'];
+                                $photographer_work_source->width = $res['data']['width'];
+                                $photographer_work_source->height = $res['data']['height'];
+                                $photographer_work_source->deal_size = $res['data']['size'];
+                                $photographer_work_source->deal_width = $res['data']['width'];
+                                $photographer_work_source->deal_height = $res['data']['height'];
+                                $photographer_work_source->rich_size = $res['data']['size'];
+                                $photographer_work_source->rich_width = $res['data']['width'];
+                                $photographer_work_source->rich_height = $res['data']['height'];
+                                $photographer_work_source->save();
+                            } else {
+                                ErrLogServer::QiniuNotifyFop(
+                                    0,
+                                    '七牛图片信息接口返回错误信息',
+                                    $request->all(),
+                                    $photographer_work_source,
+                                    $res['data']
+                                );
+                            }
+                        } else {
+                            ErrLogServer::QiniuNotifyFop(
+                                0,
+                                '请求七牛图片信息接口报错：'.$res['msg'],
+                                $request->all(),
+                                $photographer_work_source,
+                                $res
+                            );
+                        }
+                    } elseif ($photographer_work_source->type == 'video') {
+                        $res = SystemServer::request('GET', $photographer_work_source->url.'?avinfo');
+                        if ($res['code'] == 200) {
+                            if (!isset($res['data']['code']) || $res['data']['code'] == 200) {
+                                $photographer_work_source->size = $res['data']['format']['size'];
+                                $photographer_work_source->deal_size = $res['data']['format']['size'];
+                                $photographer_work_source->rich_size = $res['data']['format']['size'];
+                                $photographer_work_source->save();
+                            } else {
+                                ErrLogServer::QiniuNotifyFop(
+                                    0,
+                                    '七牛视频信息接口返回错误信息',
+                                    $request->all(),
+                                    $photographer_work_source,
+                                    $res['data']
+                                );
+                            }
+                        } else {
+                            ErrLogServer::QiniuNotifyFop(
+                                0,
+                                '请求七牛视频信息接口报错：'.$res['msg'],
+                                $request->all(),
+                                $photographer_work_source,
+                                $res
+                            );
+                        }
+                    }
                 }
             }
+            $photographer_work->photographerWorkSources()->where(['status' => 300])->update(['status' => 400]);
             \DB::commit();//提交事务
 
             return $this->response->noContent();
@@ -90,8 +151,7 @@ class DraftController extends UserGuardController
      * 查出摄影师注册作品集信息
      * @return mixed|void
      */
-    public
-    function registerPhotographerWork()
+    public function registerPhotographerWork()
     {
         $this->notVisitorIdentityVerify();
         $photographer_work = User::photographer(null, $this->guard)->photographerWorks()->where(['status' => 0])->first(
@@ -116,10 +176,8 @@ class DraftController extends UserGuardController
      * @param PhotographerRequest $request
      * @return \Dingo\Api\Http\Response|void
      */
-    public
-    function registerPhotographerWorkStore(
-        PhotographerRequest $request
-    ) {
+    public function registerPhotographerWorkStore(PhotographerRequest $request)
+    {
         $this->notVisitorIdentityVerify();
         \DB::beginTransaction();//开启事务
         try {
@@ -159,8 +217,7 @@ class DraftController extends UserGuardController
      * 查出摄影师注册信息
      * @return mixed|void
      */
-    public
-    function registerPhotographer()
+    public function registerPhotographer()
     {
         $this->notVisitorIdentityVerify();
         $photographer = User::photographer(null, $this->guard);
@@ -177,10 +234,8 @@ class DraftController extends UserGuardController
      * @param PhotographerRequest $request
      * @return \Dingo\Api\Http\Response|void
      */
-    public
-    function registerPhotographerStore(
-        PhotographerRequest $request
-    ) {
+    public function registerPhotographerStore(PhotographerRequest $request)
+    {
         $this->notVisitorIdentityVerify();
         \DB::beginTransaction();//开启事务
         try {
@@ -207,7 +262,23 @@ class DraftController extends UserGuardController
 
                 return $this->response->error('该手机号已被注册成为摄影师了', 500);
             }
-            $photographer->avatar = $user->avatar;
+            $avatar = '';
+            if ($user->avatar) {
+                $bucket = 'zuopin';
+                $buckets = config('custom.qiniu.buckets');
+                $domain = $buckets[$bucket]['domain'] ?? '';
+                //用于签名的公钥和私钥
+                $accessKey = config('custom.qiniu.accessKey');
+                $secretKey = config('custom.qiniu.secretKey');
+                // 初始化签权对象
+                $auth = new Auth($accessKey, $secretKey);
+                $bucketManager = new BucketManager($auth);
+                list($ret, $err) = $bucketManager->fetch($user->avatar, $bucket);
+                if (!$err) {
+                    $avatar = $domain.'/'.$ret['key'];
+                }
+            }
+            $photographer->avatar = $avatar;
             $photographer->name = $request->name;
             $photographer->province = $request->province;
             $photographer->city = $request->city;
@@ -218,72 +289,38 @@ class DraftController extends UserGuardController
             $photographer->status = 200;
             $photographer->save();
             $photographer_work = $photographer->photographerWorks()->where(['status' => 0])->first();
-            $photographerWorkSources = PhotographerWorkSource::where(['status' => 0])->orderBy('sort', 'asc')->get();
+            if (!$photographer_work) {
+                \DB::rollback();//回滚事务
+
+                return $this->response->error('作品集不存在', 500);
+            }
+            $photographerWorkSources = $photographer_work->photographerWorkSources()->where(
+                ['status' => 200]
+            )->orderBy('sort', 'asc')->get();
             if ($photographerWorkSources) {
                 foreach ($photographerWorkSources as $photographerWorkSource) {
-                    $log_filename = 'logs/qiniu_fop_error/'.date('Y-m-d').'/'.date('H').'.log';
                     if ($photographerWorkSource->type == 'image') {
-                        $res = SystemServer::request('GET', $photographerWorkSource->url.'?imageInfo');
-                        if ($res['code'] == 200) {
-                            if (!isset($res['data']['code']) || $res['data']['code'] == 200) {
-                                $photographerWorkSource->init_size = $res['data']['size'];
-                                $photographerWorkSource->deal_size = $res['data']['size'];
-                                $photographerWorkSource->rich_size = $res['data']['size'];
-                            } else {
-                                $error = [];
-                                $error['log_time'] = date('i:s');
-                                $error['step'] = 0;
-                                $error['msg'] = '请求图片信息接口返回错误信息';
-                                $error['response'] = $res['data'];
-                                SystemServer::filePutContents(
-                                    $log_filename,
-                                    json_encode($error).PHP_EOL
-                                );
-                                $photographerWorkSource->status = 500;
-                                $photographerWorkSource->save();
-                            }
-                        } else {
-                            $error = [];
-                            $error['log_time'] = date('i:s');
-                            $error['step'] = 0;
-                            $error['msg'] = '请求图片信息接口失败：'.$res['msg'];
-                            SystemServer::filePutContents(
-                                $log_filename,
-                                json_encode($error).PHP_EOL
-                            );
-                            $photographerWorkSource->status = 500;
-                            $photographerWorkSource->save();
-                        }
-                    } elseif ($photographerWorkSource->type == 'video') {
-
-                    }
-                    if ($photographerWorkSource->type == 'image') {
-                        $fops = ["imageMogr2/colorspace/srgb|imageView2/2/w/1200|imageslim"];
-                    } elseif ($photographerWorkSource->type == 'video') {
-                        $fops = "";
-                    }
-                    $bucket = 'zuopin';
-                    $qrst = SystemServer::qiniuPfop(
-                        $bucket,
-                        $photographerWorkSource->key,
-                        $fops,
-                        null,
-                        config(
-                            'app.url'
-                        ).'/api/notify/qiniu/fop?photographer_work_source_id='.$photographerWorkSource->id.'&step=1',
-                        true
-                    );
-                    if (!empty($qrst['err'])) {
-                        $error = [];
-                        $error['log_time'] = date('i:s');
-                        $error['step'] = 0;
-                        $error['msg'] = json_encode($qrst['err']);
-                        SystemServer::filePutContents(
-                            $log_filename,
-                            json_encode($error).PHP_EOL
+                        $fops = ["imageMogr2/thumbnail/1200x|imageMogr2/colorspace/srgb|imageslim"];
+                        $bucket = 'zuopin';
+                        $qrst = SystemServer::qiniuPfop(
+                            $bucket,
+                            $photographerWorkSource->key,
+                            $fops,
+                            null,
+                            config(
+                                'app.url'
+                            ).'/api/notify/qiniu/fop?photographer_work_source_id='.$photographerWorkSource->id.'&step=1',
+                            true
                         );
-                        $photographerWorkSource->status = 500;
-                        $photographerWorkSource->save();
+                        if ($qrst['err']) {
+                            ErrLogServer::QiniuNotifyFop(
+                                0,
+                                '七牛持久化接口返回错误信息',
+                                $request->all(),
+                                $photographerWorkSource,
+                                $qrst['err']
+                            );
+                        }
                     }
                 }
             }
@@ -305,8 +342,7 @@ class DraftController extends UserGuardController
      * 查出添加摄影师作品集资源
      * @return mixed|void
      */
-    public
-    function addPhotographerWorkSource()
+    public function addPhotographerWorkSource()
     {
         $this->notPhotographerIdentityVerify();
         $photographer_work = User::photographer(null, $this->guard)->photographerWorks()->where(['status' => 0])->first(
@@ -328,10 +364,8 @@ class DraftController extends UserGuardController
      * @param PhotographerRequest $request
      * @return \Dingo\Api\Http\Response|void
      */
-    public
-    function addPhotographerWorkSourceStore(
-        PhotographerRequest $request
-    ) {
+    public function addPhotographerWorkSourceStore(PhotographerRequest $request)
+    {
         $this->notPhotographerIdentityVerify();
         \DB::beginTransaction();//开启事务
         try {
@@ -344,9 +378,7 @@ class DraftController extends UserGuardController
                 $photographer_work->photographer_id = $photographer->id;
             }
             $photographer_work->save();
-            PhotographerWorkSource::where(['photographer_work_id' => $photographer_work->id, 'status' => 200])->update(
-                ['status' => 300]
-            );
+            $photographer_work->photographerWorkSources()->where(['status' => 200])->update(['status' => 300]);
             foreach ($request->sources as $k => $v) {
                 $photographer_work_source = PhotographerWorkSource::where(
                     ['photographer_work_id' => $photographer_work->id, 'status' => 300, 'key' => $v['key']]
@@ -374,67 +406,88 @@ class DraftController extends UserGuardController
                         $res = SystemServer::request('GET', $photographer_work_source->url.'?imageInfo');
                         if ($res['code'] == 200) {
                             if (!isset($res['data']['code']) || $res['data']['code'] == 200) {
-                                $photographer_work_source->init_size = $res['data']['size'];
+                                $photographer_work_source->size = $res['data']['size'];
+                                $photographer_work_source->width = $res['data']['width'];
+                                $photographer_work_source->height = $res['data']['height'];
                                 $photographer_work_source->deal_size = $res['data']['size'];
+                                $photographer_work_source->deal_width = $res['data']['width'];
+                                $photographer_work_source->deal_height = $res['data']['height'];
                                 $photographer_work_source->rich_size = $res['data']['size'];
-                            } else {
-                                $error = [];
-                                $error['log_time'] = date('i:s');
-                                $error['step'] = 0;
-                                $error['msg'] = '请求图片信息接口返回错误信息';
-                                $error['response'] = $res['data'];
-                                SystemServer::filePutContents(
-                                    $log_filename,
-                                    json_encode($error).PHP_EOL
-                                );
-                                $photographer_work_source->status = 500;
+                                $photographer_work_source->rich_width = $res['data']['width'];
+                                $photographer_work_source->rich_height = $res['data']['height'];
                                 $photographer_work_source->save();
+                            } else {
+                                ErrLogServer::QiniuNotifyFop(
+                                    0,
+                                    '七牛图片信息接口返回错误信息',
+                                    $request->all(),
+                                    $photographer_work_source,
+                                    $res['data']
+                                );
                             }
                         } else {
-                            $error = [];
-                            $error['log_time'] = date('i:s');
-                            $error['step'] = 0;
-                            $error['msg'] = '请求图片信息接口失败：'.$res['msg'];
-                            SystemServer::filePutContents(
-                                $log_filename,
-                                json_encode($error).PHP_EOL
+                            ErrLogServer::QiniuNotifyFop(
+                                0,
+                                '请求七牛图片信息接口报错：'.$res['msg'],
+                                $request->all(),
+                                $photographer_work_source,
+                                $res
                             );
-                            $photographer_work_source->status = 500;
-                            $photographer_work_source->save();
                         }
                     } elseif ($photographer_work_source->type == 'video') {
-
+                        $res = SystemServer::request('GET', $photographer_work_source->url.'?avinfo');
+                        if ($res['code'] == 200) {
+                            if (!isset($res['data']['code']) || $res['data']['code'] == 200) {
+                                $photographer_work_source->size = $res['data']['format']['size'];
+                                $photographer_work_source->deal_size = $res['data']['format']['size'];
+                                $photographer_work_source->rich_size = $res['data']['format']['size'];
+                                $photographer_work_source->save();
+                            } else {
+                                ErrLogServer::QiniuNotifyFop(
+                                    0,
+                                    '七牛视频信息接口返回错误信息',
+                                    $request->all(),
+                                    $photographer_work_source,
+                                    $res['data']
+                                );
+                            }
+                        } else {
+                            ErrLogServer::QiniuNotifyFop(
+                                0,
+                                '请求七牛视频信息接口报错：'.$res['msg'],
+                                $request->all(),
+                                $photographer_work_source,
+                                $res
+                            );
+                        }
                     }
                     if ($photographer_work_source->type == 'image') {
-                        $fops = ["imageMogr2/colorspace/srgb|imageView2/2/w/1200|imageslim"];
-                    } elseif ($photographer_work_source->type == 'video') {
-                        $fops = "";
-                    }
-                    $bucket = 'zuopin';
-                    $qrst = SystemServer::qiniuPfop(
-                        $bucket,
-                        $photographer_work_source->key,
-                        $fops,
-                        null,
-                        config(
-                            'app.url'
-                        ).'/api/notify/qiniu/fop?photographer_work_source_id='.$photographer_work_source->id.'&step=1',
-                        true
-                    );
-                    if (!empty($qrst['err'])) {
-                        $error = [];
-                        $error['log_time'] = date('i:s');
-                        $error['step'] = 0;
-                        $error['msg'] = json_encode($qrst['err']);
-                        SystemServer::filePutContents(
-                            $log_filename,
-                            json_encode($error).PHP_EOL
+                        $fops = ["imageMogr2/thumbnail/1200x|imageMogr2/colorspace/srgb|imageslim"];
+                        $bucket = 'zuopin';
+                        $qrst = SystemServer::qiniuPfop(
+                            $bucket,
+                            $photographer_work_source->key,
+                            $fops,
+                            null,
+                            config(
+                                'app.url'
+                            ).'/api/notify/qiniu/fop?photographer_work_source_id='.$photographer_work_source->id.'&step=1',
+                            true
                         );
-                        $photographer_work_source->status = 500;
-                        $photographer_work_source->save();
+                        if ($qrst['err']) {
+                            ErrLogServer::QiniuNotifyFop(
+                                0,
+                                '七牛持久化接口返回错误信息',
+                                $request->all(),
+                                $photographer_work_source,
+                                $qrst['err']
+                            );
+                        }
                     }
+
                 }
             }
+            $photographer_work->photographerWorkSources()->where(['status' => 300])->update(['status' => 400]);
             \DB::commit();//提交事务
 
             return $this->response->noContent();
@@ -449,8 +502,7 @@ class DraftController extends UserGuardController
      * 查出添加摄影师作品集信息
      * @return mixed|void
      */
-    public
-    function addPhotographerWork()
+    public function addPhotographerWork()
     {
         $this->notPhotographerIdentityVerify();
         $photographer_work = User::photographer(null, $this->guard)->photographerWorks()->where(['status' => 0])->first(
@@ -483,10 +535,8 @@ class DraftController extends UserGuardController
      * @param PhotographerRequest $request
      * @return \Dingo\Api\Http\Response|void
      */
-    public
-    function addPhotographerWorkStore(
-        PhotographerRequest $request
-    ) {
+    public function addPhotographerWorkStore(PhotographerRequest $request)
+    {
         $this->notPhotographerIdentityVerify();
         \DB::beginTransaction();//开启事务
         try {

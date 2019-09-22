@@ -41,9 +41,11 @@ class SystemRequest extends BaseRequest
                     'expires_in' => 'required|integer',
                 ];
                 break;
-            case 'baiduDownAndUpQiniu':
+            case 'qiniuFetchBaiduPan':
                 $rules = [
+                    'photographer_work_id' => 'integer',
                     'fsids' => 'required|array|min:1|max:18',
+                    'is_register_photographer' => 'integer|in:0,1',
                 ];
                 break;
         }
@@ -92,15 +94,15 @@ class SystemRequest extends BaseRequest
                     'expires_in.integer' => 'expires_in必须为数字',
                 ];
                 break;
-            case 'baiduDownAndUpQiniu':
-                $rules = [
-                    'fsids' => 'required|array|min:1|max:18',
-                ];
+            case 'qiniuFetchBaiduPan':
                 $messages = [
+                    'photographer_work_id.integer' => 'photographer_work_id必须为数字',
                     'fsids.required' => '网盘文件id不能为空',
                     'fsids.array' => '网盘文件id必须是数组',
                     'fsids.min' => '网盘文件id至少1个',
                     'fsids.max' => '网盘文件id至多18个',
+                    'is_register_photographer.integer' => 'is_register_photographer必须为数字',
+                    'is_register_photographer.in' => 'is_register_photographer错误',
                 ];
                 break;
         }
@@ -121,7 +123,7 @@ class SystemRequest extends BaseRequest
             'getCitys' => ['GET|App\Http\Controllers\Api\SystemController@getCitys'],
             'getAreas' => ['GET|App\Http\Controllers\Api\SystemController@getAreas'],
             'baiduOauthStore' => ['POST|App\Http\Controllers\Api\SystemController@baiduOauthStore'],
-            'baiduDownAndUpQiniu' => ['POST|App\Http\Controllers\Api\BaiduController@downAndUpQiniuVerify'],
+            'qiniuFetchBaiduPan' => ['POST|App\Http\Controllers\Api\BaiduController@qiniuFetchPan'],
         ];
     }
 }

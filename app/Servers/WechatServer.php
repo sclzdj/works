@@ -55,7 +55,7 @@ class WechatServer
     static public function getxacodeunlimit(
         $scene,
         $page = null,
-        $width = 430,
+        $width = 370,
         $auto_color = false,
         $is_hyaline = true,
         $line_color = ['r' => 0, 'g' => 0, 'b' => 0]

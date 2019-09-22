@@ -74,7 +74,13 @@ class PhotographerController extends BaseController
             'photographer_work_tags.photographer_work_id',
             '=',
             'photographer_works.id'
-        )->where(['photographer_works.status' => 200])->whereRaw($whereRaw)->paginate(
+        )->where(['photographer_works.status' => 200])->whereRaw($whereRaw)->orderBy(
+            'photographer_works.roof',
+            'desc'
+        )->orderBy(
+            'photographer_works.created_at',
+            'desc'
+        )->paginate(
             $request->pageSize
         );
         $all_tags = [];
