@@ -2,7 +2,6 @@
 
 namespace App\Servers;
 
-use App\Model\Index\AsyncBaiduWorkSourcesUpload;
 use App\Model\Index\AsyncBaiduWorkSourceUpload;
 use App\Model\Index\PhotographerWorkSource;
 
@@ -13,14 +12,12 @@ class ErrLogServer
      * @param $msg 报错信息
      * @param $request_data 通知数据或报错数据
      * @param AsyncBaiduWorkSourceUpload|null $asyncBaiduWorkSourceUpload
-     * @param AsyncBaiduWorkSourcesUpload|null $asyncBaiduWorkSourcesUpload
      * @param PhotographerWorkSource|null $photographerWorkSource
      */
     static public function QiniuNotifyFetch(
         $msg,
         $request_data,
         AsyncBaiduWorkSourceUpload $asyncBaiduWorkSourceUpload = null,
-        AsyncBaiduWorkSourcesUpload $asyncBaiduWorkSourcesUpload = null,
         PhotographerWorkSource $photographerWorkSource = null
     ) {
         if ($asyncBaiduWorkSourceUpload) {
@@ -29,10 +26,6 @@ class ErrLogServer
             $asyncBaiduWorkSourceUpload_id = $asyncBaiduWorkSourceUpload->id;
         } else {
             $asyncBaiduWorkSourceUpload_id = 0;
-        }
-        if ($asyncBaiduWorkSourcesUpload) {
-            $asyncBaiduWorkSourcesUpload->status = 500;
-            $asyncBaiduWorkSourcesUpload->save();
         }
         if ($photographerWorkSource) {
             $photographerWorkSource->status = 500;

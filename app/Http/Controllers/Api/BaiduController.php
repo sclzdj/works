@@ -10,7 +10,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\Auth\UserGuardController;
 use App\Http\Requests\Index\SystemRequest;
-use App\Model\Index\AsyncBaiduWorkSourcesUpload;
 use App\Model\Index\AsyncBaiduWorkSourceUpload;
 use App\Model\Index\BaiduOauth;
 use App\Model\Index\PhotographerWork;
@@ -165,22 +164,28 @@ class BaiduController extends UserGuardController
                             return $this->response->error('必须选择图片或视频', 500);
                         }
                     }
-                    $asyncBaiduWorkSourcesUpload = AsyncBaiduWorkSourcesUpload::create();
-                    $asyncBaiduWorkSourcesUpload->user_id = $user_id;
-                    $asyncBaiduWorkSourcesUpload->photographer_work_id = $photographer_work->id;
-                    $asyncBaiduWorkSourcesUpload->save();
                     $sorts = [];
                     foreach ($fsids as $k => $fs_id) {
                         $sorts[$fs_id] = $k + 1;
                     }
                     $photographer_work->photographerWorkSources()->where('status', 200)->update(['status' => 400]);
                     foreach ($response['list'] as $k => $file) {
+                        $photographer_work_source = PhotographerWorkSource::create();
+                        $photographer_work_source->photographer_work_id = $photographer_work->id;
+                        if ($file['category'] == 1) {
+                            $photographer_work_source->type = 'video';
+                        } elseif ($file['category'] == 3) {
+                            $photographer_work_source->type = 'image';
+                        }
+                        $photographer_work_source->origin = 'baidu_disk';
+                        $photographer_work_source->sort = $sorts[$file['fs_id']] ?? 0;
+                        $photographer_work_source->status=200;
+                        $photographer_work_source->save();
                         $asyncBaiduWorkSourceUpload = AsyncBaiduWorkSourceUpload::create();
-                        $asyncBaiduWorkSourceUpload->async_baidu_work_sources_upload_id = $asyncBaiduWorkSourcesUpload->id;
+                        $asyncBaiduWorkSourceUpload->photographer_work_source_id = $photographer_work_source->id;
                         $asyncBaiduWorkSourceUpload->fs_id = $file['fs_id'];
                         $asyncBaiduWorkSourceUpload->category = $file['category'];
                         $asyncBaiduWorkSourceUpload->size = $file['size'];
-                        $asyncBaiduWorkSourceUpload->sort = $sorts[$file['fs_id']] ?? 0;
                         $asyncBaiduWorkSourceUpload->save();
                         if ($file['category'] == 1) {
                             $type = 'video';

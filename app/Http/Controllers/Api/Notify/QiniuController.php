@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\Notify;
 
 use App\Http\Controllers\Api\BaseController;
-use App\Model\Index\AsyncBaiduWorkSourcesUpload;
 use App\Model\Index\AsyncBaiduWorkSourceUpload;
 use App\Model\Index\Photographer;
 use App\Model\Index\PhotographerWork;
@@ -32,38 +31,19 @@ class QiniuController extends BaseController
         if (!$asyncBaiduWorkSourceUpload) {
             return ErrLogServer::QiniuNotifyFetch('AsyncBaiduWorkSourceUpload记录不存在', $request_data);
         }
-        $asyncBaiduWorkSourcesUpload = AsyncBaiduWorkSourcesUpload::where(
-            ['id' => $asyncBaiduWorkSourceUpload->async_baidu_work_sources_upload_id]
+        $photographerWorkSource = PhotographerWorkSource::where(
+            ['id' => $asyncBaiduWorkSourceUpload->photographer_work_source_id]
         )->first();
-        if (!$asyncBaiduWorkSourcesUpload) {
+        if (!$photographerWorkSource) {
             return ErrLogServer::QiniuNotifyFetch(
-                'AsyncBaiduWorkSourcesUpload记录不存在',
+                '作品集资源不存在',
                 $request_data,
                 $asyncBaiduWorkSourceUpload
             );
         }
-        $photographerWork = PhotographerWork::where(
-            ['id' => $asyncBaiduWorkSourcesUpload->photographer_work_id]
-        )->first();
-        if (!$photographerWork) {
-            return ErrLogServer::QiniuNotifyFetch(
-                '作品集不存在',
-                $request_data,
-                $asyncBaiduWorkSourceUpload,
-                $asyncBaiduWorkSourcesUpload
-            );
-        }
         try {
-            $photographerWorkSource = PhotographerWorkSource::create();
             $request_data['width'] = $request_data['width'] ?? 0;
             $request_data['height'] = $request_data['height'] ?? 0;
-            $photographerWorkSource->photographer_work_id = $photographerWork->id;
-            $photographerWorkSource->origin = 'baidu_disk';
-            if ($asyncBaiduWorkSourceUpload->category == 1) {
-                $photographerWorkSource->type = 'video';
-            } elseif ($asyncBaiduWorkSourceUpload->category == 3) {
-                $photographerWorkSource->type = 'image';
-            }
             $bucket = 'zuopin';
             $buckets = config('custom.qiniu.buckets');
             $domain = $buckets[$bucket]['domain'] ?? '';
@@ -82,17 +62,14 @@ class QiniuController extends BaseController
             $photographerWorkSource->rich_size = $request_data['size'];
             $photographerWorkSource->rich_width = $request_data['width'];
             $photographerWorkSource->rich_height = $request_data['height'];
-            $photographerWorkSource->sort = $asyncBaiduWorkSourceUpload->sort;
-            $photographerWorkSource->status = 200;
             $photographerWorkSource->save();
             $asyncBaiduWorkSourceUpload->status = 200;
             $asyncBaiduWorkSourceUpload->save();
         } catch (\Exception $e) {
             return ErrLogServer::QiniuNotifyFetch(
-                $e->getMessage(),
+                (string)$e->getMessage(),
                 $request_data,
                 $asyncBaiduWorkSourceUpload,
-                $asyncBaiduWorkSourcesUpload,
                 $photographerWorkSource
             );
         }
@@ -119,16 +96,6 @@ class QiniuController extends BaseController
                     );
                 }
             }
-        }
-        $count1 = AsyncBaiduWorkSourceUpload::where(
-            ['async_baidu_work_sources_upload_id' => $asyncBaiduWorkSourcesUpload->id]
-        )->count();
-        $count2 = AsyncBaiduWorkSourceUpload::where(
-            ['async_baidu_work_sources_upload_id' => $asyncBaiduWorkSourcesUpload->id, 'status' => 200]
-        )->count();
-        if ($count1 == $count2) {
-            $asyncBaiduWorkSourcesUpload->status = 200;
-            $asyncBaiduWorkSourcesUpload->save();
         }
     }
 

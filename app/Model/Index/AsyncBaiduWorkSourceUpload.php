@@ -12,11 +12,10 @@ class AsyncBaiduWorkSourceUpload extends Model
      * @var array
      */
     protected $fillable = [
-        'async_baidu_work_sources_upload_id',
+        'photographer_work_source_id',
         'fs_id',
         'category',
         'size',
-        'sort',
         'status',
     ];
 
@@ -35,11 +34,10 @@ class AsyncBaiduWorkSourceUpload extends Model
     {
         return [
             'id',
-            'async_baidu_work_sources_upload_id',
+            'photographer_work_source_id',
             'fs_id',
             'category',
             'size',
-            'sort',
             'status',
             'created_at',
         ];
