@@ -111,12 +111,25 @@ class User extends Authenticatable implements JWTSubject
     /**
      * 为用户生成小程序吗
      */
-    public static function createXacode($photographer_id)
+    public static function createXacode($id, $type = 'photographer')
     {
-        $photographer = Photographer::find($photographer_id);
-        $response = WechatServer::getxacodeunlimit($photographer_id);
+        if ($type == 'photographer_work') {
+            $page = null;
+            $photographer_work = PhotographerWork::find($id);
+            if (!$photographer_work) {
+                return '';
+            }
+            $photographer = Photographer::find($photographer_work->photographer_id);
+        } else {
+            $page = null;
+            $photographer = Photographer::find($id);
+        }
+        if (!$photographer) {
+            return '';
+        }
+        $response = WechatServer::getxacodeunlimit($id, $page);
         if ($response['code'] == 200) {
-            $filename = 'xacodes/'.$photographer_id.'.png';
+            $filename = 'xacodes/'.time().mt_rand(10000, 99999).'.png';
             $xacode = Image::make($response['data'])->resize(370, 370);
             $bgimg = Image::make('xacodes/bg.png')->resize(420, 420);
             $bgimg->insert($xacode, 'top-left', 25, 25);
@@ -134,10 +147,10 @@ class User extends Authenticatable implements JWTSubject
             // 构建 UploadManager 对象
             $uploadMgr = new UploadManager();
             list($ret, $err) = $uploadMgr->putFile($upToken, null, $filename);
+            @unlink($filename);
             if ($err) {
                 return '';
             }
-            @unlink($filename);
             if (!$photographer->avatar) {
                 return $domain.'/'.$ret['key'].'?roundPic/radius/!50p';
             }

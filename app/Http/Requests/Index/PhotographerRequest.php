@@ -184,8 +184,8 @@ class PhotographerRequest extends BaseRequest
                 'POST|App\Http\Controllers\Api\MyController@savePhotographerInfo',
             ],
             'photographerInfo' => ['GET|App\Http\Controllers\Api\PhotographerController@info'],
-            'photographerWorks' => ['GET|App\Http\Controllers\Api\PhotographerController@works'],
-            'photographerWork' => ['GET|App\Http\Controllers\Api\PhotographerController@work'],
+            'photographerWorks' => ['GET|App\Http\Controllers\Api\PhotographerController@works','GET|App\Http\Controllers\Api\PhotographerController@poster'],
+            'photographerWork' => ['GET|App\Http\Controllers\Api\PhotographerController@work','GET|App\Http\Controllers\Api\PhotographerController@workPoster'],
         ];
     }
 }

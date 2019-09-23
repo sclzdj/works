@@ -77,6 +77,8 @@ $api->version('v1',['namespace'=>'\App\Http\Controllers\Api'],function ($api){
         $api->get('photographer/info', 'PhotographerController@info');
         $api->get('photographer/works', 'PhotographerController@works');
         $api->get('photographer/work', 'PhotographerController@work');
+        $api->get('photographer/poster', 'PhotographerController@poster');
+        $api->get('photographer/workPoster', 'PhotographerController@workPoster');
         //游客
         $api->get('randomPhotographers', 'MyController@randomPhotographers');
         //访问

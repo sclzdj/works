@@ -53,6 +53,7 @@ class BaiduController extends UserGuardController
     {
         \DB::beginTransaction();//开启事务
         try {
+            $this->_baiduRequest('https://openapi.baidu.com/rest/2.0/passport/auth/revokeAuthorization');
             BaiduOauth::where('user_id', auth($this->guard)->id())->delete();
             \DB::commit();
 
