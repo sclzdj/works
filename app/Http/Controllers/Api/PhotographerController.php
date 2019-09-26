@@ -11,6 +11,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Index\PhotographerRequest;
 use App\Model\Admin\SystemArea;
+use App\Model\Index\OperateRecord;
 use App\Model\Index\Photographer;
 use App\Model\Index\PhotographerRank;
 use App\Model\Index\PhotographerWork;
@@ -18,6 +19,7 @@ use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\PhotographerWorkTag;
 use App\Model\Index\User;
 use App\Model\Index\ViewRecord;
+use App\Model\Index\Visitor;
 use App\Servers\ArrServer;
 use App\Servers\SystemServer;
 
@@ -136,10 +138,13 @@ class PhotographerController extends BaseController
             ['project_amount', 'sheets_number', 'shooting_duration']
         );
         $photographer_work = SystemServer::parsePhotographerWorkCover($photographer_work);
-        $photographer_work['sources'] = $photographer_work_sources;
-        $photographer_work['tags'] = $photographer_work_tags;
         $photographer_work = SystemServer::parsePhotographerWorkCustomerIndustry($photographer_work);
         $photographer_work = SystemServer::parsePhotographerWorkCategory($photographer_work);
+        $photographer_work['sources'] = $photographer_work_sources;
+        $photographer_work['tags'] = $photographer_work_tags;
+        $photographer_work['photographer'] = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
+        $photographer_work['photographer'] = SystemServer::parseRegionName($photographer_work['photographer']);
+        $photographer_work['photographer'] = SystemServer::parsePhotographerRank($photographer_work['photographer']);
 
         return $this->response->array($photographer_work);
     }
@@ -244,8 +249,39 @@ class PhotographerController extends BaseController
             ).'/fontsize/700/fill/'.\Qiniu\base64_urlSafeEncode('#4E4E4E').'/gravity/North/dx/0/dy/1950';
         $deals[] = $watermark;
         $url .= '?'.implode('|', $deals);
+        //记录
+        \DB::beginTransaction();//开启事务
+        try {
+            $user = auth('users')->user();
+            if ($user) {
+                $operate_record = OperateRecord::create();
+                $operate_record->user_id = $user->id;
+                $operate_record->page_name = 'photographer_home';
+                $operate_record->photographer_id = $photographer->id;
+                $operate_record->share_type = 'poster_share';
+                $operate_record->operate_type = 'share';
+                $operate_record->save();
+                if ($user->id != $photographer->id) {//如果不是自己访问，记录访客信息
+                    $visitor = Visitor::where(
+                        ['photographer_id' => $photographer->id, 'user_id' => $user->id]
+                    )->first();
+                    if (!$visitor) {
+                        $visitor = Visitor::create();
+                        $visitor->photographer_id = $photographer->id;
+                        $visitor->user_id = $user->id;
+                    }
+                    $visitor->unread_count++;
+                    $visitor->save();
+                }
+            }
+            \DB::commit();//提交事务
 
-        return $this->responseParseArray(compact('url'));
+            return $this->responseParseArray(compact('url'));
+        } catch (\Exception $e) {
+            \DB::rollback();//回滚事务
+
+            return $this->response->error($e->getMessage(), 500);
+        }
     }
 
     /**
@@ -326,7 +362,39 @@ class PhotographerController extends BaseController
             ).'/fontsize/700/fill/'.\Qiniu\base64_urlSafeEncode('#4E4E4E').'/gravity/North/dx/0/dy/1950';
         $deals[] = $watermark;
         $url .= '?'.implode('|', $deals);
+        //记录
+        \DB::beginTransaction();//开启事务
+        try {
+            $user = auth('users')->user();
+            if ($user) {
+                $operate_record = OperateRecord::create();
+                $operate_record->user_id = $user->id;
+                $operate_record->page_name = 'photographer_work';
+                $operate_record->photographer_id = $photographer->id;
+                $operate_record->photographer_work_id = $photographer_work->id;
+                $operate_record->share_type = 'poster_share';
+                $operate_record->operate_type = 'share';
+                $operate_record->save();
+                if ($user->id != $photographer->id) {//如果不是自己访问，记录访客信息
+                    $visitor = Visitor::where(
+                        ['photographer_id' => $photographer->id, 'user_id' => $user->id]
+                    )->first();
+                    if (!$visitor) {
+                        $visitor = Visitor::create();
+                        $visitor->photographer_id = $photographer->id;
+                        $visitor->user_id = $user->id;
+                    }
+                    $visitor->unread_count++;
+                    $visitor->save();
+                }
+            }
+            \DB::commit();//提交事务
 
-        return $this->responseParseArray(compact('url'));
+            return $this->responseParseArray(compact('url'));
+        } catch (\Exception $e) {
+            \DB::rollback();//回滚事务
+
+            return $this->response->error($e->getMessage(), 500);
+        }
     }
 }

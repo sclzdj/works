@@ -66,6 +66,13 @@ class VisitController extends UserGuardController
             $operate_record->shared_user_id = $request->shared_user_id ?? 0;
             $operate_record->operate_type = 'in';
             $operate_record->save();
+            $operate_record = OperateRecord::create();
+            $operate_record->user_id = $user->id;
+            $operate_record->page_name = $request->page_name;
+            $operate_record->photographer_id = $request->photographer_id;
+            $operate_record->photographer_work_id = $request->photographer_work_id;
+            $operate_record->operate_type = 'view';
+            $operate_record->save();
             if ($user->id != $photographer_user->id) {//如果不是自己访问，记录访客信息
                 $visitor = Visitor::where(
                     ['photographer_id' => $request->photographer_id, 'user_id' => $user->id]
@@ -75,7 +82,7 @@ class VisitController extends UserGuardController
                     $visitor->photographer_id = $request->photographer_id;
                     $visitor->user_id = $user->id;
                 }
-                $visitor->unread_count++;
+                $visitor->unread_count = $visitor->unread_count + 2;
                 $visitor->save();
             }
             \DB::commit();//提交事务
@@ -122,7 +129,56 @@ class VisitController extends UserGuardController
             $operate_record->page_name = $request->page_name;
             $operate_record->photographer_id = $request->photographer_id;
             $operate_record->photographer_work_id = $request->photographer_work_id;
+            $operate_record->share_type = $request->share_type;
             $operate_record->operate_type = 'share';
+            $operate_record->save();
+            if ($user->id != $photographer_user->id) {//如果不是自己访问，记录访客信息
+                $visitor = Visitor::where(
+                    ['photographer_id' => $request->photographer_id, 'user_id' => $user->id]
+                )->first();
+                if (!$visitor) {
+                    $visitor = Visitor::create();
+                    $visitor->photographer_id = $request->photographer_id;
+                    $visitor->user_id = $user->id;
+                }
+                $visitor->unread_count++;
+                $visitor->save();
+            }
+            \DB::commit();//提交事务
+
+            return $this->response->noContent();
+        } catch (\Exception $e) {
+            \DB::rollback();//回滚事务
+
+            return $this->response->error($e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * 保存复制微信的操作记录
+     * @param VisitRequest $request
+     * @return \Dingo\Api\Http\Response|void
+     * @throws \Exception
+     */
+    public function copyWxRecord(VisitRequest $request)
+    {
+        \DB::beginTransaction();//开启事务
+        try {
+            $user = auth($this->guard)->user();
+            $photographer = Photographer::where(['id' => $request->photographer_id, 'status' => 200])->first();
+            if (!$photographer) {
+                return $this->response->error('摄影师不存在', 500);
+            }
+            $photographer_user = User::where(['identity' => 1, 'photographer_id' => $request->photographer_id])->first(
+            );
+            if (!$photographer_user) {
+                return $this->response->error('摄影师信息错误', 500);
+            }
+            $operate_record = OperateRecord::create();
+            $operate_record->user_id = $user->id;
+            $operate_record->page_name = 'photographer_home';
+            $operate_record->photographer_id = $request->photographer_id;
+            $operate_record->operate_type = 'copy_wx';
             $operate_record->save();
             if ($user->id != $photographer_user->id) {//如果不是自己访问，记录访客信息
                 $visitor = Visitor::where(
@@ -235,13 +291,33 @@ class VisitController extends UserGuardController
         );
         $visitors = SystemServer::parsePaginate($visitors->toArray());
         foreach ($visitors['data'] as $k => $visitor) {
-            $visitors['data'][$k]['describe']='这是访客记录的描述';
+            $operateRecord = OperateRecord::where(
+                ['user_id' => $visitor['user_id'], 'photographer_id' => $visitor['photographer_id']]
+            )->orderBy('created_at', 'desc')->first();
+            $describe = '';
+            if ($operateRecord) {
+                $describe = $this->_makeDescribe($operateRecord->id);
+            }
+            $visitors['data'][$k]['describe'] = $describe;
             $visitors['data'][$k]['user'] = User::select(User::allowFields())->where('id', $visitor['user_id'])->first(
             )->toArray();
         }
         $visitors['data'] = SystemServer::parseVisitorTag($visitors['data']);
 
         return $this->response->array($visitors);
+    }
+
+    /**
+     * 访问总未读数查询
+     * @return mixed
+     */
+    public function unreadCount()
+    {
+        $this->notPhotographerIdentityVerify();
+        $photographer = User::photographer(null, $this->guard);
+        $all_unread_count = Visitor::where(['photographer_id' => $photographer->id])->sum('unread_count');
+
+        return $this->responseParseArray(compact('all_unread_count'));
     }
 
     /**
@@ -355,7 +431,7 @@ class VisitController extends UserGuardController
                     )->first()->toArray();
                 }
                 $records[$_k]['time'] = date('H:i:s', strtotime($record['created_at']));
-                $records[$_k]['describe'] = '这是访客记录的描述';
+                $records[$_k]['describe'] = $this->_makeDescribe($record['id']);
                 $records[$_k] = [
                     'time' => $records[$_k]['time'],
                     'describe' => $records[$_k]['describe'],
@@ -365,5 +441,58 @@ class VisitController extends UserGuardController
         }
 
         return $this->responseParseArray($view_records);
+    }
+
+    /**
+     * 生成访问记录描述
+     * @param $operate_id
+     * @return string
+     */
+    private function _makeDescribe($operate_id)
+    {
+        $operateRecord = OperateRecord::where(['id' => $operate_id])->first();
+        $visitor_nickname = (string)User::where('id', $operateRecord->user_id)->value('nickname');
+        $photographer_name = (string)Photographer::where('id', $operateRecord->photographer_id)->value('name');
+        $photographer_work_customer_name = (string)PhotographerWork::where(
+            'id',
+            $operateRecord->photographer_work_id
+        )->value('customer_name');
+        $shared_user_nickname = (string)User::where('id', $operateRecord->shared_user_id)->value('nickname');
+        $describe = '';
+        if ($operateRecord->operate_type == 'view') {
+            if ($operateRecord->page_name == 'photographer_home') {
+                $describe = $visitor_nickname.'浏览了主页';
+            } elseif ($operateRecord->page_name == 'photographer_work') {
+                $describe = $visitor_nickname.'浏览了【'.$photographer_work_customer_name.'】';
+            }
+        } elseif ($operateRecord->operate_type == 'in') {
+            if ($operateRecord->in_type == 'xacode_in') {
+                $describe = $visitor_nickname.'扫描小程序码进入';
+            } elseif ($operateRecord->in_type == 'xacard_in') {
+                $describe = $visitor_nickname.'通过'.$shared_user_nickname.'分享的小程序卡片进入';
+            } elseif ($operateRecord->in_type == 'view_history_in') {
+                $describe = $visitor_nickname.'从最近浏览进入';
+            } elseif ($operateRecord->in_type == 'routine_in') {
+                $describe = $visitor_nickname.'通过普通方式进入';
+            }
+        } elseif ($operateRecord->operate_type == 'share') {
+            if ($operateRecord->page_name == 'photographer_home') {
+                if ($operateRecord->share_type == 'xacard_share') {
+                    $describe = $visitor_nickname.'将主页分享给了微信好友';
+                } elseif ($operateRecord->share_type == 'poster_share') {
+                    $describe = $visitor_nickname.'生成了主页的海报';
+                }
+            } elseif ($operateRecord->page_name == 'photographer_work') {
+                if ($operateRecord->share_type == 'xacard_share') {
+                    $describe = $visitor_nickname.'将【'.$photographer_work_customer_name.'】分享给了微信好友';
+                } elseif ($operateRecord->share_type == 'poster_share') {
+                    $describe = $visitor_nickname.'生成了【'.$photographer_work_customer_name.'】的海报';
+                }
+            }
+        } elseif ($operateRecord->operate_type == 'copy_wx') {
+            $describe = $visitor_nickname.'复制了微信号';
+        }
+
+        return $describe;
     }
 }

@@ -18,6 +18,7 @@ class OperateRecord extends Model
         'page_name',
         'operate_type',
         'in_type',
+        'share_type',
         'shared_user_id',
     ];
 
@@ -44,6 +45,7 @@ class OperateRecord extends Model
             'page_name',
             'operate_type',
             'in_type',
+            'share_type',
             'shared_user_id',
             'created_at',
         ];

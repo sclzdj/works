@@ -22,6 +22,7 @@ class CreateOperateRecordsTable extends Migration
             $table->string('page_name',100)->default('')->comment('页面名称');
             $table->string('operate_type',100)->default('')->comment('操作类型');
             $table->string('in_type',100)->default('')->comment('进入方式');
+            $table->string('share_type',100)->default('')->comment('分享方式');
             $table->unsignedInteger('shared_user_id')->default(0)->comment('分享人的用户ID');
             $table->timestamps();
         });

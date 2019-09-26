@@ -112,7 +112,7 @@ class SystemController extends BaseController
      */
     public function getHelpNotes(SystemRequest $request)
     {
-        $help_notes = HelpNote::select(HelpNote::allowFields())->where('is_hide', 0)->take($request->limit)->get();
+        $help_notes = HelpNote::select(HelpNote::allowFields())->where('status', 200)->take($request->limit)->get();
 
         return $this->responseParseArray($help_notes);
     }

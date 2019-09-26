@@ -37,6 +37,7 @@ class User extends Authenticatable implements JWTSubject
         'username',
         'password',
         'nickname',
+        'mobile',
         'avatar',
         'gender',
         'country',
@@ -44,6 +45,8 @@ class User extends Authenticatable implements JWTSubject
         'city',
         'photographer_id',
         'identity',
+        'is_wx_authorize',
+        'is_wx_get_phone_number',
         'openid',
         'session_key',
         'xacode',
@@ -68,6 +71,7 @@ class User extends Authenticatable implements JWTSubject
             'id',
             'username',
             'nickname',
+            'mobile',
             'avatar',
             'gender',
             'country',
@@ -114,14 +118,14 @@ class User extends Authenticatable implements JWTSubject
     public static function createXacode($id, $type = 'photographer')
     {
         if ($type == 'photographer_work') {
-            $page = null;
+            $page = 'pages/userProductDetails/userProductDetails';
             $photographer_work = PhotographerWork::find($id);
             if (!$photographer_work) {
                 return '';
             }
             $photographer = Photographer::find($photographer_work->photographer_id);
         } else {
-            $page = null;
+            $page = 'pages/homes/homes';
             $photographer = Photographer::find($id);
         }
         if (!$photographer) {

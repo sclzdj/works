@@ -165,9 +165,10 @@ class QiniuController extends BaseController
                                     $photographerWorkSource->rich_height = $response['data']['height'];
                                     $photographerWorkSource->save();
                                     $water1_image = \Qiniu\base64_urlSafeEncode($photographerWorkSource->deal_url);
-                                    if ($user->xacode) {
+                                    $xacode = User::createXacode($photographerWork->id, 'photographer_work');
+                                    if ($xacode) {
                                         $water2_image = \Qiniu\base64_urlSafeEncode(
-                                            $user->xacode.'|imageMogr2/thumbnail/210x210!'
+                                            $xacode.'|imageMogr2/thumbnail/210x210!'
                                         );
                                     } else {
                                         $water2_image = $domain.'/'.config(

@@ -20,7 +20,7 @@ class CreateHelpNotesTable extends Migration
                 $table->increments('id');
                 $table->string('title', 1000)->default('')->comment('标题');
                 $table->text('content')->comment('内容');
-                $table->unsignedTinyInteger('is_hide')->default(0)->comment('是否隐藏【0:否;1:是】');
+                $table->unsignedSmallInteger('status')->default(0)->comment('状态');
                 $table->timestamps();
             }
         );

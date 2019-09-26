@@ -56,6 +56,32 @@ class MyController extends UserGuardController
             if ($request->city !== null) {
                 $user->city = $request->city;
             }
+            $user->is_wx_authorize = 1;
+            $user->save();
+            \DB::commit();//提交事务
+
+            return $this->response->noContent();
+        } catch (\Exception $e) {
+            \DB::rollback();//回滚事务
+
+            return $this->response->error($e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * 用户信息保存
+     *
+     * @param UserRequest $request
+     *
+     * @return \Dingo\Api\Http\Response
+     */
+    public function saveMobile(UserRequest $request)
+    {
+        \DB::beginTransaction();//开启事务
+        try {
+            $user = auth($this->guard)->user();
+            $user->mobile = $request->mobile;
+            $user->is_wx_get_phone_number = 1;
             $user->save();
             \DB::commit();//提交事务
 
@@ -110,7 +136,13 @@ class MyController extends UserGuardController
     {
         $info = auth($this->guard)->user();
 
-        return $this->responseParseArray(['identity' => $info->identity]);
+        return $this->responseParseArray(
+            [
+                'identity' => $info->identity,
+                'is_wx_authorize' => $info->is_wx_authorize,
+                'is_wx_get_phone_number' => $info->is_wx_get_phone_number,
+            ]
+        );
     }
 
     /**
@@ -231,6 +263,9 @@ class MyController extends UserGuardController
         $photographer_work = SystemServer::parsePhotographerWorkCategory($photographer_work);
         $photographer_work['sources'] = $photographer_work_sources;
         $photographer_work['tags'] = $photographer_work_tags;
+        $photographer_work['photographer'] = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
+        $photographer_work['photographer'] = SystemServer::parseRegionName($photographer_work['photographer']);
+        $photographer_work['photographer'] = SystemServer::parsePhotographerRank($photographer_work['photographer']);
 
         return $this->response->array($photographer_work);
     }

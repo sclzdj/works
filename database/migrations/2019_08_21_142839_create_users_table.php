@@ -18,6 +18,7 @@ class CreateUsersTable extends Migration
             $table->increments('id');
             $table->string('username')->unique()->default('')->comment('账号');
             $table->string('password')->default('')->comment('密码');
+            $table->string('mobile', 20)->index()->default('')->comment('手机号');
             $table->string('nickname')->default('')->comment('昵称');
             $table->string('avatar', 1000)->default('')->comment('头像');
             $table->unsignedTinyInteger('gender')->default(0)->comment('性别【0:未知;1:男;2:女】');
@@ -28,6 +29,8 @@ class CreateUsersTable extends Migration
             $table->string('session_key')->default('')->comment('小程序session_key');
             $table->unsignedInteger('photographer_id')->default(0)->comment('摄影师ID');
             $table->unsignedTinyInteger('identity')->default(0)->comment('身份【0:游客;1:摄影师】');
+            $table->unsignedTinyInteger('is_wx_authorize')->default(0)->comment('是否微信授权');
+            $table->unsignedTinyInteger('is_wx_get_phone_number')->default(0)->comment('是否微信获取手机号');
             $table->string('xacode',1000)->default('')->comment('小程序码文件');
             $table->rememberToken();
             $table->timestamps();

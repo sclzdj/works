@@ -375,7 +375,7 @@ class SystemServer
         $response = curl_exec($curl);
         $code = curl_errno($curl);
         if ($code !== 0) {
-            return ['code' => 500, 'msg' => 'curl request error'];
+            return ['code' => 500, 'msg' => 'curl request error：'. curl_error($curl)];
         } else {
             $data = is_null(json_decode($response, true)) ? $response : json_decode($response, true);
 

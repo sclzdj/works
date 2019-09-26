@@ -31,6 +31,10 @@ class LoginController extends UserGuardController
     public function mpLogin(UserRequest $request)
     {
           $data = $this->_wxCode2Session($request->code);
+//        $data = [
+//            "session_key" => 'TKg5Edd10SeX1Po+NH2y3A1==',
+//            'openid' => 'oOR6g5uTkJKvRvo2g2kJoTzNal',
+//        ];
         \DB::beginTransaction();//开启事务
         try {
             $user = User::where(['openid' => $data['openid']])->first();

@@ -49,6 +49,7 @@ $api->version('v1',['namespace'=>'\App\Http\Controllers\Api'],function ($api){
         $api->get('my/logout', 'MyController@logout');
         $api->get('my/refresh', 'MyController@refresh');
         $api->post('my/saveInfo', 'MyController@saveInfo');
+        $api->post('my/saveMobile', 'MyController@saveMobile');
         $api->get('my/info', 'MyController@info');
         $api->post('my/photographerInfo', 'MyController@savePhotographerInfo');
         $api->post('my/photographerAvatar', 'MyController@savePhotographerAvatar');
@@ -84,6 +85,8 @@ $api->version('v1',['namespace'=>'\App\Http\Controllers\Api'],function ($api){
         //访问
         $api->post('visit/inRecord', 'VisitController@inRecord');
         $api->post('visit/shareRecord', 'VisitController@shareRecord');
+        $api->post('visit/copyWxRecord', 'VisitController@copyWxRecord');
+        $api->get('visit/unreadCount', 'VisitController@unreadCount');
         $api->post('visit/remind', 'VisitController@setRemind');
         $api->post('visit/tag', 'VisitController@setTag');
         $api->get('visit/tags', 'VisitController@tags');

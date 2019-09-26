@@ -31,6 +31,11 @@ class UserRequest extends BaseRequest
                     'nickname' => 'required',
                 ];
                 break;
+            case 'saveMobile':
+                $rules = [
+                    'mobile' => 'required|regex:/^1\d{10}$/',
+                ];
+                break;
             case 'photographerWorks':
                 $rules = array_merge($rules, $this->predefined['paginate']['rules']);
                 break;
@@ -114,6 +119,12 @@ class UserRequest extends BaseRequest
                     'nickname.required' => '昵称不能为空',
                 ];
                 break;
+             case 'saveMobile':
+                 $messages = [
+                     'mobile.required' => '手机号不能为空',
+                     'mobile.regex' => '手机号错误',
+                 ];
+                 break;
             case 'photographerWorks':
                 $messages = array_merge($messages, $this->predefined['paginate']['messages']);
                 break;
@@ -204,6 +215,7 @@ class UserRequest extends BaseRequest
             'mp_login' => ['GET|App\Http\Controllers\Api\LoginController@mpLogin'],
             'login' => ['POST|App\Http\Controllers\Api\LoginController@login'],
             'save_info' => ['POST|App\Http\Controllers\Api\MyController@saveInfo'],
+            'saveMobile' => ['POST|App\Http\Controllers\Api\MyController@saveMobile'],
             'photographerWorks' => ['GET|App\Http\Controllers\Api\MyController@photographerWorks'],
             'photographerWork' => [
                 'GET|App\Http\Controllers\Api\MyController@photographerWork',
