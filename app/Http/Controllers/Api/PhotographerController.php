@@ -174,14 +174,14 @@ class PhotographerController extends BaseController
         $deals = [];
         $deals[] = 'imageMogr2/crop/1200x2133';
         if ($photographer->bg_img) {
-            $photographer->bg_img = $photographer->bg_img.'?imageMogr2/thumbnail/1200x600!|imageslim';
+            $photographer->bg_img = $photographer->bg_img.'?imageMogr2/auto-orient/thumbnail/1200x/gravity/Center/crop/!1200x600-0-0|imageslim';
         } else {
             $photographer->bg_img = config('app.url').'/'.'images/poster_bg.jpg';
         }
         if ($photographer->avatar) {
             $photographer->avatar = $photographer->avatar.'?imageMogr2/thumbnail/300x300!|roundPic/radius/!50p|imageslim';
         } else {
-            $photographer->avatar = config('app.url').'/'.'images/avatar.png';
+            $photographer->avatar = $domain.'/'.config('custom.qiniu.avatar').'?imageMogr2/thumbnail/300x300!|roundPic/radius/!50p|imageslim';
         }
         if ($user->xacode) {
             $user->xacode = $user->xacode.'|imageMogr2/thumbnail/250x250!';
@@ -322,17 +322,17 @@ class PhotographerController extends BaseController
         )->first();
         if ($photographer_work_source) {
             if ($photographer_work_source->deal_url) {
-                $bg_img = $photographer_work_source->deal_url.'?imageMogr2/thumbnail/1200x800!|imageslim';
+                $bg_img = $photographer_work_source->deal_url.'?imageMogr2/auto-orient/thumbnail/1200x/gravity/Center/crop/!1200x800-0-0|imageslim';
             } elseif ($photographer_work_source->url) {
-                $bg_img = $photographer_work_source->url.'?imageMogr2/thumbnail/1200x800!|imageslim';
+                $bg_img = $photographer_work_source->url.'?imageMogr2/auto-orient/thumbnail/1200x/gravity/Center/crop/!1200x800-0-0|imageslim';
             } elseif ($photographer->bg_img) {
-                $bg_img = $photographer->bg_img.'?imageMogr2/thumbnail/1200x800!|imageslim';
+                $bg_img = $photographer->bg_img.'?imageslim|imageMogr2/auto-orient/thumbnail/1200x/gravity/Center/crop/!1200x800-0-0';
             } else {
                 $bg_img = config('app.url').'/'.'images/poster_bg.jpg';
             }
         } else {
             if ($photographer->bg_img) {
-                $bg_img = $photographer->bg_img.'?imageMogr2/thumbnail/1200x800!|imageslim';
+                $bg_img = $photographer->bg_img.'?imageMogr2/auto-orient/thumbnail/1200x/gravity/Center/crop/!1200x800-0-0|imageslim';
             } else {
                 $bg_img = config('app.url').'/'.'images/poster_bg.jpg';
             }

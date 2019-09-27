@@ -32,7 +32,7 @@
             data: data,
             success: function (response) {
                 alert('授权成功');
-                wx.miniProgram.redirectTo('/pages/fileList/fileList');
+                wx.miniProgram.redirectTo({url:'/pages/fileList/fileList'});
             },
             error: function (xhr, status, error) {
                 var response = JSON.parse(xhr.responseText);

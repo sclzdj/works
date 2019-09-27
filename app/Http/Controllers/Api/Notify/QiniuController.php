@@ -171,9 +171,11 @@ class QiniuController extends BaseController
                                             $xacode.'|imageMogr2/thumbnail/210x210!'
                                         );
                                     } else {
-                                        $water2_image = $domain.'/'.config(
+                                        $water2_image = \Qiniu\base64_urlSafeEncode(
+                                            $domain.'/'.config(
                                                 'custom.qiniu.crop_work_source_image_bg'
-                                            ).'?imageMogr2/thumbnail/210x210!|roundPic/radius/!50p';
+                                            ).'?imageMogr2/thumbnail/210x210!|roundPic/radius/!50p'
+                                        );
                                     }
                                     $water2_image_dy = $response['data']['height'] - 105;
                                     $water3_text = \Qiniu\base64_urlSafeEncode("我是摄影师".$photographer->name);
