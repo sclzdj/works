@@ -33,7 +33,8 @@ class UserRequest extends BaseRequest
                 break;
             case 'saveMobile':
                 $rules = [
-                    'mobile' => 'required|regex:/^1\d{10}$/',
+                    'encryptedData' => 'required',
+                    'iv' => 'required',
                 ];
                 break;
             case 'photographerWorks':
@@ -119,12 +120,12 @@ class UserRequest extends BaseRequest
                     'nickname.required' => '昵称不能为空',
                 ];
                 break;
-             case 'saveMobile':
-                 $messages = [
-                     'mobile.required' => '手机号不能为空',
-                     'mobile.regex' => '手机号错误',
-                 ];
-                 break;
+            case 'saveMobile':
+                $messages = [
+                    'encryptedData.required' => 'encryptedData不能为空',
+                    'iv.required' => 'iv不能为空',
+                ];
+                break;
             case 'photographerWorks':
                 $messages = array_merge($messages, $this->predefined['paginate']['messages']);
                 break;

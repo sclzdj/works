@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Auth\UserGuardController;
 use App\Http\Requests\Index\PhotographerRequest;
 use App\Http\Requests\Index\UserRequest;
 use App\Jobs\AsyncDocPdfMakeJob;
+use App\Libs\WXBizDataCrypt\WXBizDataCrypt;
 use App\Model\Index\AsyncDocPdfMake;
 use App\Model\Index\DocPdf;
 use App\Model\Index\DocPdfPhotographerWork;
@@ -100,12 +101,27 @@ class MyController extends UserGuardController
         \DB::beginTransaction();//开启事务
         try {
             $user = auth($this->guard)->user();
-            $user->mobile = $request->mobile;
-            $user->is_wx_get_phone_number = 1;
-            $user->save();
-            \DB::commit();//提交事务
+            $appid = config('custom.wechat.mp.appid');
+            $sessionKey = $user->session_key;
+            $encryptedData = $request->encryptedData;
+            $iv = $request->iv;
+            $pc = new WXBizDataCrypt($appid, $sessionKey);
+            $errCode = $pc->decryptData($encryptedData, $iv, $data);
+            if ($errCode == 0) {
+                $data = json_decode($data, true);
+                $user->phoneNumber = $data['phoneNumber'];
+                $user->purePhoneNumber = $data['purePhoneNumber'];
+                $user->countryCode = $data['countryCode'];
+                $user->is_wx_get_phone_number = 1;
+                $user->save();
+                \DB::commit();//提交事务
 
-            return $this->response->noContent();
+                return $this->response->noContent();
+            } else {
+                \DB::rollback();//回滚事务
+
+                return $this->response->error('微信解密错误：'.$errCode, 500);
+            }
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
 

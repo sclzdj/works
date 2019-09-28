@@ -18,7 +18,9 @@ class CreateUsersTable extends Migration
             $table->increments('id');
             $table->string('username')->unique()->default('')->comment('账号');
             $table->string('password')->default('')->comment('密码');
-            $table->string('mobile', 20)->index()->default('')->comment('手机号');
+            $table->string('phoneNumber', 50)->index()->default('')->comment('用户绑定的手机号（国外手机号会有区号）');
+            $table->string('purePhoneNumber', 50)->index()->default('')->comment('没有区号的手机号');
+            $table->string('countryCode', 50)->index()->default('')->comment('区号');
             $table->string('nickname')->default('')->comment('昵称');
             $table->string('avatar', 1000)->default('')->comment('头像');
             $table->unsignedTinyInteger('gender')->default(0)->comment('性别【0:未知;1:男;2:女】');
