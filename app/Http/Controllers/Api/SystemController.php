@@ -112,7 +112,12 @@ class SystemController extends BaseController
      */
     public function getHelpNotes(SystemRequest $request)
     {
-        $help_notes = HelpNote::select(HelpNote::allowFields())->where('status', 200)->take($request->limit)->get();
+        $HelpNote = HelpNote::select(HelpNote::allowFields())->where('status', 200);
+        if (!empty($request->keywords)) {
+            $HelpNote = $HelpNote->where('title', 'like', '%'.$request->keywords.'%');
+        }
+
+        $help_notes = $HelpNote->take($request->limit)->get();
 
         return $this->responseParseArray($help_notes);
     }

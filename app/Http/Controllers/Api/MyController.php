@@ -20,6 +20,8 @@ use App\Servers\ArrServer;
 use App\Servers\ErrLogServer;
 use App\Servers\SystemServer;
 use App\Servers\WechatServer;
+use Qiniu\Auth;
+use Qiniu\Storage\BucketManager;
 
 /**
  * 我的相关
@@ -42,7 +44,25 @@ class MyController extends UserGuardController
             $user = auth($this->guard)->user();
             $user->nickname = $request->nickname;
             if ($request->avatar !== null) {
-                $user->avatar = $request->avatar;
+                $avatar = '';
+                $bucket = 'zuopin';
+                $buckets = config('custom.qiniu.buckets');
+                $domain = $buckets[$bucket]['domain'] ?? '';
+                //用于签名的公钥和私钥
+                $accessKey = config('custom.qiniu.accessKey');
+                $secretKey = config('custom.qiniu.secretKey');
+                // 初始化签权对象
+                $auth = new Auth($accessKey, $secretKey);
+                $bucketManager = new BucketManager($auth);
+                list($ret, $err) = $bucketManager->fetch($request->avatar, $bucket);
+                if ($err) {
+                    \DB::rollback();//回滚事务
+
+                    return $this->response->error($err->message(), 500);
+                } else {
+                    $avatar = $domain.'/'.$ret['key'];
+                }
+                $user->avatar = $avatar;
             }
             if ($request->gender !== null) {
                 $user->gender = $request->gender;

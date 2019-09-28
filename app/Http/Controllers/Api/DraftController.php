@@ -262,23 +262,7 @@ class DraftController extends UserGuardController
 
                 return $this->response->error('该手机号已被注册成为摄影师了', 500);
             }
-            $avatar = '';
-            if ($user->avatar) {
-                $bucket = 'zuopin';
-                $buckets = config('custom.qiniu.buckets');
-                $domain = $buckets[$bucket]['domain'] ?? '';
-                //用于签名的公钥和私钥
-                $accessKey = config('custom.qiniu.accessKey');
-                $secretKey = config('custom.qiniu.secretKey');
-                // 初始化签权对象
-                $auth = new Auth($accessKey, $secretKey);
-                $bucketManager = new BucketManager($auth);
-                list($ret, $err) = $bucketManager->fetch($user->avatar, $bucket);
-                if (!$err) {
-                    $avatar = $domain.'/'.$ret['key'];
-                }
-            }
-            $photographer->avatar = $avatar;
+            $photographer->avatar = $user->avatar;
             $photographer->name = $request->name;
             $photographer->province = $request->province;
             $photographer->city = $request->city;
