@@ -293,7 +293,7 @@ class VisitController extends UserGuardController
         foreach ($visitors['data'] as $k => $visitor) {
             $operateRecord = OperateRecord::where(
                 ['user_id' => $visitor['user_id'], 'photographer_id' => $visitor['photographer_id']]
-            )->orderBy('created_at', 'desc')->first();
+            )->orderBy('created_at', 'desc')->orderBy("id", "desc")->first();
             $describe = '';
             if ($operateRecord) {
                 $describe = $this->_makeDescribe($operateRecord->id);
@@ -397,17 +397,15 @@ class VisitController extends UserGuardController
         $pageSize = $request->pageSize ?? 15;
         $view_records = OperateRecord::where('photographer_id', $photographer->id)->where(
             'user_id',
-            '!=',
-            $user->id
+            $visitor->user_id
         )->selectRaw('DATE(created_at) as date,COUNT(id) as total')->groupBy('date')->orderBy(
             "date",
             "desc"
-        )->skip(($page - 1) * $pageSize)->take($pageSize)->get()->toArray();
+        )->orderBy("id", "desc")->skip(($page - 1) * $pageSize)->take($pageSize)->get()->toArray();
         foreach ($view_records as $k => $view_record) {
             $records = OperateRecord::where('photographer_id', $photographer->id)->where(
                 'user_id',
-                '!=',
-                $user->id
+                $visitor->user_id
             )->select(OperateRecord::allowFields())->whereDate(
                 'created_at',
                 $view_record['date']

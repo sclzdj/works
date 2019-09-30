@@ -81,6 +81,7 @@ class User extends Authenticatable implements JWTSubject
             'country',
             'province',
             'city',
+            'xacode',
             'created_at',
         ];
     }
