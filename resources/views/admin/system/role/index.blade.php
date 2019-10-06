@@ -202,7 +202,7 @@
                                                                 <a class="btn btn-xs btn-default" href="{{action('Admin\System\RoleController@edit',['id'=>$systemRole->id])}}">修改</a>
                                                             @endif
                                                             @if($systemRole->id!=1)
-                                                                @if(\App\Servers\PermissionServer::allowAction('Admin\System\RoleController@disable'))
+                                                                @if(\App\Servers\PermissionServer::allowAction('Admin\System\RoleController@destroy'))
                                                                     <a class="btn btn-xs btn-default id-submit" submit-type="DELETE" href="{{action('Admin\System\RoleController@destroy',['id'=>$systemRole->id])}}" confirm="<div class='text-center'>删除操作会将其关联数据<b class='text-danger'>全部删除，且不可恢复</b>；确定要删除吗？</div>">删除</a>
                                                                 @endif
                                                             @endif

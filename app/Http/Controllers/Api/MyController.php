@@ -226,12 +226,18 @@ class MyController extends UserGuardController
             'photographer_works.photographer_work_category_id',
             '=',
             'photographer_work_categories.id'
-        )->join(
-            'photographer_work_tags',
-            'photographer_work_tags.photographer_work_id',
-            '=',
-            'photographer_works.id'
-        )->where(['photographer_works.status' => 200])->whereRaw($whereRaw)->orderBy(
+        );
+        if (!empty($keywords)) {
+            $photographer_works = $photographer_works->join(
+                'photographer_work_tags',
+                'photographer_work_tags.photographer_work_id',
+                '=',
+                'photographer_works.id'
+            );
+        }
+        $photographer_works = $photographer_works->where(['photographer_works.status' => 200])->whereRaw(
+            $whereRaw
+        )->orderBy(
             'photographer_works.roof',
             'desc'
         )->orderBy(

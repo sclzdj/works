@@ -40,10 +40,10 @@ class LoginController extends UserGuardController
             $user = User::where(['openid' => $data['openid']])->first();
             if (!$user) {
                 $user = User::create();
-                $name = 'works_'.str_random(10);
-                $user->username = $name;
+                $random = str_random(10);
+                $user->username = 'user_'.$random;
                 $user->password = bcrypt('works123456');
-                $user->nickname = $name;
+                $user->nickname = '用户_'.$random;
                 $user->remember_token = str_random(10);
                 $user->openid = $data['openid'];
                 $userPresetCreate = User::presetCreate();

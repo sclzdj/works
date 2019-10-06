@@ -42,6 +42,7 @@ $api->version('v1',['namespace'=>'\App\Http\Controllers\Api'],function ($api){
         $api->get('photographerWorkCategories', 'SystemController@photographerWorkCategories');
         $api->get('PhotographerWorkCustomerIndustries', 'SystemController@PhotographerWorkCustomerIndustries');
         $api->get('visitorTags', 'SystemController@visitorTags');
+        $api->get('configs', 'SystemController@configs');
         //用户登录
         $api->get('login', 'LoginController@mpLogin');
         $api->post('login', 'LoginController@login');

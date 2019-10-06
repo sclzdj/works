@@ -11,6 +11,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\Index\SystemRequest;
 use App\Http\Requests\Index\UserRequest;
 use App\Model\Admin\SystemArea;
+use App\Model\Admin\SystemConfig;
 use App\Model\Index\BaiduOauth;
 use App\Model\Index\HelpNote;
 use App\Model\Index\Photographer;
@@ -117,7 +118,7 @@ class SystemController extends BaseController
             $HelpNote = $HelpNote->where('title', 'like', '%'.$request->keywords.'%');
         }
 
-        $help_notes = $HelpNote->take($request->limit)->get();
+        $help_notes = $HelpNote->orderBy('sort','asc')->take($request->limit)->get();
 
         return $this->responseParseArray($help_notes);
     }
@@ -268,5 +269,15 @@ class SystemController extends BaseController
 
             return $this->response->error($e->getMessage(), 500);
         }
+    }
+
+    /**
+     * 获取系统配置
+     * @return \Dingo\Api\Http\Response|void
+     */
+    public function configs()
+    {
+        $configs=SystemConfig::select(['title','name','value'])->where(['type' => 'works'])->get();
+        return $this->responseParseArray($configs);
     }
 }

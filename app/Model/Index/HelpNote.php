@@ -14,6 +14,7 @@ class HelpNote extends Model
     protected $fillable = [
         'title',
         'content',
+        'sort',
         'status',
     ];
 

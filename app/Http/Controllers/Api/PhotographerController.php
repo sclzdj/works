@@ -73,12 +73,16 @@ class PhotographerController extends BaseController
             'photographer_works.photographer_work_category_id',
             '=',
             'photographer_work_categories.id'
-        )->join(
-            'photographer_work_tags',
-            'photographer_work_tags.photographer_work_id',
-            '=',
-            'photographer_works.id'
-        )->where(['photographer_works.status' => 200])->whereRaw($whereRaw)->orderBy(
+        );
+        if (!empty($keywords)) {
+            $photographer_works = $photographer_works->join(
+                'photographer_work_tags',
+                'photographer_work_tags.photographer_work_id',
+                '=',
+                'photographer_works.id'
+            );
+        }
+        $photographer_works = $photographer_works->where(['photographer_works.status' => 200])->whereRaw($whereRaw)->orderBy(
             'photographer_works.roof',
             'desc'
         )->orderBy(
@@ -181,7 +185,9 @@ class PhotographerController extends BaseController
         if ($photographer->avatar) {
             $photographer->avatar = $photographer->avatar.'?imageMogr2/thumbnail/300x300!|roundPic/radius/!50p|imageslim';
         } else {
-            $photographer->avatar = $domain.'/'.config('custom.qiniu.avatar').'?imageMogr2/thumbnail/300x300!|roundPic/radius/!50p|imageslim';
+            $photographer->avatar = $domain.'/'.config(
+                    'custom.qiniu.avatar'
+                ).'?imageMogr2/thumbnail/300x300!|roundPic/radius/!50p|imageslim';
         }
         if ($user->xacode) {
             $user->xacode = $user->xacode.'|imageMogr2/thumbnail/250x250!';

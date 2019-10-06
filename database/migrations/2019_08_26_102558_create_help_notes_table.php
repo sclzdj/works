@@ -21,6 +21,7 @@ class CreateHelpNotesTable extends Migration
                 $table->string('title', 1000)->default('')->comment('标题');
                 $table->text('content')->comment('内容');
                 $table->unsignedSmallInteger('status')->default(0)->comment('状态');
+                $table->integer('sort')->default(0)->comment('排序');
                 $table->timestamps();
             }
         );

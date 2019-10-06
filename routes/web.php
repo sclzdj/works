@@ -72,8 +72,12 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::get('system/demo/select2', 'System\DemoController@select2');
         Route::post('system/demo/select2', 'System\DemoController@select2Save');
 
-        //其他模块
-
+        //云作品模块
+        Route::any('works/index/config', 'Works\IndexController@config');//
+        Route::resource('works/helpNote', 'Works\HelpNoteController');//帮助管理
+        Route::any('works/helpNoteSort', 'Works\HelpNoteController@sort');
+        Route::resource('works/photographer', 'Works\PhotographerController');//摄影师管理
+        Route::resource('works/photographerWork', 'Works\PhotographerWorkController');//作品集管理
     });
     //这下面写不需要登录的路由
     Route::get('login', 'Auth\LoginController@showLoginForm');//账号登录

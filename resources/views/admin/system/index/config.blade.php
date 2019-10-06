@@ -90,8 +90,7 @@
                                         @elseif($systemConfig['genre']=='textarea')
                                             <div class="col-md-6 form-option-line">
                                                 <textarea class="form-control" rows="7" name="{{$systemConfig['name']}}"
-                                                          placeholder="请输入{{$systemConfig['title']}}"
-                                                          name="{{$systemConfig['name']}}">{{$systemConfig['value']}}</textarea>
+                                                          placeholder="请输入{{$systemConfig['title']}}">{{$systemConfig['value']}}</textarea>
                                             </div>
                                             <div class="col-md-5 form-control-static form-option-line">
                                                 <div class="help-block help-block-line">{{$systemConfig['tips']}}</div>

@@ -97,6 +97,7 @@ class IndexController extends BaseController
             'wechat' => '微信公众号',
             'wxapp' => '微信小程序',
             'ali' => '阿里',
+            'works' => '云作品',
         ];
         foreach ($types as $key => $t) {
             $data = SystemConfig::where('type', $key)->get();

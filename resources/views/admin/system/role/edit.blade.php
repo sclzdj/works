@@ -94,7 +94,7 @@
                                     </div>
                                 </div>
 
-                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-name">
+                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="col-md-offset-2 col-md-9">
                                         <button class="btn btn-minw btn-primary ajax-post" type="button" id="create-submit">
                                             提交

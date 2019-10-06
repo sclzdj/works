@@ -15,83 +15,35 @@
                             <button type="button" data-toggle="block-option" data-action="fullscreen_toggle"><i class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
-                    <h3 class="block-title">添加角色</h3>
+                    <h3 class="block-title">添加使用帮助</h3>
                 </div>
                 <div class="tab-content">
                     <div class="tab-pane active">
                         <div class="block-content">
                             <form class="form-horizontal form-builder row" id="create-form">
 
-                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-name">
+                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-title">
                                     <label class="col-md-1 control-label form-option-line">
                                         <span class="form-option-require"></span>
-                                        名称
+                                        帮助标题
                                     </label>
                                     <div class="col-md-6 form-option-line">
-                                        <input class="form-control" type="text" name="name" value="" placeholder="请输入角色">
+                                        <textarea class="form-control" rows="7" name="title" placeholder="请输入帮助标题"></textarea>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">2-10个字符</div>
+                                        <div class="help-block help-block-line">自己控制好长度</div>
                                     </div>
                                 </div>
-
-                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-system_node_ids">
+                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-content">
                                     <label class="col-md-1 control-label form-option-line">
                                         <span class="form-option-require"></span>
-                                        分配节点
+                                        帮助内容
                                     </label>
-                                    <div class="col-md-11 form-option-line">
-                                        <div class="row">
-                                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                @php $html=''; @endphp
-                                                @foreach($treeNodes as $node)
-                                                    @if($node['level']<4)
-                                                        <div class="small-input-checkbox" style="margin-left: 60px;">{!! $html !!}</div>
-                                                        @php
-                                                            $html='';
-                                                            $marginLeft=($node['level']-1)*20;
-                                                        @endphp
-                                                        <div class="small-input-checkbox" style="margin-left: {{$marginLeft}}px;">
-                                                            <label style="@if($node['level']==1)font-weight: bold;@endif" title="@if($node['level']==1)模块@else{{$node['level']}}级节点@endif" class="css-input css-checkbox css-checkbox-primary css-checkbox-sm css-checkbox-rounded">
-                                                                <input level="{{$node['level']}}" type="checkbox" name="system_node_ids[]" value="{{$node['id']}}">
-                                                                <span></span> {{$node['name']}}
-                                                                @if($node['level']==1)
-                                                                    <i style="font-weight: normal;color: #888;">----模块</i>
-                                                                @elseif($node['level']==2)
-                                                                    <i style="font-weight: normal;color: #aaa;">----2级节点</i>
-                                                                @elseif($node['level']==3)
-                                                                    <i style="font-weight: normal;color: #ccc;">----3级节点</i>
-                                                                @endif
-                                                            </label>
-                                                        </div>
-                                                    @else
-                                                        @php
-                                                            $html.='<label class="css-input css-checkbox css-checkbox-primary css-checkbox-sm css-checkbox-rounded">
-                                                                <input level="'.$node['level'].'" type="checkbox" name="system_node_ids[]" value="'.$node['id'].'">
-                                                                <span></span> '.$node['name'].'</label>';
-                                                        @endphp
-                                                    @endif
-                                                @endforeach
-                                                @if($html!=='')
-                                                    <div class="small-input-checkbox" style="margin-left: 60px;">{!! $html !!}</div>
-                                                @endif
-                                            </div>
-                                        </div>
+                                    <div class="col-md-6 form-option-line">
+                                        <textarea class="form-control" rows="7" name="content" placeholder="请输入帮助内容"></textarea>
                                     </div>
-                                    <div class="col-md-11 col-md-offset-1 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">至少选择一个节点</div>
-                                    </div>
-                                </div>
-
-                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-status">
-                                    <label class="col-md-1 control-label form-option-line">
-                                        状态
-                                    </label>
-                                    <div class="col-md-11 form-option-line">
-                                        <label class="css-input switch switch-sm switch-primary switch-rounded " title="启用/禁用">
-                                            <input type="checkbox" name="status" value="1" checked><span></span>
-                                        </label>
-                                        <span class="form-control-static form-option-line help-line">关闭后角色会被禁用，无法登录后台</span>
+                                    <div class="col-md-5 form-control-static form-option-line">
+                                        <div class="help-block help-block-line">自己控制好长度</div>
                                     </div>
                                 </div>
 
@@ -123,7 +75,7 @@
                 Dolphin.loading('提交中...');
                 $.ajax({
                     type: 'POST',
-                    url: '{{action('Admin\System\RoleController@store')}}',
+                    url: '{{action('Admin\Works\HelpNoteController@store')}}',
                     dataType: 'JSON',
                     data: data,
                     success: function (response) {
