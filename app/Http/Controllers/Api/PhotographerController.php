@@ -329,9 +329,7 @@ class PhotographerController extends BaseController
         if ($photographer_work_source) {
             if ($photographer_work_source->deal_url) {
                 $bg_img = $photographer_work_source->deal_url.'?imageMogr2/auto-orient/thumbnail/1200x/gravity/Center/crop/!1200x800-0-0|imageslim';
-            } elseif ($photographer_work_source->url) {
-                $bg_img = $photographer_work_source->url.'?imageMogr2/auto-orient/thumbnail/1200x/gravity/Center/crop/!1200x800-0-0|imageslim';
-            } elseif ($photographer->bg_img) {
+            }elseif ($photographer->bg_img) {
                 $bg_img = $photographer->bg_img.'?imageslim|imageMogr2/auto-orient/thumbnail/1200x/gravity/Center/crop/!1200x800-0-0';
             } else {
                 $bg_img = config('app.url').'/'.'images/poster_bg.jpg';

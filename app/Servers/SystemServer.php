@@ -234,7 +234,7 @@ class SystemServer
     }
 
     /**
-     * 格式化作品集分类数据
+     * 格式化作品头衔数据
      * @param $data
      * @param bool $random
      * @return mixed

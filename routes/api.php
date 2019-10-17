@@ -68,6 +68,7 @@ $api->version('v1',['namespace'=>'\App\Http\Controllers\Api'],function ($api){
         $api->post('my/savePhotographerWorkInfo', 'MyController@savePhotographerWorkInfo');
         $api->get('my/viewRecords', 'MyController@viewRecords');
         $api->get('my/viewRecords', 'MyController@viewRecords');
+        $api->get('my/rankingList', 'MyController@rankingList');
         //摄影师注册
         $api->get('draft/registerPhotographerWorkSource', 'DraftController@registerPhotographerWorkSource');
         $api->post('draft/registerPhotographerWorkSource', 'DraftController@registerPhotographerWorkSourceStore');

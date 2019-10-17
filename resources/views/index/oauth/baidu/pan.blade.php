@@ -9,10 +9,9 @@
 </head>
 <body>
 <p>正在授权中</p>
-<script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.3.2.js"></script>
 <script src="{{asset('/static/admin/js/core/jquery.min.js')}}"></script>
 <script>
-    function par2Json(string, overwrite) {
+    function par2Json(string) {
         var obj = {}, pairs = string.split('&'), d = decodeURIComponent, name, value;
         $.each(pairs, function (i, pair) {
             pair = pair.split('=');
@@ -31,8 +30,7 @@
             dataType: 'JSON',
             data: data,
             success: function (response) {
-                alert('授权成功');
-                wx.miniProgram.redirectTo({url:'/pages/fileList/fileList'});
+                alert('授权成功，请一直点击左上角返回键返回到小程序');
             },
             error: function (xhr, status, error) {
                 var response = JSON.parse(xhr.responseText);
@@ -52,9 +50,6 @@
                         alert('服务器错误~');
                     }
                 }
-                wx.miniProgram.navigateBack({
-                    delta: 1
-                });
             }
         });
     });

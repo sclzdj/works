@@ -27,7 +27,9 @@ class CreateUsersTable extends Migration
             $table->string('country')->default('')->comment('国家');
             $table->string('province')->default('')->comment('省份');
             $table->string('city')->default('')->comment('城市');
-            $table->string('openid')->default('')->comment('小程序openid');
+            $table->string('unionid')->default('')->comment('微信unionid');
+            $table->string('openid')->default('')->comment('微信小程序openid');
+            $table->string('gh_openid')->default('')->comment('微信公众号openid');
             $table->string('session_key')->default('')->comment('小程序session_key');
             $table->unsignedInteger('photographer_id')->default(0)->comment('摄影师ID');
             $table->unsignedTinyInteger('identity')->default(0)->comment('身份【0:游客;1:摄影师】');

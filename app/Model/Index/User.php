@@ -50,6 +50,8 @@ class User extends Authenticatable implements JWTSubject
         'is_wx_authorize',
         'is_wx_get_phone_number',
         'openid',
+        'unionid',
+        'gh_openid',
         'session_key',
         'xacode',
     ];
@@ -123,14 +125,14 @@ class User extends Authenticatable implements JWTSubject
     public static function createXacode($id, $type = 'photographer')
     {
         if ($type == 'photographer_work') {
-            $page =  null;//'pages/userProductDetails/userProductDetails';
+            $page =  'pages/userProductDetails/userProductDetails';
             $photographer_work = PhotographerWork::find($id);
             if (!$photographer_work) {
                 return '';
             }
             $photographer = Photographer::find($photographer_work->photographer_id);
         } else {
-            $page = null;//'pages/homes/homes';
+            $page ='pages/homes/homes';
             $photographer = Photographer::find($id);
         }
         if (!$photographer) {

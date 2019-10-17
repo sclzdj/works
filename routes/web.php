@@ -14,8 +14,12 @@
 //Route::get('/', function () {
 //    return view('welcome');
 //});
+Route::any('/wechat', 'Wechat\IndexController@index');
 /*授权*/
-Route::get('oauth/baidu/pan', 'Index\Oauth\BaiduController@pan');
+Route::group(['middleware' => ['web', 'wechat.oauth']], function () {
+    Route::get('oauth/baidu/pan',  'Index\Oauth\BaiduController@pan');
+});
+
 
 /**后台**/
 //重置路由跳回自己的首页

@@ -43,45 +43,63 @@ class MyController extends UserGuardController
         \DB::beginTransaction();//开启事务
         try {
             $user = auth($this->guard)->user();
-            $user->nickname = $request->nickname;
-            if ($request->avatar !== null) {
-                $avatar = '';
-                $bucket = 'zuopin';
-                $buckets = config('custom.qiniu.buckets');
-                $domain = $buckets[$bucket]['domain'] ?? '';
-                //用于签名的公钥和私钥
-                $accessKey = config('custom.qiniu.accessKey');
-                $secretKey = config('custom.qiniu.secretKey');
-                // 初始化签权对象
-                $auth = new Auth($accessKey, $secretKey);
-                $bucketManager = new BucketManager($auth);
-                list($ret, $err) = $bucketManager->fetch($request->avatar, $bucket);
-                if ($err) {
+            $appid = config('custom.wechat.mp.appid');
+            $sessionKey = $user->session_key;
+            $encryptedData = $request->encryptedData;
+            $iv = $request->iv;
+            $pc = new WXBizDataCrypt($appid, $sessionKey);
+            $errCode = $pc->decryptData($encryptedData, $iv, $data);
+            if ($errCode == 0) {
+                $data = json_decode($data, true);
+                if ($data['openId'] == $user->openid) {
+                    if (isset($data['unionId']) && $data['unionId']!='') {
+                        $user->nickname = $data['nickName'];
+                        if ($data['avatarUrl']) {
+                            $avatar = '';
+                            $bucket = 'zuopin';
+                            $buckets = config('custom.qiniu.buckets');
+                            $domain = $buckets[$bucket]['domain'] ?? '';
+                            //用于签名的公钥和私钥
+                            $accessKey = config('custom.qiniu.accessKey');
+                            $secretKey = config('custom.qiniu.secretKey');
+                            // 初始化签权对象
+                            $auth = new Auth($accessKey, $secretKey);
+                            $bucketManager = new BucketManager($auth);
+                            list($ret, $err) = $bucketManager->fetch($data['avatarUrl'], $bucket);
+                            if ($err) {
+                                \DB::rollback();//回滚事务
+
+                                return $this->response->error($err->message(), 500);
+                            } else {
+                                $avatar = $domain.'/'.$ret['key'];
+                            }
+                            $user->avatar = $avatar;
+                        }
+                        $user->gender = $data['gender'];
+                        $user->country = $data['country'];
+                        $user->province = $data['province'];
+                        $user->unionid = $data['unionId'];
+                        $user->city = $data['city'];
+                        $user->is_wx_authorize = 1;
+                        $user->save();
+                        \DB::commit();//提交事务
+
+                        return $this->response->noContent();
+                    }else {
+                        \DB::rollback();//回滚事务
+
+                        return $this->response->error('unionId未获取到', 500);
+                    }
+                } else {
                     \DB::rollback();//回滚事务
 
-                    return $this->response->error($err->message(), 500);
-                } else {
-                    $avatar = $domain.'/'.$ret['key'];
+                    return $this->response->error('openID校验错误', 500);
                 }
-                $user->avatar = $avatar;
-            }
-            if ($request->gender !== null) {
-                $user->gender = $request->gender;
-            }
-            if ($request->country !== null) {
-                $user->country = $request->country;
-            }
-            if ($request->province !== null) {
-                $user->province = $request->province;
-            }
-            if ($request->city !== null) {
-                $user->city = $request->city;
-            }
-            $user->is_wx_authorize = 1;
-            $user->save();
-            \DB::commit();//提交事务
+            } else {
+                \DB::rollback();//回滚事务
 
-            return $this->response->noContent();
+                return $this->response->error('微信解密错误：'.$errCode, 500);
+            }
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
 
@@ -109,14 +127,20 @@ class MyController extends UserGuardController
             $errCode = $pc->decryptData($encryptedData, $iv, $data);
             if ($errCode == 0) {
                 $data = json_decode($data, true);
-                $user->phoneNumber = $data['phoneNumber'];
-                $user->purePhoneNumber = $data['purePhoneNumber'];
-                $user->countryCode = $data['countryCode'];
-                $user->is_wx_get_phone_number = 1;
-                $user->save();
-                \DB::commit();//提交事务
+                if ($data['openId'] == $user->openid) {
+                    $user->phoneNumber = $data['phoneNumber'];
+                    $user->purePhoneNumber = $data['purePhoneNumber'];
+                    $user->countryCode = $data['countryCode'];
+                    $user->is_wx_get_phone_number = 1;
+                    $user->save();
+                    \DB::commit();//提交事务
 
-                return $this->response->noContent();
+                    return $this->response->noContent();
+                } else {
+                    \DB::rollback();//回滚事务
+
+                    return $this->response->error('openID校验错误', 500);
+                }
             } else {
                 \DB::rollback();//回滚事务
 
@@ -715,7 +739,7 @@ class MyController extends UserGuardController
                                 'photographer_works.status' => 200,
                                 'photographer_work_sources.status' => 200,
                                 'photographer_works.photographer_id' => $photographer['id'],
-//                                'photographer_work_sources.type' => 'image',
+                                'photographer_work_sources.type' => 'image',
                             ]
                         )
                         ->orderBy('photographer_work_sources.created_at', 'desc')->take(3)->get()->toArray();
@@ -732,6 +756,65 @@ class MyController extends UserGuardController
 
             return $this->response->error($e->getMessage(), 500);
         }
+    }
+
+    /**
+     * 人脉排行榜
+     * @param UserRequest $request
+     * @return mixed
+     */
+    public function rankingList(UserRequest $request)
+    {
+        $this->notPhotographerIdentityVerify();
+        $limit = $request->limit ?? 50;
+        $photographer = User::photographer(null, $this->guard);
+        $fields = array_map(
+            function ($v) {
+                return "`photographers`.`{$v}`";
+            },
+            Photographer::allowFields()
+        );
+        $fields = implode(',', $fields);
+        $today = date('Y-m-d').' 00:00:00';
+        $sql = "SELECT {$fields},(SELECT count(*) FROM `visitors` WHERE `visitors`.`photographer_id`=`photographers`.`id` AND `created_at`>='{$today}') AS `visitor_today_count`,(SELECT count(*) FROM `visitors` WHERE `visitors`.`photographer_id`=`photographers`.`id`) AS `visitor_count` FROM `photographers` WHERE `photographers`.`status`=200 ORDER BY `visitor_today_count` DESC,`visitor_count` DESC,`photographers`.`created_at` ASC LIMIT {$limit}";
+        $photographers = \DB::select($sql, []);
+        $myRank = 0;
+        $_fields = array_map(
+            function ($v) {
+                return 'photographer_work_sources.'.$v;
+            },
+            PhotographerWorkSource::allowFields()
+        );
+        foreach ($photographers as $k => $p) {
+            if ($photographer->id == $p->id) {
+                $myRank = $k + 1;
+            }
+            $photographers[$k] = json_decode(json_encode($p), true);
+
+            $photographer_work_sources = PhotographerWorkSource::join(
+                'photographer_works',
+                'photographer_work_sources.photographer_work_id',
+                '=',
+                'photographer_works.id'
+            )->select($_fields)
+                ->where(
+                    [
+                        'photographer_works.status' => 200,
+                        'photographer_work_sources.status' => 200,
+                        'photographer_works.photographer_id' => $p->id,
+                        'photographer_work_sources.type' => 'image',
+                    ]
+                )
+                ->orderBy('photographer_work_sources.created_at', 'desc')->take(3)->get()->toArray();
+            $photographers[$k]['photographer_work_sources'] = $photographer_work_sources;
+        }
+        $photographers = SystemServer::parseRegionName($photographers);
+        $photographers = SystemServer::parsePhotographerRank($photographers);
+        $response = [];
+        $response['myRank'] = $myRank;
+        $response['data'] = $photographers;
+
+        return $this->response->array($response);
     }
 
     /**

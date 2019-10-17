@@ -28,7 +28,8 @@ class UserRequest extends BaseRequest
                 break;
             case 'save_info':
                 $rules = [
-                    'nickname' => 'required',
+                    'encryptedData' => 'required',
+                    'iv' => 'required',
                 ];
                 break;
             case 'saveMobile':
@@ -74,6 +75,9 @@ class UserRequest extends BaseRequest
             case 'viewRecords':
                 $rules = array_merge($rules, $this->predefined['paginate']['rules']);
                 break;
+            case 'rankingList':
+                $rules = array_merge($rules, $this->predefined['limit']['rules']);
+                break;
             case 'saveDocPdf':
                 $rules = [
                     'name' => 'required|max:100',
@@ -117,7 +121,8 @@ class UserRequest extends BaseRequest
                 break;
             case 'save_info':
                 $messages = [
-                    'nickname.required' => '昵称不能为空',
+                    'encryptedData.required' => 'encryptedData不能为空',
+                    'iv.required' => 'iv不能为空',
                 ];
                 break;
             case 'saveMobile':
@@ -182,6 +187,9 @@ class UserRequest extends BaseRequest
             case 'viewRecords':
                 $messages = array_merge($messages, $this->predefined['paginate']['messages']);
                 break;
+            case 'rankingList':
+                $messages = array_merge($messages, $this->predefined['limit']['messages']);
+                break;
             case 'saveDocPdf':
                 $messages = [
                     'name.required' => 'PDF名称必须传递',
@@ -233,6 +241,7 @@ class UserRequest extends BaseRequest
                 'GET|App\Http\Controllers\Api\MyController@getDocPdfStatus',
                 'DELETE|App\Http\Controllers\Api\MyController@docPdfDelete',
             ],
+            'rankingList' => ['GET|App\Http\Controllers\Api\MyController@rankingList'],
         ];
     }
 }
