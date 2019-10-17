@@ -14,6 +14,7 @@ class ViewRecord extends Model
     protected $fillable = [
         'user_id',
         'photographer_id',
+        'is_newest',
     ];
 
     /**
@@ -35,6 +36,7 @@ class ViewRecord extends Model
             'id',
             'user_id',
             'photographer_id',
+            'is_newest',
             'created_at',
         ];
     }

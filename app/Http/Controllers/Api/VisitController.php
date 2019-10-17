@@ -52,10 +52,11 @@ class VisitController extends UserGuardController
             }
             ViewRecord::where(
                 ['user_id' => $user->id, 'photographer_id' => $request->photographer_id]
-            )->delete();
+            )->update(['is_newest' => 0]);
             $view_record = ViewRecord::create();
             $view_record->user_id = $user->id;
             $view_record->photographer_id = $request->photographer_id;
+            $view_record->is_newest = 1;
             $view_record->save();
             $operate_record = OperateRecord::create();
             $operate_record->user_id = $user->id;

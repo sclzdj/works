@@ -58,6 +58,7 @@ $api->version('v1',['namespace'=>'\App\Http\Controllers\Api'],function ($api){
         $api->get('my/photographerInfo', 'MyController@photographerInfo');
         $api->get('my/photographerWorks', 'MyController@photographerWorks');
         $api->get('my/photographerWork', 'MyController@photographerWork');
+        $api->get('my/photographerWorkSources', 'MyController@photographerWorkSources');
         $api->get('my/setRoof', 'MyController@setRoof');
         $api->delete('my/photographerWork', 'MyController@photographerWorkDelete');
         $api->get('my/identity', 'MyController@identity');
@@ -69,6 +70,7 @@ $api->version('v1',['namespace'=>'\App\Http\Controllers\Api'],function ($api){
         $api->get('my/viewRecords', 'MyController@viewRecords');
         $api->get('my/viewRecords', 'MyController@viewRecords');
         $api->get('my/rankingList', 'MyController@rankingList');
+        $api->get('my/photographerStatistics', 'MyController@photographerStatistics');
         //摄影师注册
         $api->get('draft/registerPhotographerWorkSource', 'DraftController@registerPhotographerWorkSource');
         $api->post('draft/registerPhotographerWorkSource', 'DraftController@registerPhotographerWorkSourceStore');

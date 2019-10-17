@@ -41,6 +41,9 @@ class UserRequest extends BaseRequest
             case 'photographerWorks':
                 $rules = array_merge($rules, $this->predefined['paginate']['rules']);
                 break;
+            case 'photographerWorkSources':
+                $rules = array_merge($rules, $this->predefined['paginate']['rules']);
+                break;
             case 'savePhotographerAvatar':
                 $rules = [];
                 break;
@@ -77,6 +80,11 @@ class UserRequest extends BaseRequest
                 break;
             case 'rankingList':
                 $rules = array_merge($rules, $this->predefined['limit']['rules']);
+                break;
+            case 'photographerStatistics':
+                $rules = [
+                    'rankListLast' => 'integer|min:1',
+                ];
                 break;
             case 'saveDocPdf':
                 $rules = [
@@ -132,6 +140,9 @@ class UserRequest extends BaseRequest
                 ];
                 break;
             case 'photographerWorks':
+                $messages = array_merge($messages, $this->predefined['paginate']['messages']);
+                break;
+            case 'photographerWorkSources':
                 $messages = array_merge($messages, $this->predefined['paginate']['messages']);
                 break;
             case 'savePhotographerAvatar':
@@ -190,6 +201,12 @@ class UserRequest extends BaseRequest
             case 'rankingList':
                 $messages = array_merge($messages, $this->predefined['limit']['messages']);
                 break;
+            case 'photographerStatistics':
+                $messages = [
+                    'rankListLast.integer' => '人脉排行榜最后一名必须传整数',
+                    'rankListLast.min' => '人脉排行榜最后一名最小为1',
+                ];
+                break;
             case 'saveDocPdf':
                 $messages = [
                     'name.required' => 'PDF名称必须传递',
@@ -226,6 +243,7 @@ class UserRequest extends BaseRequest
             'save_info' => ['POST|App\Http\Controllers\Api\MyController@saveInfo'],
             'saveMobile' => ['POST|App\Http\Controllers\Api\MyController@saveMobile'],
             'photographerWorks' => ['GET|App\Http\Controllers\Api\MyController@photographerWorks'],
+            'photographerWorkSources' => ['GET|App\Http\Controllers\Api\MyController@photographerWorkSources'],
             'photographerWork' => [
                 'GET|App\Http\Controllers\Api\MyController@photographerWork',
                 'DELETE|App\Http\Controllers\Api\MyController@photographerWorkDelete',
@@ -242,6 +260,7 @@ class UserRequest extends BaseRequest
                 'DELETE|App\Http\Controllers\Api\MyController@docPdfDelete',
             ],
             'rankingList' => ['GET|App\Http\Controllers\Api\MyController@rankingList'],
+            'photographerStatistics' => ['GET|App\Http\Controllers\Api\MyController@photographerStatistics'],
         ];
     }
 }

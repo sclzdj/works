@@ -17,6 +17,7 @@ use App\Model\Index\PhotographerWorkTag;
 use App\Model\Index\RandomPhotographer;
 use App\Model\Index\User;
 use App\Model\Index\ViewRecord;
+use App\Model\Index\Visitor;
 use App\Servers\ArrServer;
 use App\Servers\ErrLogServer;
 use App\Servers\SystemServer;
@@ -52,7 +53,7 @@ class MyController extends UserGuardController
             if ($errCode == 0) {
                 $data = json_decode($data, true);
                 if ($data['openId'] == $user->openid) {
-                    if (isset($data['unionId']) && $data['unionId']!='') {
+                    if (isset($data['unionId']) && $data['unionId'] != '') {
                         $user->nickname = $data['nickName'];
                         if ($data['avatarUrl']) {
                             $avatar = '';
@@ -85,7 +86,7 @@ class MyController extends UserGuardController
                         \DB::commit();//提交事务
 
                         return $this->response->noContent();
-                    }else {
+                    } else {
                         \DB::rollback();//回滚事务
 
                         return $this->response->error('unionId未获取到', 500);
@@ -334,6 +335,116 @@ class MyController extends UserGuardController
         $photographer_work['photographer'] = SystemServer::parsePhotographerRank($photographer_work['photographer']);
 
         return $this->response->array($photographer_work);
+    }
+
+    /**
+     * 我的摄影师作品资源列表
+     * @param UserRequest $request
+     */
+    public function photographerWorkSources(UserRequest $request)
+    {
+        $this->notPhotographerIdentityVerify();
+        $photographer = User::photographer(null, $this->guard);
+        if (!$photographer || $photographer->status != 200) {
+            return $this->response->error('摄影师不存在', 500);
+        }
+        $fields = array_map(
+            function ($v) {
+                return 'photographer_work_sources.'.$v;
+            },
+            PhotographerWorkSource::allowFields()
+        );
+        $photographerWorkSources = PhotographerWorkSource::select(
+            $fields
+        )->join(
+            'photographer_works',
+            'photographer_work_sources.photographer_work_id',
+            '=',
+            'photographer_works.id'
+        )->where(
+            [
+                'photographer_works.photographer_id' => $photographer->id,
+                'photographer_work_sources.status' => 200,
+                'photographer_works.status' => 200,
+                'photographer_work_sources.type' => 'image',
+            ]
+        )->orderBy(
+            'photographer_works.roof',
+            'desc'
+        )->orderBy(
+            'photographer_works.created_at',
+            'desc'
+        )->orderBy(
+            'photographer_work_sources.sort',
+            'asc'
+        )->paginate(
+            $request->pageSize
+        );
+        $photographerWorkSources = SystemServer::parsePaginate($photographerWorkSources->toArray());
+
+        return $this->response->array($photographerWorkSources);
+    }
+
+    /**
+     * 我的摄影师统计信息
+     * @param UserRequest $request
+     * @return mixed|void
+     */
+    public function photographerStatistics(UserRequest $request)
+    {
+        $this->notPhotographerIdentityVerify();
+        $rankListLast = $request->rankListLast ?? 50;
+        $photographer = User::photographer(null, $this->guard);
+        if (!$photographer || $photographer->status != 200) {
+            return $this->response->error('摄影师不存在', 500);
+        }
+        $photographer_work_count = PhotographerWork::where(
+            ['photographer_id' => $photographer->id, 'status' => 200]
+        )->count();
+        $visitor_count = Visitor::where(
+            ['photographer_id' => $photographer->id]
+        )->count();
+        $view_record_count = ViewRecord::where(
+            ['photographer_id' => $photographer->id]
+        )->count();
+        $today = date('Y-m-d').' 00:00:00';
+        $sql = "SELECT photographers.id,(SELECT count(*) FROM `visitors` WHERE `visitors`.`photographer_id`=`photographers`.`id` AND `created_at`>='{$today}') AS `visitor_today_count`,(SELECT count(*) FROM `visitors` WHERE `visitors`.`photographer_id`=`photographers`.`id`) AS `visitor_count` FROM `photographers` WHERE `photographers`.`status`=200 ORDER BY `visitor_today_count` DESC,`visitor_count` DESC,`photographers`.`created_at` ASC";
+        $photographers = \DB::select($sql, []);
+        $myRank = 0;
+        $photographer_count = 0;
+        $visitor_today_count_rank_list_last = 0;
+        $visitor_count_rank_list_last = 0;
+        $visitor_today_count_my = 0;
+        $visitor_count_my = 0;
+        $visitor_today_count_differ = 0;
+        $visitor_count_differ = 0;
+        foreach ($photographers as $k => $p) {
+            if ($photographer->id == $p->id) {
+                $myRank = $k + 1;
+                $visitor_today_count_my = $p->visitor_today_count;
+                $visitor_count_my = $p->visitor_count;
+            }
+            if ($k == $rankListLast-1) {
+                $visitor_today_count_rank_list_last = $p->visitor_today_count;
+                $visitor_count_rank_list_last = $p->visitor_count;
+            }
+            $photographer_count++;
+        }
+        if ($photographer_count > $rankListLast) {
+            $visitor_today_count_differ = $visitor_today_count_rank_list_last - $visitor_today_count_my;
+            $visitor_count_differ = $visitor_count_rank_list_last - $visitor_count_my;
+        }
+
+        return $this->responseParseArray(
+            compact(
+                'photographer_work_count',
+                'visitor_count',
+                'view_record_count',
+                'myRank',
+                'visitor_today_count_differ',
+                'visitor_count_differ'
+            )
+        );
     }
 
     /**
@@ -838,7 +949,9 @@ class MyController extends UserGuardController
             'photographers.id'
         )->select(
             $fields
-        )->where(['view_records.user_id' => $user->id, 'photographers.status' => 200])->orderBy(
+        )->where(
+            ['view_records.user_id' => $user->id, 'view_records.is_newest' => 1, 'photographers.status' => 200]
+        )->orderBy(
             'view_records.created_at',
             'desc'
         )->paginate(

@@ -18,7 +18,6 @@ use App\Model\Index\PhotographerWork;
 use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\PhotographerWorkTag;
 use App\Model\Index\User;
-use App\Model\Index\ViewRecord;
 use App\Model\Index\Visitor;
 use App\Servers\ArrServer;
 use App\Servers\SystemServer;
