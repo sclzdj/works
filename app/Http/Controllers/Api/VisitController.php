@@ -79,6 +79,12 @@ class VisitController extends UserGuardController
                     ['photographer_id' => $request->photographer_id, 'user_id' => $user->id]
                 )->first();
                 if (!$visitor) {
+                    if (Visitor::where(
+                            ['photographer_id' => $request->photographer_id]
+                        )->count() >= 2) {
+                        $photographer_user->is_formal_photographer = 1;
+                        $photographer_user->save();
+                    }
                     $visitor = Visitor::create();
                     $visitor->photographer_id = $request->photographer_id;
                     $visitor->user_id = $user->id;
@@ -138,6 +144,12 @@ class VisitController extends UserGuardController
                     ['photographer_id' => $request->photographer_id, 'user_id' => $user->id]
                 )->first();
                 if (!$visitor) {
+                    if (Visitor::where(
+                            ['photographer_id' => $request->photographer_id]
+                        )->count() >= 2) {
+                        $photographer_user->is_formal_photographer = 1;
+                        $photographer_user->save();
+                    }
                     $visitor = Visitor::create();
                     $visitor->photographer_id = $request->photographer_id;
                     $visitor->user_id = $user->id;
@@ -300,6 +312,20 @@ class VisitController extends UserGuardController
                 $describe = $this->_makeDescribe($operateRecord->id);
             }
             $visitors['data'][$k]['describe'] = $describe;
+            $visitor_tag_type = 0;//未知
+            $unread_count = OperateRecord::where(
+                ['user_id' => $visitor['user_id'], 'photographer_id' => $visitor['photographer_id']]
+            )->count();
+            if ($unread_count == $visitor['unread_count']) {
+                $visitor_tag_type = 1;//新客
+            } else {
+                if ($visitor['visitor_tag_id'] > 0) {
+                    if (VisitorTag::where('id', $visitor['visitor_tag_id'])->first()) {
+                        $visitor_tag_type = 2;//标签
+                    }
+                }
+            }
+            $visitors['data'][$k]['visitor_tag_type'] = $visitor_tag_type;
             $visitors['data'][$k]['user'] = User::select(User::allowFields())->where('id', $visitor['user_id'])->first(
             )->toArray();
         }

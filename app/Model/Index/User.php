@@ -47,6 +47,7 @@ class User extends Authenticatable implements JWTSubject
         'city',
         'photographer_id',
         'identity',
+        'is_formal_photographer',
         'is_wx_authorize',
         'is_wx_get_phone_number',
         'openid',

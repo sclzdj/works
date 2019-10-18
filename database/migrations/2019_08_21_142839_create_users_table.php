@@ -33,6 +33,7 @@ class CreateUsersTable extends Migration
             $table->string('session_key')->default('')->comment('小程序session_key');
             $table->unsignedInteger('photographer_id')->default(0)->comment('摄影师ID');
             $table->unsignedTinyInteger('identity')->default(0)->comment('身份【0:游客;1:摄影师】');
+            $table->unsignedTinyInteger('is_formal_photographer')->default(0)->comment('是否正式摄影师');
             $table->unsignedTinyInteger('is_wx_authorize')->default(0)->comment('是否微信授权');
             $table->unsignedTinyInteger('is_wx_get_phone_number')->default(0)->comment('是否微信获取手机号');
             $table->string('xacode',1000)->default('')->comment('小程序码文件');

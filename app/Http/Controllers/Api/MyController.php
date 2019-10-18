@@ -202,6 +202,7 @@ class MyController extends UserGuardController
                 'identity' => $info->identity,
                 'is_wx_authorize' => $info->is_wx_authorize,
                 'is_wx_get_phone_number' => $info->is_wx_get_phone_number,
+                'is_formal_photographer' => $info->is_formal_photographer,
             ]
         );
     }
