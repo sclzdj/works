@@ -162,7 +162,7 @@
                                             <col class="">
                                             <col class="">
                                             <col class="" width="160">
-                                            <col class="" width="160">
+                                            <col class="" width="140">
                                         </colgroup>
                                         <thead>
                                         <tr>
@@ -271,7 +271,7 @@
                                             <col class="">
                                             <col class="">
                                             <col class="" width="160">
-                                            <col class="" width="160">
+                                            <col class="" width="140">
                                         </colgroup>
                                         <tbody>
                                         @forelse ($photographerWorks as $key=>$photographerWork)
@@ -325,7 +325,8 @@
                                                     </div>
                                                 </td>
                                                 <td class=" ">
-                                                    <div class="table-cell" data-toggle="tooltip" data-original-title="{{\App\Servers\ArrServer::ids($photographerWork['tags']->toArray(),'name','1')}}">
+                                                    <div class="table-cell" data-toggle="tooltip"
+                                                         data-original-title="{{\App\Servers\ArrServer::ids($photographerWork['tags']->toArray(),'name','1')}}">
                                                         {{\App\Servers\ArrServer::ids($photographerWork['tags']->toArray(),'name','1')}}
                                                     </div>
                                                 </td>
@@ -337,6 +338,13 @@
                                                 <td class=" ">
                                                     <div class="table-cell">
                                                         <div class="btn-group">
+                                                            @php
+                                                                $poster=\App\Model\Index\PhotographerWork::poster($photographerWork->id);
+                                                            @endphp
+                                                            @if($poster['code']==200)
+                                                                <a class="btn btn-xs btn-default"
+                                                                   href="{{$poster['url']}}" target="_blank">海报</a>
+                                                            @endif
                                                             @if(\App\Servers\PermissionServer::allowAction('Admin\Works\PhotographerWorkController@edit'))
                                                                 <a class="btn btn-xs btn-default"
                                                                    href="{{action('Admin\Works\PhotographerWorkController@edit',['id'=>$photographerWork->id])}}">修改</a>

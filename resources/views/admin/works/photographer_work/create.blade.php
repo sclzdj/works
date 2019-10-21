@@ -211,40 +211,147 @@
                                         <div class="help-block help-block-line">敲回车或英文逗号输入下一个标签</div>
                                     </div>
                                 </div>
-                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources">
+                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[0]">
                                     <label class="col-md-1 control-label form-option-line">
                                         <span class="form-option-require"></span>
-                                        资源
+                                        资源1
                                     </label>
                                     <div class="col-md-6 form-option-line">
-                                        <textarea class="form-control" rows="18" name="sources"
-                                                  placeholder="请输入资源前，认真阅读输入资源的规则"></textarea>
+                                        <input class="form-control qiniu-file-upload-trigger" name="sources[]" readonly
+                                               placeholder="请上传图片或视频">
+                                        <input type="file" class="qiniu-file-upload hide" value-type="key">
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">每个资源<span
-                                                style="color: #f00000">换行隔开</span>，格式“资源key|资源类型”
-                                        </div>
-                                        <div class="help-block help-block-line">资源key和资源类型用英文中竖线“<span
-                                                style="color: #f00000">|</span>”隔开
-                                        </div>
-                                        <div class="help-block help-block-line">资源key最好为<span style="color: #f00000">28个大小写随机字母、数字</span>构成，前面再加上“<span style="color: #f00000">SD_</span>”标识，不带后缀名
-                                        </div>
-                                        <div class="help-block help-block-line">资源key即是<span style="color: #f00000">上传文件名</span>，上传前最好按照上面的规则把文件名重新编辑好，最好不带后缀名
-                                        </div>
-                                        <div class="help-block help-block-line">资源key不能和七牛里面的原有的key<span
-                                                style="color: #f00000">重复</span>，否则会覆盖原来的资源
-                                        </div>
-                                        <div class="help-block help-block-line">资源key必须在七牛的zuopin存储空间<span
-                                                style="color: #f00000">真实存在</span></div>
-                                        <div class="help-block help-block-line">资源类型类型只能为<span style="color: #f00000">image</span>、<span
-                                                style="color: #f00000">video</span></div>
-                                        <div class="help-block help-block-line">下面写两个类型的示例：</div>
-                                        <div class="help-block help-block-line">
-                                            <span style="color: #f00000">SD_Fh7Ikk05Quqw60NDHZEYFYn18k5h|image</span>
-                                        </div>
-                                        <div class="help-block help-block-line">
-                                            <span style="color: #f00000">SD_Fh7Ikk05Quqw60NDHZEYFYn18k22|video</span>
-                                        </div>
+                                        <div class="help-block help-block-line">只能上传图片或视频</div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[1]">
+                                    <label class="col-md-1 control-label form-option-line">
+                                        资源2
+                                    </label>
+                                    <div class="col-md-5 form-option-line">
+                                        <input class="form-control qiniu-file-upload-trigger" name="sources[]" readonly
+                                               placeholder="请上传图片或视频">
+                                        <input type="file" class="qiniu-file-upload hide" value-type="key">
+                                    </div>
+                                    <div class="col-md-1 form-option-line">
+                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
+                                    </div>
+                                    <div class="col-md-5 form-control-static form-option-line">
+                                        <div class="help-block help-block-line">只能上传图片或视频</div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[2]">
+                                    <label class="col-md-1 control-label form-option-line">
+                                        资源3
+                                    </label>
+                                    <div class="col-md-5 form-option-line">
+                                        <input class="form-control qiniu-file-upload-trigger" name="sources[]" readonly
+                                               placeholder="请上传图片或视频">
+                                        <input type="file" class="qiniu-file-upload hide" value-type="key">
+                                    </div>
+                                    <div class="col-md-1 form-option-line">
+                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
+                                    </div>
+                                    <div class="col-md-5 form-control-static form-option-line">
+                                        <div class="help-block help-block-line">只能上传图片或视频</div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[3]">
+                                    <label class="col-md-1 control-label form-option-line">
+                                        资源4
+                                    </label>
+                                    <div class="col-md-5 form-option-line">
+                                        <input class="form-control qiniu-file-upload-trigger" name="sources[]" readonly
+                                               placeholder="请上传图片或视频">
+                                        <input type="file" class="qiniu-file-upload hide" value-type="key">
+                                    </div>
+                                    <div class="col-md-1 form-option-line">
+                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
+                                    </div>
+                                    <div class="col-md-5 form-control-static form-option-line">
+                                        <div class="help-block help-block-line">只能上传图片或视频</div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[4]">
+                                    <label class="col-md-1 control-label form-option-line">
+                                        资源5
+                                    </label>
+                                    <div class="col-md-5 form-option-line">
+                                        <input class="form-control qiniu-file-upload-trigger" name="sources[]" readonly
+                                               placeholder="请上传图片或视频">
+                                        <input type="file" class="qiniu-file-upload hide" value-type="key">
+                                    </div>
+                                    <div class="col-md-1 form-option-line">
+                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
+                                    </div>
+                                    <div class="col-md-5 form-control-static form-option-line">
+                                        <div class="help-block help-block-line">只能上传图片或视频</div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[5]">
+                                    <label class="col-md-1 control-label form-option-line">
+                                        资源6
+                                    </label>
+                                    <div class="col-md-5 form-option-line">
+                                        <input class="form-control qiniu-file-upload-trigger" name="sources[]" readonly
+                                               placeholder="请上传图片或视频">
+                                        <input type="file" class="qiniu-file-upload hide" value-type="key">
+                                    </div>
+                                    <div class="col-md-1 form-option-line">
+                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
+                                    </div>
+                                    <div class="col-md-5 form-control-static form-option-line">
+                                        <div class="help-block help-block-line">只能上传图片或视频</div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[6]">
+                                    <label class="col-md-1 control-label form-option-line">
+                                        资源7
+                                    </label>
+                                    <div class="col-md-5 form-option-line">
+                                        <input class="form-control qiniu-file-upload-trigger" name="sources[]" readonly
+                                               placeholder="请上传图片或视频">
+                                        <input type="file" class="qiniu-file-upload hide" value-type="key">
+                                    </div>
+                                    <div class="col-md-1 form-option-line">
+                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空
+                                        </button>
+                                    </div>
+                                    <div class="col-md-5 form-control-static form-option-line">
+                                        <div class="help-block help-block-line">只能上传图片或视频</div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[7]">
+                                    <label class="col-md-1 control-label form-option-line">
+                                        资源8
+                                    </label>
+                                    <div class="col-md-5 form-option-line">
+                                        <input class="form-control qiniu-file-upload-trigger" name="sources[]" readonly
+                                               placeholder="请上传图片或视频">
+                                        <input type="file" class="qiniu-file-upload hide" value-type="key">
+                                    </div>
+                                    <div class="col-md-1 form-option-line">
+                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
+                                    </div>
+                                    <div class="col-md-5 form-control-static form-option-line">
+                                        <div class="help-block help-block-line">只能上传图片或视频</div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[8]">
+                                    <label class="col-md-1 control-label form-option-line">
+                                        资源9
+                                    </label>
+                                    <div class="col-md-5 form-option-line">
+                                        <input class="form-control qiniu-file-upload-trigger" name="sources[]" readonly
+                                               placeholder="请上传图片或视频">
+                                        <input type="file" class="qiniu-file-upload hide" value-type="key">
+                                    </div>
+                                    <div class="col-md-1 form-option-line">
+                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
+                                    </div>
+                                    <div class="col-md-5 form-control-static form-option-line">
+                                        <div class="help-block help-block-line">只能上传图片或视频</div>
                                     </div>
                                 </div>
 
@@ -272,6 +379,24 @@
     <script src="{{asset('/static/libs/jquery-tags-input/jquery.tagsinput.js').'?'.$SFV}}"></script>
     <script src="{{asset('/static/admin/js/tags-input.js').'?'.$SFV}}"></script>
     <script src="{{asset('/static/admin/js/change-node.js').'?'.$SFV}}"></script>
+    <script src="https://unpkg.com/qiniu-js@2.5.4/dist/qiniu.min.js"></script>
+    @php
+        $bucket = 'zuopin';
+        $buckets = config('custom.qiniu.buckets');
+        $domain = $buckets[$bucket]['domain'] ?? '';
+        // 用于签名的公钥和私钥
+        $accessKey = config('custom.qiniu.accessKey');
+        $secretKey = config('custom.qiniu.secretKey');
+        // 初始化签权对象
+        $auth = new \Qiniu\Auth($accessKey, $secretKey);
+        // 生成上传Token
+        $upToken = $auth->uploadToken($bucket);
+        $qiniu_config=compact('upToken', 'domain');
+    @endphp
+    <script>
+        var qiniu_config = {!! json_encode($qiniu_config) !!};
+    </script>
+    <script src="{{asset('/static/admin/js/qiniu-upload.js').'?'.$SFV}}"></script>
     <script>
         $(function () {
             $(document).on('click', '#create-submit', function () {

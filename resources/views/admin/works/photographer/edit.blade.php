@@ -36,6 +36,40 @@
                                         <div class="help-block help-block-line">自己控制好长度</div>
                                     </div>
                                 </div>
+                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-avatar">
+                                    <label class="col-md-1 control-label form-option-line">
+                                        头像
+                                    </label>
+                                    <div class="col-md-5 form-option-line">
+                                        <input class="form-control qiniu-file-upload-trigger" name="avatar" readonly
+                                               placeholder="请上传头像" value="{{$photographer->avatar}}">
+                                        <input type="file" class="qiniu-file-upload hide" upload-max-size="5242880"
+                                               mime-type='["image/png", "image/jpeg", "image/gif","image/bmp"]'>
+                                    </div>
+                                    <div class="col-md-1 form-option-line">
+                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
+                                    </div>
+                                    <div class="col-md-5 form-control-static form-option-line">
+                                        <div class="help-block help-block-line">最大5M</div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-bg_img">
+                                    <label class="col-md-1 control-label form-option-line">
+                                        背景图像
+                                    </label>
+                                    <div class="col-md-5 form-option-line">
+                                        <input class="form-control qiniu-file-upload-trigger" name="bg_img" readonly
+                                               placeholder="请上传背景图片" value="{{$photographer->bg_img}}">
+                                        <input type="file" class="qiniu-file-upload hide" upload-max-size="20971520"
+                                               mime-type='["image/png", "image/jpeg", "image/gif","image/bmp"]'>
+                                    </div>
+                                    <div class="col-md-1 form-option-line">
+                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
+                                    </div>
+                                    <div class="col-md-5 form-control-static form-option-line">
+                                        <div class="help-block help-block-line">最大20M</div>
+                                    </div>
+                                </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-area">
                                     <label class="col-md-1 control-label form-option-line">
                                         <span class="form-option-require"></span>
@@ -155,6 +189,24 @@
 @endsection
 @section('javascript')
     <script src="{{asset('/static/admin/js/change-node.js').'?'.$SFV}}"></script>
+    <script src="https://unpkg.com/qiniu-js@2.5.4/dist/qiniu.min.js"></script>
+    @php
+        $bucket = 'zuopin';
+        $buckets = config('custom.qiniu.buckets');
+        $domain = $buckets[$bucket]['domain'] ?? '';
+        // 用于签名的公钥和私钥
+        $accessKey = config('custom.qiniu.accessKey');
+        $secretKey = config('custom.qiniu.secretKey');
+        // 初始化签权对象
+        $auth = new \Qiniu\Auth($accessKey, $secretKey);
+        // 生成上传Token
+        $upToken = $auth->uploadToken($bucket);
+        $qiniu_config=compact('upToken', 'domain');
+    @endphp
+    <script>
+        var qiniu_config = {!! json_encode($qiniu_config) !!};
+    </script>
+    <script src="{{asset('/static/admin/js/qiniu-upload.js').'?'.$SFV}}"></script>
     <script>
         $(function () {
             $(document).on('click', '#create-submit', function () {

@@ -78,7 +78,7 @@ class DraftController extends UserGuardController
                     if ($photographer_work_source->type == 'image') {
                         $res = SystemServer::request('GET', $photographer_work_source->url.'?imageInfo');
                         if ($res['code'] == 200) {
-                            if (!isset($res['data']['code']) || $res['data']['code'] == 200) {
+                            if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
                                 $photographer_work_source->size = $res['data']['size'];
                                 $photographer_work_source->width = $res['data']['width'];
                                 $photographer_work_source->height = $res['data']['height'];
@@ -110,7 +110,7 @@ class DraftController extends UserGuardController
                     } elseif ($photographer_work_source->type == 'video') {
                         $res = SystemServer::request('GET', $photographer_work_source->url.'?avinfo');
                         if ($res['code'] == 200) {
-                            if (!isset($res['data']['code']) || $res['data']['code'] == 200) {
+                            if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
                                 $photographer_work_source->size = $res['data']['format']['size'];
                                 $photographer_work_source->deal_size = $res['data']['format']['size'];
                                 $photographer_work_source->rich_size = $res['data']['format']['size'];
@@ -388,7 +388,7 @@ class DraftController extends UserGuardController
                     if ($photographer_work_source->type == 'image') {
                         $res = SystemServer::request('GET', $photographer_work_source->url.'?imageInfo');
                         if ($res['code'] == 200) {
-                            if (!isset($res['data']['code']) || $res['data']['code'] == 200) {
+                            if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
                                 $photographer_work_source->size = $res['data']['size'];
                                 $photographer_work_source->width = $res['data']['width'];
                                 $photographer_work_source->height = $res['data']['height'];
@@ -420,7 +420,7 @@ class DraftController extends UserGuardController
                     } elseif ($photographer_work_source->type == 'video') {
                         $res = SystemServer::request('GET', $photographer_work_source->url.'?avinfo');
                         if ($res['code'] == 200) {
-                            if (!isset($res['data']['code']) || $res['data']['code'] == 200) {
+                            if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
                                 $photographer_work_source->size = $res['data']['format']['size'];
                                 $photographer_work_source->deal_size = $res['data']['format']['size'];
                                 $photographer_work_source->rich_size = $res['data']['format']['size'];

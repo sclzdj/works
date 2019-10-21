@@ -285,19 +285,23 @@ class PhotographerWorkController extends BaseController
         try {
             $data = $photographerWorkRequest->all();
             $data = ArrServer::null2strData($data);
-            $data['sources'] = explode(PHP_EOL, $data['sources']);
+            $bucket = 'zuopin';
+            $buckets = config('custom.qiniu.buckets');
+            $domain = $buckets[$bucket]['domain'] ?? '';
             foreach ($data['sources'] as $k => $source) {
-                if ($source === '') {
+                if (!$source) {
                     unset($data['sources'][$k]);
                 } else {
-                    $source = explode('|', $source);
-                    if ($source[1] !== 'image' && $source[1] !== 'video') {
-                        unset($data['sources'][$k]);
-                    } else {
-                        $data['sources'][$k] = [];
-                        $data['sources'][$k]['key'] = $source[0];
-                        $data['sources'][$k]['type'] = $source[1];
+                    $type = 'video';
+                    $res = SystemServer::request('GET', $domain.'/'.$source.'?imageInfo');
+                    if ($res['code'] == 200) {
+                        if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
+                            $type = 'image';
+                        }
                     }
+                    $data['sources'][$k] = [];
+                    $data['sources'][$k]['key'] = $source;
+                    $data['sources'][$k]['type'] = $type;
                 }
             }
             if (count($data['sources']) == 0) {
@@ -321,9 +325,6 @@ class PhotographerWorkController extends BaseController
                     }
                 }
             }
-            $bucket = 'zuopin';
-            $buckets = config('custom.qiniu.buckets');
-            $domain = $buckets[$bucket]['domain'] ?? '';
             $photographerWork->photographerWorkSources()->where(['status' => 200])->update(['status' => 300]);
             foreach ($data['sources'] as $k => $v) {
                 $photographer_work_source = PhotographerWorkSource::where(
@@ -350,7 +351,7 @@ class PhotographerWorkController extends BaseController
                     if ($photographer_work_source->type == 'image') {
                         $res = SystemServer::request('GET', $photographer_work_source->url.'?imageInfo');
                         if ($res['code'] == 200) {
-                            if (!isset($res['data']['code']) || $res['data']['code'] == 200) {
+                            if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
                                 $photographer_work_source->size = $res['data']['size'];
                                 $photographer_work_source->width = $res['data']['width'];
                                 $photographer_work_source->height = $res['data']['height'];
@@ -382,7 +383,7 @@ class PhotographerWorkController extends BaseController
                     } elseif ($photographer_work_source->type == 'video') {
                         $res = SystemServer::request('GET', $photographer_work_source->url.'?avinfo');
                         if ($res['code'] == 200) {
-                            if (!isset($res['data']['code']) || $res['data']['code'] == 200) {
+                            if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
                                 $photographer_work_source->size = $res['data']['format']['size'];
                                 $photographer_work_source->deal_size = $res['data']['format']['size'];
                                 $photographer_work_source->rich_size = $res['data']['format']['size'];
@@ -433,7 +434,10 @@ class PhotographerWorkController extends BaseController
                 }
             }
             $response = [
-                'url' => action('Admin\Works\PhotographerWorkController@index', ['photographer_id' => $photographer->id]),
+                'url' => action(
+                    'Admin\Works\PhotographerWorkController@index',
+                    ['photographer_id' => $photographer->id]
+                ),
             ];
             \DB::commit();//提交事务
 
@@ -518,11 +522,17 @@ class PhotographerWorkController extends BaseController
             'asc'
         )->get()->toArray();
         $photographerWorkSources = [];
+        $i = 0;
         foreach ($sources as $k => $source) {
-            $tmp = $source['key'].'|'.$source['type'];
+            $tmp = $source['key'];
             $photographerWorkSources[] = $tmp;
+            $i++;
         }
-        $photographerWorkSources = implode(PHP_EOL, $photographerWorkSources);
+        if ($i < 8) {
+            for ($i; $i < 9; $i++) {
+                $photographerWorkSources[$i] = '';
+            }
+        }
 
         return view(
             '/admin/works/photographer_work/edit',
@@ -563,19 +573,23 @@ class PhotographerWorkController extends BaseController
         try {
             $data = $photographerWorkRequest->all();
             $data = ArrServer::null2strData($data);
-            $data['sources'] = explode(PHP_EOL, $data['sources']);
+            $bucket = 'zuopin';
+            $buckets = config('custom.qiniu.buckets');
+            $domain = $buckets[$bucket]['domain'] ?? '';
             foreach ($data['sources'] as $k => $source) {
-                if ($source === '') {
+                if (!$source) {
                     unset($data['sources'][$k]);
                 } else {
-                    $source = explode('|', $source);
-                    if ($source[1] !== 'image' && $source[1] !== 'video') {
-                        unset($data['sources'][$k]);
-                    } else {
-                        $data['sources'][$k] = [];
-                        $data['sources'][$k]['key'] = $source[0];
-                        $data['sources'][$k]['type'] = $source[1];
+                    $type = 'video';
+                    $res = SystemServer::request('GET', $domain.'/'.$source.'?imageInfo');
+                    if ($res['code'] == 200) {
+                        if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
+                            $type = 'image';
+                        }
                     }
+                    $data['sources'][$k] = [];
+                    $data['sources'][$k]['key'] = $source;
+                    $data['sources'][$k]['type'] = $type;
                 }
             }
             if (count($data['sources']) == 0) {
@@ -586,6 +600,9 @@ class PhotographerWorkController extends BaseController
             $update = $data;
             unset($update['tags']);
             unset($update['sources']);
+            if(isset($update['s'])){
+                unset($update['s']);
+            }
             PhotographerWork::where(['id' => $photographerWork->id, 'status' => 200])->update($update);
             PhotographerWorkTag::where(['photographer_work_id' => $photographerWork->id])->delete();
             if ($data['tags']) {
@@ -601,9 +618,6 @@ class PhotographerWorkController extends BaseController
                     }
                 }
             }
-            $bucket = 'zuopin';
-            $buckets = config('custom.qiniu.buckets');
-            $domain = $buckets[$bucket]['domain'] ?? '';
             $photographerWork->photographerWorkSources()->where(['status' => 200])->update(['status' => 300]);
             foreach ($data['sources'] as $k => $v) {
                 $photographer_work_source = PhotographerWorkSource::where(
@@ -630,7 +644,7 @@ class PhotographerWorkController extends BaseController
                     if ($photographer_work_source->type == 'image') {
                         $res = SystemServer::request('GET', $photographer_work_source->url.'?imageInfo');
                         if ($res['code'] == 200) {
-                            if (!isset($res['data']['code']) || $res['data']['code'] == 200) {
+                            if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
                                 $photographer_work_source->size = $res['data']['size'];
                                 $photographer_work_source->width = $res['data']['width'];
                                 $photographer_work_source->height = $res['data']['height'];
@@ -662,7 +676,7 @@ class PhotographerWorkController extends BaseController
                     } elseif ($photographer_work_source->type == 'video') {
                         $res = SystemServer::request('GET', $photographer_work_source->url.'?avinfo');
                         if ($res['code'] == 200) {
-                            if (!isset($res['data']['code']) || $res['data']['code'] == 200) {
+                            if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
                                 $photographer_work_source->size = $res['data']['format']['size'];
                                 $photographer_work_source->deal_size = $res['data']['format']['size'];
                                 $photographer_work_source->rich_size = $res['data']['format']['size'];

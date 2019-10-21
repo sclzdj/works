@@ -139,6 +139,10 @@ class PhotographerController extends BaseController
         );
         foreach ($photographers as $k => $photographer) {
             $photographers[$k]['user'] = User::where('photographer_id', $photographer->id)->first();
+            if(!$photographers[$k]['user']){
+                unset($photographers[$k]);
+                continue;
+            }
             $photographers[$k]['rank'] = PhotographerRank::find($photographer->photographer_rank_id);
             $photographers[$k]['province'] = SystemArea::find($photographer->province);
             $photographers[$k]['city'] = SystemArea::find($photographer->city);
@@ -177,7 +181,6 @@ class PhotographerController extends BaseController
                 ['pid' => $v['id'], 'level' => 2]
             )->orderBy('sort', 'asc')->get()->toArray();
         }
-
         return view(
             '/admin/works/photographer/index',
             compact(
@@ -297,7 +300,15 @@ class PhotographerController extends BaseController
         try {
             $data = $photographerRequest->all();
             $data = ArrServer::null2strData($data);
-            $photographer->update($data);
+            $user = User::where('photographer_id', $photographer->id)->first();
+            if (isset($data['avatar']) && $data['avatar'] != $photographer->avatar) {
+                $photographer->update($data);
+                $xacode = User::createXacode($photographer->id);
+                $user->xacode = $xacode;
+                $user->save();
+            }else{
+                $photographer->update($data);
+            }
             $response = [
                 'url' => action('Admin\Works\PhotographerController@index'),
             ];

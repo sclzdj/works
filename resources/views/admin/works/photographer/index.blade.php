@@ -167,7 +167,7 @@
                                             <col class="">
                                             <col class="">
                                             <col class="" width="160">
-                                            <col class="" width="160">
+                                            <col class="" width="190">
                                         </colgroup>
                                         <thead>
                                         <tr>
@@ -272,7 +272,7 @@
                                             <col class="">
                                             <col class="">
                                             <col class="" width="160">
-                                            <col class="" width="160">
+                                            <col class="" width="190">
                                         </colgroup>
                                         <tbody>
                                         @forelse ($photographers as $key=>$photographer)
@@ -333,6 +333,13 @@
                                                 <td class=" ">
                                                     <div class="table-cell">
                                                         <div class="btn-group">
+                                                            @php
+                                                                $poster=\App\Model\Index\Photographer::poster($photographer->id);
+                                                            @endphp
+                                                            @if($poster['code']==200)
+                                                                <a class="btn btn-xs btn-default"
+                                                                   href="{{$poster['url']}}" target="_blank">海报</a>
+                                                            @endif
                                                             @if(\App\Servers\PermissionServer::allowAction('Admin\Works\PhotographerController@edit'))
                                                                 <a class="btn btn-xs btn-default"
                                                                    href="{{action('Admin\Works\PhotographerController@edit',['id'=>$photographer->id])}}">修改</a>

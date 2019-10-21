@@ -73,7 +73,7 @@ class BaiduController extends UserGuardController
     {
         $user = auth($this->guard)->user();
         $baidu = config('custom.baidu.pan');
-        $redirect_uri = urlencode(config('app.url').'/oauth/baidu/pan?user_id='.$user->id);
+        $redirect_uri = urlencode(config('app.url').'/oauth/baidu/pan');
         $oAuthUrl = 'https://openapi.baidu.com/oauth/2.0/authorize?response_type=token&client_id='.$baidu['apiKey'].'&redirect_uri='.
             $redirect_uri
             .'&scope=basic,netdisk&display=mobile&state=xxx';
