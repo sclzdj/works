@@ -18,6 +18,7 @@ Route::any('/wechat', 'Wechat\IndexController@index');
 /*授权*/
 Route::group(['middleware' => ['web', 'wechat.oauth']], function () {
     Route::get('oauth/baidu/pan',  'Index\Oauth\BaiduController@pan');
+    Route::any('oauth/invotecode' , 'Index\Oauth\InvoteCodeController@index');
 });
 
 
