@@ -357,4 +357,12 @@ class PhotographerController extends BaseController
         }
     }
 
+    public function poster($id, Request $request){
+
+    }
+
+    public function gallery(){
+
+    }
+
 }

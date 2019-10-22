@@ -81,7 +81,10 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::resource('works/helpNote', 'Works\HelpNoteController');//帮助管理
         Route::any('works/helpNoteSort', 'Works\HelpNoteController@sort');
         Route::resource('works/photographer', 'Works\PhotographerController');//摄影师管理
+        Route::get('works/photographerPoster', 'Works\PhotographerController@poster');
+        Route::get('works/photographerGallery', 'Works\PhotographerController@gallery');
         Route::resource('works/photographerWork', 'Works\PhotographerWorkController');//作品集管理
+        Route::get('works/photographerWorkPoster', 'Works\PhotographerWorkController@poster');
     });
     //这下面写不需要登录的路由
     Route::get('login', 'Auth\LoginController@showLoginForm');//账号登录

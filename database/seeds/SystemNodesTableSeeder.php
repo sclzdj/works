@@ -360,6 +360,14 @@ class SystemNodesTableSeeder extends Seeder
                                         'name' => '删除',
                                         'action' => 'Admin\Works\PhotographerController@destroy',
                                     ],
+                                    [
+                                        'name' => '海报',
+                                        'action' => 'Admin\Works\PhotographerController@poster',
+                                    ],
+                                    [
+                                        'name' => '图库',
+                                        'action' => 'Admin\Works\PhotographerController@gallery',
+                                    ],
                                 ],
                             ],
                             [
@@ -378,6 +386,10 @@ class SystemNodesTableSeeder extends Seeder
                                     [
                                         'name' => '删除',
                                         'action' => 'Admin\Works\PhotographerWorkController@destroy',
+                                    ],
+                                    [
+                                        'name' => '海报',
+                                        'action' => 'Admin\Works\PhotographerWorkController@poster',
                                     ],
                                 ],
                             ],

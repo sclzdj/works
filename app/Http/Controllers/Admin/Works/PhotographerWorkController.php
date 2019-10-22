@@ -600,7 +600,7 @@ class PhotographerWorkController extends BaseController
             $update = $data;
             unset($update['tags']);
             unset($update['sources']);
-            if(isset($update['s'])){
+            if (isset($update['s'])) {
                 unset($update['s']);
             }
             PhotographerWork::where(['id' => $photographerWork->id, 'status' => 200])->update($update);
@@ -773,5 +773,10 @@ class PhotographerWorkController extends BaseController
 
             return $this->eResponse($e->getMessage(), 500);
         }
+    }
+
+    public function poster()
+    {
+
     }
 }
