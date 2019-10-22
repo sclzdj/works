@@ -338,12 +338,9 @@
                                                 <td class=" ">
                                                     <div class="table-cell">
                                                         <div class="btn-group">
-                                                            @php
-                                                                $poster=\App\Model\Index\PhotographerWork::poster($photographerWork->id);
-                                                            @endphp
-                                                            @if($poster['code']==200)
+                                                            @if(\App\Servers\PermissionServer::allowAction('Admin\Works\PhotographerWorkController@poster'))
                                                                 <a class="btn btn-xs btn-default"
-                                                                   href="{{$poster['url']}}" target="_blank">海报</a>
+                                                                   href="{{action('Admin\Works\PhotographerWorkController@poster',['id'=>$photographerWork->id])}}" target="_blank">海报</a>
                                                             @endif
                                                             @if(\App\Servers\PermissionServer::allowAction('Admin\Works\PhotographerWorkController@edit'))
                                                                 <a class="btn btn-xs btn-default"
