@@ -57,15 +57,18 @@ class InvoteCodeController extends BaseController
             $this->data['msg'] = "用户不存在";
             return $this->responseParseArray($this->data);
         }
-
-
+        if (empty($codeInfo)) {
+            $this->data['result'] = false;
+            $this->data['msg'] = "邀请码不存在";
+            return $this->responseParseArray($this->data);
+        }
         // 如果是后台创建的验证码，第一次查询的时候做一下绑定,前提这个账户没有绑定过邀请码
         if ($codeInfo->type == 2 &&
             empty($codeInfo->user_id) &&
-            InvoteCode::where('user_id' , $userInfo->user_id)->get()->IsEmpty()
+            InvoteCode::where('user_id' , $userInfo->id)->get()->IsEmpty()
         ) {
             InvoteCode::where('code', $code)->update([
-                "user_id" => $userInfo->user_id
+                "user_id" => $userInfo->id
             ]);
 
             $this->data['result'] = true;
@@ -73,8 +76,7 @@ class InvoteCodeController extends BaseController
             return $this->responseParseArray($this->data);
         }
 
-
-        if (empty($codeInfo) || $codeInfo->status != 0) {
+        if ($codeInfo->status != 0) {
             $this->data['msg'] = "邀请码不可用";
         } else if ($codeInfo && $codeInfo->wechat_openid != $userInfo->gh_openid) {
             $this->data['msg'] = "邀请码绑定不正确不可用";
