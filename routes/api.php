@@ -115,6 +115,12 @@ $api->version('v1',['namespace'=>'\App\Http\Controllers\Api'],function ($api){
         //通知
         $api->post('notify/qiniu/fop', 'Notify\QiniuController@fop');
         $api->post('notify/qiniu/fetch', 'Notify\QiniuController@fetch');
+
+        // 邀请码
+        $api->post('invote/query', 'InvoteCodeController@query');
+        // 众筹相关
+        $api->get('crowdfunding/getData', 'CrowdFundingController@getData');
+        $api->post('crowdfunding/log', 'CrowdFundingController@log');
     });
 });
 

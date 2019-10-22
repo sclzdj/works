@@ -85,6 +85,13 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::get('works/photographerGallery', 'Works\PhotographerController@gallery');
         Route::resource('works/photographerWork', 'Works\PhotographerWorkController');//作品集管理
         Route::get('works/photographerWorkPoster', 'Works\PhotographerWorkController@poster');
+
+        // 众筹管理
+        Route::get('crowdfunding/lists' , 'CrowdFunding\IndexController@lists');
+        Route::resource('crowdfunding' , 'CrowdFunding\IndexController');
+
+        // 邀请码管理
+        Route::resource('invotecode' , 'InvoteCode\IndexController');
     });
     //这下面写不需要登录的路由
     Route::get('login', 'Auth\LoginController@showLoginForm');//账号登录
