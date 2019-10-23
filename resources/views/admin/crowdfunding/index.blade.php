@@ -368,7 +368,6 @@
                                 console.log(action);
                                 switch (action) {
                                     case "reset":
-                                        console.log(key , data.data)
                                         that.crowdFunding[key] = data.data;
                                         break;
                                     case "add":
@@ -378,7 +377,8 @@
                                         that.crowdFunding[key] = Number(that.crowdFunding[key]) - data.data;
                                         break;
                                 }
-
+                            } else {
+                                alert(response.msg);
                             }
                         },
                         error: function (xhr, status, error) {

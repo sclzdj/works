@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Api\Auth\UserGuardController;
 use App\Model\Index\CrowdFunding;
 use App\Model\Index\CrowdFundingLog;
+use App\Model\Index\CrowdFundingOrder;
 use EasyWeChat\Factory;
 use Illuminate\Http\Request;
 use Validator;
@@ -16,11 +17,30 @@ use function Stringy\create;
  * Class CrowdFundingController
  * @package App\Http\Controllers\Api
  */
-class CrowdFundingController extends BaseController
+class CrowdFundingController extends UserGuardController
 {
     public $data = [
         'result' => false,
     ];
+
+    protected $type = [
+        1 => 99,
+        2 => 399,
+        3 => 599
+    ];
+
+    public $config = [];
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->config = [
+            'app_id' => config('wechat.payment.default.app_id'),
+            'mch_id' => config('wechat.payment.default.mch_id'),
+            'key' => config('wechat.payment.default.key'),   // API 密钥
+            'notify_url' => '',     // 你也可以在下单时单独设置来想覆盖它
+        ];
+    }
 
     /**
      * 查询邀请码状态是否可用
@@ -29,20 +49,89 @@ class CrowdFundingController extends BaseController
      */
     public function getData()
     {
-//        $redis = new \Redis();
-//        $redis->connect("127.0.0.1");
-//        $redis->select(5);
         $crowdData = CrowdFunding::where('id', 1)
             ->select(CrowdFunding::allowFields())
             ->first();
 
-        return $this->responseParseArray($crowdData);
+        $data = [
+            'amount' => CrowdFunding::getKeyValue('amount'),
+            'total' => CrowdFunding::getKeyValue('total'),
+            'total_price' => CrowdFunding::getKeyValue('total_price'),
+            'target' => CrowdFunding::getKeyValue('target'),
+            'complete_rate' => CrowdFunding::getKeyValue('complete_rate'),
+            'data_99' => CrowdFunding::getKeyValue('data_99'),
+            'data_399' => CrowdFunding::getKeyValue('data_399'),
+            'data_599' => CrowdFunding::getKeyValue('data_599'),
+            'limit_99' => CrowdFunding::getKeyValue('limit_99'),
+            'limit_399' => CrowdFunding::getKeyValue('limit_399'),
+            'limit_599' => CrowdFunding::getKeyValue('limit_599'),
+            'start_date' => $crowdData->start_date,
+            'end_date' => $crowdData->end_date,
+            'send_date' => $crowdData->send_date
+        ];
+
+        return $this->responseParseArray($data);
     }
 
-    public function order()
+    public function order(Request $request)
     {
-        $user = auth($this->guard)->user();
+        $type = $request->input('type');
+        if (!in_array($type, array_keys($this->type))) {
+            $this->data['msg'] = "选择的档位不存在";
+            return $this->responseParseArray($this->data);
+        }
 
+        $pureData = CrowdFunding::getKeyValue('data_' . $this->type[$type]);
+        $limitData = CrowdFunding::getKeyValue('limit_' . $this->type[$type]);
+        if ($limitData <= $pureData) {
+            $this->data['msg'] = "选择的档位已经满员";
+            return $this->responseParseArray($this->data);
+        }
+        // 准备数据做小程序预支付单
+        $user = auth($this->guard)->user();
+        $order_trade_no = substr(uniqid(), 0, 5) . time() . $user->id;
+        $miniProgram = Factory::payment($this->config);
+        $result = $miniProgram->order->unify([
+            'body' => '购买云作品',
+            'out_trade_no' => $order_trade_no,
+            'total_fee' => 1,
+            'notify_url' => config('app.url') . '/api/notify/miniprogram/crowdfunding', // 支付结果通知网址，如果不设置则会使用配置里的默认地址
+            'trade_type' => 'JSAPI', // 请对应换成你的支付方式对应的值类型
+            'openid' => $user->openid,
+        ]);
+        if (!isset($result['prepay_id'])) {
+            $this->data['msg'] = $result['return_msg'];
+            return $this->responseParseArray($this->data);
+        }
+        // 创建支付单成功插入数据库
+        CrowdFundingOrder::insert([
+            'user_id' => $user->id,
+            'order_trade_no' => $order_trade_no,
+            'pay_status' => 0,
+            'type' => $type,
+            'notify' => 0,
+            'price' => $this->type[$type]
+        ]);
+        // 给小程序生成签名
+        $result['timeStamp'] = time();
+        $result['paySign'] = $this->generateSign($result);
+
+        $this->data['result'] = true;
+        $this->data['data'] = $result;
+        return $this->responseParseArray($this->data);
+    }
+
+    private function generateSign($result)
+    {
+        $params = array();
+        $params['appId'] = $result['appid'];
+        $params['timeStamp'] = $result['timeStamp'];
+        $params['nonceStr'] = $result['nonce_str'];
+        $params['package'] = "prepay_id=" . $result['prepay_id'];
+        $params['signType'] = "MD5";
+        ksort($params);
+        $params['key'] = $this->config['key'];
+        return strtoupper(call_user_func_array('MD5', [urldecode(http_build_query($params))]));
     }
 
     /*
