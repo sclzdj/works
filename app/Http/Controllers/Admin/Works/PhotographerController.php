@@ -9,6 +9,7 @@ use App\Model\Admin\SystemConfig;
 use App\Model\Index\Photographer;
 use App\Model\Index\PhotographerRank;
 use App\Model\Index\PhotographerWork;
+use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\User;
 use App\Servers\ArrServer;
 use App\Servers\SystemServer;
@@ -139,7 +140,7 @@ class PhotographerController extends BaseController
         );
         foreach ($photographers as $k => $photographer) {
             $photographers[$k]['user'] = User::where('photographer_id', $photographer->id)->first();
-            if(!$photographers[$k]['user']){
+            if (!$photographers[$k]['user']) {
                 unset($photographers[$k]);
                 continue;
             }
@@ -181,6 +182,7 @@ class PhotographerController extends BaseController
                 ['pid' => $v['id'], 'level' => 2]
             )->orderBy('sort', 'asc')->get()->toArray();
         }
+
         return view(
             '/admin/works/photographer/index',
             compact(
@@ -306,7 +308,7 @@ class PhotographerController extends BaseController
                 $xacode = User::createXacode($photographer->id);
                 $user->xacode = $xacode;
                 $user->save();
-            }else{
+            } else {
                 $photographer->update($data);
             }
             $response = [
@@ -357,12 +359,81 @@ class PhotographerController extends BaseController
         }
     }
 
-    public function poster($id, Request $request){
-
+    /**
+     * 摄影师海报
+     * @param Request $request
+     */
+    public function poster(Request $request)
+    {
+        $poster = Photographer::poster($request->id);
+        if ($poster['code'] == 200) {
+            header('Location:'.$poster['url']);
+            die;
+        } else {
+            return abort(404, $poster['msg']);
+        }
     }
 
-    public function gallery(){
+    /**
+     * 摄影师图库
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View|void
+     */
+    public function gallery(Request $request)
+    {
+        $photographer = Photographer::where(['id' => $request->id, 'status' => 200])->first();
+        if (!$photographer) {
+            return abort(404, '摄影师不存在');
+        }
+        $pageInfo = [
+            'pageSize' => $request['pageSize'] !== null ?
+                $request['pageSize'] :
+                SystemConfig::getVal('basic_page_size'),
+            'page' => $request['page'] !== null ?
+                $request['page'] :
+                1,
+        ];
+        $fields = array_map(
+            function ($v) {
+                return 'photographer_work_sources.'.$v;
+            },
+            PhotographerWorkSource::allowFields()
+        );
+        $photographerWorkSources = PhotographerWorkSource::select(
+            $fields
+        )->join(
+            'photographer_works',
+            'photographer_work_sources.photographer_work_id',
+            '=',
+            'photographer_works.id'
+        )->where(
+            [
+                'photographer_works.photographer_id' => $photographer->id,
+                'photographer_work_sources.status' => 200,
+                'photographer_works.status' => 200,
+                'photographer_work_sources.type' => 'image',
+            ]
+        )->orderBy(
+            'photographer_works.roof',
+            'desc'
+        )->orderBy(
+            'photographer_works.created_at',
+            'desc'
+        )->orderBy(
+            'photographer_work_sources.sort',
+            'asc'
+        )->paginate(
+            $pageInfo['pageSize']
+        );
 
+        return view(
+            '/admin/works/photographer/gallery',
+            compact(
+                'photographer',
+                'photographerWorkSources',
+                'pageInfo'
+            )
+        );
     }
 
 }

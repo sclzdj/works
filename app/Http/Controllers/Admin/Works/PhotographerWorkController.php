@@ -775,8 +775,18 @@ class PhotographerWorkController extends BaseController
         }
     }
 
-    public function poster()
+    /**
+     * 作品集海报
+     * @param Request $request
+     */
+    public function poster(Request $request)
     {
-
+        $poster = PhotographerWork::poster($request->id);
+        if ($poster['code'] == 200) {
+            header('Location:'.$poster['url']);
+            die;
+        } else {
+            return abort(404, $poster['msg']);
+        }
     }
 }

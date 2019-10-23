@@ -167,7 +167,7 @@
                                             <col class="">
                                             <col class="">
                                             <col class="" width="160">
-                                            <col class="" width="190">
+                                            <col class="" width="230">
                                         </colgroup>
                                         <thead>
                                         <tr>
@@ -272,7 +272,7 @@
                                             <col class="">
                                             <col class="">
                                             <col class="" width="160">
-                                            <col class="" width="190">
+                                            <col class="" width="230">
                                         </colgroup>
                                         <tbody>
                                         @forelse ($photographers as $key=>$photographer)
@@ -333,12 +333,13 @@
                                                 <td class=" ">
                                                     <div class="table-cell">
                                                         <div class="btn-group">
-                                                            @php
-                                                                $poster=\App\Model\Index\Photographer::poster($photographer->id);
-                                                            @endphp
-                                                            @if($poster['code']==200)
+                                                            @if(\App\Servers\PermissionServer::allowAction('Admin\Works\PhotographerController@gallery'))
                                                                 <a class="btn btn-xs btn-default"
-                                                                   href="{{$poster['url']}}" target="_blank">海报</a>
+                                                                   href="{{action('Admin\Works\PhotographerController@gallery',['id'=>$photographer->id])}}" target="_blank">图库</a>
+                                                            @endif
+                                                            @if(\App\Servers\PermissionServer::allowAction('Admin\Works\PhotographerController@poster'))
+                                                            <a class="btn btn-xs btn-default"
+                                                                   href="{{action('Admin\Works\PhotographerController@poster',['id'=>$photographer->id])}}" target="_blank">海报</a>
                                                             @endif
                                                             @if(\App\Servers\PermissionServer::allowAction('Admin\Works\PhotographerController@edit'))
                                                                 <a class="btn btn-xs btn-default"
