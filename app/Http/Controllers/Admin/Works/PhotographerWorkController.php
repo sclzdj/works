@@ -781,7 +781,7 @@ class PhotographerWorkController extends BaseController
      */
     public function poster(Request $request)
     {
-        $poster = PhotographerWork::poster($request->id);
+        $poster = PhotographerWork::poster($request->id);dd($poster);
         if ($poster['code'] == 200) {
             header('Location:'.$poster['url']);
             die;

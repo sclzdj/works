@@ -315,6 +315,21 @@ class SystemNodesTableSeeder extends Seeder
                                 'action' => 'Admin\Works\IndexController@config',
                             ],
                             [
+                                'name' => '众筹管理',
+                                'icon' => 'fa fas fa-dollar-sign',
+                                'action' => 'Admin\CrowdFunding\IndexController@index',
+                                'children' => [
+                                    [
+                                        'name' => '列表',
+                                        'action' => 'Admin\CrowdFunding\IndexController@lists',
+                                    ],
+                                    [
+                                        'name' => '更新',
+                                        'action' => 'Admin\CrowdFunding\IndexController@store',
+                                    ],
+                                ],
+                            ],
+                            [
                                 'name' => '使用帮助管理',
                                 'icon' => 'fa fas fa-question-circle',
                                 'action' => 'Admin\Works\HelpNoteController@index',
@@ -392,24 +407,6 @@ class SystemNodesTableSeeder extends Seeder
                                         'action' => 'Admin\Works\PhotographerWorkController@poster',
                                     ],
                                 ],
-                            ],
-                        ],
-                    ],
-                    [
-                        'name' => '众筹管理',
-                        'icon' => 'fa fas fa-camera',
-                        'children' => [
-                            [
-                                'name' => '众筹管理',
-                                'action' => 'Admin\CrowdFunding\IndexController@index',
-                            ],
-                            [
-                                'name' => '列表',
-                                'action' => 'Admin\CrowdFunding\IndexController@lists',
-                            ],
-                            [
-                                'name' => '更新',
-                                'action' => 'Admin\CrowdFunding\IndexController@store',
                             ],
                         ],
                     ],
