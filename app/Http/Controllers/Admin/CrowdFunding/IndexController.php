@@ -17,7 +17,15 @@ class IndexController extends BaseController
     public function lists()
     {
         $crowdFunding = CrowdFunding::find(1);
-
+        $data = [
+            'amount' => CrowdFunding::getKeyValue('amount'),
+            'total' => CrowdFunding::getKeyValue('total'),
+            'total_price' => CrowdFunding::getKeyValue('total_price'),
+            'target' => CrowdFunding::getKeyValue('target'),
+            'complete_rate' => CrowdFunding::getKeyValue('complete_rate'),
+            'data_99' => CrowdFunding::getKeyValue('data_99'),
+            'data_399' => CrowdFunding::getKeyValue('data_399'),
+        ];
         return response()->json(compact('crowdFunding', 'data'));
     }
 
@@ -27,19 +35,53 @@ class IndexController extends BaseController
         $key = $postData['keys'];
         $data = $postData['data'];
 
-        switch ($data['actions']) {
+        switch ($postData['actions']) {
             case "add":
-
-
+                $origin = CrowdFunding::getKeyValue($key);
+                CrowdFunding::increValue($key, $data);
+                $result = CrowdFunding::where('id', 1)
+                    ->increment($key, $data);
+                return response()->json(
+                    [
+                        'result' => true,
+                        'data' => [
+                            $key => $data
+                        ]
+                    ]
+                );
                 break;
             case "sub":
+                $origin = CrowdFunding::getKeyValue($key);
+                CrowdFunding::decreValue($key, $data);
+                $result = CrowdFunding::where('id', 1)
+                    ->decrement($key, $data);
+                return response()->json(
+                    [
+                        'result' => true,
+                        'data' => [
+                            $key => $data
+                        ]
+                    ]
+                );
+
                 break;
-            case "rest":
-
-
+            case "reset":
+                CrowdFunding::ResetValue($key, $data);
+                $result = CrowdFunding::where('id', 1)
+                    ->update([
+                        $key => CrowdFunding::getKeyValue($key)
+                    ]);
+                return response()->json(
+                    [
+                        'result' => true,
+                        'data' => [
+                            $key => $data
+                        ]
+                    ]
+                );
                 break;
         }
 
-        return response()->json(['1', '1']);
+
     }
 }

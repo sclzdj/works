@@ -82,7 +82,7 @@
                         </li>
                         <li>
                             <button type="button" data-toggle="block-option" data-action="fullscreen_toggle"><i
-                                        class="si si-size-fullscreen"></i></button>
+                                    class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
                     <h3 class="block-title">众筹管理</h3>
@@ -115,7 +115,8 @@
                                     <div class="col-md-4 form-option-line" style="text-align: right;">
                                         <el-input v-model.trim="form.amount" placeholder="请输入内容"
                                                   style='width: 150px'></el-input>
-                                        <button type="button" class="button1" @click="update('amount' , 'reset')"> 重置</button>
+                                        <button type="button" class="button1" @click="update('amount' , 'reset')"> 重置
+                                        </button>
                                     </div>
                                 </div>
 
@@ -174,7 +175,7 @@
 
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <label class="col-md-2 control-label form-option-line">
-                                        <span class="form-option-require" v-text="crowdFunding.total"></span>
+                                        <span class="form-option-require" ></span>
                                         99限制
                                     </label>
                                     <div class="col-md-2 form-control-static form-option-line">
@@ -183,13 +184,15 @@
                                     <div class="col-md-4 form-option-line" style="text-align: right;">
                                         <el-input v-model.trim="form.limit_99" placeholder="请输入内容"
                                                   style='width: 150px'></el-input>
-                                        <button type="button" class="button1" @click="update('limit_99' , 'reset')"> 重置</button>
+                                        <button type="button" class="button1" @click="update('limit_99' , 'reset')">
+                                            重置
+                                        </button>
                                     </div>
                                 </div>
 
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <label class="col-md-2 control-label form-option-line">
-                                        <span class="form-option-require" v-text="crowdFunding.total"></span>
+                                        <span class="form-option-require"  ></span>
                                         99实购
                                     </label>
                                     <div class="col-md-2 form-control-static form-option-line">
@@ -217,7 +220,9 @@
                                         <el-input v-model.trim="form.limit_399" placeholder="请输入内容"
                                                   style='width: 150px'></el-input>
 
-                                        <button type="button" class="button1" @click="update('limit_399' , 'reset')"> 重置</button>
+                                        <button type="button" class="button1" @click="update('limit_399' , 'reset')">
+                                            重置
+                                        </button>
                                     </div>
                                 </div>
 
@@ -249,13 +254,15 @@
                                         <el-input v-model.trim="form.limit_599" type="number"
                                                   placeholder="请输入内容" style='width: 150px'></el-input>
 
-                                        <button type="button" class="button1" @click="update('limit_599' , 'reset')"> 重置</button>
+                                        <button type="button" class="button1" @click="update('limit_599' , 'reset')">
+                                            重置
+                                        </button>
                                     </div>
                                 </div>
 
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <label class="col-md-2 control-label form-option-line">
-                                        <span class="form-option-require" v-text="crowdFunding.total"></span>
+                                        <span class="form-option-require"></span>
                                         599实购
                                     </label>
                                     <div class="col-md-2 form-control-static form-option-line">
@@ -345,7 +352,7 @@
                     if (this.form[key] === 0) {
                         return;
                     }
-
+                    var that = this;
                     var data = {
                         actions: action,
                         keys: key,
@@ -357,7 +364,22 @@
                         url: '/admin/crowdfunding',
                         data: data,
                         success: function (response) {
+                            if (response.result) {
+                                console.log(action);
+                                switch (action) {
+                                    case "reset":
+                                        console.log(key , data.data)
+                                        that.crowdFunding[key] = data.data;
+                                        break;
+                                    case "add":
+                                        that.crowdFunding[key] = Number(that.crowdFunding[key]) + Number(data.data);
+                                        break;
+                                    case "sub":
+                                        that.crowdFunding[key] = Number(that.crowdFunding[key]) - data.data;
+                                        break;
+                                }
 
+                            }
                         },
                         error: function (xhr, status, error) {
 

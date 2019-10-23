@@ -15,7 +15,7 @@ class CrowdFunding extends Model
 
     ];
 
-    protected $key = "crowdfunding_";
+    protected static $key = "crowdfunding_";
 
     /**
      * The attributes that should be hidden for arrays.
@@ -24,30 +24,45 @@ class CrowdFunding extends Model
      */
     protected $hidden = [];
 
-    public function initCache()
+    public static function initCache()
     {
         $data = self::where('id', 1)->first()->toArray();
 
-        \Cache::forever($this->key . "amount", $data['amount']);
-        \Cache::forever($this->key . "total", $data['total']);
-        \Cache::forever($this->key . "total_price", $data['total_price']);
-        \Cache::forever($this->key . "target", $data['target']);
-        \Cache::forever($this->key . "complete_rate", $data['complete_rate']);
-        \Cache::forever($this->key . "data_99", $data['data_99']);
-        \Cache::forever($this->key . "data_399", $data['data_399']);
-        \Cache::forever($this->key . "data_599", $data['data_599']);
-        \Cache::forever($this->key . "limit_99", $data['limit_99']);
-        \Cache::forever($this->key . "limit_399", $data['limit_399']);
-        \Cache::forever($this->key . "limit_599", $data['limit_599']);
+        \Cache::forever(self::$key . "amount", $data['amount']);
+        \Cache::forever(self::$key . "total", $data['total']);
+        \Cache::forever(self::$key . "total_price", $data['total_price']);
+        \Cache::forever(self::$key . "target", $data['target']);
+        \Cache::forever(self::$key . "complete_rate", $data['complete_rate']);
+        \Cache::forever(self::$key . "data_99", $data['data_99']);
+        \Cache::forever(self::$key . "data_399", $data['data_399']);
+        \Cache::forever(self::$key . "data_599", $data['data_599']);
+        \Cache::forever(self::$key . "limit_99", $data['limit_99']);
+        \Cache::forever(self::$key . "limit_399", $data['limit_399']);
+        \Cache::forever(self::$key . "limit_599", $data['limit_599']);
     }
 
     public static function getKeyValue($key)
     {
-        if (\Cache::has("crowdfunding_" . $key)) {
-            return \Cache::get("crowdfunding_" . $key);
+        if (\Cache::has(self::$key . $key)) {
+            return \Cache::get(self::$key . $key);
         } else {
             return null;
         }
+    }
+
+    public static function increValue($key, $amount)
+    {
+        \Cache::increment(self::$key . $key, $amount);
+    }
+
+    public static function decreValue($key, $amount)
+    {
+        \Cache::decrement(self::$key . $key, $amount);
+    }
+
+    public static function ResetValue($key, $value)
+    {
+        \Cache::forever(self::$key . $key, $value);
     }
 
 
