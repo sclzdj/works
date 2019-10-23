@@ -18,6 +18,7 @@ class CreateCrowdFundingsTable extends Migration
             $table->increments('id');
             $table->decimal('amount', 8, 2)->comment('众筹总金额');
             $table->unsignedInteger('total')->default(0)->comment('众筹总人数');
+            $table->unsignedInteger('total_price')->default(0)->comment('众筹金额');
             $table->unsignedInteger('target')->default(0)->comment('众筹目标值');
             $table->string('complete_rate', 100)->default(0)->comment('达成率');
             $table->unsignedInteger('limit_99')->default(0)->comment('99限制');

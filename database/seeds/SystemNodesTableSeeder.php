@@ -395,6 +395,24 @@ class SystemNodesTableSeeder extends Seeder
                             ],
                         ],
                     ],
+                    [
+                        'name' => '众筹管理',
+                        'icon' => 'fa fas fa-camera',
+                        'children' => [
+                            [
+                                'name' => '众筹管理',
+                                'action' => 'Admin\CrowdFunding\IndexController@index',
+                            ],
+                            [
+                                'name' => '列表',
+                                'action' => 'Admin\CrowdFunding\IndexController@lists',
+                            ],
+                            [
+                                'name' => '更新',
+                                'action' => 'Admin\CrowdFunding\IndexController@store',
+                            ],
+                        ],
+                    ],
                 ],
             ],
         ];
