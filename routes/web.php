@@ -15,9 +15,10 @@
 //    return view('welcome');
 //});
 Route::any('/wechat', 'Wechat\IndexController@index');
+Route::get('oauth/baidu/pan',  'Index\Oauth\BaiduController@pan');
 /*授权*/
 Route::group(['middleware' => ['web', 'wechat.oauth']], function () {
-    Route::get('oauth/baidu/pan',  'Index\Oauth\BaiduController@pan');
+    Route::get('oauth/baidu/panStore',  'Index\Oauth\BaiduController@panStore');
     Route::any('oauth/invotecode' , 'Index\Oauth\InvoteCodeController@index');
 });
 

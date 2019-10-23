@@ -3,6 +3,7 @@
 @endphp
 @extends('admin.layouts.master')
 @section('pre_css')
+    <link rel="stylesheet" href="{{asset('/static/libs/viewer/viewer.min.css').'?'.$SFV}}">
 @endsection
 @section('content')
     <div class="row">
@@ -25,32 +26,31 @@
                         <div style="margin: 20px 2%;margin-top: 0;">
                             <div class="row">
                                 @foreach($photographerWorkSources as $photographerWorkSource)
-                                    <div class="col-sm-2">
-                                        <div class="card">
-                                            <div class="row" style="padding:10px 3%;">
-                                                <div class="col-12">
-                                                    <img class="img-thumbnail"
-                                                         src="{{$photographerWorkSource->deal_url}}"
-                                                         alt="{{$photographerWorkSource->deal_key}}"
-                                                         style="width: 100%;border-bottom-left-radius: 0;border-bottom-right-radius: 0;border-bottom: none;">
-                                                </div>
-                                                <div class="col-12">
-                                                    <a class="btn btn-default" href="{{$photographerWorkSource->url}}"
-                                                       download="{{$photographerWorkSource->key}}" target="_blank"
-                                                       style="width: 100%;border-top-left-radius: 0;border-top-right-radius: 0;border-bottom: none;">原图</a>
-                                                </div>
-                                                <div class="col-12">
-                                                    <a class="btn btn-default"
-                                                       href="{{$photographerWorkSource->deal_url}}"
-                                                       download="{{$photographerWorkSource->deal_key}}" target="_blank"
-                                                       style="width: 100%;border-top-left-radius: 0;border-top-right-radius: 0;border-bottom: none;">处理图</a>
-                                                </div>
-                                                <div class="col-12">
-                                                    <a class="btn btn-default"
-                                                       href="{{$photographerWorkSource->rich_url}}"
-                                                       download="{{$photographerWorkSource->rich_key}}" target="_blank"
-                                                       style="width: 100%;border-top-left-radius: 0;border-top-right-radius: 0;">水印图</a>
-                                                </div>
+                                    <div class="card gallery-list" style="float: left;margin: 0 20px;">
+                                        <div class="row" style="padding:10px 3%;">
+                                            <div class="col-12">
+                                                <img class="image img-thumbnail"
+                                                     data-original="{{$photographerWorkSource->deal_url}}"
+                                                     src="{{$photographerWorkSource->deal_url}}"
+                                                     alt="{{$photographerWorkSource->deal_key}}"
+                                                     style="max-width: 200px;width: 200px;height:200px;border-bottom-left-radius: 0;border-bottom-right-radius: 0;border-bottom: none;">
+                                            </div>
+                                            <div class="col-12">
+                                                <a class="btn btn-default" href="{{$photographerWorkSource->url}}"
+                                                   download="{{$photographerWorkSource->key}}" target="_blank"
+                                                   style="width: 200px;border-top-left-radius: 0;border-top-right-radius: 0;border-bottom: none;">原图</a>
+                                            </div>
+                                            <div class="col-12">
+                                                <a class="btn btn-default"
+                                                   href="{{$photographerWorkSource->deal_url}}"
+                                                   download="{{$photographerWorkSource->deal_key}}" target="_blank"
+                                                   style="width: 200px;border-top-left-radius: 0;border-top-right-radius: 0;border-bottom: none;">处理图</a>
+                                            </div>
+                                            <div class="col-12">
+                                                <a class="btn btn-default"
+                                                   href="{{$photographerWorkSource->rich_url}}"
+                                                   download="{{$photographerWorkSource->rich_key}}" target="_blank"
+                                                   style="width: 200px;border-top-left-radius: 0;border-top-right-radius: 0;">水印图</a>
                                             </div>
                                         </div>
                                     </div>
@@ -93,5 +93,10 @@
     </div>
 @endsection
 @section('javascript')
-
+    <script src="{{asset('/static/libs/viewer/viewer.min.js').'?'.$SFV}}"></script>
+    <script>
+        $(function () {
+            Dolphin.viewer();
+        });
+    </script>
 @endsection

@@ -370,7 +370,7 @@ class PhotographerController extends BaseController
             header('Location:'.$poster['url']);
             die;
         } else {
-            return abort(404, $poster['msg']);
+            return abort(500, $poster['msg']);
         }
     }
 
