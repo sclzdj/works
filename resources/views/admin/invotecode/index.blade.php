@@ -1,7 +1,6 @@
 @extends('admin.layouts.master')
 
 @section('css')
-
     <!-- 引入样式 -->
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
     <style>
@@ -11,13 +10,12 @@
 
         .el-row {
             margin-bottom: 20px;
+        }
 
-        &
         :last-child {
             margin-bottom: 0;
         }
 
-        }
         .el-col {
             border-radius: 4px;
         }
@@ -70,8 +68,6 @@
 @endsection
 
 @section('content')
-
-
     <div class="row">
         <div class="col-md-12">
             <div class="block">
@@ -82,7 +78,7 @@
                         </li>
                         <li>
                             <button type="button" data-toggle="block-option" data-action="fullscreen_toggle"><i
-                                        class="si si-size-fullscreen"></i></button>
+                                    class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
                     <h3 class="block-title">邀请码管理</h3>
@@ -90,40 +86,69 @@
                 <div class="tab-content" id="app">
                     <div class="tab-pane active">
                         <div class="block-content">
+                            <el-date-picker
+                                v-model="form.created_at"
+                                type="daterange"
+                                range-separator="至"
+                                value-format="yyyy-MM-dd"
+                                start-placeholder="开始日期"
+                                end-placeholder="结束日期">
+                            </el-date-picker>
+
+                            <el-select v-model="form.type" placeholder="请选择">
+                                <el-option
+                                    v-for="item in typeOption"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                                </el-option>
+                            </el-select>
+
+                            <el-select v-model="form.status" placeholder="请选择">
+                                <el-option
+                                    v-for="item in statusOption"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                                </el-option>
+                            </el-select>
+                        </div>
+                        <div class="block-content">
                             <el-table
-                                    :data="data"
-                                    style="width: 100%">
+                                :data="data"
+                                style="width: 100%">
                                 <el-table-column
-                                        prop="code"
-                                        label="邀请码"
-                                        width="180">
+                                    prop="code"
+                                    label="邀请码"
+                                    width="180">
                                 </el-table-column>
                                 <el-table-column
-                                        prop="type"
-                                        label="邀请码类型"
-                                        width="180">
+                                    prop="type"
+                                    label="邀请码类型"
+                                    width="180">
                                 </el-table-column>
                                 <el-table-column
-                                        prop="status"
-                                        label="状态">
-                                </el-table-column>
-
-                                <el-table-column
-                                        prop="created_at"
-                                        label="创建时间">
+                                    prop="status"
+                                    label="状态">
                                 </el-table-column>
 
                                 <el-table-column
-                                        fixed="right"
-                                        label="操作"
-                                        width="100">
+                                    prop="created_at"
+                                    label="创建时间">
+                                </el-table-column>
+
+                                <el-table-column
+                                    fixed="right"
+                                    label="操作"
+                                    width="100">
                                     <template slot-scope="scope">
                                         <el-button type="text" size="small">占用</el-button>
                                     </template>
                                 </el-table-column>
-
                             </el-table>
-
+                            <div class="page">
+                                <page :total="total" :page-size="size" @navpage="init" ref="children"></page>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -142,22 +167,182 @@
 
     <script>
 
+        Vue.component("page", {
+            template: `
+        <div class="text-right" style="width:100%; margin-top: 1%" v-if="pages===0||pages===1?false:true">
+              <ul class="pagination" style="margin:0px 0px 50px 0px;">
+                <li v-on:click.stop.prevent="pageChange(pageNo==1?1:pageNo-1)" v-bind:class="{disabled:pageNo===1}">
+                    <a href="javascript:void(0);">上一页</a>
+                </li>
+                <li @click.stop.prevent="pageChange(1)" v-bind:class="{active:pageNo===1}" v-if="{false:pageNo===1}">
+                    <a>1</a>
+                </li>
+                <li @click.stop.prevent="pageChange(pageNo - display)" v-if="showJumpPrev">
+                    <a style="font-weight:900;">&laquo;</a>
+                </li>
+
+                <li v-for="page in pagingCounts" @click.stop.prevent="pageChange(page)" v-bind:class="{active:pageNo===page}">
+                    <a>@{{page}}</a>
+                </li>
+
+                <li @click.stop.prevent="pageChange(pageNo + display)" v-if="showJumpNext">
+                    <a style="font-weight:900;">&raquo;</a>
+                </li>
+
+                <li @click.stop.prevent="pageChange(pages)" v-bind:class="{active:pageNo===pages}" v-if="pages===0||pages===1?false:true">
+                    <a>@{{pages}}</a>
+                </li>
+                <li v-on:click.stop.prevent="pageChange(pageNo==pages?pages:pageNo+1)" v-bind:class="{disabled:pageNo===pages}">
+                     <a href="javascript:void(0);">下一页</a>
+                </li>
+                <li class="disabled"><a href="javascript:void(0);">@{{total}}条记录</a>
+                </li>
+              </ul>
+        </div>
+            `,
+            data: function () {
+                return {
+                    // 当前页
+                    pageNo: 1,
+                    // 总页数
+                    pages: 0
+                }
+            },
+            props: {
+                display: {// 显示页数
+                    type: Number,
+                    default: 5,
+                    required: false
+                },
+                total: {// 总记录数
+                    type: Number,
+                    default: 1
+                },
+                pageSize: {// 每页显示条数
+                    type: Number,
+                    default: 10,
+                    required: false
+                }
+            },
+            created: function () {// 生命周期函数，创建时计算总页数
+                let that = this;
+                this.pages = Math.ceil(that.total / that.pageSize)
+            },
+            methods: {
+                pageChange: function (page) {
+                    if (this.pageNo === page) {
+                        return;
+                    }
+                    this.pageNo = page;
+                    this.$emit('navpage', this.pageNo);
+                },
+                initPageNo: function () {
+                    this.pageNo = 1;
+                }
+            },
+            computed: {
+                numOffset() {
+                    return Math.floor((this.display + 2) / 2) - 1;
+                },
+                showJumpPrev() {
+                    if (this.total > this.display + 2) {
+                        if (this.pageNo > this.display) {
+                            return true
+                        }
+                    }
+                    return false
+                },
+                showJumpNext() {
+                    if (this.pages > this.display + 2) {
+                        if (this.pageNo <= this.pages - this.display) {
+                            return true
+                        }
+                    }
+                    return false
+                },
+                // 当前要显示的数字按钮集合
+                pagingCounts() {
+                    let that = this,
+                        startNum,
+                        result = [],
+                        showJumpPrev = that.showJumpPrev,
+                        showJumpNext = that.showJumpNext;
+                    if (showJumpPrev && !showJumpNext) {
+                        startNum = that.pages - that.display;
+                        for (let i = startNum; i < that.pages; i++) {
+                            result.push(i);
+                        }
+                    } else if (!showJumpPrev && showJumpNext) {
+                        for (let i = 2; i < that.display + 2; i++) {
+                            result.push(i);
+                        }
+                    } else if (showJumpPrev && showJumpNext) {
+                        for (let i = that.pageNo - that.numOffset; i <= that.pageNo + that.numOffset; i++) {
+                            result.push(i);
+                        }
+                    } else {
+                        for (let i = 2; i < that.pages; i++) {
+                            result.push(i);
+                        }
+                    }
+                    return result
+                }
+            },
+            watch: {
+                total: {
+                    handler: function () {
+                        let that = this;
+                        this.pages = Math.ceil(that.total / that.pageSize)
+                    }
+                }
+            },
+        });
+
         Vue.config.devtools = true;
         var vm = new Vue({
             el: '#app',
             data: {
-                 data:[]
+                data: [],
+                tableData: [],
+                size: 5,
+                total: 0,
+                form: {
+                    type: 1,
+                    status: 0,
+                    created_at: []
+                },
+                typeOption: [{
+                    value: 1,
+                    label: '用户创建'
+                }, {
+                    value: 2,
+                    label: '后台创建'
+                }],
+                statusOption: [{
+                    value: 0,
+                    label: '未使用'
+                }, {
+                    value: 1,
+                    label: '已占用'
+                }, {
+                    value: 2,
+                    label: '已使用'
+                }]
             },
             methods: {
-                init: function () {
+                init: function (page) {
                     var that = this;
-                    var data = {};
+                    var data = {
+                        page: page,
+                        form: this.form
+                    };
                     $.ajax({
                         type: 'GET',
                         url: '/admin/invotecode/lists',
                         data: data,
                         success: function (response) {
                             that.data = response.data;
+                            that.total = response.count;
                         },
                         error: function (xhr, status, error) {
                             var response = JSON.parse(xhr.responseText);
@@ -180,14 +365,23 @@
                         }
                     });
                 },
-
+                clear: function () {
+                    this.city = "";
+                    this.name = "";
+                    this.endDate = "";
+                    this.startDate = "";
+                    this.$refs.children.initPageNo();
+                    this.doIt(1);
+                },
+                search: function () {
+                    this.$refs.children.initPageNo();
+                    this.doIt(1);
+                },
             },
             mounted: function () {
-                this.init();
+                this.init(1);
             },
-            computed: {
-
-            }
+            computed: {}
         });
 
 
