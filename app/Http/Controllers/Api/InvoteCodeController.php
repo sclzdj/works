@@ -70,7 +70,6 @@ class InvoteCodeController extends BaseController
             InvoteCode::where('code', $code)->update([
                 "user_id" => $userInfo->id
             ]);
-
             $this->data['result'] = true;
             $this->data['msg'] = "邀请码可以使用";
             return $this->responseParseArray($this->data);
@@ -78,13 +77,15 @@ class InvoteCodeController extends BaseController
 
         if ($codeInfo->status != 0) {
             $this->data['msg'] = "邀请码不可用";
-        } else if ($codeInfo && $codeInfo->wechat_openid != $userInfo->gh_openid) {
-            $this->data['msg'] = "邀请码绑定不正确不可用";
-        } else {
-            $this->data['result'] = true;
-            $this->data['msg'] = "邀请码可以使用";
         }
 
+        if ($codeInfo->user_id == $userInfo->id) {
+            $this->data['result'] = true;
+            $this->data['msg'] = "邀请码可以使用";
+            return $this->responseParseArray($this->data);
+        }
+
+        $this->data['msg'] = "邀请码不可用";
         return $this->responseParseArray($this->data);
     }
 

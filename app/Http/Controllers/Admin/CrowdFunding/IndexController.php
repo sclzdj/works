@@ -16,7 +16,9 @@ class IndexController extends BaseController
 
     public function lists()
     {
+
         // CrowdFunding::initCache();
+
         $crowdFunding = CrowdFunding::find(1);
         $data = [
             'amount' => CrowdFunding::getKeyValue('amount'),

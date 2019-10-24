@@ -82,7 +82,7 @@
                         </li>
                         <li>
                             <button type="button" data-toggle="block-option" data-action="fullscreen_toggle"><i
-                                    class="si si-size-fullscreen"></i></button>
+                                        class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
                     <h3 class="block-title">众筹管理</h3>
@@ -175,7 +175,7 @@
 
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <label class="col-md-2 control-label form-option-line">
-                                        <span class="form-option-require" ></span>
+                                        <span class="form-option-require"></span>
                                         99限制
                                     </label>
                                     <div class="col-md-2 form-control-static form-option-line">
@@ -192,7 +192,7 @@
 
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <label class="col-md-2 control-label form-option-line">
-                                        <span class="form-option-require"  ></span>
+                                        <span class="form-option-require"></span>
                                         99实购
                                     </label>
                                     <div class="col-md-2 form-control-static form-option-line">
@@ -384,8 +384,8 @@
                                         break;
                                 }
                                 that.form[key] = 0;
-                            }
-                            else {
+                            } else {
+
                                 alert(response.msg);
                             }
                         },
