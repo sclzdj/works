@@ -60,13 +60,21 @@ class MiniProgramController extends BaseController
                         3 => 599
                     ];
                     $key = "data_" . $typeArr[$orderInfo->type];
-                    // 增加数据
+                    // 增加具体数据
                     CrowdFunding::increValue($key, 1);
                     CrowdFunding::where('id', 1)
                         ->increment($key, 1);
 
                     $totalPrice = CrowdFunding::getKeyValue("total_price");
                     CrowdFunding::ResetValue("total_price", ($totalPrice ?? 0) + (1 * $typeArr[$orderInfo->type]));
+
+                    CrowdFunding::where('id', 1)
+                        ->increment("total_price", $typeArr[$orderInfo->type]);
+
+                    // 增加参与人数
+                    CrowdFunding::increValue("total", 1);
+                    CrowdFunding::where('id', 1)
+                        ->increment("total", 1);
 
                     $orderInfo->updated_at = date('Y-m-d H:i:s'); // 更新支付时间为当前时间
                     $orderInfo->pay_status = 1;

@@ -17,7 +17,7 @@ class IndexController extends BaseController
     public function lists()
     {
 
-        // CrowdFunding::initCache();
+         // CrowdFunding::initCache();
 
         $crowdFunding = CrowdFunding::find(1);
         $data = [
@@ -36,7 +36,8 @@ class IndexController extends BaseController
             'end_date' => date('Y-m-d H:i:s',CrowdFunding::getKeyValue('end_date')),
             'send_date' => date('Y-m-d H:i:s', CrowdFunding::getKeyValue('send_date')),
         ];
-        $crowdFunding['total_price'] = CrowdFunding::getKeyValue('total_price');
+        $crowdFunding['total_price'] = $data['total_price'];
+        $crowdFunding['total'] = $data['total'];
         return response()->json(compact('crowdFunding', 'data'));
     }
 

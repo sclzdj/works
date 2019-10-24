@@ -12,7 +12,7 @@ class IndexController extends BaseController
         return view('admin/invotecode/index');
     }
 
-    public function show()
+    public function lists()
     {
         return view('admin/invotecode/show');
     }
