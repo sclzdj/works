@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\InvoteCode;
 
 use App\Http\Controllers\Admin\BaseController;
+use App\Model\Index\InvoteCode;
 
 
 class IndexController extends BaseController
@@ -14,6 +15,7 @@ class IndexController extends BaseController
 
     public function lists()
     {
-        return view('admin/invotecode/show');
+        $data = InvoteCode::all();
+        return response()->json(compact( 'data'));
     }
 }

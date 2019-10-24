@@ -330,6 +330,25 @@ class SystemNodesTableSeeder extends Seeder
                                 ],
                             ],
                             [
+                                'name' => '邀请码管理',
+                                'icon' => 'fa fas fa-dollar-sign',
+                                'action' => 'Admin\InvoteCode\IndexController@index',
+                                'children' => [
+                                    [
+                                        'name' => '列表',
+                                        'action' => 'Admin\InvoteCode\IndexController@lists',
+                                    ],
+                                    [
+                                        'name' => '创建',
+                                        'action' => 'Admin\InvoteCode\IndexController@store',
+                                    ],
+                                    [
+                                        'name' => '更新',
+                                        'action' => 'Admin\InvoteCode\IndexController@update',
+                                    ],
+                                ],
+                            ],
+                            [
                                 'name' => '使用帮助管理',
                                 'icon' => 'fa fas fa-question-circle',
                                 'action' => 'Admin\Works\HelpNoteController@index',

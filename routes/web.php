@@ -95,6 +95,7 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::resource('crowdfunding' , 'CrowdFunding\IndexController');
 
         // 邀请码管理
+        Route::get('invotecode/lists' , 'InvoteCode\IndexController@lists');
         Route::resource('invotecode' , 'InvoteCode\IndexController');
     });
     //这下面写不需要登录的路由
