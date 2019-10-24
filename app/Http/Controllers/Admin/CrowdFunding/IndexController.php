@@ -26,8 +26,15 @@ class IndexController extends BaseController
             'total_price' => CrowdFunding::getKeyValue('total_price'),
             'target' => CrowdFunding::getKeyValue('target'),
             'complete_rate' => CrowdFunding::getKeyValue('complete_rate'),
+            'limit_99' => CrowdFunding::getKeyValue('limit_99'),
+            'limit_399' => CrowdFunding::getKeyValue('limit_399'),
+            'limit_599' => CrowdFunding::getKeyValue('limit_599'),
             'data_99' => CrowdFunding::getKeyValue('data_99'),
             'data_399' => CrowdFunding::getKeyValue('data_399'),
+            'data_599' => CrowdFunding::getKeyValue('data_599'),
+            'start_date' => date('Y-m-d H:i:s',CrowdFunding::getKeyValue('start_date')),
+            'end_date' => date('Y-m-d H:i:s',CrowdFunding::getKeyValue('end_date')),
+            'send_date' => date('Y-m-d H:i:s', CrowdFunding::getKeyValue('send_date')),
         ];
         $crowdFunding['total_price'] = CrowdFunding::getKeyValue('total_price');
         return response()->json(compact('crowdFunding', 'data'));
@@ -129,6 +136,21 @@ class IndexController extends BaseController
                     ]
                 );
                 break;
+            case "set":
+                CrowdFunding::ResetValue($key, strtotime($data));
+                $result = CrowdFunding::where('id', 1)
+                    ->update([
+                        $key => strtotime($data)
+                    ]);
+                return response()->json(
+                    [
+                        'result' => true,
+                        'data' => [
+                            $key => $data
+                        ],
+                        'total_price' => CrowdFunding::getKeyValue("total_price")
+                    ]
+                );
         }
 
         return response()->json(

@@ -88,4 +88,34 @@ class CrowdFunding extends Model
         ];
     }
 
+
+    public  function  setStartDateAttribute($value)
+    {
+        $this->attributes['start_date'] = strtotime($value);
+    }
+
+    public  function  setEndDateAttribute($value)
+    {
+        $this->attributes['end_date'] = strtotime($value);
+    }
+
+    public  function  setSendDateAttribute($value)
+    {
+        $this->attributes['send_date'] = strtotime($value);
+    }
+
+    public function  getStartDateAttribute(){
+        return date('Y-m-d H:i:s',$this->attributes['start_date']);
+    }
+
+    public  function  getEndDateAttribute(){
+        return date('Y-m-d H:i:s',$this->attributes['end_date']);
+    }
+
+    public  function  getSendDateAttribute(){
+        return date('Y-m-d H:i:s',$this->attributes['send_date']);
+    }
+
+
+
 }

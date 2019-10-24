@@ -49,10 +49,9 @@ class CrowdFundingController extends UserGuardController
      */
     public function getData()
     {
-        $crowdData = CrowdFunding::where('id', 1)
-            ->select(CrowdFunding::allowFields())
-            ->first();
-
+//        $crowdData = CrowdFunding::where('id', 1)
+//            ->select(CrowdFunding::allowFields())
+//            ->first();
         $data = [
             'amount' => CrowdFunding::getKeyValue('amount'),
             'total' => CrowdFunding::getKeyValue('total'),
@@ -65,10 +64,12 @@ class CrowdFundingController extends UserGuardController
             'limit_99' => CrowdFunding::getKeyValue('limit_99'),
             'limit_399' => CrowdFunding::getKeyValue('limit_399'),
             'limit_599' => CrowdFunding::getKeyValue('limit_599'),
-            'start_date' => $crowdData->start_date,
-            'end_date' => $crowdData->end_date,
-            'send_date' => $crowdData->send_date
+            'start_date' => CrowdFunding::getKeyValue('start_date'),
+            'end_date' => CrowdFunding::getKeyValue('end_date'),
+            'send_date' => CrowdFunding::getKeyValue('send_date'),
         ];
+
+        $data['complete_rate'] = sprintf("%.2f",($data['total_price'] / $data['amount']) * 100 );
 
         return $this->responseParseArray($data);
     }

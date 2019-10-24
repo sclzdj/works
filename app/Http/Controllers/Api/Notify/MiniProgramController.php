@@ -66,7 +66,7 @@ class MiniProgramController extends BaseController
                         ->increment($key, 1);
 
                     $totalPrice = CrowdFunding::getKeyValue("total_price");
-                    CrowdFunding::ResetValue("total_price", $totalPrice + (1 * $typeArr[$orderInfo->type]));
+                    CrowdFunding::ResetValue("total_price", ($totalPrice ?? 0) + (1 * $typeArr[$orderInfo->type]));
 
                     $orderInfo->updated_at = date('Y-m-d H:i:s'); // 更新支付时间为当前时间
                     $orderInfo->pay_status = 1;

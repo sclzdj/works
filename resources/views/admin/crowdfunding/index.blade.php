@@ -82,7 +82,7 @@
                         </li>
                         <li>
                             <button type="button" data-toggle="block-option" data-action="fullscreen_toggle"><i
-                                        class="si si-size-fullscreen"></i></button>
+                                    class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
                     <h3 class="block-title">众筹管理</h3>
@@ -175,7 +175,7 @@
 
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <label class="col-md-2 control-label form-option-line">
-                                        <span class="form-option-require"></span>
+                                        <span class="form-option-require" ></span>
                                         99限制
                                     </label>
                                     <div class="col-md-2 form-control-static form-option-line">
@@ -192,7 +192,7 @@
 
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <label class="col-md-2 control-label form-option-line">
-                                        <span class="form-option-require"></span>
+                                        <span class="form-option-require"  ></span>
                                         99实购
                                     </label>
                                     <div class="col-md-2 form-control-static form-option-line">
@@ -275,6 +275,69 @@
                                         <el-button plain @click="update('data_599' , 'add')">+</el-button>
                                     </div>
                                 </div>
+
+
+                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                    <label class="col-md-2 control-label form-option-line">
+                                        <span class="form-option-require"></span>
+                                        开始时间
+                                    </label>
+                                    <div class="col-md-2 form-control-static form-option-line">
+
+                                    </div>
+                                    <div class="col-md-4 form-option-line" style="text-align: right;">
+                                        <el-date-picker
+
+                                                value-format="yyyy-MM-dd HH:mm:ss"
+                                                @change="function (data) {return changeTime(data , 'start_date')}"
+                                                v-model="crowdFunding.start_date"
+                                                type="datetime"
+                                                placeholder="开始时间">
+                                        </el-date-picker>
+                                    </div>
+                                </div>
+
+                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                    <label class="col-md-2 control-label form-option-line">
+                                        <span class="form-option-require"></span>
+                                        结束时间
+                                    </label>
+                                    <div class="col-md-2 form-control-static form-option-line">
+
+                                    </div>
+                                    <div class="col-md-4 form-option-line" style="text-align: right;">
+                                        <el-date-picker
+
+                                                v-model="crowdFunding.end_date"
+                                                value-format="yyyy-MM-dd HH:mm:ss"
+                                                @change="function (data) {return changeTime(data , 'end_date')}"
+                                                type="datetime"
+                                                placeholder="结束时间">
+                                        </el-date-picker>
+                                    </div>
+                                </div>
+
+                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                    <label class="col-md-2 control-label form-option-line">
+                                        <span class="form-option-require"></span>
+                                        发放时间
+                                    </label>
+                                    <div class="col-md-2 form-control-static form-option-line">
+
+                                    </div>
+                                    <div class="col-md-4 form-option-line" style="text-align: right;">
+                                        <el-date-picker @change="function (data) {return changeTime(data , 'send_date')} "
+                                                v-model="crowdFunding.send_date"
+                                                  value-format="yyyy-MM-dd HH:mm:ss"
+                                                type="datetime"
+                                                placeholder="发放时间">
+                                        </el-date-picker>
+                                    </div>
+                                </div>
+
+
+
+
 
 
                             </form>
@@ -384,8 +447,8 @@
                                         break;
                                 }
                                 that.form[key] = 0;
-                            } else {
-
+                            }
+                            else {
                                 alert(response.msg);
                             }
                         },
@@ -393,6 +456,34 @@
 
                         }
                     });
+
+                },
+                changeTime: function (data , key) {
+
+                    var that = this;
+                    var postData = {
+                        actions: "set",
+                        keys: key,
+                        data: data
+                    };
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '/admin/crowdfunding',
+                        data: postData,
+                        success: function (response) {
+                            if (response.result) {
+
+                            }
+                            else {
+                                alert(response.msg);
+                            }
+                        },
+                        error: function (xhr, status, error) {
+
+                        }
+                    });
+
 
                 }
             },
