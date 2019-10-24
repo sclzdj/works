@@ -120,7 +120,9 @@ $api->version('v1',['namespace'=>'\App\Http\Controllers\Api'],function ($api){
         $api->post('invote/query', 'InvoteCodeController@query');
         // 众筹相关
         $api->get('crowdfunding/getData', 'CrowdFundingController@getData');
+        $api->post('crowdfunding/order' , 'CrowdFundingController@order');
         $api->post('crowdfunding/log', 'CrowdFundingController@log');
+        $api->post('notify/miniprogram/crowdfunding', 'Notify\MiniProgramController@crowdfunding');
     });
 });
 

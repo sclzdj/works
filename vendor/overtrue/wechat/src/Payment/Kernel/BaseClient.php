@@ -88,6 +88,7 @@ class BaseClient
         } else {
             $encryptMethod = 'md5';
         }
+
         $params['sign'] = Support\generate_sign($params, $secretKey, $encryptMethod);
 
         $options = array_merge([

@@ -352,6 +352,11 @@
                     if (this.form[key] === 0) {
                         return;
                     }
+
+                    if (this.form[key] === "") {
+                        return;
+                    }
+
                     var that = this;
                     var data = {
                         actions: action,
@@ -365,20 +370,23 @@
                         data: data,
                         success: function (response) {
                             if (response.result) {
-                                console.log(action);
                                 switch (action) {
                                     case "reset":
-                                        console.log(key , data.data)
                                         that.crowdFunding[key] = data.data;
                                         break;
                                     case "add":
                                         that.crowdFunding[key] = Number(that.crowdFunding[key]) + Number(data.data);
+                                        that.crowdFunding['total_price'] = Number(response.total_price);
                                         break;
                                     case "sub":
-                                        that.crowdFunding[key] = Number(that.crowdFunding[key]) - data.data;
+                                        that.crowdFunding[key] = Number(that.crowdFunding[key]) - Number(data.data);
+                                        that.crowdFunding['total_price'] = Number(response.total_price);
                                         break;
                                 }
-
+                                that.form[key] = 0;
+                            }
+                            else {
+                                alert(response.msg);
                             }
                         },
                         error: function (xhr, status, error) {

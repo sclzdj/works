@@ -66,6 +66,7 @@ class CrowdFunding extends Model
     }
 
 
+
     /**
      * 允许查询的字段
      * @return array
