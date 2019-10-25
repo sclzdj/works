@@ -214,7 +214,7 @@
                                         id="builder-table-main">
                                         <colgroup>
                                             <col width="50">
-                                            <col width="50" class="">
+                                            <col class="" width="50">
                                             <col class="">
                                             <col class="">
                                             <col width="80" class="">

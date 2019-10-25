@@ -128,20 +128,14 @@ class MyController extends UserGuardController
             $errCode = $pc->decryptData($encryptedData, $iv, $data);
             if ($errCode == 0) {
                 $data = json_decode($data, true);
-                if ($data['openId'] == $user->openid) {
-                    $user->phoneNumber = $data['phoneNumber'];
-                    $user->purePhoneNumber = $data['purePhoneNumber'];
-                    $user->countryCode = $data['countryCode'];
-                    $user->is_wx_get_phone_number = 1;
-                    $user->save();
-                    \DB::commit();//提交事务
+                $user->phoneNumber = $data['phoneNumber'];
+                $user->purePhoneNumber = $data['purePhoneNumber'];
+                $user->countryCode = $data['countryCode'];
+                $user->is_wx_get_phone_number = 1;
+                $user->save();
+                \DB::commit();//提交事务
 
-                    return $this->response->noContent();
-                } else {
-                    \DB::rollback();//回滚事务
-
-                    return $this->response->error('openID校验错误', 500);
-                }
+                return $this->response->noContent();
             } else {
                 \DB::rollback();//回滚事务
 
@@ -425,7 +419,7 @@ class MyController extends UserGuardController
                 $visitor_today_count_my = $p->visitor_today_count;
                 $visitor_count_my = $p->visitor_count;
             }
-            if ($k == $rankListLast-1) {
+            if ($k == $rankListLast - 1) {
                 $visitor_today_count_rank_list_last = $p->visitor_today_count;
                 $visitor_count_rank_list_last = $p->visitor_count;
             }
