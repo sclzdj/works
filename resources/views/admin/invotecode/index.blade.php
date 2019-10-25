@@ -78,7 +78,7 @@
                         </li>
                         <li>
                             <button type="button" data-toggle="block-option" data-action="fullscreen_toggle"><i
-                                    class="si si-size-fullscreen"></i></button>
+                                        class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
                     <h3 class="block-title">邀请码管理</h3>
@@ -87,60 +87,66 @@
                     <div class="tab-pane active">
                         <div class="block-content">
                             <el-date-picker
-                                v-model="form.created_at"
-                                type="daterange"
-                                range-separator="至"
-                                value-format="yyyy-MM-dd"
-                                start-placeholder="开始日期"
-                                end-placeholder="结束日期">
+                                    v-model="form.created_at"
+                                    type="daterange"
+                                    range-separator="至"
+                                    value-format="yyyy-MM-dd"
+                                    start-placeholder="开始日期"
+                                    end-placeholder="结束日期">
                             </el-date-picker>
 
                             <el-select v-model="form.type" placeholder="请选择">
                                 <el-option
-                                    v-for="item in typeOption"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
+                                        v-for="item in typeOption"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
                                 </el-option>
                             </el-select>
 
                             <el-select v-model="form.status" placeholder="请选择">
                                 <el-option
-                                    v-for="item in statusOption"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
+                                        v-for="item in statusOption"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
                                 </el-option>
                             </el-select>
+
+                            <el-button type="primary" @click="search" icon="el-icon-search">搜索</el-button>
+                            <el-button type="primary" @click="clear" icon="el-icon-close">清除</el-button>
+
+                            <el-input v-model="number" type="Number" style="width: 300px" placeholder="输入数字"></el-input>
+                            <el-button type="primary" @click="create" icon="el-icon-search">创建</el-button>
                         </div>
                         <div class="block-content">
                             <el-table
-                                :data="data"
-                                style="width: 100%">
+                                    :data="data"
+                                    style="width: 100%">
                                 <el-table-column
-                                    prop="code"
-                                    label="邀请码"
-                                    width="180">
+                                        prop="code"
+                                        label="邀请码"
+                                        width="180">
                                 </el-table-column>
                                 <el-table-column
-                                    prop="type"
-                                    label="邀请码类型"
-                                    width="180">
+                                        prop="type"
+                                        label="邀请码类型"
+                                        width="180">
                                 </el-table-column>
                                 <el-table-column
-                                    prop="status"
-                                    label="状态">
-                                </el-table-column>
-
-                                <el-table-column
-                                    prop="created_at"
-                                    label="创建时间">
+                                        prop="status"
+                                        label="状态">
                                 </el-table-column>
 
                                 <el-table-column
-                                    fixed="right"
-                                    label="操作"
-                                    width="100">
+                                        prop="created_at"
+                                        label="创建时间">
+                                </el-table-column>
+
+                                <el-table-column
+                                        fixed="right"
+                                        label="操作"
+                                        width="100">
                                     <template slot-scope="scope">
                                         <el-button type="text" size="small">占用</el-button>
                                     </template>
@@ -302,32 +308,43 @@
         var vm = new Vue({
             el: '#app',
             data: {
+                number: 0,
                 data: [],
                 tableData: [],
-                size: 5,
+                size: 20,
                 total: 0,
                 form: {
-                    type: 1,
-                    status: 0,
+                    type: 0,
+                    status: -1,
                     created_at: []
                 },
-                typeOption: [{
-                    value: 1,
-                    label: '用户创建'
-                }, {
-                    value: 2,
-                    label: '后台创建'
-                }],
-                statusOption: [{
-                    value: 0,
-                    label: '未使用'
-                }, {
-                    value: 1,
-                    label: '已占用'
-                }, {
-                    value: 2,
-                    label: '已使用'
-                }]
+                typeOption: [
+                    {
+                        value: 0,
+                        label: '选择类型'
+                    },
+                    {
+                        value: 1,
+                        label: '用户创建'
+                    }, {
+                        value: 2,
+                        label: '后台创建'
+                    }],
+                statusOption: [
+                    {
+                        value: -1,
+                        label: '选择状态'
+                    },
+                    {
+                        value: 0,
+                        label: '未使用'
+                    }, {
+                        value: 1,
+                        label: '已占用'
+                    }, {
+                        value: 2,
+                        label: '已使用'
+                    }]
             },
             methods: {
                 init: function (page) {
@@ -366,17 +383,40 @@
                     });
                 },
                 clear: function () {
-                    this.city = "";
-                    this.name = "";
-                    this.endDate = "";
-                    this.startDate = "";
+                    this.form = {
+                        type: 0,
+                        status: -1,
+                        created_at: []
+                    };
                     this.$refs.children.initPageNo();
-                    this.doIt(1);
+                    this.init(1);
                 },
                 search: function () {
+
                     this.$refs.children.initPageNo();
-                    this.doIt(1);
+                    this.init(1);
                 },
+                create:function () {
+                    var that = this;
+                    $.ajax({
+                        type: 'POST',
+                        url: '/admin/invotecode',
+                        data: {
+                            number:this.number
+                        },
+                        success: function (response) {
+                            if (response.result) {
+                                that.init(1);
+                            }
+                            else {
+
+                            }
+                        },
+                        error: function (xhr, status, error) {
+
+                        }
+                    });
+                }
             },
             mounted: function () {
                 this.init(1);
