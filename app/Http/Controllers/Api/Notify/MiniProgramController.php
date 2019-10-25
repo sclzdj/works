@@ -11,8 +11,14 @@ use EasyWeChat\Factory;
 use Illuminate\Http\Request;
 use Log;
 
+// 小程序支付回调
 class MiniProgramController extends BaseController
 {
+    /*
+     * 众筹回调函数
+     *
+     * @return string
+     */
     public function crowdfunding(Request $request)
     {
         $this->config = [
@@ -44,10 +50,10 @@ class MiniProgramController extends BaseController
             if ($message['return_code'] === 'SUCCESS') { // return_code 表示通信状态，不代表支付状态
                 // 用户是否支付成功
                 if (array_get($message, 'result_code') === 'SUCCESS') {
-                    // 清空购物车
                     // 生成二维码
+                    $strs = "QWERTYUIOPASDFGHJKLZXCVBNM1234567890qwertyuiopasdfghjklzxcvbnm";
                     $invoteCode = new InvoteCode();
-                    $invoteCode->code = substr($orderInfo->user_id . $orderInfo->id . uniqid(), 0, 6);
+                    $invoteCode->code = substr($orderInfo->user_id . $orderInfo->id . substr(str_shuffle($strs), mt_rand(0, strlen($strs) - 11), 3), 0, 6);
                     $invoteCode->type = 1;
                     $invoteCode->status = 0;
                     $invoteCode->user_id = $orderInfo->user_id;
@@ -64,10 +70,9 @@ class MiniProgramController extends BaseController
                     CrowdFunding::increValue($key, 1);
                     CrowdFunding::where('id', 1)
                         ->increment($key, 1);
-
+                    // 总数增加
                     $totalPrice = CrowdFunding::getKeyValue("total_price");
                     CrowdFunding::ResetValue("total_price", ($totalPrice ?? 0) + (1 * $typeArr[$orderInfo->type]));
-
                     CrowdFunding::where('id', 1)
                         ->increment("total_price", $typeArr[$orderInfo->type]);
 

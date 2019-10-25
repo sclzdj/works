@@ -9,16 +9,24 @@ use Illuminate\Http\Request;
 
 class IndexController extends BaseController
 {
+    /**
+     * 众筹列表视图
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         return view('admin/crowdfunding/index');
     }
 
+    /**
+     * 众筹列表
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function lists()
     {
-
-         // CrowdFunding::initCache();
-
+        // CrowdFunding::initCache();
         $crowdFunding = CrowdFunding::find(1);
         $data = [
             'amount' => CrowdFunding::getKeyValue('amount'),
@@ -32,8 +40,8 @@ class IndexController extends BaseController
             'data_99' => CrowdFunding::getKeyValue('data_99'),
             'data_399' => CrowdFunding::getKeyValue('data_399'),
             'data_599' => CrowdFunding::getKeyValue('data_599'),
-            'start_date' => date('Y-m-d H:i:s',CrowdFunding::getKeyValue('start_date')),
-            'end_date' => date('Y-m-d H:i:s',CrowdFunding::getKeyValue('end_date')),
+            'start_date' => date('Y-m-d H:i:s', CrowdFunding::getKeyValue('start_date')),
+            'end_date' => date('Y-m-d H:i:s', CrowdFunding::getKeyValue('end_date')),
             'send_date' => date('Y-m-d H:i:s', CrowdFunding::getKeyValue('send_date')),
         ];
         $crowdFunding['total_price'] = $data['total_price'];
@@ -54,13 +62,14 @@ class IndexController extends BaseController
                 ]
             );
         }
-
+        // 检查参数是否合规
         $checkResult = $this->checkRight($postData);
         if (!$checkResult['result']) {
             return response()->json($checkResult);
         }
 
         switch ($postData['actions']) {
+
             case "add":
                 CrowdFunding::increValue($key, $data);
                 CrowdFunding::where('id', 1)
@@ -90,7 +99,7 @@ class IndexController extends BaseController
                         'total_price' => CrowdFunding::getKeyValue("total_price")
                     ]
                 );
-                break;
+                break;  // 添加数据
             case "sub":
                 CrowdFunding::decreValue($key, $data);
                 CrowdFunding::where('id', 1)
@@ -120,7 +129,7 @@ class IndexController extends BaseController
                         'total_price' => CrowdFunding::getKeyValue("total_price")
                     ]
                 );
-                break;
+                break;  // 减少数组
             case "reset":
                 CrowdFunding::ResetValue($key, $data);
                 $result = CrowdFunding::where('id', 1)
@@ -136,7 +145,7 @@ class IndexController extends BaseController
                         'total_price' => CrowdFunding::getKeyValue("total_price")
                     ]
                 );
-                break;
+                break; // 重置数据
             case "set":
                 CrowdFunding::ResetValue($key, strtotime($data));
                 $result = CrowdFunding::where('id', 1)
@@ -152,6 +161,7 @@ class IndexController extends BaseController
                         'total_price' => CrowdFunding::getKeyValue("total_price")
                     ]
                 );
+                break; //设置数据
         }
 
         return response()->json(
@@ -161,6 +171,11 @@ class IndexController extends BaseController
         );
     }
 
+    /**
+     * 检查更改的数据
+     *
+     * @return array ["result" => bool , "msg" => string]
+     */
     private function checkRight($postData)
     {
         switch ($postData['keys']) {
@@ -271,7 +286,6 @@ class IndexController extends BaseController
                 };
                 break;
         }
-
         return [
             'result' => true
         ];
