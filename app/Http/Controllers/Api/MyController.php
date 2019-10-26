@@ -20,6 +20,7 @@ use App\Model\Index\ViewRecord;
 use App\Model\Index\Visitor;
 use App\Servers\ArrServer;
 use App\Servers\ErrLogServer;
+use App\Servers\PhotographerServer;
 use App\Servers\SystemServer;
 use App\Servers\WechatServer;
 use Qiniu\Auth;
@@ -402,9 +403,7 @@ class MyController extends UserGuardController
         $view_record_count = ViewRecord::where(
             ['photographer_id' => $photographer->id]
         )->count();
-        $today = date('Y-m-d').' 00:00:00';
-        $sql = "SELECT photographers.id,(SELECT count(*) FROM `visitors` WHERE `visitors`.`photographer_id`=`photographers`.`id` AND `created_at`>='{$today}') AS `visitor_today_count`,(SELECT count(*) FROM `visitors` WHERE `visitors`.`photographer_id`=`photographers`.`id`) AS `visitor_count` FROM `photographers` WHERE `photographers`.`status`=200 ORDER BY `visitor_today_count` DESC,`visitor_count` DESC,`photographers`.`created_at` ASC";
-        $photographers = \DB::select($sql, []);
+        $photographers = PhotographerServer::visitorRankingList(null, '`photographers`.`id`');
         $myRank = 0;
         $photographer_count = 0;
         $visitor_today_count_rank_list_last = 0;
@@ -874,16 +873,7 @@ class MyController extends UserGuardController
         $this->notPhotographerIdentityVerify();
         $limit = $request->limit ?? 50;
         $photographer = User::photographer(null, $this->guard);
-        $fields = array_map(
-            function ($v) {
-                return "`photographers`.`{$v}`";
-            },
-            Photographer::allowFields()
-        );
-        $fields = implode(',', $fields);
-        $today = date('Y-m-d').' 00:00:00';
-        $sql = "SELECT {$fields},(SELECT count(*) FROM `visitors` WHERE `visitors`.`photographer_id`=`photographers`.`id` AND `created_at`>='{$today}') AS `visitor_today_count`,(SELECT count(*) FROM `visitors` WHERE `visitors`.`photographer_id`=`photographers`.`id`) AS `visitor_count` FROM `photographers` WHERE `photographers`.`status`=200 ORDER BY `visitor_today_count` DESC,`visitor_count` DESC,`photographers`.`created_at` ASC LIMIT {$limit}";
-        $photographers = \DB::select($sql, []);
+        $photographers = PhotographerServer::visitorRankingList($limit);
         $myRank = 0;
         $_fields = array_map(
             function ($v) {

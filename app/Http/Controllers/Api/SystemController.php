@@ -23,6 +23,7 @@ use App\Model\Index\User;
 use App\Model\Index\VisitorTag;
 use App\Servers\AliSendShortMessageServer;
 use App\Servers\SystemServer;
+use App\Timings\VisitSummaryTiming;
 
 /**
  * 系统通用

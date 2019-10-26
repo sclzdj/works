@@ -195,8 +195,31 @@ class VisitController extends UserGuardController
                     if (Visitor::where(
                             ['photographer_id' => $request->photographer_id]
                         )->count() >= 2) {
+                        $is_formal_photographer_old = $photographer_user->is_formal_photographer;
                         $photographer_user->is_formal_photographer = 1;
                         $photographer_user->save();
+                        if ($is_formal_photographer_old == 0) {
+                            if ($photographer_user->gh_openid != '') {
+                                $app = app('wechat.official_account');
+                                $app->template_message->send(
+                                    [
+                                        'touser' => $photographer_user->gh_openid,
+                                        'template_id' => '26HDjOQogbCDCz1m4mjK-OQ2N4-VdlgQqM_CDRVfxmBI',
+                                        'url' => config('app.url'),
+//                                    'miniprogram' => [
+//                                        'appid' => config('custom.wechat.mp.appid'),
+//                                        'pagepath' => 'pages/xxx?'.$visitor->id,//访客详情页
+//                                    ],
+                                        'data' => [
+                                            'first' => $photographer->name.'，你的云作品已被激活！点击此处，体验云作品的完整功能。',
+                                            'keyword1' => $photographer_user->purePhoneNumber ?: '无手机号',
+                                            'keyword2' => date('Y-m-d H:i'),
+                                            'remark' => '云作品，你的作品首发平台。为了方便下次使用，建议苹果用户将云作品拽入我的小程序，建议安卓用户请将云作品设为桌面图标。更多使用技巧，请浏览云作品中的使用帮助。',
+                                        ],
+                                    ]
+                                );
+                            }
+                        }
                     }
                     $visitor = Visitor::create();
                     $visitor->photographer_id = $request->photographer_id;
@@ -270,6 +293,35 @@ class VisitController extends UserGuardController
                     ['photographer_id' => $request->photographer_id, 'user_id' => $user->id]
                 )->first();
                 if (!$visitor) {
+                    if (Visitor::where(
+                            ['photographer_id' => $request->photographer_id]
+                        )->count() >= 2) {
+                        $is_formal_photographer_old = $photographer_user->is_formal_photographer;
+                        $photographer_user->is_formal_photographer = 1;
+                        $photographer_user->save();
+                        if ($is_formal_photographer_old == 0) {
+                            if ($photographer_user->gh_openid != '') {
+                                $app = app('wechat.official_account');
+                                $app->template_message->send(
+                                    [
+                                        'touser' => $photographer_user->gh_openid,
+                                        'template_id' => '26HDjOQogbCDCz1m4mjK-OQ2N4-VdlgQqM_CDRVfxmBI',
+                                        'url' => config('app.url'),
+//                                    'miniprogram' => [
+//                                        'appid' => config('custom.wechat.mp.appid'),
+//                                        'pagepath' => 'pages/xxx?'.$visitor->id,//访客详情页
+//                                    ],
+                                        'data' => [
+                                            'first' => $photographer->name.'，你的云作品已被激活！点击此处，体验云作品的完整功能。',
+                                            'keyword1' => $photographer_user->purePhoneNumber ?: '无手机号',
+                                            'keyword2' => date('Y-m-d H:i'),
+                                            'remark' => '云作品，你的作品首发平台。为了方便下次使用，建议苹果用户将云作品拽入我的小程序，建议安卓用户请将云作品设为桌面图标。更多使用技巧，请浏览云作品中的使用帮助。',
+                                        ],
+                                    ]
+                                );
+                            }
+                        }
+                    }
                     $visitor = Visitor::create();
                     $visitor->photographer_id = $request->photographer_id;
                     $visitor->user_id = $user->id;
