@@ -14,7 +14,7 @@ class CrowdFunding extends Model
     protected $fillable = [
 
     ];
-
+    // 缓存的key prefix
     protected static $key = "crowdfunding_";
 
     /**
@@ -24,6 +24,14 @@ class CrowdFunding extends Model
      */
     protected $hidden = [];
 
+    /*
+     * 初始化缓存数据
+     *
+     * @param string  $key
+     * @param string  $amount
+     *
+     * @return void
+     */
     public static function initCache()
     {
         $data = self::where('id', 1)->first()->toArray();
@@ -40,7 +48,14 @@ class CrowdFunding extends Model
         \Cache::forever(self::$key . "limit_399", $data['limit_399']);
         \Cache::forever(self::$key . "limit_599", $data['limit_599']);
     }
-
+    /*
+     * 获取缓存的值
+     *
+     * @param string  $key
+     * @param string  $amount
+     *
+     * @return void
+     */
     public static function getKeyValue($key)
     {
         if (\Cache::has(self::$key . $key)) {
@@ -49,17 +64,38 @@ class CrowdFunding extends Model
             return null;
         }
     }
-
+    /*
+     * 增加缓存的值
+     *
+     * @param string  $key
+     * @param string  $amount
+     *
+     * @return void
+     */
     public static function increValue($key, $amount)
     {
         \Cache::increment(self::$key . $key, $amount);
     }
-
+    /*
+     * 减少缓存的值
+     *
+     * @param string  $key
+     * @param string  $amount
+     *
+     * @return void
+     */
     public static function decreValue($key, $amount)
     {
         \Cache::decrement(self::$key . $key, $amount);
     }
-
+    /*
+     * 设置缓存的值
+     *
+     * @param string  $key
+     * @param string  $amount
+     *
+     * @return void
+     */
     public static function ResetValue($key, $value)
     {
         \Cache::forever(self::$key . $key, $value);
