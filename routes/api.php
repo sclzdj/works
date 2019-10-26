@@ -118,6 +118,7 @@ $api->version('v1',['namespace'=>'\App\Http\Controllers\Api'],function ($api){
 
         // 邀请码
         $api->post('invote/query', 'InvoteCodeController@query');
+        $api->post('invote/update', 'InvoteCodeController@update');
         // 众筹相关
         $api->get('crowdfunding/getData', 'CrowdFundingController@getData');
         $api->post('crowdfunding/order' , 'CrowdFundingController@order');
