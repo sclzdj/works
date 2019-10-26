@@ -22,6 +22,7 @@ use App\Model\Index\SmsCode;
 use App\Model\Index\User;
 use App\Model\Index\VisitorTag;
 use App\Servers\AliSendShortMessageServer;
+use App\Servers\ErrLogServer;
 use App\Servers\SystemServer;
 use App\Timings\VisitSummaryTiming;
 
@@ -119,7 +120,7 @@ class SystemController extends BaseController
             $HelpNote = $HelpNote->where('title', 'like', '%'.$request->keywords.'%');
         }
 
-        $help_notes = $HelpNote->orderBy('sort','asc')->take($request->limit)->get();
+        $help_notes = $HelpNote->orderBy('sort', 'asc')->take($request->limit)->get();
 
         return $this->responseParseArray($help_notes);
     }
@@ -278,7 +279,8 @@ class SystemController extends BaseController
      */
     public function configs()
     {
-        $configs=SystemConfig::select(['title','name','value'])->where(['type' => 'works'])->get();
+        $configs = SystemConfig::select(['title', 'name', 'value'])->where(['type' => 'works'])->get();
+
         return $this->responseParseArray($configs);
     }
 }

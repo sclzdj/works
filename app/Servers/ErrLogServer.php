@@ -80,4 +80,26 @@ class ErrLogServer
             json_encode($error, JSON_UNESCAPED_UNICODE).PHP_EOL
         );
     }
+
+    /**
+     * 发送微信公众号模板消息错误日志
+     * @param $template_id
+     * @param $msg
+     * @param $remark
+     * @return bool|int
+     */
+    public static function SendWxGhTemplateMessage($template_id, $msg, $remark)
+    {
+        $log_filename = 'logs/send_wx_gh_template_message_error/'.date('Y-m-d').'/'.date('H').'.log';
+        $error = [];
+        $error['log_time'] = date('i:s');
+        $error['template_id'] = $template_id;
+        $error['msg'] = $msg;
+        $error['remark'] = $remark;
+
+        return SystemServer::filePutContents(
+            $log_filename,
+            json_encode($error, JSON_UNESCAPED_UNICODE).PHP_EOL
+        );
+    }
 }

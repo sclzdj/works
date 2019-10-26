@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Model\Index\Photographer;
+use App\Servers\ErrLogServer;
 use Illuminate\Console\Command;
 
 /**
@@ -65,10 +66,11 @@ class VisitSummary extends Command
                     }
                 }
                 $app = app('wechat.official_account');
-                $app->template_message->send(
+                $template_id = 'CiFcVCzHQI-9G_l7H-uGMaexTheqCSo0AI_LSKM0dNY';
+                $tmr = $app->template_message->send(
                     [
                         'touser' => $photographer->gh_openid,
-                        'template_id' => 'CiFcVCzHQI-9G_l7H-uGMaexTheqCSo0AI_LSKM0dNY',
+                        'template_id' => $template_id,
                         'url' => config('app.url'),
 //                                    'miniprogram' => [
 //                                        'appid' => config('custom.wechat.mp.appid'),
@@ -83,6 +85,9 @@ class VisitSummary extends Command
                         ],
                     ]
                 );
+                if ($tmr['errcode'] != 0) {
+                    ErrLogServer::SendWxGhTemplateMessage($template_id, $tmr['errmsg'], $tmr);
+                }
             }
         }
     }

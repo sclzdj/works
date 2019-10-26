@@ -12,6 +12,7 @@ use App\Model\Index\ViewRecord;
 use App\Model\Index\Visitor;
 use App\Model\Index\VisitorTag;
 use App\Servers\ArrServer;
+use App\Servers\ErrLogServer;
 use App\Servers\SystemServer;
 
 /**
@@ -89,10 +90,11 @@ class VisitController extends UserGuardController
                         if ($is_formal_photographer_old == 0) {
                             if ($photographer_user->gh_openid != '') {
                                 $app = app('wechat.official_account');
-                                $app->template_message->send(
+                                $template_id = '6HDjOQogbCDCz1m4mjK-OQ2N4-VdlgQqM_CDRVfxmBI';
+                                $tmr = $app->template_message->send(
                                     [
                                         'touser' => $photographer_user->gh_openid,
-                                        'template_id' => '26HDjOQogbCDCz1m4mjK-OQ2N4-VdlgQqM_CDRVfxmBI',
+                                        'template_id' => $template_id,
                                         'url' => config('app.url'),
 //                                    'miniprogram' => [
 //                                        'appid' => config('custom.wechat.mp.appid'),
@@ -106,6 +108,9 @@ class VisitController extends UserGuardController
                                         ],
                                     ]
                                 );
+                                if ($tmr['errcode'] != 0) {
+                                    ErrLogServer::SendWxGhTemplateMessage($template_id, $tmr['errmsg'], $tmr);
+                                }
                             }
                         }
                     }
@@ -116,10 +121,11 @@ class VisitController extends UserGuardController
                     if ($visitor->is_remind == 1) {//特别关注，发模板消息
                         if ($photographer_user->gh_openid != '') {
                             $app = app('wechat.official_account');
-                            $app->template_message->send(
+                            $template_id = 'CiFcVCzHQI-9G_l7H-uGMaexTheqCSo0AI_LSKM0dNY';
+                            $tmr = $app->template_message->send(
                                 [
                                     'touser' => $photographer_user->gh_openid,
-                                    'template_id' => 'CiFcVCzHQI-9G_l7H-uGMaexTheqCSo0AI_LSKM0dNY',
+                                    'template_id' => $template_id,
                                     'url' => config('app.url'),
 //                                    'miniprogram' => [
 //                                        'appid' => config('custom.wechat.mp.appid'),
@@ -134,6 +140,9 @@ class VisitController extends UserGuardController
                                     ],
                                 ]
                             );
+                            if ($tmr['errcode'] != 0) {
+                                ErrLogServer::SendWxGhTemplateMessage($template_id, $tmr['errmsg'], $tmr);
+                            }
                         }
                     }
                 }
@@ -201,10 +210,11 @@ class VisitController extends UserGuardController
                         if ($is_formal_photographer_old == 0) {
                             if ($photographer_user->gh_openid != '') {
                                 $app = app('wechat.official_account');
-                                $app->template_message->send(
+                                $template_id = '6HDjOQogbCDCz1m4mjK-OQ2N4-VdlgQqM_CDRVfxmBI';
+                                $tmr = $app->template_message->send(
                                     [
                                         'touser' => $photographer_user->gh_openid,
-                                        'template_id' => '26HDjOQogbCDCz1m4mjK-OQ2N4-VdlgQqM_CDRVfxmBI',
+                                        'template_id' => $template_id,
                                         'url' => config('app.url'),
 //                                    'miniprogram' => [
 //                                        'appid' => config('custom.wechat.mp.appid'),
@@ -218,6 +228,9 @@ class VisitController extends UserGuardController
                                         ],
                                     ]
                                 );
+                                if ($tmr['errcode'] != 0) {
+                                    ErrLogServer::SendWxGhTemplateMessage($template_id, $tmr['errmsg'], $tmr);
+                                }
                             }
                         }
                     }
@@ -228,10 +241,11 @@ class VisitController extends UserGuardController
                     if ($visitor->is_remind == 1) {//特别关注，发模板消息
                         if ($photographer_user->gh_openid != '') {
                             $app = app('wechat.official_account');
-                            $app->template_message->send(
+                            $template_id = 'CiFcVCzHQI-9G_l7H-uGMaexTheqCSo0AI_LSKM0dNY';
+                            $tmr = $app->template_message->send(
                                 [
                                     'touser' => $photographer_user->gh_openid,
-                                    'template_id' => 'CiFcVCzHQI-9G_l7H-uGMaexTheqCSo0AI_LSKM0dNY',
+                                    'template_id' => $template_id,
                                     'url' => config('app.url'),
 //                                    'miniprogram' => [
 //                                        'appid' => config('custom.wechat.mp.appid'),
@@ -246,6 +260,9 @@ class VisitController extends UserGuardController
                                     ],
                                 ]
                             );
+                            if ($tmr['errcode'] != 0) {
+                                ErrLogServer::SendWxGhTemplateMessage($template_id, $tmr['errmsg'], $tmr);
+                            }
                         }
                     }
                 }
@@ -302,10 +319,11 @@ class VisitController extends UserGuardController
                         if ($is_formal_photographer_old == 0) {
                             if ($photographer_user->gh_openid != '') {
                                 $app = app('wechat.official_account');
-                                $app->template_message->send(
+                                $template_id = '6HDjOQogbCDCz1m4mjK-OQ2N4-VdlgQqM_CDRVfxmBI';
+                                $tmr = $app->template_message->send(
                                     [
                                         'touser' => $photographer_user->gh_openid,
-                                        'template_id' => '26HDjOQogbCDCz1m4mjK-OQ2N4-VdlgQqM_CDRVfxmBI',
+                                        'template_id' => $template_id,
                                         'url' => config('app.url'),
 //                                    'miniprogram' => [
 //                                        'appid' => config('custom.wechat.mp.appid'),
@@ -319,6 +337,9 @@ class VisitController extends UserGuardController
                                         ],
                                     ]
                                 );
+                                if ($tmr['errcode'] != 0) {
+                                    ErrLogServer::SendWxGhTemplateMessage($template_id, $tmr['errmsg'], $tmr);
+                                }
                             }
                         }
                     }
@@ -329,10 +350,11 @@ class VisitController extends UserGuardController
                     if ($visitor->is_remind == 1) {//特别关注，发模板消息
                         if ($photographer_user->gh_openid != '') {
                             $app = app('wechat.official_account');
-                            $app->template_message->send(
+                            $template_id = 'CiFcVCzHQI-9G_l7H-uGMaexTheqCSo0AI_LSKM0dNY';
+                            $tmr = $app->template_message->send(
                                 [
                                     'touser' => $photographer_user->gh_openid,
-                                    'template_id' => 'CiFcVCzHQI-9G_l7H-uGMaexTheqCSo0AI_LSKM0dNY',
+                                    'template_id' => $template_id,
                                     'url' => config('app.url'),
 //                                    'miniprogram' => [
 //                                        'appid' => config('custom.wechat.mp.appid'),
@@ -347,6 +369,9 @@ class VisitController extends UserGuardController
                                     ],
                                 ]
                             );
+                            if ($tmr['errcode'] != 0) {
+                                ErrLogServer::SendWxGhTemplateMessage($template_id, $tmr['errmsg'], $tmr);
+                            }
                         }
                     }
                 }
