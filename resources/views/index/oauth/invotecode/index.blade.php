@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8"/>
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title></title>
     <script src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js" type="text/javascript" charset="utf-8"></script>
@@ -10,22 +10,18 @@
     </script>
 </head>
 <body>
-<div id="content" style="width: 10rem;position: relative;">
-    <img src="{{asset('/img/titles.png')}}  " style="margin: auto;width: 4rem;height: 1.48rem;margin-top: 0.48rem;"/>
-    <input  class="input" type="text" placeholder="请输入邀请码" id="inputs" maxlength="6"/>
-    <div style="width: 2.413333rem;height: 0.4rem;margin: auto;margin-top: 0.38rem;">
-        <div class=""
-             style="text-align: center;line-height: 0.4rem;width:0.4rem;height:0.4rem;background:rgba(255,255,255,1);border-radius:50%;font-size:0.266666rem;font-family:PingFang SC;font-weight:500;color:rgba(62,205,246,1);float: left;">
-            ?
-        </div>
-        <div class="" @click="redirectTo"
-             style="font-size:0.266666rem;font-family:PingFang SC;font-weight:500;color:rgba(255,255,255,1);width: 2.013333rem;float: left;">
-            怎样获得邀请码
-        </div>
+
+<div id="content" style="text-align: center;width: 10rem;position: relative;">
+    <img src="{{asset('images/titles.png')}}" style="margin: auto;width: 4rem;height: 1.48rem;margin-top: 0.48rem;" />
+    <input class="input" type="text" placeholder="请输入邀请码" id="inputs" maxlength="6" style="text-transform:uppercase"/>
+    <div style="width: 10rem;height: 0.4rem;margin: auto;margin-top: 0.41rem;display: flex;justify-content: center;">
+        <div class="" style="text-align: center;line-height: 0.4rem;width:0.4rem;height:0.4rem;background:rgba(255,255,255,1);border-radius:50%;font-size:0.266666rem;font-family:PingFang SC;font-weight:500;color:rgba(62,205,246,1);">?</div>
+        <div class="" @click="redirectTo" style="font-size:0.333333rem;font-family:PingFang SC;font-weight:500;color:rgba(255,255,255,1);margin-left: 0.23rem;">怎样获得邀请码</div>
     </div>
-    <img src="{{asset('/img/phone.png')}}"
-         style="margin: auto;width: 6.013333rem;height: 9.653333rem;position: absolute;bottom: 0;left: 2rem;"/>
+    <img src="{{asset('images/phone.png')}}" style="margin: auto;width: 6.013333rem;height: 9.653333rem;position: absolute;bottom: 0;left: 50%;margin-left: -3rem;" />
 </div>
+
+
 </body>
 <style type="text/css">
     body {
@@ -68,7 +64,7 @@
         /* Chrome/Opera/Safari */
         font-size: 0.48rem;
         font-family: PingFang SC;
-        font-weight: 500;
+        font-weight: 400;
         color: rgba(200, 200, 200, 1);
     }
 
@@ -99,16 +95,15 @@
 <script src="{{asset('/static/admin/js/core/jquery.min.js')}}"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 <script type="application/javascript">
-    window.onload = function () {
+    window.onload = function() {
         var scale = 1 / devicePixelRatio;
         document.querySelector('meta[name="viewport"]').setAttribute('content', 'initial-scale=' + scale +
             ', maximum-scale=' + scale + ', minimum-scale=' + scale + ', user-scalable=no');
-        document.documentElement.style.fontSize = document.documentElement.clientWidth / 10 + 'px';
+        document.documentElement.style.fontSize = window.screen.width*2 / 10 + 'px';
 
-        document.getElementById("content").setAttribute("style", 'height:' + document.documentElement.clientHeight + 'px');
+        document.getElementById("content").setAttribute("style", 'height:' + window.screen.height*2 + 'px');
 
-        inputs.addEventListener("blur", function (event) {
-
+        inputs.addEventListener("input", function(event) {
             if (this.value.length === 6) {
                 var data = {
                     'code': this.value,
@@ -149,8 +144,6 @@
         })
     }
 </script>
-</html>
-
 <script>
     new Vue({
         el: '#content',
@@ -164,3 +157,6 @@
 
 
 </script>
+</html>
+
+

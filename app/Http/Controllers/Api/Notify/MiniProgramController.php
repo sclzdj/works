@@ -21,12 +21,25 @@ class MiniProgramController extends BaseController
      */
     public function crowdfunding(Request $request)
     {
-        $this->config = [
+        $this->miniConfig = [
             'app_id' => config('wechat.payment.default.app_id'),
             'mch_id' => config('wechat.payment.default.mch_id'),
             'key' => config('wechat.payment.default.key'),   // API 密钥
         ];
-        $miniProgram = Factory::payment($this->config);
+        $app = app('wechat.official_account');
+        $miniProgram = Factory::payment($this->miniConfig);
+        $tmr = $app->template_message->send(
+            [
+                'touser' => "ooxiwjq9wHBSEi5TqF-l1WMNZ9tM",
+                'template_id' => '27lQ_hHMeYWzB5NYddMbpcfCZHyx24_sBNKOcb2E7Nw',
+                'url' => config('app.url'),
+                'data' => [
+                    'keyword1' => "感谢你对云作品团队的信任！
+我们会在2019年11月18日下午，准时将云作品内测邀请码通过短信和微信公众号推送给你，请注意查收。在此之前，无论你有任何问题，都可以通过下方的客服微信与我们联系。",
+                    'keyword2' => "成功",
+                ],
+            ]
+        );
         $response = $miniProgram->handlePaidNotify(function ($message, $fail) use ($miniProgram) {
             // 使用通知里的 "微信支付订单号" 或者 "商户订单号" 去自己的数据库找到订单
             $orderInfo = CrowdFundingOrder::where("order_trade_no", $message['out_trade_no'])
