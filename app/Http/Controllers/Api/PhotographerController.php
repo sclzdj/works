@@ -20,6 +20,7 @@ use App\Model\Index\PhotographerWorkTag;
 use App\Model\Index\User;
 use App\Model\Index\Visitor;
 use App\Servers\ArrServer;
+use App\Servers\PhotographerServer;
 use App\Servers\SystemServer;
 
 /**
@@ -257,5 +258,46 @@ class PhotographerController extends BaseController
 
             return $this->response->error($e->getMessage(), 500);
         }
+    }
+
+    /**
+     * 人脉排行榜
+     * @param PhotographerRequest $request
+     * @return mixed
+     */
+    public function rankingList(PhotographerRequest $request)
+    {
+        $limit = $request->limit ?? 50;
+        $photographers = PhotographerServer::visitorRankingList($limit);
+        $_fields = array_map(
+            function ($v) {
+                return 'photographer_work_sources.'.$v;
+            },
+            PhotographerWorkSource::allowFields()
+        );
+        foreach ($photographers as $k => $p) {
+            $photographers[$k] = json_decode(json_encode($p), true);
+
+            $photographer_work_sources = PhotographerWorkSource::join(
+                'photographer_works',
+                'photographer_work_sources.photographer_work_id',
+                '=',
+                'photographer_works.id'
+            )->select($_fields)
+                ->where(
+                    [
+                        'photographer_works.status' => 200,
+                        'photographer_work_sources.status' => 200,
+                        'photographer_works.photographer_id' => $p->id,
+                        'photographer_work_sources.type' => 'image',
+                    ]
+                )
+                ->orderBy('photographer_work_sources.created_at', 'desc')->take(3)->get()->toArray();
+            $photographers[$k]['photographer_work_sources'] = $photographer_work_sources;
+        }
+        $photographers = SystemServer::parseRegionName($photographers);
+        $photographers = SystemServer::parsePhotographerRank($photographers);
+
+        return $this->responseParseArray($photographers);
     }
 }

@@ -864,56 +864,6 @@ class MyController extends UserGuardController
     }
 
     /**
-     * 人脉排行榜
-     * @param UserRequest $request
-     * @return mixed
-     */
-    public function rankingList(UserRequest $request)
-    {
-        $this->notPhotographerIdentityVerify();
-        $limit = $request->limit ?? 50;
-        $photographer = User::photographer(null, $this->guard);
-        $photographers = PhotographerServer::visitorRankingList($limit);
-        $myRank = 0;
-        $_fields = array_map(
-            function ($v) {
-                return 'photographer_work_sources.'.$v;
-            },
-            PhotographerWorkSource::allowFields()
-        );
-        foreach ($photographers as $k => $p) {
-            if ($photographer->id == $p->id) {
-                $myRank = $k + 1;
-            }
-            $photographers[$k] = json_decode(json_encode($p), true);
-
-            $photographer_work_sources = PhotographerWorkSource::join(
-                'photographer_works',
-                'photographer_work_sources.photographer_work_id',
-                '=',
-                'photographer_works.id'
-            )->select($_fields)
-                ->where(
-                    [
-                        'photographer_works.status' => 200,
-                        'photographer_work_sources.status' => 200,
-                        'photographer_works.photographer_id' => $p->id,
-                        'photographer_work_sources.type' => 'image',
-                    ]
-                )
-                ->orderBy('photographer_work_sources.created_at', 'desc')->take(3)->get()->toArray();
-            $photographers[$k]['photographer_work_sources'] = $photographer_work_sources;
-        }
-        $photographers = SystemServer::parseRegionName($photographers);
-        $photographers = SystemServer::parsePhotographerRank($photographers);
-        $response = [];
-        $response['myRank'] = $myRank;
-        $response['data'] = $photographers;
-
-        return $this->response->array($response);
-    }
-
-    /**
      * 获取我的浏览摄影师记录
      * @param UserRequest $request
      * @return mixed

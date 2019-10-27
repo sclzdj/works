@@ -78,9 +78,6 @@ class UserRequest extends BaseRequest
             case 'viewRecords':
                 $rules = array_merge($rules, $this->predefined['paginate']['rules']);
                 break;
-            case 'rankingList':
-                $rules = array_merge($rules, $this->predefined['limit']['rules']);
-                break;
             case 'photographerStatistics':
                 $rules = [
                     'rankListLast' => 'integer|min:1',
@@ -198,9 +195,6 @@ class UserRequest extends BaseRequest
             case 'viewRecords':
                 $messages = array_merge($messages, $this->predefined['paginate']['messages']);
                 break;
-            case 'rankingList':
-                $messages = array_merge($messages, $this->predefined['limit']['messages']);
-                break;
             case 'photographerStatistics':
                 $messages = [
                     'rankListLast.integer' => '人脉排行榜最后一名必须传整数',
@@ -259,7 +253,6 @@ class UserRequest extends BaseRequest
                 'GET|App\Http\Controllers\Api\MyController@getDocPdfStatus',
                 'DELETE|App\Http\Controllers\Api\MyController@docPdfDelete',
             ],
-            'rankingList' => ['GET|App\Http\Controllers\Api\MyController@rankingList'],
             'photographerStatistics' => ['GET|App\Http\Controllers\Api\MyController@photographerStatistics'],
         ];
     }

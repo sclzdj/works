@@ -262,7 +262,14 @@ class DraftController extends UserGuardController
 
                 return $this->response->error('该手机号已被注册成为摄影师了', 500);
             }
-            $photographer->avatar = $user->avatar;
+            if ($request->avatar) {
+                $photographer->avatar = (string)$request->avatar;
+                $xacode = User::createXacode($photographer->id);
+                $user = auth($this->guard)->user();
+                $user->xacode = $xacode;
+            } else {
+                $photographer->avatar = $user->avatar;
+            }
             $photographer->name = $request->name;
             $photographer->province = $request->province;
             $photographer->city = $request->city;
