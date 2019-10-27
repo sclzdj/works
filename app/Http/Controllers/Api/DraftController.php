@@ -264,9 +264,6 @@ class DraftController extends UserGuardController
             }
             if ($request->avatar) {
                 $photographer->avatar = (string)$request->avatar;
-                $xacode = User::createXacode($photographer->id);
-                $user = auth($this->guard)->user();
-                $user->xacode = $xacode;
             } else {
                 $photographer->avatar = $user->avatar;
             }
@@ -279,6 +276,10 @@ class DraftController extends UserGuardController
             $photographer->mobile = $request->mobile;
             $photographer->status = 200;
             $photographer->save();
+            if ($request->avatar) {
+                $xacode = User::createXacode($photographer->id);
+                $user->xacode = $xacode;
+            }
             $photographer_work = $photographer->photographerWorks()->where(['status' => 0])->first();
             if (!$photographer_work) {
                 \DB::rollback();//回滚事务
