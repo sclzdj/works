@@ -331,7 +331,7 @@ class SystemNodesTableSeeder extends Seeder
                             ],
                             [
                                 'name' => '邀请码管理',
-                                'icon' => 'fa fas fa-dollar-sign',
+                                'icon' => 'fa fab fa-cc-discover',
                                 'action' => 'Admin\InvoteCode\IndexController@index',
                                 'children' => [
                                     [

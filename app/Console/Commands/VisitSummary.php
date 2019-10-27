@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Model\Index\Photographer;
 use App\Servers\ErrLogServer;
+use App\Servers\PhotographerServer;
 use Illuminate\Console\Command;
 
 /**
@@ -53,10 +54,15 @@ class VisitSummary extends Command
 //累计人脉：XXX人
 //新增访问：XXX次
 //累计访问：XXX次
-        $photographers = $this->getPhotographerRankList();
+        $photographers = $this->getPhotographerList();
+        $rankingList = PhotographerServer::visitorRankingList(50, 'photographer.id');
+        $rankingIds = [];
+        foreach ($rankingList as $photographer) {
+            $rankingIds[] = $photographer->id;
+        }
         foreach ($photographers as $k => $photographer) {
             if ($photographer->gh_openid != '') {
-                if ($k < 50) {
+                if (in_array($photographer->id, $rankingIds)) {
                     $firstText = $photographer->name.'，祝贺你！过去24小时，你的人脉增长迅速，还进入了云作品人脉排行榜，再接再厉哦！';
                 } else {
                     if ($photographer->visitor_today_count > 0) {
@@ -96,7 +102,7 @@ class VisitSummary extends Command
      * 获取所有摄影师排行
      * @return array
      */
-    protected function getPhotographerRankList()
+    protected function getPhotographerList()
     {
         $fields = array_map(
             function ($v) {
