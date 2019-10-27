@@ -68,6 +68,14 @@ class IndexController extends BaseController
         switch ($action) {
             case 'create':
                 $number = intval($request->input('number'));
+
+                if ($number > 30) {
+                    return response()->json([
+                        'result' => false,
+                        'msg' => '一次最多生成30个邀请码'
+                    ]);
+                }
+
                 for ($i = 0; $i < $number; $i++) {
                     $invoteCode = new InvoteCode();
                     $invoteCode->code = substr($i . $this->str_Rand(3) . mt_rand(0, 9999), 0, 6);

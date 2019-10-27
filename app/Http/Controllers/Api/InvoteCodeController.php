@@ -68,7 +68,8 @@ class InvoteCodeController extends BaseController
             InvoteCode::where('user_id', $userInfo->id)->get()->IsEmpty()
         ) {
             InvoteCode::where('code', $code)->update([
-                "user_id" => $userInfo->id
+                "user_id" => $userInfo->id,
+                'is_use' => 1,
             ]);
             $this->data['result'] = true;
             $this->data['msg'] = "邀请码可以使用";
@@ -82,6 +83,9 @@ class InvoteCodeController extends BaseController
         if ($codeInfo->user_id == $userInfo->id) {
             $this->data['result'] = true;
             $this->data['msg'] = "邀请码可以使用";
+            InvoteCode::where('code', $code)->update([
+                'is_use' => 1,
+            ]);
             return $this->responseParseArray($this->data);
         }
 
@@ -96,7 +100,6 @@ class InvoteCodeController extends BaseController
      */
     public function update(Request $request)
     {
-
         $validateRequest = Validator::make(
             $request->all(), [
             'code' => 'required|alpha_num|size:6',
@@ -140,6 +143,33 @@ class InvoteCodeController extends BaseController
 
         $this->data['msg'] = "更改失败";
         return $this->responseParseArray($this->data);
+    }
+
+    /**
+     * 查询是否用过邀请码
+     * @return \Dingo\Api\Http\Response|void
+     * @throws \Exception
+     */
+    public function used(Request $request)
+    {
+        $info = auth('users')->user();
+        if (empty($info)) {
+            $this->data['msg'] = "账户不存在";
+            return $this->responseParseArray($this->data);
+        }
+
+        $code = InvoteCode::where('user_id', $info->id)
+            ->where('is_use', 1)
+            ->get();
+
+        if ($code->isEmpty()) {
+            $this->data['result'] = true;
+            $this->data['msg'] = "未使用过验证码";
+            return $this->responseParseArray($this->data);
+        } else {
+            $this->data['msg'] = "使用过验证码";
+            return $this->responseParseArray($this->data);
+        }
     }
 
 }

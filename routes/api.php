@@ -131,6 +131,7 @@ $api->version(
                 $api->post('notify/qiniu/fetch', 'Notify\QiniuController@fetch');
 
                 // 邀请码
+                $api->post('invote/used', 'InvoteCodeController@used');
                 $api->post('invote/query', 'InvoteCodeController@query');
                 $api->post('invote/update', 'InvoteCodeController@update');
                 // 众筹相关

@@ -117,7 +117,7 @@
                             <el-button type="primary" @click="clear" icon="el-icon-close">清除</el-button>
 
                             <el-input v-model="number" type="Number" style="width: 300px" placeholder="输入数字"></el-input>
-                            <el-button type="primary" @click="create" icon="el-icon-search">创建</el-button>
+                            <el-button type="primary" ph @click="create" icon="el-icon-search">创建</el-button>
                         </div>
                         <div class="block-content">
                             <el-table
@@ -405,8 +405,9 @@
                         success: function (response) {
                             if (response.result) {
                                 that.init(1);
+                                that.number = 0;
                             } else {
-
+                                alert(response.msg);
                             }
                         },
                         error: function (xhr, status, error) {
