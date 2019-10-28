@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\BaseController;
 use App\Model\Index\CrowdFunding;
 use App\Model\Index\CrowdFundingOrder;
 use App\Model\Index\InvoteCode;
+use App\Model\Index\User;
 use EasyWeChat\Factory;
 use Illuminate\Http\Request;
 use Log;
@@ -28,19 +29,7 @@ class MiniProgramController extends BaseController
         ];
         $app = app('wechat.official_account');
         $miniProgram = Factory::payment($this->miniConfig);
-        $tmr = $app->template_message->send(
-            [
-                'touser' => "ooxiwjq9wHBSEi5TqF-l1WMNZ9tM",
-                'template_id' => '27lQ_hHMeYWzB5NYddMbpcfCZHyx24_sBNKOcb2E7Nw',
-                'url' => config('app.url'),
-                'data' => [
-                    'keyword1' => "感谢你对云作品团队的信任！
-我们会在2019年11月18日下午，准时将云作品内测邀请码通过短信和微信公众号推送给你，请注意查收。在此之前，无论你有任何问题，都可以通过下方的客服微信与我们联系。",
-                    'keyword2' => "成功",
-                ],
-            ]
-        );
-        $response = $miniProgram->handlePaidNotify(function ($message, $fail) use ($miniProgram) {
+        $response = $miniProgram->handlePaidNotify(function ($message, $fail) use ($miniProgram , $app) {
             // 使用通知里的 "微信支付订单号" 或者 "商户订单号" 去自己的数据库找到订单
             $orderInfo = CrowdFundingOrder::where("order_trade_no", $message['out_trade_no'])
                 ->first();
@@ -97,6 +86,35 @@ class MiniProgramController extends BaseController
                     $orderInfo->updated_at = date('Y-m-d H:i:s'); // 更新支付时间为当前时间
                     $orderInfo->pay_status = 1;
                     $orderInfo->notify = 1;
+
+                    $userInfo = User::where('id' , $orderInfo->user_id)->first();
+                    if ($userInfo->gh_openid) {
+
+                        $tmr = $app->template_message->send(
+                            [
+                                'touser' => $userInfo->gh_openid,
+                                'template_id' => '27lQ_hHMeYWzB5NYddMbpcfCZHyx24_sBNKOcb2E7Nw',
+                                'miniprogram' => [
+                                    'appid' => config('wechat.payment.default.app_id'),
+                                    'pagepath' => '/subPage/crouwdPay/crouwdPay',
+                                ],
+                                'data' => [
+                                    'keyword1' => '
+亲
+感谢你对云作品团队的信任！
+我们会在2019年11月18日下午，准时将云作品内测邀请码通过短信和微信公众号推送给你，请注意查收。在此之前，无论你有任何问题，都可以通过下方的客服微信与我们联系。
+
+内测时间：2019年11月18日起
+客服微信：JUSHEKEJI
+',
+                                    'keyword2' => "成功",
+                                ],
+                            ]
+                        );
+
+                        Log::error(json_encode($tmr , JSON_UNESCAPED_UNICODE) );
+                    }
+
                     // 用户支付失败
                 } elseif (array_get($message, 'result_code') === 'FAIL') {
                     $orderInfo->pay_status = 2;

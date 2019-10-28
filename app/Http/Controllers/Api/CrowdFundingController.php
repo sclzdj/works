@@ -21,8 +21,9 @@ class CrowdFundingController extends UserGuardController
 {
     public $data = [
         'result' => false,
+        'status' => false
     ];
-
+    // 众筹使用的档位
     protected $type = [
         1 => 99,
         2 => 399,
@@ -34,6 +35,7 @@ class CrowdFundingController extends UserGuardController
     public function __construct()
     {
         parent::__construct();
+        // 初始化小程序的信息
         $this->config = [
             'app_id' => config('wechat.payment.default.app_id'),
             'mch_id' => config('wechat.payment.default.mch_id'),
@@ -69,11 +71,16 @@ class CrowdFundingController extends UserGuardController
             'send_date' => CrowdFunding::getKeyValue('send_date'),
         ];
 
-        $data['complete_rate'] = sprintf("%.2f",($data['total_price'] / $data['amount']) * 100 );
+        $data['complete_rate'] = sprintf("%.2f", ($data['total_price'] / $data['amount']) * 100);
 
         return $this->responseParseArray($data);
     }
 
+    /**
+     * 下单支付接口
+     * @return \Dingo\Api\Http\Response|void
+     * @throws \Exception
+     */
     public function order(Request $request)
     {
         $type = $request->input('type');
@@ -90,6 +97,22 @@ class CrowdFundingController extends UserGuardController
         }
         // 准备数据做小程序预支付单
         $user = auth($this->guard)->user();
+        if (empty($user)) {
+            $this->data['msg'] = "账户不存在";
+            return $this->responseParseArray($this->data);
+        }
+
+        $orderQueryResult = CrowdFundingOrder::where([
+            'user_id' => $user->id,
+            'pay_status' => 1,
+            'notify' => 1
+        ])->get();
+
+        if (!$orderQueryResult->isEmpty()) {
+            $this->data['msg'] = "您已经参与了众筹";
+            return $this->responseParseArray($this->data);
+        }
+
         $order_trade_no = substr(uniqid(), 0, 5) . time() . $user->id;
         $miniProgram = Factory::payment($this->config);
         $result = $miniProgram->order->unify([
@@ -122,9 +145,11 @@ class CrowdFundingController extends UserGuardController
 
         $this->data['result'] = true;
         $this->data['data'] = $result;
+        $this->data['status'] = true;
         return $this->responseParseArray($this->data);
     }
 
+    // 给小程序做支付签名
     private function generateSign($result)
     {
         $params = array();
@@ -148,32 +173,19 @@ class CrowdFundingController extends UserGuardController
      */
     public function log(Request $request)
     {
-        $validateRequest = Validator::make(
-            $request->all(), [
-            'code' => 'required',
-            'phone' => 'required'
-        ], [
-            'code' => [
-                'required' => 'code必传',
-            ],
-            'phone' => [
-                'required' => '电话号码必传',
-            ]
-        ]);
-
-        if ($validateRequest->fails()) {
-            $msg = $validateRequest->errors()->all();
-            $this->data['msg'] = array_shift($msg);
+        $user = auth($this->guard)->user();
+        if (empty($user)) {
+            $this->data['msg'] = "账户不存在";
             return $this->responseParseArray($this->data);
         }
 
-        $data = $this->_wxCode2Session($request->code);
-        $crowFudinglog = CrowdFundingLog::create();
-        $crowFudinglog->open_id = $data['open_id'];
-        $crowFudinglog->phone = $request->phone;
-        $crowFudinglog->crowd_status = 0;
-        $crowFudinglog->type = 0;
-        $crowFudinglog->created_at = date('Y-m-d H:i:s');
+        $crowFudinglog = CrowdFundingLog::firstOrCreate([
+            'user_id' => $user->id,
+            'phone' => 'phone',
+            'crowd_status' => 0,
+            'type' => 0,
+            'created_at' => date('Y-m-d H:i:s')
+        ]);
 
         if ($crowFudinglog->save()) {
             $this->data['result'] = true;
