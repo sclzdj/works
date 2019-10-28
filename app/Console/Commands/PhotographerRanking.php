@@ -81,7 +81,7 @@ class PhotographerRanking extends Command
                             'url' => config('app.url'),
                             'miniprogram' => [
                                 'appid' => config('custom.wechat.mp.appid'),
-                                'pagepath' => 'pages/visitor/visitor',//人脉排行榜页
+                                'pagepath' => 'subPage/ranking/ranking',//人脉排行榜页
                             ],
                             'data' => [
                                 'first' => $photographer->name.'，祝贺你！你已入选今天的云作品人脉排行榜！',
