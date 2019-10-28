@@ -28,6 +28,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')
         //          ->hourly();
         $schedule->command('visit_summary')->dailyAt('12:00');;
+        $schedule->command('photographer_ranking')->everyTenMinutes();;
     }
 
     /**
