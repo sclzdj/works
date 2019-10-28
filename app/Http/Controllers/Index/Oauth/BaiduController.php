@@ -34,7 +34,7 @@ class BaiduController extends Controller
      */
     public function panStore()
     {
-        $request=Request::all();
+        $request = Request::all();
         if (empty($request['access_token'])) {
             return abort(500, '缺少access_token参数');
         }

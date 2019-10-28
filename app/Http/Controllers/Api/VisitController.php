@@ -96,10 +96,10 @@ class VisitController extends UserGuardController
                                         'touser' => $photographer_user->gh_openid,
                                         'template_id' => $template_id,
                                         'url' => config('app.url'),
-//                                    'miniprogram' => [
-//                                        'appid' => config('custom.wechat.mp.appid'),
-//                                        'pagepath' => 'pages/xxx?'.$visitor->id,//访客详情页
-//                                    ],
+                                        'miniprogram' => [
+                                            'appid' => config('custom.wechat.mp.appid'),
+                                            'pagepath' => 'pages/cameraman/cameraman',//摄影师控制面板页
+                                        ],
                                         'data' => [
                                             'first' => $photographer->name.'，你的云作品已被激活！点击此处，体验云作品的完整功能。',
                                             'keyword1' => $photographer_user->purePhoneNumber ?: '无手机号',
@@ -127,10 +127,10 @@ class VisitController extends UserGuardController
                                     'touser' => $photographer_user->gh_openid,
                                     'template_id' => $template_id,
                                     'url' => config('app.url'),
-//                                    'miniprogram' => [
-//                                        'appid' => config('custom.wechat.mp.appid'),
-//                                        'pagepath' => 'pages/xxx?'.$visitor->id,//访客详情页
-//                                    ],
+                                    'miniprogram' => [
+                                        'appid' => config('custom.wechat.mp.appid'),
+                                        'pagepath' => 'pages/visitorDetails/visitorDetails?'.$visitor->id,//访客详情页
+                                    ],
                                     'data' => [
                                         'first' => '你特别关注的人脉有新动态，请及时查看。',
                                         'keyword1' => $user->nickname,
@@ -216,10 +216,10 @@ class VisitController extends UserGuardController
                                         'touser' => $photographer_user->gh_openid,
                                         'template_id' => $template_id,
                                         'url' => config('app.url'),
-//                                    'miniprogram' => [
-//                                        'appid' => config('custom.wechat.mp.appid'),
-//                                        'pagepath' => 'pages/xxx?'.$visitor->id,//访客详情页
-//                                    ],
+                                        'miniprogram' => [
+                                            'appid' => config('custom.wechat.mp.appid'),
+                                            'pagepath' => 'pages/cameraman/cameraman',//摄影师控制面板页
+                                        ],
                                         'data' => [
                                             'first' => $photographer->name.'，你的云作品已被激活！点击此处，体验云作品的完整功能。',
                                             'keyword1' => $photographer_user->purePhoneNumber ?: '无手机号',
@@ -247,10 +247,10 @@ class VisitController extends UserGuardController
                                     'touser' => $photographer_user->gh_openid,
                                     'template_id' => $template_id,
                                     'url' => config('app.url'),
-//                                    'miniprogram' => [
-//                                        'appid' => config('custom.wechat.mp.appid'),
-//                                        'pagepath' => 'pages/xxx?'.$visitor->id,//访客详情页
-//                                    ],
+                                    'miniprogram' => [
+                                        'appid' => config('custom.wechat.mp.appid'),
+                                        'pagepath' => 'pages/visitorDetails/visitorDetails?'.$visitor->id,//访客详情页
+                                    ],
                                     'data' => [
                                         'first' => '你特别关注的人脉有新动态，请及时查看。',
                                         'keyword1' => $user->nickname,
@@ -325,10 +325,10 @@ class VisitController extends UserGuardController
                                         'touser' => $photographer_user->gh_openid,
                                         'template_id' => $template_id,
                                         'url' => config('app.url'),
-//                                    'miniprogram' => [
-//                                        'appid' => config('custom.wechat.mp.appid'),
-//                                        'pagepath' => 'pages/xxx?'.$visitor->id,//访客详情页
-//                                    ],
+                                        'miniprogram' => [
+                                            'appid' => config('custom.wechat.mp.appid'),
+                                            'pagepath' => 'pages/cameraman/cameraman',//摄影师控制面板页
+                                        ],
                                         'data' => [
                                             'first' => $photographer->name.'，你的云作品已被激活！点击此处，体验云作品的完整功能。',
                                             'keyword1' => $photographer_user->purePhoneNumber ?: '无手机号',
@@ -356,10 +356,10 @@ class VisitController extends UserGuardController
                                     'touser' => $photographer_user->gh_openid,
                                     'template_id' => $template_id,
                                     'url' => config('app.url'),
-//                                    'miniprogram' => [
-//                                        'appid' => config('custom.wechat.mp.appid'),
-//                                        'pagepath' => 'pages/xxx?'.$visitor->id,//访客详情页
-//                                    ],
+                                    'miniprogram' => [
+                                        'appid' => config('custom.wechat.mp.appid'),
+                                        'pagepath' => 'pages/visitorDetails/visitorDetails?'.$visitor->id,//访客详情页
+                                    ],
                                     'data' => [
                                         'first' => '你特别关注的人脉有新动态，请及时查看。',
                                         'keyword1' => $user->nickname,

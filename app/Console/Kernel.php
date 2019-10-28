@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         \App\Console\Commands\VisitSummary::class,
+        \App\Console\Commands\PhotographerRanking::class,
     ];
 
     /**

@@ -78,10 +78,10 @@ class VisitSummary extends Command
                         'touser' => $photographer->gh_openid,
                         'template_id' => $template_id,
                         'url' => config('app.url'),
-//                                    'miniprogram' => [
-//                                        'appid' => config('custom.wechat.mp.appid'),
-//                                        'pagepath' => 'pages/xxx?'.$visitor->id,//访客详情页
-//                                    ],
+                        'miniprogram' => [
+                            'appid' => config('custom.wechat.mp.appid'),
+                            'pagepath' => 'pages/visitorHistory/visitorHistory',//访客列表页
+                        ],
                         'data' => [
                             'first' => $firstText,
                             'keyword1' => $photographer->visitor_today_count.'人',
