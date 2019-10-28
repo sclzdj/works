@@ -349,6 +349,17 @@ class SystemNodesTableSeeder extends Seeder
                                 ],
                             ],
                             [
+                                'name' => '众筹记录管理',
+                                'icon' => 'fa fab fa-cc-discover',
+                                'action' => 'Admin\CrowdFundingLog\IndexController@index',
+                                'children' => [
+                                    [
+                                        'name' => '列表',
+                                        'action' => 'Admin\CrowdFundingLog\IndexController@lists',
+                                    ]
+                                ]
+                            ],
+                            [
                                 'name' => '使用帮助管理',
                                 'icon' => 'fa fas fa-question-circle',
                                 'action' => 'Admin\Works\HelpNoteController@index',

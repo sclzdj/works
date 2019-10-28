@@ -16,11 +16,10 @@
     <input class="input" type="text" placeholder="请输入邀请码" id="inputs" maxlength="6" style="text-transform:uppercase"/>
     <div style="width: 10rem;height: 0.4rem;margin: auto;margin-top: 0.41rem;display: flex;justify-content: center;">
         <div class="" style="text-align: center;line-height: 0.4rem;width:0.4rem;height:0.4rem;background:rgba(255,255,255,1);border-radius:50%;font-size:0.266666rem;font-family:PingFang SC;font-weight:500;color:rgba(62,205,246,1);">?</div>
-        <div class="" @click="redirectTo" style="font-size:0.333333rem;font-family:PingFang SC;font-weight:500;color:rgba(255,255,255,1);margin-left: 0.23rem;">怎样获得邀请码</div>
+        <div class="" @click="redirectTo" style="font-size:0.333333rem;font-family:PingFang SC;font-weight:500;color:rgba(255,255,255,1);margin-left: 0.23rem;margin-top: -0.026666rem;">怎样获得邀请码</div>
     </div>
     <img src="{{asset('images/phone.png')}}" style="margin: auto;width: 6.013333rem;height: 9.653333rem;position: absolute;bottom: 0;left: 50%;margin-left: -3rem;" />
 </div>
-
 
 </body>
 <style type="text/css">
@@ -45,7 +44,7 @@
         height: 1.466666rem;
         background: rgba(255, 255, 255, 1);
         border-radius: 700px;
-        font-size:0.64rem;
+        font-size:0.48rem;
         font-family:PingFang SC;
         font-weight:bold;
         color:rgba(50,50,50,1);
@@ -55,10 +54,6 @@
         outline:none;
         letter-spacing:10px;
     }
-
-
-
-
 
     input::-webkit-input-placeholder {
         /* Chrome/Opera/Safari */
@@ -100,9 +95,7 @@
         document.querySelector('meta[name="viewport"]').setAttribute('content', 'initial-scale=' + scale +
             ', maximum-scale=' + scale + ', minimum-scale=' + scale + ', user-scalable=no');
         document.documentElement.style.fontSize = window.screen.width*2 / 10 + 'px';
-
         document.getElementById("content").setAttribute("style", 'height:' + window.screen.height*2 + 'px');
-
         inputs.addEventListener("input", function(event) {
             if (this.value.length === 6) {
                 var data = {

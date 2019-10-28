@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Notify;
 use App\Http\Controllers\Api\BaseController;
 
 use App\Model\Index\CrowdFunding;
+use App\Model\Index\CrowdFundingLog;
 use App\Model\Index\CrowdFundingOrder;
 use App\Model\Index\InvoteCode;
 use App\Model\Index\User;
@@ -89,7 +90,6 @@ class MiniProgramController extends BaseController
 
                     $userInfo = User::where('id' , $orderInfo->user_id)->first();
                     if ($userInfo->gh_openid) {
-
                         $tmr = $app->template_message->send(
                             [
                                 'touser' => $userInfo->gh_openid,
@@ -111,9 +111,15 @@ class MiniProgramController extends BaseController
                                 ],
                             ]
                         );
-
                         Log::error(json_encode($tmr , JSON_UNESCAPED_UNICODE) );
                     }
+
+                    CrowdFundingLog::where([
+                        'user_id' => $orderInfo->user_id,
+                    ])->update([
+                        'crowd_status' => 1,
+                        'order_id' => $orderInfo->id
+                    ]);
 
                     // 用户支付失败
                 } elseif (array_get($message, 'result_code') === 'FAIL') {

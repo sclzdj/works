@@ -12,7 +12,7 @@ class CrowdFundingLog extends Model
      * @var array
      */
     protected $fillable = [
-
+        'user_id'
     ];
 
     /**

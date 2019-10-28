@@ -54,6 +54,20 @@ class CrowdFundingController extends UserGuardController
 //        $crowdData = CrowdFunding::where('id', 1)
 //            ->select(CrowdFunding::allowFields())
 //            ->first();
+        $user = auth($this->guard)->user();
+        if (empty($user)) {
+            $this->data['msg'] = "账户不存在";
+            return $this->responseParseArray($this->data);
+        }
+
+        $userInfo = CrowdFundingLog::where(['user_id' => $user->id])->get();
+        if ($userInfo->isEmpty()) {
+            CrowdFundingLog::insert([
+                'user_id' => $user->id,
+                'crowd_status' => 0,
+            ]);
+        }
+
         $data = [
             'amount' => CrowdFunding::getKeyValue('amount'),
             'total' => CrowdFunding::getKeyValue('total'),
