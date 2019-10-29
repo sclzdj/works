@@ -54,7 +54,7 @@ class MiniProgramController extends BaseController
                 // 用户是否支付成功
                 if (array_get($message, 'result_code') === 'SUCCESS') {
                     // 生成二维码
-                    $strs = "QWERTYUIOPASDFGHJKLZXCVBNM1234567890qwertyuiopasdfghjklzxcvbnm";
+                    $strs = "QWERTYUIOPASDFGHJKLZXCVBNM1234567890";
                     $invoteCode = new InvoteCode();
                     $invoteCode->code = substr($orderInfo->user_id . $orderInfo->id . substr(str_shuffle($strs), mt_rand(0, strlen($strs) - 11), 3), 0, 6);
                     $invoteCode->type = 1;

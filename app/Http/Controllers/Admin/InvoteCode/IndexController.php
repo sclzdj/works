@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\InvoteCode;
 
 use App\Http\Controllers\Admin\BaseController;
 use App\Model\Index\InvoteCode;
+use App\Model\Index\User;
 use Illuminate\Http\Request;
 
 
@@ -40,6 +41,9 @@ class IndexController extends BaseController
 
         if ($form['status'] != -1)
             $where[] = ['status', $form['status']];
+
+        if ($form['is_send'] != -1)
+            $where[] = ['is_send', $form['is_send']];
 
         if (isset($form['created_at'][0]))
             $where[] = array("created_at", ">=", $form['created_at'][0] . ' 00:00:01');
@@ -91,6 +95,48 @@ class IndexController extends BaseController
                 $id = intval($request->input('id'));
                 InvoteCode::where('id', $id)->update(['status' => 1]);
                 break;
+            case 'send':
+                $app = app('wechat.official_account');
+                $datas = $request->input('datas');
+                foreach ($datas as $data) {
+                    if ($data['type'] != "用户创建") {
+                        continue;
+                    }
+                    if ($data['status'] != "未使用") {
+                        continue;
+                    }
+                    if ($data['is_send'] != 0) {
+                        continue;
+                    }
+                    if ($data['user_id'] == 0) {
+                        continue;
+                    }
+                    $userInfo = User::where('id' , $data['user_id'])->first();
+                    if ($userInfo->gh_openid) {
+                        $tmr = $app->template_message->send(
+                            [
+                                'touser' => $userInfo->gh_openid,
+                                'template_id' => 'EI_fA65CJQQ4LKotXelLNoATCwtpvwFco',
+                                'miniprogram' => [
+                                    'appid' => config('wechat.payment.default.app_id'),
+                                    'pagepath' => '/subPage/crouwdPay/crouwdPay',
+                                ],
+                                'data' => [
+                                    'keyword1' => '',
+                                    'keyword2' => "成功",
+                                ],
+                            ]
+                        );
+                        if ($tmr['errmsg'] == "ok") {
+                            continue;
+                        }
+                    }
+                }
+                return response()->json([
+                    'result' => true,
+                    'msg' => $datas
+                ]);
+                break;
             default:
                 break;
         }
@@ -107,7 +153,7 @@ class IndexController extends BaseController
      */
     private function str_Rand($length)
     {
-        $strs = "QWERTYUIOPASDFGHJKLZXCVBNM1234567890qwertyuiopasdfghjklzxcvbnm";
+        $strs = "QWERTYUIOPASDFGHJKLZXCVBNM1234567890";
         return substr(str_shuffle($strs), mt_rand(0, strlen($strs) - 11), $length);
     }
 }

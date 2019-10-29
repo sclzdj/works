@@ -95,7 +95,7 @@
                                 end-placeholder="结束日期">
                             </el-date-picker>
 
-                            <el-select v-model="form.type" placeholder="请选择">
+                            <el-select style="width: 150px"  v-model="form.type" placeholder="请选择">
                                 <el-option
                                     v-for="item in typeOption"
                                     :key="item.value"
@@ -104,9 +104,18 @@
                                 </el-option>
                             </el-select>
 
-                            <el-select v-model="form.status" placeholder="请选择">
+                            <el-select style="width: 150px" v-model="form.status" placeholder="请选择">
                                 <el-option
                                     v-for="item in statusOption"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                                </el-option>
+                            </el-select>
+
+                            <el-select  style="width: 150px" v-model="form.is_send" placeholder="请选择">
+                                <el-option
+                                    v-for="item in sendOption"
                                     :key="item.value"
                                     :label="item.label"
                                     :value="item.value">
@@ -116,13 +125,22 @@
                             <el-button type="primary" @click="search" icon="el-icon-search">搜索</el-button>
                             <el-button type="primary" @click="clear" icon="el-icon-close">清除</el-button>
 
-                            <el-input v-model="number" type="Number" style="width: 300px" placeholder="输入数字"></el-input>
-                            <el-button type="primary" ph @click="create" icon="el-icon-search">创建</el-button>
+                            <el-input v-model="number" type="Number" style="width: 200px" placeholder="输入数字"></el-input>
+                            <el-button type="primary" @click="create" icon="el-icon-search">创建</el-button>
+                            <br/>
+                            <el-button type="primary" @click="send">发送邀请码</el-button>
                         </div>
                         <div class="block-content">
                             <el-table
                                 :data="data"
-                                style="width: 100%">
+                                style="width: 100%"
+                                @selection-change="handleSelectionChange"
+                            >
+                                <el-table-column
+                                    type="selection"
+                                    width="55">
+                                </el-table-column>
+
                                 <el-table-column
                                     prop="code"
                                     label="邀请码"
@@ -137,6 +155,15 @@
                                     prop="status"
                                     label="状态">
                                 </el-table-column>
+
+                                <el-table-column
+                                    prop="is_send"
+                                    label="是否发送">
+                                    <template slot-scope="scope">
+                                        @{{ scope.row.is_send === 0?'未发送':'已发送' }}
+                                    </template>
+                                </el-table-column>
+
                                 <el-table-column
                                     prop="created_at"
                                     label="创建时间">
@@ -314,6 +341,7 @@
                 form: {
                     type: 0,
                     status: -1,
+                    is_send: -1,
                     created_at: []
                 },
                 typeOption: [
@@ -342,7 +370,21 @@
                     }, {
                         value: 2,
                         label: '已使用'
-                    }]
+                    }],
+                sendOption: [
+                    {
+                        value: -1,
+                        label: '选择状态'
+                    },
+                    {
+                        value: 0,
+                        label: '未发送'
+                    }, {
+                        value: 1,
+                        label: '已发送'
+                    }
+                ],
+                multipleSelection: []
             },
             methods: {
                 init: function (page) {
@@ -384,7 +426,8 @@
                     this.form = {
                         type: 0,
                         status: -1,
-                        created_at: []
+                        created_at: [],
+                        is_send: -1,
                     };
                     this.$refs.children.initPageNo();
                     this.init(1);
@@ -429,6 +472,30 @@
                             }
                         }
                     });
+                },
+                handleSelectionChange(val) {
+                    this.multipleSelection = val;
+                },
+                send() {
+                    var that = this;
+                    if (this.multipleSelection.length > 0) {
+                        $.ajax({
+                            type: 'POST',
+                            url: '/admin/invotecode',
+                            data: {
+                                datas: this.multipleSelection,
+                                action: 'send'
+                            },
+                            success: function (response) {
+                                if (response.result) {
+                                    that.init(1);
+                                }
+                            }
+                        });
+
+                    } else {
+                        alert("请选择要发送的数据");
+                    }
                 }
             },
             mounted: function () {

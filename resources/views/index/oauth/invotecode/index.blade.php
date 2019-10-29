@@ -9,9 +9,12 @@
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <style type="text/css">
         body {
-            margin: 0;
-            background: #3ECDF6;
-            text-align: center;
+        	margin: 0;
+        	background: #3ECDF6;
+        	text-align: center;
+        }
+        #content{
+        	text-align: center;width: 10rem;position: relative;
         }
         input {
             width: 6.666666rem;
@@ -27,12 +30,11 @@
             text-align: center;
             outline:none;
             letter-spacing:10px;
-            border-radius: 9.333333rem;
-            margin: auto;
-            margin-top: 0.48rem;
-            line-height: 1.466666rem;
+        	border-radius: 9.333333rem;
+        	margin-top: 0.48rem;
+        	line-height: 1.466666rem;
         }
-
+        
         input::-webkit-input-placeholder {
             /* Chrome/Opera/Safari */
             font-size: 0.48rem;
@@ -40,7 +42,7 @@
             font-weight: 400;
             color: rgba(200, 200, 200, 1);
         }
-
+        
         input::-moz-placeholder {
             /* Firefox 19+ */
             font-size: 0.48rem;
@@ -48,7 +50,7 @@
             font-weight: 500;
             color: rgba(200, 200, 200, 1);
         }
-
+        
         input:-ms-input-placeholder {
             /* IE 10+ */
             font-size: 0.48rem;
@@ -56,7 +58,7 @@
             font-weight: 500;
             color: rgba(200, 200, 200, 1);
         }
-
+        
         input:-moz-placeholder {
             /* Firefox 18- */
             font-size: 0.48rem;
@@ -71,19 +73,22 @@
 
     <script type="application/javascript">
         window.onload = function() {
-            document.getElementById("content").setAttribute("style", 'height:' + window.screen.height*2/75 + 'rem');
+            document.getElementById("content").setAttribute("style", 'min-height:' + (window.screen.height*2-128)/75 + 'rem');
+            document.getElementById("topContent").setAttribute("style", 'height:' + ((window.screen.height*2)-724-128)/75 + 'rem;'+'display: flex;justify-content: center;align-items: center;flex-direction: column;');
         }
     </script>
 </head>
 <body>
-<div id="content" style="text-align: center;width: 10rem;position: relative;">
-    <img src="{{asset('images/titles.png')}}" style="margin: auto;width: 4rem;height: 1.48rem;margin-top: 0.48rem;" />
-    <input class="input" type="text" v-model="inputData" placeholder="请输入邀请码" id="inputs" maxlength="6" style="text-transform:uppercase" @input="inputWrite"/>
-    <div style="width: 10rem;height: 0.4rem;margin: auto;margin-top: 0.41rem;display: flex;justify-content: center;" @click="redirectTo">
-        <div class="" style="text-align: center;line-height: 0.4rem;width:0.4rem;height:0.4rem;background:rgba(255,255,255,1);border-radius:50%;font-size:0.266666rem;font-family:PingFang SC;font-weight:500;color:rgba(62,205,246,1);">?</div>
-        <div class="" style="font-size:0.333333rem;font-family:PingFang SC;font-weight:500;color:rgba(255,255,255,1);margin-left: 0.23rem;margin-top: -0.026666rem;">怎样获得邀请码</div>
-    </div>
-    <img src="{{asset('images/phone.png')}}" style="margin: auto;width: 6.013333rem;height: 9.653333rem;position: absolute;bottom: 0;left: 50%;margin-left: -3rem;" />
+<div id="content">
+    <div id="topContent">
+		<img src="{{asset('images/titles.png')}}" style="margin: auto;width: 4rem;height: 1.48rem;" />
+		<input class="input" type="text" v-model="inputData" placeholder="请输入邀请码" id="inputs" maxlength="6" style="text-transform:uppercase" @input="inputWrite"/>
+		<div style="width: 10rem;height: 0.4rem;margin: auto;margin-top: 0.533333rem;display: flex;justify-content: center;" @click="redirectTo">
+		    <div class="" style="text-align: center;line-height: 0.4rem;width:0.4rem;height:0.4rem;background:rgba(255,255,255,1);border-radius:50%;font-size:0.2666rem;font-family:PingFang SC;font-weight:500;color:rgba(62,205,246,1);">?</div>
+		    <div class="" style="font-size:0.333333rem;font-family:PingFang SC;font-weight:500;color:rgba(255,255,255,1);margin-left: 0.23rem;margin-top: -0.026666rem;">怎样获得邀请码</div>
+		</div>
+	</div>
+    <img src="{{asset('images/phone.png')}}" style="margin: auto;width: 6.013333rem;height: 9.653333rem;position: fixed;bottom: 0;left: 50%;margin-left: -3rem;" />
 </div>
 <script src="{{asset('/static/admin/js/core/jquery.min.js')}}"></script>
 
