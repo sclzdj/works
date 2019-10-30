@@ -167,39 +167,8 @@ class PhotographerController extends BaseController
             return $this->response->error($response['msg'], $response['code']);
         }
         $url = $response['url'];
-        //记录
-        \DB::beginTransaction();//开启事务
-        try {
-            $user = auth('users')->user();
-            if ($user) {
-                $operate_record = OperateRecord::create();
-                $operate_record->user_id = $user->id;
-                $operate_record->page_name = 'photographer_home';
-                $operate_record->photographer_id = $request->photographer_id;
-                $operate_record->share_type = 'poster_share';
-                $operate_record->operate_type = 'share';
-                $operate_record->save();
-                if ($user->id != $request->photographer_id) {//如果不是自己访问，记录访客信息
-                    $visitor = Visitor::where(
-                        ['photographer_id' => $request->photographer_id, 'user_id' => $user->id]
-                    )->first();
-                    if (!$visitor) {
-                        $visitor = Visitor::create();
-                        $visitor->photographer_id = $request->photographer_id;
-                        $visitor->user_id = $user->id;
-                    }
-                    $visitor->unread_count++;
-                    $visitor->save();
-                }
-            }
-            \DB::commit();//提交事务
 
-            return $this->responseParseArray(compact('url'));
-        } catch (\Exception $e) {
-            \DB::rollback();//回滚事务
-
-            return $this->response->error($e->getMessage(), 500);
-        }
+        return $this->responseParseArray(compact('url'));
     }
 
     /**
@@ -224,40 +193,8 @@ class PhotographerController extends BaseController
             return $this->response->error($response['msg'], $response['code']);
         }
         $url = $response['url'];
-        //记录
-        \DB::beginTransaction();//开启事务
-        try {
-            $user = auth('users')->user();
-            if ($user) {
-                $operate_record = OperateRecord::create();
-                $operate_record->user_id = $user->id;
-                $operate_record->page_name = 'photographer_work';
-                $operate_record->photographer_id = $photographer->id;
-                $operate_record->photographer_work_id = $photographer_work->id;
-                $operate_record->share_type = 'poster_share';
-                $operate_record->operate_type = 'share';
-                $operate_record->save();
-                if ($user->id != $photographer->id) {//如果不是自己访问，记录访客信息
-                    $visitor = Visitor::where(
-                        ['photographer_id' => $photographer->id, 'user_id' => $user->id]
-                    )->first();
-                    if (!$visitor) {
-                        $visitor = Visitor::create();
-                        $visitor->photographer_id = $photographer->id;
-                        $visitor->user_id = $user->id;
-                    }
-                    $visitor->unread_count++;
-                    $visitor->save();
-                }
-            }
-            \DB::commit();//提交事务
 
-            return $this->responseParseArray(compact('url'));
-        } catch (\Exception $e) {
-            \DB::rollback();//回滚事务
-
-            return $this->response->error($e->getMessage(), 500);
-        }
+        return $this->responseParseArray(compact('url'));
     }
 
     /**

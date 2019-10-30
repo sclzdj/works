@@ -51,6 +51,11 @@ class VisitController extends UserGuardController
                     return $this->response->error('摄影师作品集不存在', 500);
                 }
             }
+            if ($user->id == $photographer_user->id) {
+                \DB::commit();//提交事务
+
+                return $this->response->noContent();
+            }
             ViewRecord::where(
                 ['user_id' => $user->id, 'photographer_id' => $request->photographer_id]
             )->update(['is_newest' => 0]);
@@ -188,6 +193,11 @@ class VisitController extends UserGuardController
                     return $this->response->error('摄影师作品集不存在', 500);
                 }
             }
+            if ($user->id == $photographer_user->id) {
+                \DB::commit();//提交事务
+
+                return $this->response->noContent();
+            }
             $operate_record = OperateRecord::create();
             $operate_record->user_id = $user->id;
             $operate_record->page_name = $request->page_name;
@@ -298,6 +308,11 @@ class VisitController extends UserGuardController
             );
             if (!$photographer_user) {
                 return $this->response->error('摄影师信息错误', 500);
+            }
+            if ($user->id == $photographer_user->id) {
+                \DB::commit();//提交事务
+
+                return $this->response->noContent();
             }
             $operate_record = OperateRecord::create();
             $operate_record->user_id = $user->id;
