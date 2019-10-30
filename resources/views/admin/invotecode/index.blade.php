@@ -78,7 +78,7 @@
                         </li>
                         <li>
                             <button type="button" data-toggle="block-option" data-action="fullscreen_toggle"><i
-                                    class="si si-size-fullscreen"></i></button>
+                                        class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
                     <h3 class="block-title">邀请码管理</h3>
@@ -87,38 +87,38 @@
                     <div class="tab-pane active">
                         <div class="block-content">
                             <el-date-picker
-                                v-model="form.created_at"
-                                type="daterange"
-                                range-separator="至"
-                                value-format="yyyy-MM-dd"
-                                start-placeholder="开始日期"
-                                end-placeholder="结束日期">
+                                    v-model="form.created_at"
+                                    type="daterange"
+                                    range-separator="至"
+                                    value-format="yyyy-MM-dd"
+                                    start-placeholder="开始日期"
+                                    end-placeholder="结束日期">
                             </el-date-picker>
 
-                            <el-select style="width: 150px"  v-model="form.type" placeholder="请选择">
+                            <el-select style="width: 150px" v-model="form.type" placeholder="请选择">
                                 <el-option
-                                    v-for="item in typeOption"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
+                                        v-for="item in typeOption"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
                                 </el-option>
                             </el-select>
 
                             <el-select style="width: 150px" v-model="form.status" placeholder="请选择">
                                 <el-option
-                                    v-for="item in statusOption"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
+                                        v-for="item in statusOption"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
                                 </el-option>
                             </el-select>
 
-                            <el-select  style="width: 150px" v-model="form.is_send" placeholder="请选择">
+                            <el-select style="width: 150px" v-model="form.is_send" placeholder="请选择">
                                 <el-option
-                                    v-for="item in sendOption"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
+                                        v-for="item in sendOption"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
                                 </el-option>
                             </el-select>
 
@@ -132,41 +132,41 @@
                         </div>
                         <div class="block-content">
                             <el-table
-                                :data="data"
-                                style="width: 100%"
-                                @selection-change="handleSelectionChange"
+                                    :data="data"
+                                    style="width: 100%"
+                                    @selection-change="handleSelectionChange"
                             >
                                 <el-table-column
-                                    type="selection"
-                                    width="55">
+                                        type="selection"
+                                        width="55">
                                 </el-table-column>
 
                                 <el-table-column
-                                    prop="code"
-                                    label="邀请码"
-                                    width="180">
+                                        prop="code"
+                                        label="邀请码"
+                                        width="180">
                                 </el-table-column>
                                 <el-table-column
-                                    prop="type"
-                                    label="邀请码类型"
-                                    width="180">
+                                        prop="type"
+                                        label="邀请码类型"
+                                        width="180">
                                 </el-table-column>
                                 <el-table-column
-                                    prop="status"
-                                    label="状态">
+                                        prop="status"
+                                        label="状态">
                                 </el-table-column>
 
                                 <el-table-column
-                                    prop="is_send"
-                                    label="是否发送">
+                                        prop="is_send"
+                                        label="是否发送">
                                     <template slot-scope="scope">
                                         @{{ scope.row.is_send === 0?'未发送':'已发送' }}
                                     </template>
                                 </el-table-column>
 
                                 <el-table-column
-                                    prop="created_at"
-                                    label="创建时间">
+                                        prop="created_at"
+                                        label="创建时间">
                                 </el-table-column>
                                 <el-table-column fixed="right" label="操作" width="100">
                                     <template slot-scope="scope">
@@ -477,25 +477,22 @@
                     this.multipleSelection = val;
                 },
                 send() {
+                    alert('发送中，请等待');
                     var that = this;
-                    if (this.multipleSelection.length > 0) {
-                        $.ajax({
-                            type: 'POST',
-                            url: '/admin/invotecode',
-                            data: {
-                                datas: this.multipleSelection,
-                                action: 'send'
-                            },
-                            success: function (response) {
-                                if (response.result) {
-                                    that.init(1);
-                                }
+                    $.ajax({
+                        type: 'POST',
+                        url: '/admin/invotecode',
+                        data: {
+                            action: 'send'
+                        },
+                        success: function (response) {
+                            if (response.result) {
+                                alert('发送完成');
+                                that.init(1);
                             }
-                        });
+                        }
+                    });
 
-                    } else {
-                        alert("请选择要发送的数据");
-                    }
                 }
             },
             mounted: function () {

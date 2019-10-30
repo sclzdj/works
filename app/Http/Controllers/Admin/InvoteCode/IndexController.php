@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\BaseController;
 use App\Model\Index\InvoteCode;
 use App\Model\Index\User;
 use Illuminate\Http\Request;
+use Log;
 
 
 class IndexController extends BaseController
@@ -97,38 +98,37 @@ class IndexController extends BaseController
                 break;
             case 'send':
                 $app = app('wechat.official_account');
-                $datas = $request->input('datas');
+                $datas = InvoteCode::where([
+                    'type' => 1,
+                    'is_send' => 0
+                ])->whereIn('status', [0, 1])->get();
+
                 foreach ($datas as $data) {
-                    if ($data['type'] != "用户创建") {
-                        continue;
-                    }
-                    if ($data['status'] != "未使用") {
-                        continue;
-                    }
-                    if ($data['is_send'] != 0) {
-                        continue;
-                    }
                     if ($data['user_id'] == 0) {
                         continue;
                     }
-                    $userInfo = User::where('id' , $data['user_id'])->first();
+                    $userInfo = User::where('id', $data['user_id'])->first();
                     if ($userInfo->gh_openid) {
                         $tmr = $app->template_message->send(
                             [
                                 'touser' => $userInfo->gh_openid,
-                                'template_id' => 'EI_fA65CJQQ4LKotXelLNoATCwtpvwFco',
-                                'miniprogram' => [
-                                    'appid' => config('wechat.payment.default.app_id'),
-                                    'pagepath' => '/subPage/crouwdPay/crouwdPay',
-                                ],
+                                'template_id' => 'D0A51QNL0-EI_fA65CJQQ4LKotXelLNoATCwtpvwFco',
+//                                'miniprogram' => [
+//                                    'appid' => config('wechat.payment.default.app_id'),
+//                                    'pagepath' => '/subPage/crouwdPay/crouwdPay',
+//                                ],
                                 'data' => [
-                                    'keyword1' => '',
-                                    'keyword2' => "成功",
+                                    'first' => '注册码生成通知',
+                                    'keyword1' => $userInfo->nickname,
+                                    'keyword2' => $userInfo->phoneNumber,
+                                    'keyword3' => $data['code'],
+                                    'keyword4' => date('Y-m-d')
                                 ],
                             ]
                         );
+                        Log::error(json_encode($tmr, JSON_UNESCAPED_UNICODE));
                         if ($tmr['errmsg'] == "ok") {
-                            continue;
+                            InvoteCode::where('id', $data['id'])->update(['is_send' => 1]);
                         }
                     }
                 }

@@ -30,7 +30,7 @@ class MiniProgramController extends BaseController
         ];
         $app = app('wechat.official_account');
         $miniProgram = Factory::payment($this->miniConfig);
-        $response = $miniProgram->handlePaidNotify(function ($message, $fail) use ($miniProgram , $app) {
+        $response = $miniProgram->handlePaidNotify(function ($message, $fail) use ($miniProgram, $app) {
             // 使用通知里的 "微信支付订单号" 或者 "商户订单号" 去自己的数据库找到订单
             $orderInfo = CrowdFundingOrder::where("order_trade_no", $message['out_trade_no'])
                 ->first();
@@ -56,7 +56,7 @@ class MiniProgramController extends BaseController
                     // 生成二维码
                     $strs = "QWERTYUIOPASDFGHJKLZXCVBNM1234567890";
                     $invoteCode = new InvoteCode();
-                    $invoteCode->code = substr($orderInfo->user_id . $orderInfo->id . substr(str_shuffle($strs), mt_rand(0, strlen($strs) - 11), 3), 0, 6);
+                    $invoteCode->code = substr($orderInfo->user_id . $orderInfo->id . substr(str_shuffle($strs), mt_rand(0, strlen($strs) - 11), 3) . mt_rand(0, 9999), 0, 6);
                     $invoteCode->type = 1;
                     $invoteCode->status = 0;
                     $invoteCode->user_id = $orderInfo->user_id;
@@ -88,7 +88,7 @@ class MiniProgramController extends BaseController
                     $orderInfo->pay_status = 1;
                     $orderInfo->notify = 1;
 
-                    $userInfo = User::where('id' , $orderInfo->user_id)->first();
+                    $userInfo = User::where('id', $orderInfo->user_id)->first();
                     if ($userInfo->gh_openid) {
                         $tmr = $app->template_message->send(
                             [
@@ -111,7 +111,7 @@ class MiniProgramController extends BaseController
                                 ],
                             ]
                         );
-                        Log::error(json_encode($tmr , JSON_UNESCAPED_UNICODE) );
+                        Log::error(json_encode($tmr, JSON_UNESCAPED_UNICODE));
                     }
 
                     CrowdFundingLog::where([
