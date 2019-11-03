@@ -51,6 +51,7 @@ class PhotographerWork extends Model
             'shooting_duration',
             'hide_shooting_duration',
             'photographer_work_category_id',
+            'roof',
             'created_at',
         ];
     }
