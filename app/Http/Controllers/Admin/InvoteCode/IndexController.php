@@ -117,6 +117,7 @@ class IndexController extends BaseController
 //                                    'appid' => config('wechat.payment.default.app_id'),
 //                                    'pagepath' => '/subPage/crouwdPay/crouwdPay',
 //                                ],
+                                'url' => 'https://www.zuopin.cloud/oauth/invotecode?userId=' . $userInfo->id,
                                 'data' => [
                                     'first' => '注册码生成通知',
                                     'keyword1' => $userInfo->nickname,
