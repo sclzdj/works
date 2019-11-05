@@ -84,7 +84,7 @@ class PhotographerRanking extends Command
                                 'pagepath' => 'subPage/ranking/ranking',//人脉排行榜页
                             ],
                             'data' => [
-                                'first' => $photographer->name.'，祝贺你！你已入选今天的云作品人脉排行榜！',
+                                'first' => '《这是通知6》'.$photographer->name.'，祝贺你！你已入选今天的云作品人脉排行榜！',
                                 'keyword1' => ($k + 1).'名',
                                 'keyword2' => $time,
                                 'keyword3' => '',

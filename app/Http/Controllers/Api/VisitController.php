@@ -579,6 +579,17 @@ class VisitController extends UserGuardController
             $visitor = $visitor->toArray();
             unset($visitor['unread_count']);
             $visitor['user'] = User::select(User::allowFields())->where('id', $visitor['user_id'])->first()->toArray();
+            $operateRecord = OperateRecord::where(
+                [
+                    'user_id' => $visitor['user_id'],
+                    'photographer_id' => $visitor['photographer_id'],
+                    'operate_type' => 'in',
+                ]
+            )->orderBy('created_at', 'asc')->orderBy("id", "asc")->first();
+            $visitor['first_in_operate_record'] = [
+                'date' => date('Y-m-d', strtotime($operateRecord->created_at)),
+                'describe' => $this->_makeDescribe($operateRecord->id),
+            ];
             \DB::commit();//提交事务
             $visitor = SystemServer::parseVisitorTag($visitor);
 
@@ -624,7 +635,7 @@ class VisitController extends UserGuardController
             )->select(OperateRecord::allowFields())->whereDate(
                 'created_at',
                 $view_record['date']
-            )->orderBy('created_at', 'desc')->get()->toArray();
+            )->orderBy('created_at', 'desc')->orderBy('id', 'desc')->get()->toArray();
             foreach ($records as $_k => $record) {
                 $records[$_k]['user'] = User::select(User::allowFields())->where(['id' => $record['user_id']])->first(
                 )->toArray();

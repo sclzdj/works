@@ -126,7 +126,7 @@ class User extends Authenticatable implements JWTSubject
     public static function createXacode($id, $type = 'photographer')
     {
         if ($type == 'photographer_work') {
-            $page =  'pages/userProductDetails/userProductDetails';
+            $page =  'pages/productDetails/productDetails';
             $photographer_work = PhotographerWork::find($id);
             if (!$photographer_work) {
                 return '';
