@@ -55,6 +55,12 @@ class UserRequest extends BaseRequest
                     'photographer_work_id' => 'required|integer',
                 ];
                 break;
+            case 'setRoof':
+                $rules = [
+                    'photographer_work_id' => 'required|integer',
+                    'operate_type' => 'required|integer|in:0,1',
+                ];
+                break;
             case 'savePhotographerWorkInfo':
                 $rules = [
                     'photographer_work_id' => 'required|integer',
@@ -154,6 +160,15 @@ class UserRequest extends BaseRequest
                     'photographer_work_id.integer' => '摄影师作品集id必须为数字',
                 ];
                 break;
+            case 'setRoof':
+                $messages = [
+                    'photographer_work_id.required' => '摄影师作品集id必须传递',
+                    'photographer_work_id.integer' => '摄影师作品集id必须为数字',
+                    'operate_type.required' => '操作方式必须传递',
+                    'operate_type.integer'=>'操作方式必须为数字',
+                    'operate_type.in'=>'操作方式错误',
+                ];
+                break;
             case 'savePhotographerWorkInfo':
                 $messages = [
                     'photographer_work_id.required' => '摄影师作品集id必须传递',
@@ -241,8 +256,8 @@ class UserRequest extends BaseRequest
             'photographerWork' => [
                 'GET|App\Http\Controllers\Api\MyController@photographerWork',
                 'DELETE|App\Http\Controllers\Api\MyController@photographerWorkDelete',
-                'GET|App\Http\Controllers\Api\MyController@setRoof',
             ],
+            'setRoof' => ['GET|App\Http\Controllers\Api\MyController@setRoof'],
             'savePhotographerAvatar' => ['POST|App\Http\Controllers\Api\MyController@savePhotographerAvatar'],
             'savePhotographerBgImg' => ['POST|App\Http\Controllers\Api\MyController@savePhotographerBgImg'],
             'savePhotographerWorkInfo' => ['POST|App\Http\Controllers\Api\MyController@savePhotographerWorkInfo'],

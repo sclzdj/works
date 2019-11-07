@@ -609,13 +609,26 @@ class MyController extends UserGuardController
                 '>',
                 0
             )->where('id', '!=', $request->photographer_work_id)->orderBy('roof', 'asc')->get();
-            $roof = 1;
-            foreach ($photographerWorks as $k => $tmp_photographerWork) {
-                $tmp_photographerWork->roof = $k + 1;
-                $tmp_photographerWork->save();
-                $roof++;
+            if ($request->operate_type == 1) {
+                if ($photographerWork->roof == 0) {
+                    if (count($photographerWorks) >= 3) {
+                        return $this->response->error('最多只能置顶3个作品集', 500);
+                    }
+                }
+                $roof = 1;
+                foreach ($photographerWorks as $k => $tmp_photographerWork) {
+                    $tmp_photographerWork->roof = $k + 1;
+                    $tmp_photographerWork->save();
+                    $roof++;
+                }
+                $photographerWork->roof = $roof;
+            } else {
+                foreach ($photographerWorks as $k => $tmp_photographerWork) {
+                    $tmp_photographerWork->roof = $k + 1;
+                    $tmp_photographerWork->save();
+                }
+                $photographerWork->roof = 0;
             }
-            $photographerWork->roof = $roof;
             $photographerWork->save();
             \DB::commit();//提交事务
 

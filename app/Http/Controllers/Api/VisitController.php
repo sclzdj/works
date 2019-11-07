@@ -152,6 +152,7 @@ class VisitController extends UserGuardController
                     }
                 }
                 $visitor->unread_count = $visitor->unread_count + 2;
+                $visitor->last_operate_record_at=date('Y-m-d H:i:s');
                 $visitor->save();
             }
             \DB::commit();//提交事务
@@ -277,6 +278,7 @@ class VisitController extends UserGuardController
                     }
                 }
                 $visitor->unread_count++;
+                $visitor->last_operate_record_at=date('Y-m-d H:i:s');
                 $visitor->save();
             }
             \DB::commit();//提交事务
@@ -391,6 +393,7 @@ class VisitController extends UserGuardController
                     }
                 }
                 $visitor->unread_count++;
+                $visitor->last_operate_record_at=date('Y-m-d H:i:s');
                 $visitor->save();
             }
             \DB::commit();//提交事务
@@ -464,7 +467,7 @@ class VisitController extends UserGuardController
     }
 
     /**
-     * 访客查询
+     * 访客列表
      * @param VisitRequest $request
      * @return mixed
      */
@@ -487,7 +490,7 @@ class VisitController extends UserGuardController
         if (!empty($request->keywords)) {
             $Visitor->where('users.nickname', 'like', '%'.$request->keywords.'%');
         }
-        $visitors = $Visitor->paginate(
+        $visitors = $Visitor->orderBy('visitors.last_operate_record_at', 'desc')->paginate(
             $request->pageSize
         );
         $visitors = SystemServer::parsePaginate($visitors->toArray());

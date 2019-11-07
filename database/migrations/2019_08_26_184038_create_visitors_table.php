@@ -23,6 +23,7 @@ class CreateVisitorsTable extends Migration
                 $table->unsignedTinyInteger('is_remind')->default(0)->comment('是否提醒【0:否;1:是】');
                 $table->unsignedInteger('visitor_tag_id')->default(0)->comment('标签id');
                 $table->unsignedInteger('unread_count')->default(0)->comment('未读数量');
+                $table->timestamp('last_operate_record_at')->nullable()->comment('最后操作记录时间');
                 $table->timestamps();
             }
         );
