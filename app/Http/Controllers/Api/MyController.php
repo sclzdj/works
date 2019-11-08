@@ -846,22 +846,31 @@ class MyController extends UserGuardController
                     PhotographerWorkSource::allowFields()
                 );
                 foreach ($photographers as $k => $photographer) {
-                    $photographer_work_sources = PhotographerWorkSource::join(
+                    $photographerWorkSources = PhotographerWorkSource::select(
+                        $fields
+                    )->join(
                         'photographer_works',
                         'photographer_work_sources.photographer_work_id',
                         '=',
                         'photographer_works.id'
-                    )->select($fields)
-                        ->where(
-                            [
-                                'photographer_works.status' => 200,
-                                'photographer_work_sources.status' => 200,
-                                'photographer_works.photographer_id' => $photographer['id'],
-                                'photographer_work_sources.type' => 'image',
-                            ]
-                        )
-                        ->orderBy('photographer_work_sources.created_at', 'desc')->take(3)->get()->toArray();
-                    $photographers[$k]['photographer_work_sources'] = $photographer_work_sources;
+                    )->where(
+                        [
+                            'photographer_works.photographer_id' => $photographer['id'],
+                            'photographer_work_sources.status' => 200,
+                            'photographer_works.status' => 200,
+                            'photographer_work_sources.type' => 'image',
+                        ]
+                    )->orderBy(
+                        'photographer_works.roof',
+                        'desc'
+                    )->orderBy(
+                        'photographer_works.created_at',
+                        'desc'
+                    )->orderBy(
+                        'photographer_work_sources.sort',
+                        'asc'
+                    )->take(3)->get()->toArray();
+                    $photographers[$k]['photographer_work_sources'] = $photographerWorkSources;
                 }
                 $photographers = SystemServer::parseRegionName($photographers);
                 $photographers = SystemServer::parsePhotographerRank($photographers);
@@ -915,22 +924,31 @@ class MyController extends UserGuardController
                 PhotographerWorkSource::allowFields()
             );
             foreach ($view_records['data'] as $k => $photographer) {
-                $photographer_work_sources = PhotographerWorkSource::join(
+                $photographerWorkSources = PhotographerWorkSource::select(
+                    $fields
+                )->join(
                     'photographer_works',
                     'photographer_work_sources.photographer_work_id',
                     '=',
                     'photographer_works.id'
-                )->select($fields)
-                    ->where(
-                        [
-                            'photographer_works.status' => 200,
-                            'photographer_work_sources.status' => 200,
-                            'photographer_works.photographer_id' => $photographer['id'],
-//                            'photographer_work_sources.type' => 'image',
-                        ]
-                    )
-                    ->orderBy('photographer_work_sources.created_at', 'desc')->take(3)->get()->toArray();
-                $view_records['data'][$k]['photographer_work_sources'] = $photographer_work_sources;
+                )->where(
+                    [
+                        'photographer_works.photographer_id' => $photographer['id'],
+                        'photographer_work_sources.status' => 200,
+                        'photographer_works.status' => 200,
+                        'photographer_work_sources.type' => 'image',
+                    ]
+                )->orderBy(
+                    'photographer_works.roof',
+                    'desc'
+                )->orderBy(
+                    'photographer_works.created_at',
+                    'desc'
+                )->orderBy(
+                    'photographer_work_sources.sort',
+                    'asc'
+                )->take(3)->get()->toArray();
+                $view_records['data'][$k]['photographer_work_sources'] = $photographerWorkSources;
             }
             $view_records['data'] = SystemServer::parsePhotographerRank($view_records['data']);
         }
