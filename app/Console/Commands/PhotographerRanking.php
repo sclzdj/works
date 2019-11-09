@@ -57,15 +57,15 @@ class PhotographerRanking extends Command
         $date = date('Y-m-d');
         $time = date('Y-m-d H:i:s');
         foreach ($rankingList as $k => $photographer) {
-            $photographerRankingLog = PhotographerRankingLog::where(
+            $photographerRankingLog0 = PhotographerRankingLog::where(
                 ['photographer_id' => $photographer->id]
             )->whereDate('created_at', $date)->first();
-//            if (!$photographerRankingLog) {
+            $photographerRankingLog = PhotographerRankingLog::create();
+            $photographerRankingLog->photographer_id = $photographer->id;
+            $photographerRankingLog->ranking = $k + 1;
+            $photographerRankingLog->save();
+//            if (!$photographerRankingLog0) {
             if (true) {
-                $photographerRankingLog = PhotographerRankingLog::create();
-                $photographerRankingLog->photographer_id = $photographer->id;
-                $photographerRankingLog->ranking = $k + 1;
-                $photographerRankingLog->save();
                 $user = User::where('photographer_id', $photographer->id)->first();
                 if ($user && $user->gh_openid != '') {
                     $app = app('wechat.official_account');
