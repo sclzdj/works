@@ -55,7 +55,7 @@ class VisitSummary extends Command
 //新增访问：XXX次
 //累计访问：XXX次
         $photographers = $this->getPhotographerList();
-        $rankingList = PhotographerServer::visitorRankingList(50, 'photographer.id');
+        $rankingList = PhotographerServer::visitorRankingList(50, 'photographers.id');
         $rankingIds = [];
         foreach ($rankingList as $photographer) {
             $rankingIds[] = $photographer->id;
@@ -92,7 +92,7 @@ class VisitSummary extends Command
                     ]
                 );
                 if ($tmr['errcode'] != 0) {
-                    ErrLogServer::SendWxGhTemplateMessage($template_id, $tmr['errmsg'], $tmr);
+                    ErrLogServer::SendWxGhTemplateMessageCommand($template_id, $tmr['errmsg'], $tmr);
                 }
             }
         }

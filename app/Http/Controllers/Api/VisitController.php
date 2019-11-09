@@ -134,7 +134,7 @@ class VisitController extends UserGuardController
                                     'url' => config('app.url'),
                                     'miniprogram' => [
                                         'appid' => config('custom.wechat.mp.appid'),
-                                        'pagepath' => 'pages/visitorDetails/visitorDetails?'.$visitor->id,//访客详情页
+                                        'pagepath' => 'pages/visitorDetails/visitorDetails?id='.$visitor->id,//访客详情页
                                     ],
                                     'data' => [
                                         'first' => '你特别关注的人脉有新动态，请及时查看。',
@@ -260,7 +260,7 @@ class VisitController extends UserGuardController
                                     'url' => config('app.url'),
                                     'miniprogram' => [
                                         'appid' => config('custom.wechat.mp.appid'),
-                                        'pagepath' => 'pages/visitorDetails/visitorDetails?'.$visitor->id,//访客详情页
+                                        'pagepath' => 'pages/visitorDetails/visitorDetails?id='.$visitor->id,//访客详情页
                                     ],
                                     'data' => [
                                         'first' => '你特别关注的人脉有新动态，请及时查看。',
@@ -375,7 +375,7 @@ class VisitController extends UserGuardController
                                     'url' => config('app.url'),
                                     'miniprogram' => [
                                         'appid' => config('custom.wechat.mp.appid'),
-                                        'pagepath' => 'pages/visitorDetails/visitorDetails?'.$visitor->id,//访客详情页
+                                        'pagepath' => 'pages/visitorDetails/visitorDetails?id='.$visitor->id,//访客详情页
                                     ],
                                     'data' => [
                                         'first' => '你特别关注的人脉有新动态，请及时查看。',
