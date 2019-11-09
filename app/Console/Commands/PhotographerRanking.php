@@ -48,16 +48,11 @@ class PhotographerRanking extends Command
     public function handle()
     {
 //        log::info('test');
-//排行榜入选通知（入选排行榜时通知）
-//20XX年XX月XX日
-//
-//XXX，祝贺你！
+// XXX，祝贺你！
 //你已入选今天的云作品人脉排行榜！
-//
-//实时排名：XX名
-//入选时间：20XX-XX-XX XX:XX:XX
-
-//详情（链接至人脉排行榜）
+//比赛名称：云作品人脉排行榜
+//获得奖项：XX 名
+//备注：点击详情查看
         $rankingList = PhotographerServer::visitorRankingList(50);
         $date = date('Y-m-d');
         $time = date('Y-m-d H:i:s');
@@ -65,7 +60,8 @@ class PhotographerRanking extends Command
             $photographerRankingLog = PhotographerRankingLog::where(
                 ['photographer_id' => $photographer->id]
             )->whereDate('created_at', $date)->first();
-            if (!$photographerRankingLog) {
+//            if (!$photographerRankingLog) {
+            if (true) {
                 $photographerRankingLog = PhotographerRankingLog::create();
                 $photographerRankingLog->photographer_id = $photographer->id;
                 $photographerRankingLog->ranking = $k + 1;
@@ -73,7 +69,7 @@ class PhotographerRanking extends Command
                 $user = User::where('photographer_id', $photographer->id)->first();
                 if ($user && $user->gh_openid != '') {
                     $app = app('wechat.official_account');
-                    $template_id = 'CiFcVCzHQI-9G_l7H-uGMaexTheqCSo0AI_LSKM0dNY';
+                    $template_id = 'PAObqNiE4rt9WfCJbQlBcBCxWHwmgFgI3Ey7Hnel6oc';
                     $tmr = $app->template_message->send(
                         [
                             'touser' => $user->gh_openid,
@@ -84,11 +80,10 @@ class PhotographerRanking extends Command
                                 'pagepath' => 'subPage/ranking/ranking',//人脉排行榜页
                             ],
                             'data' => [
-                                'first' => '《这是通知6》'.$photographer->name.'，祝贺你！你已入选今天的云作品人脉排行榜！',
-                                'keyword1' => ($k + 1).'名',
-                                'keyword2' => $time,
-                                'keyword3' => '',
-                                'remark' => '',
+                                'first' => $photographer->name.'，祝贺你！你已入选今天的云作品人脉排行榜！',
+                                'keyword1' => '云作品人脉排行榜',
+                                'keyword2' => ($k + 1).'名',
+                                'remark' => '点击详情查看',
                             ],
                         ]
                     );

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Model\Index\Photographer;
+use App\Model\Index\PhotographerRankingLog;
 use App\Servers\ErrLogServer;
 use App\Servers\PhotographerServer;
 use Illuminate\Console\Command;
@@ -46,33 +47,34 @@ class VisitSummary extends Command
     public function handle()
     {
 //        log::info('test');
-//（若人脉无增长）XXX，过去24小时，你的人脉没有增长，要加油哦！
-//（若人脉有增长）XXX，祝贺你！过去24小时，你的人脉变多了，再接再厉哦！
-//（若进入排行榜）XXX，祝贺你！过去24小时，你的人脉增长迅速，还进入了云作品人脉排行榜，再接再厉哦！
+//（人脉无增长）XXX，过去 24 小时，你的人脉没有增长，要加油哦！
+//（人脉有增长）XXX，过去 24 小时，你的人脉变多了，再接再厉哦！
+//（进入排行榜）厉害了，XXX！过去 24 小时，你的人脉增长迅速，还进入了云作品人脉排行榜。
 //
-//新增人脉：XXX人
-//累计人脉：XXX人
-//新增访问：XXX次
-//累计访问：XXX次
+//报告类型：云作品人脉日报
+//生成时间：201XX.XX.XX XX:XX
+//用户姓名：XXX
+//昨日新增人脉：XXX 人（新模板增加）
+//昨日活跃人脉：XXX 人（新模板增加）
+//昨日累计人脉：XXX 人（新模板增加）
+//备注：昨日新增人脉 XXX/活跃人脉 XXX/累计人脉 XXX（新模板删除）
         $photographers = $this->getPhotographerList();
-        $rankingList = PhotographerServer::visitorRankingList(50, 'photographers.id');
-        $rankingIds = [];
-        foreach ($rankingList as $photographer) {
-            $rankingIds[] = $photographer->id;
-        }
         foreach ($photographers as $k => $photographer) {
             if ($photographer->gh_openid != '') {
-                if (in_array($photographer->id, $rankingIds)) {
-                    $firstText = $photographer->name.'，祝贺你！过去24小时，你的人脉增长迅速，还进入了云作品人脉排行榜，再接再厉哦！';
+                if (PhotographerRankingLog::where(['photographer_id' => $photographer->id])->whereDate(
+                    'created_at',
+                    date('Y-m-d', strtotime('-1 days'))
+                )->first()) {
+                    $firstText = '厉害了，'.$photographer->name.'！过去24小时，你的人脉增长迅速，还进入了云作品人脉排行榜，再接再厉哦！';
                 } else {
-                    if ($photographer->visitor_today_count > 0) {
-                        $firstText = $photographer->name.'，祝贺你！过去24小时，你的人脉变多了，再接再厉哦！';
+                    if ($photographer->visitor_yesterday_count > 0) {
+                        $firstText = $photographer->name.'，过去24小时，你的人脉变多了，再接再厉哦！';
                     } else {
                         $firstText = $photographer->name.'，过去24小时，你的人脉没有增长，要加油哦！';
                     }
                 }
                 $app = app('wechat.official_account');
-                $template_id = 'CiFcVCzHQI-9G_l7H-uGMaexTheqCSo0AI_LSKM0dNY';
+                $template_id = 'Y1ZVLPbeqVAEQPnsBzRSAonF2gWXx7vzzyun34BEcdc';
                 $tmr = $app->template_message->send(
                     [
                         'touser' => $photographer->gh_openid,
@@ -83,11 +85,11 @@ class VisitSummary extends Command
                             'pagepath' => 'pages/visitorHistory/visitorHistory',//访客列表页
                         ],
                         'data' => [
-                            'first' => '《这是通知5》'.$firstText,
-                            'keyword1' => $photographer->visitor_today_count.'人',
-                            'keyword2' => $photographer->visitor_count.'人',
-                            'keyword3' => $photographer->operate_record_today_count.'次',
-                            'remark' => $photographer->operate_record_count.'次',
+                            'first' => $firstText,
+                            'keyword1' => '云作品人脉日报',
+                            'keyword2' => date('Y.m.d').' 00:00',
+//                            'keyword3' =>$photographer->name,
+                            'remark' => '昨日新增：'.$photographer->visitor_yesterday_count.'人/昨日活跃：'.$photographer->visitor_yesterday_active_count.'人/你的累计：'.$photographer->visitor_count.'人',
                         ],
                     ]
                 );
@@ -112,8 +114,8 @@ class VisitSummary extends Command
         );
         $fields = array_merge($fields, ['`users`.`nickname`', '`users`.`gh_openid`']);
         $fields = implode(',', $fields);
-        $today = date('Y-m-d H:i:s', time() - 24 * 60 * 60);
-        $sql = "SELECT {$fields},(SELECT count(*) FROM `visitors` WHERE `visitors`.`photographer_id`=`photographers`.`id` AND `created_at`>='{$today}') AS `visitor_today_count`,(SELECT count(*) FROM `visitors` WHERE `visitors`.`photographer_id`=`photographers`.`id`) AS `visitor_count`,(SELECT count(*) FROM `operate_records` WHERE `operate_records`.`photographer_id`=`photographers`.`id`) AS `operate_record_count`,(SELECT count(*) FROM `operate_records` WHERE `operate_records`.`photographer_id`=`photographers`.`id` AND `created_at`>='{$today}') AS `operate_record_today_count` FROM `photographers` LEFT JOIN `users` ON `photographers`.`id`=`users`.`photographer_id` WHERE `photographers`.`status`=200 ORDER BY `visitor_today_count` DESC,`visitor_count` DESC,`photographers`.`created_at` ASC";
+        $yesterday = date('Y-m-d', strtotime('-1 days'));
+        $sql = "SELECT {$fields},(SELECT count(*) FROM `visitors` WHERE `visitors`.`photographer_id`=`photographers`.`id` AND date(`created_at`) = '{$yesterday}') AS `visitor_yesterday_count`,(SELECT count(distinct `user_id`) FROM `operate_records` WHERE `operate_records`.`photographer_id`=`photographers`.`id` AND date(`created_at`) = '{$yesterday}') AS `visitor_yesterday_active_count`,(SELECT count(*) FROM `visitors` WHERE `visitors`.`photographer_id`=`photographers`.`id`) AS `visitor_count` FROM `photographers` LEFT JOIN `users` ON `photographers`.`id`=`users`.`photographer_id` WHERE `photographers`.`status`=200 ORDER BY `visitor_yesterday_count` DESC,`visitor_yesterday_active_count` DESC,`visitor_count` DESC,`photographers`.`created_at` ASC";
         $photographers = \DB::select($sql, []);
 
         return $photographers;

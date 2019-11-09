@@ -82,6 +82,7 @@ class VisitController extends UserGuardController
             $operate_record->operate_type = 'view';
             $operate_record->save();
             if ($user->id != $photographer_user->id) {//如果不是自己访问，记录访客信息
+                $visit_template_message = false;//是否推送该消息，发模板消息
                 $visitor = Visitor::where(
                     ['photographer_id' => $request->photographer_id, 'user_id' => $user->id]
                 )->first();
@@ -95,7 +96,7 @@ class VisitController extends UserGuardController
                         if ($is_formal_photographer_old == 0) {
                             if ($photographer_user->gh_openid != '') {
                                 $app = app('wechat.official_account');
-                                $template_id = '6HDjOQogbCDCz1m4mjK-OQ2N4-VdlgQqM_CDRVfxmBI';
+                                $template_id = 'tHdD0AN6uWc0DSNn-68ftEZ48AYavkydeCpvN6GCO9U';
                                 $tmr = $app->template_message->send(
                                     [
                                         'touser' => $photographer_user->gh_openid,
@@ -106,10 +107,10 @@ class VisitController extends UserGuardController
                                             'pagepath' => 'pages/cameraman/cameraman',//摄影师控制面板页
                                         ],
                                         'data' => [
-                                            'first' => $photographer->name.'，你的云作品已被激活！点击此处，体验云作品的完整功能。',
-                                            'keyword1' => $photographer_user->purePhoneNumber ?: '无手机号',
-                                            'keyword2' => date('Y-m-d H:i'),
-                                            'remark' => '云作品，你的作品首发平台。为了方便下次使用，建议苹果用户将云作品拽入我的小程序，建议安卓用户请将云作品设为桌面图标。更多使用技巧，请浏览云作品中的使用帮助。',
+                                            'first' => $photographer->name.'X，你的云作品已开启！为了方便使用，建议苹果用户将云作品拽入我的小程序，建议安卓用户将云作品设为桌面图标。',
+                                            'keyword1' => '已开启',
+                                            'keyword2' => '专业作品集/加水印神器/人脉收割机',
+                                            'remark' => '更多技巧，请浏览使用帮助。',
                                         ],
                                     ]
                                 );
@@ -122,37 +123,41 @@ class VisitController extends UserGuardController
                     $visitor = Visitor::create();
                     $visitor->photographer_id = $request->photographer_id;
                     $visitor->user_id = $user->id;
+                    $visit_template_message = true;//第一次发送模板消息，发模板消息
                 } else {
                     if ($visitor->is_remind == 1) {//特别关注，发模板消息
-                        if ($photographer_user->gh_openid != '') {
-                            $app = app('wechat.official_account');
-                            $template_id = 'CiFcVCzHQI-9G_l7H-uGMaexTheqCSo0AI_LSKM0dNY';
-                            $tmr = $app->template_message->send(
-                                [
-                                    'touser' => $photographer_user->gh_openid,
-                                    'template_id' => $template_id,
-                                    'url' => config('app.url'),
-                                    'miniprogram' => [
-                                        'appid' => config('custom.wechat.mp.appid'),
-                                        'pagepath' => 'pages/visitorDetails/visitorDetails?id='.$visitor->id,//访客详情页
-                                    ],
-                                    'data' => [
-                                        'first' => '你特别关注的人脉有新动态，请及时查看。',
-                                        'keyword1' => $user->nickname,
-                                        'keyword2' => $this->_makeDescribe($operate_record0->id),
-                                        'keyword3' => $request->page_name == 'photographer_home' ? '摄影师主页' : '摄影师作品集页',
-                                        'remark' => ($user->purePhoneNumber ?: '无手机号').' | '.date('Y-m-d H:i'),
-                                    ],
-                                ]
-                            );
-                            if ($tmr['errcode'] != 0) {
-                                ErrLogServer::SendWxGhTemplateMessage($template_id, $tmr['errmsg'], $tmr);
-                            }
-                        }
+                        $visit_template_message = true;
+                    }
+                }
+                if ($visit_template_message && $photographer_user->gh_openid != '') {
+                    $app = app('wechat.official_account');
+                    $template_id = 'CiFcVCzHQI-9G_l7H-uGMaexTheqCSo0AI_LSKM0dNY';
+                    $tmr = $app->template_message->send(
+                        [
+                            'touser' => $photographer_user->gh_openid,
+                            'template_id' => $template_id,
+                            'url' => config('app.url'),
+                            'miniprogram' => [
+                                'appid' => config('custom.wechat.mp.appid'),
+                                'pagepath' => 'pages/visitorDetails/visitorDetails?id='.$visitor->id,//访客详情页
+                            ],
+                            'data' => [
+                                'first' => '你特别关注的人脉有新动态，请及时查看。',
+                                'keyword1' => $user->nickname,
+                                'keyword2' => $this->_makeDescribe($operate_record0->id).';'.$this->_makeDescribe(
+                                        $operate_record->id
+                                    ),
+                                'keyword3' => $request->page_name == 'photographer_home' ? '摄影师主页' : '摄影师作品集页',
+                                'remark' => ($user->purePhoneNumber ?: '无手机号').' | '.date('Y-m-d H:i'),
+                            ],
+                        ]
+                    );
+                    if ($tmr['errcode'] != 0) {
+                        ErrLogServer::SendWxGhTemplateMessage($template_id, $tmr['errmsg'], $tmr);
                     }
                 }
                 $visitor->unread_count = $visitor->unread_count + 2;
-                $visitor->last_operate_record_at=date('Y-m-d H:i:s');
+                $visitor->last_operate_record_at = date('Y-m-d H:i:s');
                 $visitor->save();
             }
             \DB::commit();//提交事务
@@ -208,6 +213,7 @@ class VisitController extends UserGuardController
             $operate_record->operate_type = 'share';
             $operate_record->save();
             if ($user->id != $photographer_user->id) {//如果不是自己访问，记录访客信息
+                $visit_template_message = false;//是否推送该消息，发模板消息
                 $visitor = Visitor::where(
                     ['photographer_id' => $request->photographer_id, 'user_id' => $user->id]
                 )->first();
@@ -221,7 +227,7 @@ class VisitController extends UserGuardController
                         if ($is_formal_photographer_old == 0) {
                             if ($photographer_user->gh_openid != '') {
                                 $app = app('wechat.official_account');
-                                $template_id = '6HDjOQogbCDCz1m4mjK-OQ2N4-VdlgQqM_CDRVfxmBI';
+                                $template_id = 'tHdD0AN6uWc0DSNn-68ftEZ48AYavkydeCpvN6GCO9U';
                                 $tmr = $app->template_message->send(
                                     [
                                         'touser' => $photographer_user->gh_openid,
@@ -232,10 +238,10 @@ class VisitController extends UserGuardController
                                             'pagepath' => 'pages/cameraman/cameraman',//摄影师控制面板页
                                         ],
                                         'data' => [
-                                            'first' => $photographer->name.'，你的云作品已被激活！点击此处，体验云作品的完整功能。',
-                                            'keyword1' => $photographer_user->purePhoneNumber ?: '无手机号',
-                                            'keyword2' => date('Y-m-d H:i'),
-                                            'remark' => '云作品，你的作品首发平台。为了方便下次使用，建议苹果用户将云作品拽入我的小程序，建议安卓用户请将云作品设为桌面图标。更多使用技巧，请浏览云作品中的使用帮助。',
+                                            'first' => $photographer->name.'X，你的云作品已开启！为了方便使用，建议苹果用户将云作品拽入我的小程序，建议安卓用户将云作品设为桌面图标。',
+                                            'keyword1' => '已开启',
+                                            'keyword2' => '专业作品集/加水印神器/人脉收割机',
+                                            'remark' => '更多技巧，请浏览使用帮助。',
                                         ],
                                     ]
                                 );
@@ -248,37 +254,39 @@ class VisitController extends UserGuardController
                     $visitor = Visitor::create();
                     $visitor->photographer_id = $request->photographer_id;
                     $visitor->user_id = $user->id;
+                    $visit_template_message = true;//第一次发送模板消息，发模板消息
                 } else {
                     if ($visitor->is_remind == 1) {//特别关注，发模板消息
-                        if ($photographer_user->gh_openid != '') {
-                            $app = app('wechat.official_account');
-                            $template_id = 'CiFcVCzHQI-9G_l7H-uGMaexTheqCSo0AI_LSKM0dNY';
-                            $tmr = $app->template_message->send(
-                                [
-                                    'touser' => $photographer_user->gh_openid,
-                                    'template_id' => $template_id,
-                                    'url' => config('app.url'),
-                                    'miniprogram' => [
-                                        'appid' => config('custom.wechat.mp.appid'),
-                                        'pagepath' => 'pages/visitorDetails/visitorDetails?id='.$visitor->id,//访客详情页
-                                    ],
-                                    'data' => [
-                                        'first' => '你特别关注的人脉有新动态，请及时查看。',
-                                        'keyword1' => $user->nickname,
-                                        'keyword2' => $this->_makeDescribe($operate_record->id),
-                                        'keyword3' => $request->page_name == 'photographer_home' ? '摄影师主页' : '摄影师作品集页',
-                                        'remark' => ($user->purePhoneNumber ?: '无手机号').' | '.date('Y-m-d H:i'),
-                                    ],
-                                ]
-                            );
-                            if ($tmr['errcode'] != 0) {
-                                ErrLogServer::SendWxGhTemplateMessage($template_id, $tmr['errmsg'], $tmr);
-                            }
-                        }
+                        $visit_template_message = true;
+                    }
+                }
+                if ($visit_template_message && $photographer_user->gh_openid != '') {
+                    $app = app('wechat.official_account');
+                    $template_id = 'CiFcVCzHQI-9G_l7H-uGMaexTheqCSo0AI_LSKM0dNY';
+                    $tmr = $app->template_message->send(
+                        [
+                            'touser' => $photographer_user->gh_openid,
+                            'template_id' => $template_id,
+                            'url' => config('app.url'),
+                            'miniprogram' => [
+                                'appid' => config('custom.wechat.mp.appid'),
+                                'pagepath' => 'pages/visitorDetails/visitorDetails?id='.$visitor->id,//访客详情页
+                            ],
+                            'data' => [
+                                'first' => '你特别关注的人脉有新动态，请及时查看。',
+                                'keyword1' => $user->nickname,
+                                'keyword2' => $this->_makeDescribe($operate_record->id),
+                                'keyword3' => $request->page_name == 'photographer_home' ? '摄影师主页' : '摄影师作品集页',
+                                'remark' => ($user->purePhoneNumber ?: '无手机号').' | '.date('Y-m-d H:i'),
+                            ],
+                        ]
+                    );
+                    if ($tmr['errcode'] != 0) {
+                        ErrLogServer::SendWxGhTemplateMessage($template_id, $tmr['errmsg'], $tmr);
                     }
                 }
                 $visitor->unread_count++;
-                $visitor->last_operate_record_at=date('Y-m-d H:i:s');
+                $visitor->last_operate_record_at = date('Y-m-d H:i:s');
                 $visitor->save();
             }
             \DB::commit();//提交事务
@@ -323,6 +331,7 @@ class VisitController extends UserGuardController
             $operate_record->operate_type = 'copy_wx';
             $operate_record->save();
             if ($user->id != $photographer_user->id) {//如果不是自己访问，记录访客信息
+                $visit_template_message = false;//是否推送该消息，发模板消息
                 $visitor = Visitor::where(
                     ['photographer_id' => $request->photographer_id, 'user_id' => $user->id]
                 )->first();
@@ -336,7 +345,7 @@ class VisitController extends UserGuardController
                         if ($is_formal_photographer_old == 0) {
                             if ($photographer_user->gh_openid != '') {
                                 $app = app('wechat.official_account');
-                                $template_id = '6HDjOQogbCDCz1m4mjK-OQ2N4-VdlgQqM_CDRVfxmBI';
+                                $template_id = 'tHdD0AN6uWc0DSNn-68ftEZ48AYavkydeCpvN6GCO9U';
                                 $tmr = $app->template_message->send(
                                     [
                                         'touser' => $photographer_user->gh_openid,
@@ -347,10 +356,10 @@ class VisitController extends UserGuardController
                                             'pagepath' => 'pages/cameraman/cameraman',//摄影师控制面板页
                                         ],
                                         'data' => [
-                                            'first' => $photographer->name.'，你的云作品已被激活！点击此处，体验云作品的完整功能。',
-                                            'keyword1' => $photographer_user->purePhoneNumber ?: '无手机号',
-                                            'keyword2' => date('Y-m-d H:i'),
-                                            'remark' => '云作品，你的作品首发平台。为了方便下次使用，建议苹果用户将云作品拽入我的小程序，建议安卓用户请将云作品设为桌面图标。更多使用技巧，请浏览云作品中的使用帮助。',
+                                            'first' => $photographer->name.'X，你的云作品已开启！为了方便使用，建议苹果用户将云作品拽入我的小程序，建议安卓用户将云作品设为桌面图标。',
+                                            'keyword1' => '已开启',
+                                            'keyword2' => '专业作品集/加水印神器/人脉收割机',
+                                            'remark' => '更多技巧，请浏览使用帮助。',
                                         ],
                                     ]
                                 );
@@ -363,37 +372,39 @@ class VisitController extends UserGuardController
                     $visitor = Visitor::create();
                     $visitor->photographer_id = $request->photographer_id;
                     $visitor->user_id = $user->id;
+                    $visit_template_message = true;//第一次发送模板消息，发模板消息
                 } else {
                     if ($visitor->is_remind == 1) {//特别关注，发模板消息
-                        if ($photographer_user->gh_openid != '') {
-                            $app = app('wechat.official_account');
-                            $template_id = 'CiFcVCzHQI-9G_l7H-uGMaexTheqCSo0AI_LSKM0dNY';
-                            $tmr = $app->template_message->send(
-                                [
-                                    'touser' => $photographer_user->gh_openid,
-                                    'template_id' => $template_id,
-                                    'url' => config('app.url'),
-                                    'miniprogram' => [
-                                        'appid' => config('custom.wechat.mp.appid'),
-                                        'pagepath' => 'pages/visitorDetails/visitorDetails?id='.$visitor->id,//访客详情页
-                                    ],
-                                    'data' => [
-                                        'first' => '你特别关注的人脉有新动态，请及时查看。',
-                                        'keyword1' => $user->nickname,
-                                        'keyword2' => $this->_makeDescribe($operate_record->id),
-                                        'keyword3' => $request->page_name == 'photographer_home' ? '摄影师主页' : '摄影师作品集页',
-                                        'remark' => ($user->purePhoneNumber ?: '无手机号').' | '.date('Y-m-d H:i'),
-                                    ],
-                                ]
-                            );
-                            if ($tmr['errcode'] != 0) {
-                                ErrLogServer::SendWxGhTemplateMessage($template_id, $tmr['errmsg'], $tmr);
-                            }
-                        }
+                        $visit_template_message = true;//第一次发送模板消息，发模板消息
+                    }
+                }
+                if ($visit_template_message && $photographer_user->gh_openid != '') {
+                    $app = app('wechat.official_account');
+                    $template_id = 'CiFcVCzHQI-9G_l7H-uGMaexTheqCSo0AI_LSKM0dNY';
+                    $tmr = $app->template_message->send(
+                        [
+                            'touser' => $photographer_user->gh_openid,
+                            'template_id' => $template_id,
+                            'url' => config('app.url'),
+                            'miniprogram' => [
+                                'appid' => config('custom.wechat.mp.appid'),
+                                'pagepath' => 'pages/visitorDetails/visitorDetails?id='.$visitor->id,//访客详情页
+                            ],
+                            'data' => [
+                                'first' => '你特别关注的人脉有新动态，请及时查看。',
+                                'keyword1' => $user->nickname,
+                                'keyword2' => $this->_makeDescribe($operate_record->id),
+                                'keyword3' => $request->page_name == 'photographer_home' ? '摄影师主页' : '摄影师作品集页',
+                                'remark' => ($user->purePhoneNumber ?: '无手机号').' | '.date('Y-m-d H:i'),
+                            ],
+                        ]
+                    );
+                    if ($tmr['errcode'] != 0) {
+                        ErrLogServer::SendWxGhTemplateMessage($template_id, $tmr['errmsg'], $tmr);
                     }
                 }
                 $visitor->unread_count++;
-                $visitor->last_operate_record_at=date('Y-m-d H:i:s');
+                $visitor->last_operate_record_at = date('Y-m-d H:i:s');
                 $visitor->save();
             }
             \DB::commit();//提交事务

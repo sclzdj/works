@@ -24,7 +24,6 @@ use App\Model\Index\VisitorTag;
 use App\Servers\AliSendShortMessageServer;
 use App\Servers\ErrLogServer;
 use App\Servers\SystemServer;
-use App\Timings\VisitSummaryTiming;
 
 /**
  * 系统通用
