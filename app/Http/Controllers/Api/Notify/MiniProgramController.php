@@ -99,12 +99,11 @@ class MiniProgramController extends BaseController
                                     'pagepath' => '/subPage/crouwdPay/crouwdPay',
                                 ],
                                 'data' => [
-                                    'keyword1' => '
-亲
-感谢你对云作品团队的信任!我们将于在 2019 年 11 月 18 日，通过 公众号向你推送云作品注册码。
+                                    'first' => '亲,
+感谢你对云作品团队的信任!我们将于在 2019 年 11 月 18 日,通过公众号向你推送云作品注册码。
 
-备注:云作品微信客服 JUSHEKEJI。
-',
+备注:云作品微信客服 JUSHEKEJI。',
+                                    'keyword1' => '云作品众筹',
                                     'keyword2' => "成功",
                                 ],
                             ]
