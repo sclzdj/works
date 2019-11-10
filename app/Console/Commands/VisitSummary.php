@@ -65,12 +65,12 @@ class VisitSummary extends Command
                     'created_at',
                     date('Y-m-d', strtotime('-1 days'))
                 )->first()) {
-                    $firstText = '厉害了，'.$photographer->name.'！过去24小时，你的人脉增长迅速，还进入了云作品人脉排行榜，再接再厉哦！';
+                    $firstText = '厉害了，'.$photographer->name.'！昨天你的人脉增长迅速，还进入了云作品人脉排行榜。';
                 } else {
                     if ($photographer->visitor_yesterday_count > 0) {
-                        $firstText = $photographer->name.'，过去24小时，你的人脉变多了，再接再厉哦！';
+                        $firstText = $photographer->name.'，昨天你的人脉变多了，再接再厉哦！';
                     } else {
-                        $firstText = $photographer->name.'，过去24小时，你的人脉没有增长，要加油哦！';
+                        $firstText = $photographer->name.'，昨天你的人脉没有增长，要加油哦！';
                     }
                 }
                 $app = app('wechat.official_account');
@@ -94,7 +94,12 @@ class VisitSummary extends Command
                     ]
                 );
                 if ($tmr['errcode'] != 0) {
-                    ErrLogServer::SendWxGhTemplateMessageCommand($template_id, $tmr['errmsg'], $tmr);
+                    ErrLogServer::SendWxGhTemplateMessageCommand(
+                        $template_id,
+                        $photographer->gh_openid,
+                        $tmr['errmsg'],
+                        $tmr
+                    );
                 }
             }
         }

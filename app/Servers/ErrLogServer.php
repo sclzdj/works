@@ -84,12 +84,13 @@ class ErrLogServer
     /**
      * 发送微信公众号模板消息错误日志
      * @param $template_id
+     * @param $gh_openid
      * @param $msg
      * @param $remark
      * @param bool $command
      * @return bool|int 是否是用命令发送
      */
-    public static function SendWxGhTemplateMessage($template_id, $msg, $remark, $command = false)
+    public static function SendWxGhTemplateMessage($template_id, $gh_openid, $msg, $remark, $command = false)
     {
         $log_filename = '';
         if ($command) {
@@ -99,6 +100,7 @@ class ErrLogServer
         $error = [];
         $error['log_time'] = date('i:s');
         $error['template_id'] = $template_id;
+        $error['gh_openid'] = $gh_openid;
         $error['msg'] = $msg;
         $error['remark'] = $remark;
 
@@ -107,15 +109,17 @@ class ErrLogServer
             json_encode($error, JSON_UNESCAPED_UNICODE).PHP_EOL
         );
     }
+
     /**
      * 用命令发送微信公众号模板消息错误日志
      * @param $template_id
+     * @param $gh_openid
      * @param $msg
      * @param $remark
      * @return bool|int
      */
-    public static function SendWxGhTemplateMessageCommand($template_id, $msg, $remark)
+    public static function SendWxGhTemplateMessageCommand($template_id, $gh_openid, $msg, $remark)
     {
-        return self::SendWxGhTemplateMessage($template_id, $msg, $remark, true);
+        return self::SendWxGhTemplateMessage($template_id, $gh_openid, $msg, $remark, true);
     }
 }

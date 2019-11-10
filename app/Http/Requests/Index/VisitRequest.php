@@ -20,7 +20,7 @@ class VisitRequest extends BaseRequest
                     'page_name' => 'required|in:photographer_home,photographer_work',
                     'photographer_id' => 'required|integer',
                     'photographer_work_id' => 'required_if:page_name,photographer_work|integer',
-                    'in_type' => 'required|in:xacode_in,xacard_in,ranking_list_in,big_shot_used_in,view_history_in,routine_in',
+                    'in_type' => 'required|in:xacode_in,xacard_in,ranking_list_in,view_history_in,routine_in',
                     'shared_user_id' => 'integer',
                 ];
                 break;

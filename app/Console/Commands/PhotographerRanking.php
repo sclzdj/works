@@ -88,7 +88,12 @@ class PhotographerRanking extends Command
                         ]
                     );
                     if ($tmr['errcode'] != 0) {
-                        ErrLogServer::SendWxGhTemplateMessageCommand($template_id, $tmr['errmsg'], $tmr);
+                        ErrLogServer::SendWxGhTemplateMessageCommand(
+                            $template_id,
+                            $user->gh_openid,
+                            $tmr['errmsg'],
+                            $tmr
+                        );
                     }
                 }
             }

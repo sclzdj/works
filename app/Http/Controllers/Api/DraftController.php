@@ -320,6 +320,31 @@ class DraftController extends UserGuardController
             $photographer_work->save();
             $user->identity = 1;
             $user->save();
+            if ($user->gh_openid != '') {
+                $app = app('wechat.official_account');
+                $template_id = '87Q8nqQV87zTDFnz_h6__5ifexePwCYq2VG0uQxFbYc';
+                $tmr = $app->template_message->send(
+                    [
+                        'touser' => $user->gh_openid,
+                        'template_id' => $template_id,
+                        'url' => config('app.url'),
+                        'miniprogram' => [
+                            'appid' => config('custom.wechat.mp.appid'),
+                            'pagepath' => 'subPage/share/share',//注册成功分享页
+                        ],
+                        'data' => [
+                            'first' => $photographer->name.'，你已成功注册云作品！为了方便使用，建议苹果用户将云作品拽入我的小程序，建议安卓用户将云作品设为桌面图标。',
+                            'keyword1' => $photographer->name,
+                            'keyword2' => $photographer->mobile,
+//                            'keyword3' => $photographer->wechat,
+                            'remark' => '更多技巧，请浏览使用帮助。',
+                        ],
+                    ]
+                );
+                if ($tmr['errcode'] != 0) {
+                    ErrLogServer::SendWxGhTemplateMessage($template_id, $user->gh_openid, $tmr['errmsg'], $tmr);
+                }
+            }
             \DB::commit();//提交事务
 
             return $this->response->noContent();

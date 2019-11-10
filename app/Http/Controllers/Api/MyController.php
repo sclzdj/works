@@ -612,7 +612,7 @@ class MyController extends UserGuardController
             if ($request->operate_type == 1) {
                 if ($photographerWork->roof == 0) {
                     if (count($photographerWorks) >= 3) {
-                        return $this->response->error('最多只能置顶3个作品集', 500);
+                        return $this->response->error('数量有限！最多只能置顶3组作品哦', 500);
                     }
                 }
                 $roof = 1;
