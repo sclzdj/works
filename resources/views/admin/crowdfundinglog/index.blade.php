@@ -119,6 +119,12 @@
                                 </el-table-column>
 
                                 <el-table-column
+                                    prop="nickname"
+                                    label="用户昵称"
+                                    width="180">
+                                </el-table-column>
+
+                                <el-table-column
                                     prop="crowd_status"
                                     label="状态">
                                 </el-table-column>

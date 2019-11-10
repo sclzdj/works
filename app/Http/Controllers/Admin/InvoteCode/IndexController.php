@@ -119,11 +119,12 @@ class IndexController extends BaseController
 //                                ],
                                 'url' => 'https://www.zuopin.cloud/oauth/invotecode?userId=' . $userInfo->id,
                                 'data' => [
-                                    'first' => '注册码生成通知',
+                                    'first' => $userInfo->nickname . '你的云作品注册码已经生成，请点击详情开始注册。使用中，无论你 有任何问题或建议，都可以通过使用帮助告诉我们，我们会重视你说的每一 个字',
                                     'keyword1' => $userInfo->nickname,
                                     'keyword2' => $userInfo->phoneNumber,
                                     'keyword3' => $data['code'],
-                                    'keyword4' => date('Y-m-d')
+                                    'keyword4' => date('Y-m-d'),
+                                    'remark' => '注册码只能使用一次，在完成注册前，请勿将其外泄'
                                 ],
                             ]
                         );
