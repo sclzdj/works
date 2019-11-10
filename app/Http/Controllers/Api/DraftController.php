@@ -276,7 +276,7 @@ class DraftController extends UserGuardController
             $photographer->mobile = $request->mobile;
             $photographer->status = 200;
             $photographer->save();
-            if ($request->avatar) {
+            if ($photographer->avatar) {
                 $xacode = User::createXacode($photographer->id);
                 $user->xacode = $xacode;
             }

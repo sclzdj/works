@@ -440,7 +440,10 @@ class VisitController extends UserGuardController
         if (!empty($request->keywords)) {
             $Visitor->where('users.nickname', 'like', '%'.$request->keywords.'%');
         }
-        $visitors = $Visitor->orderBy('visitors.last_operate_record_at', 'desc')->paginate(
+        $visitors = $Visitor->orderBy('visitors.last_operate_record_at', 'desc')->orderBy(
+            'visitors.created_at',
+            'desc'
+        )->paginate(
             $request->pageSize
         );
         $visitors = SystemServer::parsePaginate($visitors->toArray());
