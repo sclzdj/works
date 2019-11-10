@@ -43,7 +43,7 @@ class IndexController extends BaseController
             ->skip($page)->take($size)
             ->leftJoin('users', 'users.id', '=', 'crowd_funding_logs.user_id')
             ->orderBy('created_at', 'desc')
-            ->select(['crowd_funding_logs.*' , 'users.phoneNumber'])
+            ->select(['crowd_funding_logs.*' , 'users.phoneNumber' , 'users.nickname'])
             ->get();
         $count = CrowdFundingLog::where($where)->count();
 
