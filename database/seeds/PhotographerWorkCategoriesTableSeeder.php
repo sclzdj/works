@@ -27,7 +27,6 @@ class PhotographerWorkCategoriesTableSeeder extends Seeder
                     ['name' => '新生儿'],
                     ['name' => '证件照'],
                     ['name' => '商务照'],
-                    ['name' => '其他'],
                 ],
             ],
             [
@@ -38,7 +37,6 @@ class PhotographerWorkCategoriesTableSeeder extends Seeder
                     ['name' => '婚礼'],
                     ['name' => '旅拍'],
                     ['name' => '体育'],
-                    ['name' => '其他'],
                 ],
             ],
             [
@@ -50,7 +48,6 @@ class PhotographerWorkCategoriesTableSeeder extends Seeder
                     ['name' => '街头'],
                     ['name' => '人文'],
                     ['name' => '剧照'],
-                    ['name' => '其他'],
                 ],
             ],
             [
@@ -64,7 +61,6 @@ class PhotographerWorkCategoriesTableSeeder extends Seeder
                     ['name' => '家具'],
                     ['name' => '家电'],
                     ['name' => '汽车'],
-                    ['name' => '其他'],
                 ],
             ],
             [
@@ -79,7 +75,6 @@ class PhotographerWorkCategoriesTableSeeder extends Seeder
                     ['name' => '珠宝'],
                     ['name' => '箱包'],
                     ['name' => '鞋靴'],
-                    ['name' => '其他'],
                 ],
             ],
             [
@@ -92,12 +87,12 @@ class PhotographerWorkCategoriesTableSeeder extends Seeder
                     ['name' => '建筑'],
                     ['name' => '酒店'],
                     ['name' => '航拍'],
-                    ['name' => '其他'],
                 ],
             ],
             [
                 'name' => '其他',
                 'children' => [
+                    ['name' => '其他'],
                     ['name' => '商业'],
                     ['name' => '广告'],
                     ['name' => '艺术'],
@@ -105,7 +100,6 @@ class PhotographerWorkCategoriesTableSeeder extends Seeder
                     ['name' => '创意'],
                     ['name' => '动物'],
                     ['name' => '宠物'],
-                    ['name' => '其他'],
                 ],
             ],
         ];

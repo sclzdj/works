@@ -19,7 +19,6 @@ class PhotographerWorkCustomerIndustriesTableSeeder extends Seeder
                     ['name' => '游戏'],
                     ['name' => '通信'],
                     ['name' => '电子'],
-                    ['name' => '其他'],
                 ],
             ],
             [
@@ -29,7 +28,6 @@ class PhotographerWorkCustomerIndustriesTableSeeder extends Seeder
                     ['name' => '建筑'],
                     ['name' => '物业'],
                     ['name' => '经纪'],
-                    ['name' => '其他'],
                 ],
             ],
             [
@@ -39,7 +37,6 @@ class PhotographerWorkCustomerIndustriesTableSeeder extends Seeder
                     ['name' => '汽车'],
                     ['name' => '家电'],
                     ['name' => '服饰'],
-                    ['name' => '其他'],
                 ],
             ],
             [
@@ -49,7 +46,6 @@ class PhotographerWorkCustomerIndustriesTableSeeder extends Seeder
                     ['name' => '银行'],
                     ['name' => '保险'],
                     ['name' => '证券'],
-                    ['name' => '其他'],
                 ],
             ],
             [
@@ -59,7 +55,6 @@ class PhotographerWorkCustomerIndustriesTableSeeder extends Seeder
                     ['name' => '美容'],
                     ['name' => '制药'],
                     ['name' => '器械'],
-                    ['name' => '其他'],
                 ],
             ],
             [
@@ -69,7 +64,6 @@ class PhotographerWorkCustomerIndustriesTableSeeder extends Seeder
                     ['name' => '环保'],
                     ['name' => '化工'],
                     ['name' => '采掘'],
-                    ['name' => '其他'],
                 ],
             ],
             [
@@ -79,7 +73,6 @@ class PhotographerWorkCustomerIndustriesTableSeeder extends Seeder
                     ['name' => '餐饮'],
                     ['name' => '酒店'],
                     ['name' => '出行'],
-                    ['name' => '其他'],
                 ],
             ],
             [
@@ -89,7 +82,6 @@ class PhotographerWorkCustomerIndustriesTableSeeder extends Seeder
                     ['name' => '教育'],
                     ['name' => '影视'],
                     ['name' => '传媒'],
-                    ['name' => '其他'],
                 ],
             ],
             [
@@ -99,7 +91,6 @@ class PhotographerWorkCustomerIndustriesTableSeeder extends Seeder
                     ['name' => '机械'],
                     ['name' => '设备'],
                     ['name' => '硬件'],
-                    ['name' => '其他'],
                 ],
             ],
             [
@@ -109,7 +100,6 @@ class PhotographerWorkCustomerIndustriesTableSeeder extends Seeder
                     ['name' => '零售'],
                     ['name' => '贸易'],
                     ['name' => '物流'],
-                    ['name' => '其他'],
                 ],
             ],
             [
@@ -119,17 +109,16 @@ class PhotographerWorkCustomerIndustriesTableSeeder extends Seeder
                     ['name' => '法律'],
                     ['name' => '财税'],
                     ['name' => '检测'],
-                    ['name' => '其他'],
                 ],
             ],
             [
                 'name' => '其他',
                 'children' => [
+                    ['name' => '其他'],
                     ['name' => '政府'],
                     ['name' => '军队'],
                     ['name' => '农业'],
                     ['name' => 'NGO'],
-                    ['name' => '其他'],
                 ],
             ],
         ];

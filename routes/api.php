@@ -103,7 +103,7 @@ $api->version(
                 //访问
                 $api->post('visit/inRecord', 'VisitController@inRecord');
                 $api->post('visit/shareRecord', 'VisitController@shareRecord');
-                $api->post('visit/copyWxRecord', 'VisitController@copyWxRecord');
+                $api->post('visit/operateRecord', 'VisitController@operateRecord');
                 $api->get('visit/unreadCount', 'VisitController@unreadCount');
                 $api->post('visit/remind', 'VisitController@setRemind');
                 $api->post('visit/tag', 'VisitController@setTag');

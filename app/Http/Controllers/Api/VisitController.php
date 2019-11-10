@@ -123,6 +123,9 @@ class VisitController extends UserGuardController
                     $visitor = Visitor::create();
                     $visitor->photographer_id = $request->photographer_id;
                     $visitor->user_id = $user->id;
+                    if ($request->in_type == 'ranking_list_in') {
+                        $visitor->visitor_tag_id = 4;//第一次从人脉排行榜中进入标记为同行
+                    }
                     $visit_template_message = true;//第一次发送模板消息，发模板消息
                 } else {
                     if ($visitor->is_remind == 1) {//特别关注，发模板消息
@@ -300,12 +303,12 @@ class VisitController extends UserGuardController
     }
 
     /**
-     * 保存复制微信的操作记录
+     * 保存操作记录
      * @param VisitRequest $request
      * @return \Dingo\Api\Http\Response|void
      * @throws \Exception
      */
-    public function copyWxRecord(VisitRequest $request)
+    public function operateRecord(VisitRequest $request)
     {
         \DB::beginTransaction();//开启事务
         try {
@@ -319,6 +322,140 @@ class VisitController extends UserGuardController
             if (!$photographer_user) {
                 return $this->response->error('摄影师信息错误', 500);
             }
+            $request->photographer_work_id = $request->photographer_work_id ?? 0;
+            if ($request->photographer_work_id > 0) {
+                $photographer_work = PhotographerWork::where(
+                    ['id' => $request->photographer_work_id, 'photographer_id' => $photographer->id, 'status' => 200]
+                )->first();
+                if (!$photographer_work) {
+                    return $this->response->error('摄影师作品集不存在', 500);
+                }
+            }
+            if ($user->id == $photographer_user->id) {
+                \DB::commit();//提交事务
+
+                return $this->response->noContent();
+            }
+            $operate_record = OperateRecord::create();
+            $operate_record->user_id = $user->id;
+            $operate_record->operate_type = $request->operate_type;
+            $operate_record->page_name = $request->page_name;
+            $operate_record->photographer_id = $request->photographer_id;
+            $operate_record->photographer_work_id = $request->photographer_work_id;
+            $operate_record->save();
+            if ($user->id != $photographer_user->id) {//如果不是自己访问，记录访客信息
+                $visit_template_message = false;//是否推送该消息，发模板消息
+                $visitor = Visitor::where(
+                    ['photographer_id' => $request->photographer_id, 'user_id' => $user->id]
+                )->first();
+                if (!$visitor) {
+                    if (Visitor::where(
+                            ['photographer_id' => $request->photographer_id]
+                        )->count() >= 2) {
+                        $is_formal_photographer_old = $photographer_user->is_formal_photographer;
+                        $photographer_user->is_formal_photographer = 1;
+                        $photographer_user->save();
+                        if ($is_formal_photographer_old == 0) {
+                            if ($photographer_user->gh_openid != '') {
+                                $app = app('wechat.official_account');
+                                $template_id = 'tHdD0AN6uWc0DSNn-68ftEZ48AYavkydeCpvN6GCO9U';
+                                $tmr = $app->template_message->send(
+                                    [
+                                        'touser' => $photographer_user->gh_openid,
+                                        'template_id' => $template_id,
+                                        'url' => config('app.url'),
+                                        'miniprogram' => [
+                                            'appid' => config('custom.wechat.mp.appid'),
+                                            'pagepath' => 'pages/cameraman/cameraman',//摄影师控制面板页
+                                        ],
+                                        'data' => [
+                                            'first' => $photographer->name.'X，你的云作品已开启！为了方便使用，建议苹果用户将云作品拽入我的小程序，建议安卓用户将云作品设为桌面图标。',
+                                            'keyword1' => '已开启',
+                                            'keyword2' => '专业作品集/加水印神器/人脉收割机',
+                                            'remark' => '更多技巧，请浏览使用帮助。',
+                                        ],
+                                    ]
+                                );
+                                if ($tmr['errcode'] != 0) {
+                                    ErrLogServer::SendWxGhTemplateMessage($template_id, $tmr['errmsg'], $tmr);
+                                }
+                            }
+                        }
+                    }
+                    $visitor = Visitor::create();
+                    $visitor->photographer_id = $request->photographer_id;
+                    $visitor->user_id = $user->id;
+                    $visit_template_message = true;//第一次发送模板消息，发模板消息
+                } else {
+                    if ($visitor->is_remind == 1) {//特别关注，发模板消息
+                        $visit_template_message = true;//第一次发送模板消息，发模板消息
+                    }
+                }
+                if ($visit_template_message && $photographer_user->gh_openid != '') {
+                    $app = app('wechat.official_account');
+                    $template_id = 'CiFcVCzHQI-9G_l7H-uGMaexTheqCSo0AI_LSKM0dNY';
+                    $tmr = $app->template_message->send(
+                        [
+                            'touser' => $photographer_user->gh_openid,
+                            'template_id' => $template_id,
+                            'url' => config('app.url'),
+                            'miniprogram' => [
+                                'appid' => config('custom.wechat.mp.appid'),
+                                'pagepath' => 'pages/visitorDetails/visitorDetails?id='.$visitor->id,//访客详情页
+                            ],
+                            'data' => [
+                                'first' => '你特别关注的人脉有新动态，请及时查看。',
+                                'keyword1' => $user->nickname,
+                                'keyword2' => $this->_makeDescribe($operate_record->id),
+                                'keyword3' => $request->page_name == 'photographer_home' ? '摄影师主页' : '摄影师作品集页',
+                                'remark' => ($user->purePhoneNumber ?: '无手机号').' | '.date('Y-m-d H:i'),
+                            ],
+                        ]
+                    );
+                    if ($tmr['errcode'] != 0) {
+                        ErrLogServer::SendWxGhTemplateMessage($template_id, $tmr['errmsg'], $tmr);
+                    }
+                }
+                $visitor->unread_count++;
+                $visitor->last_operate_record_at = date('Y-m-d H:i:s');
+                $visitor->save();
+            }
+            \DB::commit();//提交事务
+
+            return $this->response->noContent();
+        } catch (\Exception $e) {
+            \DB::rollback();//回滚事务
+
+            return $this->response->error($e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * 保存复查看项目金额的操作记录
+     * @param VisitRequest $request
+     * @return \Dingo\Api\Http\Response|void
+     * @throws \Exception
+     */
+    public function viewProjectAmountRecord(VisitRequest $request)
+    {
+        \DB::beginTransaction();//开启事务
+        try {
+            $user = auth($this->guard)->user();
+            $photographer = Photographer::where(['id' => $request->photographer_id, 'status' => 200])->first();
+            if (!$photographer) {
+                return $this->response->error('摄影师不存在', 500);
+            }
+            $photographer_user = User::where(['identity' => 1, 'photographer_id' => $request->photographer_id])->first(
+            );
+            if (!$photographer_user) {
+                return $this->response->error('摄影师信息错误', 500);
+            }
+            $photographer_work = PhotographerWork::where(
+                ['id' => $request->photographer_work_id, 'photographer_id' => $photographer->id, 'status' => 200]
+            )->first();
+            if (!$photographer_work) {
+                return $this->response->error('摄影师作品集不存在', 500);
+            }
             if ($user->id == $photographer_user->id) {
                 \DB::commit();//提交事务
 
@@ -328,7 +465,8 @@ class VisitController extends UserGuardController
             $operate_record->user_id = $user->id;
             $operate_record->page_name = 'photographer_home';
             $operate_record->photographer_id = $request->photographer_id;
-            $operate_record->operate_type = 'copy_wx';
+            $operate_record->photographer_work_id = $request->photographer_work_id;
+            $operate_record->operate_type = 'view_project_amount';
             $operate_record->save();
             if ($user->id != $photographer_user->id) {//如果不是自己访问，记录访客信息
                 $visit_template_message = false;//是否推送该消息，发模板消息
@@ -701,34 +839,46 @@ class VisitController extends UserGuardController
             if ($operateRecord->page_name == 'photographer_home') {
                 $describe = $visitor_nickname.'浏览了主页';
             } elseif ($operateRecord->page_name == 'photographer_work') {
-                $describe = $visitor_nickname.'浏览了【'.$photographer_work_customer_name.'】';
+                $describe = $visitor_nickname.'浏览了「'.$photographer_work_customer_name.'」';
             }
         } elseif ($operateRecord->operate_type == 'in') {
             if ($operateRecord->in_type == 'xacode_in') {
-                $describe = $visitor_nickname.'扫描小程序码进入';
+                if ($operateRecord->page_name == 'photographer_home') {
+                    $describe = $visitor_nickname.'扫描你的主页小程序码进入';
+                } elseif ($operateRecord->page_name == 'photographer_work') {
+                    $describe = $visitor_nickname.'通过扫描「'.$photographer_work_customer_name.'」的小程序码进入';
+                }
             } elseif ($operateRecord->in_type == 'xacard_in') {
                 $describe = $visitor_nickname.'通过'.$shared_user_nickname.'分享的小程序卡片进入';
+            } elseif ($operateRecord->in_type == 'ranking_list_in') {
+                $describe = $visitor_nickname.'通过「人脉排行榜」进入';
+            } elseif ($operateRecord->in_type == 'big_shot_used_in') {
+                $describe = $visitor_nickname.'通过「大咖都在用」进入';
             } elseif ($operateRecord->in_type == 'view_history_in') {
-                $describe = $visitor_nickname.'从最近浏览进入';
+                $describe = $visitor_nickname.'通过「最近浏览」进入';
             } elseif ($operateRecord->in_type == 'routine_in') {
                 $describe = $visitor_nickname.'通过普通方式进入';
             }
         } elseif ($operateRecord->operate_type == 'share') {
             if ($operateRecord->page_name == 'photographer_home') {
                 if ($operateRecord->share_type == 'xacard_share') {
-                    $describe = $visitor_nickname.'将主页分享给了微信好友';
+                    $describe = $visitor_nickname.'将你的主页分享给了微信好友';
                 } elseif ($operateRecord->share_type == 'poster_share') {
-                    $describe = $visitor_nickname.'生成了主页的海报';
+                    $describe = $visitor_nickname.'生成了你的主页海报';
                 }
             } elseif ($operateRecord->page_name == 'photographer_work') {
                 if ($operateRecord->share_type == 'xacard_share') {
-                    $describe = $visitor_nickname.'将【'.$photographer_work_customer_name.'】分享给了微信好友';
+                    $describe = $visitor_nickname.'将「'.$photographer_work_customer_name.'】分享给了微信好友';
                 } elseif ($operateRecord->share_type == 'poster_share') {
-                    $describe = $visitor_nickname.'生成了【'.$photographer_work_customer_name.'】的海报';
+                    $describe = $visitor_nickname.'生成了「'.$photographer_work_customer_name.'】的海报';
+                } elseif ($operateRecord->share_type == 'all_photo_share') {
+                    $describe = $visitor_nickname.'保存了「'.$photographer_work_customer_name.'】的所有照片';
                 }
             }
         } elseif ($operateRecord->operate_type == 'copy_wx') {
             $describe = $visitor_nickname.'复制了微信号';
+        } elseif ($operateRecord->operate_type == 'view_project_amount') {
+            $describe = $visitor_nickname.'查看了「'.$photographer_work_customer_name.'」的项目金额';
         }
 
         return $describe;
