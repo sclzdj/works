@@ -243,10 +243,7 @@ class VisitController extends UserGuardController
             ['photographer_id' => $request->photographer_id, 'user_id' => $user->id]
         )->first();
         if (!$visitor) {
-            $visitor = Visitor::create();
-            $visitor->photographer_id = $request->photographer_id;
-            $visitor->user_id = $user->id;
-            $visitor->save();
+            $visitor = Visitor::create(['photographer_id' => $request->photographer_id, 'user_id' => $user->id]);
             $visitors = Visitor::where(['photographer_id' => $request->photographer_id])->orderBy(
                 'created_at',
                 'desc'
