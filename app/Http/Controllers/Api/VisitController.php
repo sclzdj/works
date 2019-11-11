@@ -243,7 +243,6 @@ class VisitController extends UserGuardController
             ['photographer_id' => $request->photographer_id, 'user_id' => $user->id]
         )->first();
         if (!$visitor) {
-            $visitor = Visitor::create(['photographer_id' => $request->photographer_id, 'user_id' => $user->id]);
             $visitors = Visitor::where(['photographer_id' => $request->photographer_id])->orderBy(
                 'created_at',
                 'desc'
@@ -297,6 +296,7 @@ class VisitController extends UserGuardController
                     }
                 }
             }
+            $visitor = Visitor::create(['photographer_id' => $request->photographer_id, 'user_id' => $user->id]);
             if (!empty($request->in_type) && $request->in_type == 'ranking_list_in') {
                 $visitor->visitor_tag_id = 4;//第一次从人脉排行榜中进入标记为同行
             }
