@@ -70,25 +70,26 @@ class SystemController extends BaseController
             $sms_code->ip = $request->getClientIp();
             $sms_code->expired_at = date('Y-m-d H:i:s', time() + $expire);
             if ($third_type == 'ali') {
-                //发送短信
-                $AliSendShortMessageServer = new AliSendShortMessageServer(
-                    $TemplateCodes[$request->purpose]['TemplateCode']
+                $result = AliSendShortMessageServer::quickSendSms(
+                    $request->mobile,
+                    $TemplateCodes,
+                    $request->purpose,
+                    ['code' => $code],
+                    2
                 );
-                $AliSendShortMessageServer->SignName = $TemplateCodes[$request->purpose]['SignName'];
-                $AliSendShortMessageServer->PhoneNumbers = $request->mobile;
-                $AliSendShortMessageServer->TemplateParam = ['code' => $code];
-                $result = $AliSendShortMessageServer->sendSms();
-                if ($result['status'] != 'SUCCESS') {
+                $ali_result = $result['ali_result'];
+                $sendAliShortMessageLog_id = $result['sendAliShortMessageLog_id'];
+                if ($ali_result['status'] != 'SUCCESS') {
                     \DB::rollback();//回滚事务
 
-                    return $this->response->error($result['message'], 500);
+                    return $this->response->error($ali_result['message'], 500);
                 } else {
-                    if ($result['data']['Code'] != 'OK') {
+                    if ($ali_result['data']['Code'] != 'OK') {
                         \DB::rollback();//回滚事务
 
-                        return $this->response->error($result['data']['Message'], 500);
+                        return $this->response->error($ali_result['data']['Message'], 500);
                     } else {
-                        $sms_code->third_response = json_encode($result['data']);
+                        $sms_code->third_log_id = $sendAliShortMessageLog_id;
                         $sms_code->save();
                         \DB::commit();//提交事务
 

@@ -18,8 +18,8 @@ class CreateAsyncDocPdfMakesTable extends Migration
             function (Blueprint $table) {
                 $table->engine = 'innodb';
                 $table->increments('id');
-                $table->unsignedInteger('user_id')->default(0)->comment('用户ID');
-                $table->unsignedInteger('doc_pdf_id')->default(0)->comment('pdfID');
+                $table->unsignedInteger('user_id')->index()->default(0)->comment('用户ID');
+                $table->unsignedInteger('doc_pdf_id')->index()->default(0)->comment('pdfID');
                 $table->unsignedSmallInteger('status')->default(0)->comment('状态【0:等待中;200:成功;400:删除;500:失败】');
                 $table->timestamps();
             }

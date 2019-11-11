@@ -18,7 +18,7 @@ class CreatePhotographerRankingLogsTable extends Migration
             function (Blueprint $table) {
                 $table->engine = 'innodb';
                 $table->increments('id');
-                $table->unsignedInteger('photographer_id')->default(0)->comment('摄影师ID');
+                $table->unsignedInteger('photographer_id')->index()->default(0)->comment('摄影师ID');
                 $table->unsignedInteger('ranking')->default(0)->comment('排名');
                 $table->timestamps();
             }

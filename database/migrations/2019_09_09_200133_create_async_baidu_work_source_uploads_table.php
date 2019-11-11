@@ -24,6 +24,7 @@ class CreateAsyncBaiduWorkSourceUploadsTable extends Migration
                 $table->unsignedBigInteger('size')->default(0)->comment('大小，单位B');
                 $table->unsignedSmallInteger('status')->default(0)->comment('状态【0:等待中;200:成功;400:删除;500:失败】');
                 $table->timestamps();
+                $table->index('photographer_work_source_id','photographer_work_source_id_index');
             }
         );
         DB::statement("ALTER TABLE `async_baidu_work_source_uploads` COMMENT '前台：异步百度作品资源上传'"); // 表注释

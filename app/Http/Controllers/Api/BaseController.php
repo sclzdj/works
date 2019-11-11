@@ -5,9 +5,26 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Servers\SystemServer;
 use Dingo\Api\Routing\Helpers;
+use Illuminate\Support\Facades\Request;
 
 class BaseController extends Controller
 {
+    public function __construct()
+    {
+        $microtime = explode(' ', microtime());
+        $log_filename = 'logs/api_request/'.date('Y-m-d').'/'.date('H').'.log';
+        $requset_params = Request::all();
+        $log = [];
+        $log['时间'] = date('i:s', $microtime[1]).ltrim($microtime[0],'0');
+        $log['地址'] = $requset_params['s'] ?? '';
+        $log['参数'] = Request::all();
+
+        return SystemServer::filePutContents(
+            $log_filename,
+            json_encode($log, JSON_UNESCAPED_UNICODE).PHP_EOL
+        );
+    }
+
     use helpers;
 
     /**

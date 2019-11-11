@@ -11,6 +11,7 @@ class UserGuardController extends BaseController
 
     public function __construct()
     {
+        parent::__construct();
         // 排除需要验证
         $this->middleware('jwt.auth:'.$this->guard, ['except' => ['login', 'mpLogin']]);
     }

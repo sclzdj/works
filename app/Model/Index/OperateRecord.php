@@ -20,6 +20,7 @@ class OperateRecord extends Model
         'in_type',
         'share_type',
         'shared_user_id',
+        'is_read',
     ];
 
     /**
@@ -47,6 +48,7 @@ class OperateRecord extends Model
             'in_type',
             'share_type',
             'shared_user_id',
+            'is_read',
             'created_at',
         ];
     }

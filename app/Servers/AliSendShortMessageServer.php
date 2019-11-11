@@ -5,6 +5,7 @@ namespace App\Servers;
 use AlibabaCloud\Client\AlibabaCloud;
 use AlibabaCloud\Client\Exception\ClientException;
 use AlibabaCloud\Client\Exception\ServerException;
+use App\Model\Index\SendAliShortMessageLog;
 
 /**
  * 阿里发送短信
@@ -78,6 +79,70 @@ class AliSendShortMessageServer
     }
 
     /**
+     * 记录发送日志
+     * @param $mobile
+     * @param $template_code
+     * @param $content_vars
+     * @param $status
+     * @param $third_response
+     * @return mixed
+     */
+    public static function sendLog($mobile, $template_code, $content_vars, $status, $third_response)
+    {
+        if (is_array($content_vars)) {
+            $content_vars = json_encode($content_vars, JSON_UNESCAPED_UNICODE);
+        }
+        if (is_array($third_response)) {
+            $third_response = json_encode($third_response, JSON_UNESCAPED_UNICODE);
+        }
+        $sendAliShortMessageLog = SendAliShortMessageLog::create();
+        $sendAliShortMessageLog->mobile = $mobile;
+        $sendAliShortMessageLog->template_code = $template_code;
+        $sendAliShortMessageLog->content_vars = $content_vars;
+        $sendAliShortMessageLog->status = $status;
+        $sendAliShortMessageLog->third_response = $third_response;
+        $sendAliShortMessageLog->save();
+
+        return $sendAliShortMessageLog->id;
+    }
+
+    /**
+     * 快捷调用SendSms发送短信
+     * @param $purpose
+     * @param $TemplateCodes
+     * @param $mobile
+     * @param $content_vars
+     * @param $return_type
+     * @return mixed 返回发送短信记录id
+     * @throws ClientException
+     */
+    public static function quickSendSms($mobile, $TemplateCodes, $purpose, $content_vars = [], $return_type = 0)
+    {
+        $AliSendShortMessageServer = new AliSendShortMessageServer(
+            $TemplateCodes[$purpose]['TemplateCode']
+        );
+        $AliSendShortMessageServer->SignName = $TemplateCodes[$purpose]['SignName'];
+        $AliSendShortMessageServer->PhoneNumbers = $mobile;
+        $AliSendShortMessageServer->TemplateParam = $content_vars;
+        $ali_result = $AliSendShortMessageServer->sendSms();
+        $ali_status = ($ali_result['status'] == 'SUCCESS' && $ali_result['data']['Code'] == 'OK') ? 200 : 500;
+        $sendAliShortMessageLog_id = self::sendLog(
+            $mobile,
+            $TemplateCodes[$purpose]['TemplateCode'],
+            $content_vars,
+            $ali_status,
+            $ali_result
+        );
+        if ($return_type == 0) {
+            return $sendAliShortMessageLog_id;
+        } elseif ($return_type == 1) {
+            return $ali_result;
+        } else {
+            return compact('sendAliShortMessageLog_id', 'ali_result', 'ali_status');
+        }
+    }
+
+    /**
      * 调用SendSms发送短信。
      * SendSms接口是短信发送接口，支持在一次请求中向多个不同的手机号码发送同样内容的短信。
      * 如果您需要在一次请求中分别向多个不同的手机号码发送不同签名和模版内容的短信，请使用SendBatchSms接口。
@@ -119,7 +184,7 @@ class AliSendShortMessageServer
         if (!is_null($this->SmsUpExtendCode)) {
             $query['SmsUpExtendCode'] = $this->SmsUpExtendCode;
         }
-        if (!is_null($this->TemplateParam)) {
+        if ($this->TemplateParam) {
             $query['TemplateParam'] = json_encode($this->TemplateParam);
         }
         try {

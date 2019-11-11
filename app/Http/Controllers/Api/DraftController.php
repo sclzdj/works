@@ -9,6 +9,7 @@ use App\Model\Index\PhotographerWork;
 use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\PhotographerWorkTag;
 use App\Model\Index\User;
+use App\Servers\AliSendShortMessageServer;
 use App\Servers\ArrServer;
 use App\Servers\ErrLogServer;
 use App\Servers\SystemServer;
@@ -343,6 +344,18 @@ class DraftController extends UserGuardController
                 );
                 if ($tmr['errcode'] != 0) {
                     ErrLogServer::SendWxGhTemplateMessage($template_id, $user->gh_openid, $tmr['errmsg'], $tmr);
+                }
+            }
+            if ($photographer->mobile) {//发送短信
+                $third_type = config('custom.send_short_message.third_type');
+                $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
+                if ($third_type == 'ali') {
+                    AliSendShortMessageServer::quickSendSms(
+                        $photographer->mobile,
+                        $TemplateCodes,
+                        'register_success',
+                        ['name' => $photographer->name]
+                    );
                 }
             }
             \DB::commit();//提交事务

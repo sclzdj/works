@@ -16,7 +16,6 @@ class Visitor extends Model
         'user_id',
         'is_remind',
         'visitor_tag_id',
-        'unread_count',
         'last_operate_record_at',
     ];
 
@@ -41,7 +40,6 @@ class Visitor extends Model
             'user_id',
             'is_remind',
             'visitor_tag_id',
-            'unread_count',
             'last_operate_record_at',
             'created_at',
         ];

@@ -18,7 +18,7 @@ class CreateBaiduOauthsTable extends Migration
             function (Blueprint $table) {
                 $table->engine = 'innodb';
                 $table->increments('id');
-                $table->unsignedInteger('user_id')->default(0)->comment('用户ID');
+                $table->unsignedInteger('user_id')->index()->default(0)->comment('用户ID');
                 $table->string('access_token', 1000)->default('')->comment('token');
                 $table->timestamp('expired_at')->nullable()->comment('过期时间');
                 $table->timestamps();

@@ -16,7 +16,7 @@ class CreateDocPdfsTable extends Migration
         Schema::create('doc_pdfs', function (Blueprint $table) {
             $table->engine = 'innodb';
             $table->increments('id');
-            $table->unsignedInteger('photographer_id')->default(0)->comment('摄影师ID');
+            $table->unsignedInteger('photographer_id')->index()->default(0)->comment('摄影师ID');
             $table->string('name', 100)->default('')->comment('名称');
             $table->unsignedInteger('estimate_completion_time')->default(0)->comment('预估完成时间,单位秒');
             $table->string('url')->default('')->comment('文档地址');

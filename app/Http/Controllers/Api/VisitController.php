@@ -11,6 +11,7 @@ use App\Model\Index\User;
 use App\Model\Index\ViewRecord;
 use App\Model\Index\Visitor;
 use App\Model\Index\VisitorTag;
+use App\Servers\AliSendShortMessageServer;
 use App\Servers\ArrServer;
 use App\Servers\ErrLogServer;
 use App\Servers\SystemServer;
@@ -237,11 +238,15 @@ class VisitController extends UserGuardController
         Photographer $photographer,
         $operate_records
     ) {
-        $visit_template_message = ['is' => false, 'num' => 0, 'is_remind' => 0];//是否推送该消息，发模板消息
+        $visit_send_message = ['is' => false, 'num' => 0, 'is_remind' => 0];//是否推送该消息，发模板消息
         $visitor = Visitor::where(
             ['photographer_id' => $request->photographer_id, 'user_id' => $user->id]
         )->first();
         if (!$visitor) {
+            $visitor = Visitor::create();
+            $visitor->photographer_id = $request->photographer_id;
+            $visitor->user_id = $user->id;
+            $visitor->save();
             $visitors = Visitor::where(['photographer_id' => $request->photographer_id])->orderBy(
                 'created_at',
                 'desc'
@@ -267,7 +272,7 @@ class VisitController extends UserGuardController
                                 'data' => [
                                     'first' => $photographer->name.'，你的云作品开启任务已完成！快打开云作品小程序，看看你的前 3 个人脉吧。为了方便使用，建议苹果用户将云作品拽入我的小程序，建议安卓用户将云作品设为桌面图标。',
                                     'keyword1' => '已开启',
-                                    'keyword2' => '专业作品集/加水印神器/人脉收割机',
+                                    'keyword2' => '专业作品集\加水印神器\人脉收割机',
                                     'remark' => '更多技巧，请浏览使用帮助。',
                                 ],
                             ]
@@ -282,24 +287,33 @@ class VisitController extends UserGuardController
                         }
                     }
                 }
+                if ($photographer->mobile) {//发送短信
+                    $third_type = config('custom.send_short_message.third_type');
+                    $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
+                    if ($third_type == 'ali') {
+                        AliSendShortMessageServer::quickSendSms(
+                            $photographer->mobile,
+                            $TemplateCodes,
+                            'service_open',
+                            ['name' => $photographer->name]
+                        );
+                    }
+                }
             }
-            $visitor = Visitor::create();
-            $visitor->photographer_id = $request->photographer_id;
-            $visitor->user_id = $user->id;
             if (!empty($request->in_type) && $request->in_type == 'ranking_list_in') {
                 $visitor->visitor_tag_id = 4;//第一次从人脉排行榜中进入标记为同行
             }
             if ($visitors_count + 1 < 3) {
-                $visit_template_message['is'] = true;//第一次发送模板消息，发模板消息
-                $visit_template_message['num'] = $visitors_count + 1;
+                $visit_send_message['is'] = true;//第一次发送模板消息，发模板消息
+                $visit_send_message['num'] = $visitors_count + 1;
             }
         } else {
             if ($visitor->is_remind == 1) {//特别关注，发模板消息
-                $visit_template_message['is'] = true;
-                $visit_template_message['is_remind'] = 1;
+                $visit_send_message['is'] = true;
+                $visit_send_message['is_remind'] = 1;
             }
         }
-        if ($visit_template_message['is'] && $photographer_user->gh_openid != '') {
+        if ($visit_send_message['is'] && $photographer_user->gh_openid != '') {
             $describes = [];
             foreach ($operate_records as $operate_record) {
                 $describes[] = $this->_makeDescribe($operate_record->id);
@@ -308,17 +322,17 @@ class VisitController extends UserGuardController
             $keyword1_text = $user->nickname;
             $keyword2_text = implode('；', $describes);
             $keyword3_text = $user->purePhoneNumber;
-            if ($visit_template_message['is_remind'] == 0) {
-                if ($visit_template_message['num'] == 1) {
+            if ($visit_send_message['is_remind'] == 0) {
+                if ($visit_send_message['num'] == 1) {
                     $first_text = '想知道你的第一个人脉是谁嘛？嘿嘿，再来两个告诉你。';
                     $keyword1_text = '神秘人物1';
                     $keyword3_text = '***********';
-                } elseif ($visit_template_message['num'] == 2) {
+                } elseif ($visit_send_message['num'] == 2) {
                     $first_text = '叮咚！又来了一个，距离开启云作品只差一个人啦。';
                     $keyword1_text = '神秘人物2';
                     $keyword3_text = '***********';
                 }
-            } elseif ($visit_template_message['is_remind'] == 1) {
+            } elseif ($visit_send_message['is_remind'] == 1) {
                 $first_text = $photographer->name.'，你特别关注的人脉有新动态，请及时查看。';
             }
             $app = app('wechat.official_account');
@@ -351,7 +365,24 @@ class VisitController extends UserGuardController
                 );
             }
         }
-        $visitor->unread_count = $visitor->unread_count + count($operate_records);
+        if ($visit_send_message['is'] && $photographer->mobile) {//发送短信
+            if ($visit_send_message['is_remind'] == 0) {
+                if ($visit_send_message['num'] == 1) {
+                    $purpose = 'visit_remind_1';
+                } elseif ($visit_send_message['num'] == 2) {
+                    $purpose = 'visit_remind_2';
+                }
+            }
+            $third_type = config('custom.send_short_message.third_type');
+            $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
+            if ($third_type == 'ali') {
+                AliSendShortMessageServer::quickSendSms(
+                    $photographer->mobile,
+                    $TemplateCodes,
+                    $purpose
+                );
+            }
+        }
         $visitor->last_operate_record_at = date('Y-m-d H:i:s');
         $visitor->save();
     }
@@ -448,6 +479,9 @@ class VisitController extends UserGuardController
         );
         $visitors = SystemServer::parsePaginate($visitors->toArray());
         foreach ($visitors['data'] as $k => $visitor) {
+            $visitors['data'][$k]['unread_count'] = OperateRecord::where(
+                ['user_id' => $visitor['user_id'], 'photographer_id' => $visitor['photographer_id'], 'is_read' => 0]
+            )->count();
             $operateRecord = OperateRecord::where(
                 ['user_id' => $visitor['user_id'], 'photographer_id' => $visitor['photographer_id']]
             )->orderBy('created_at', 'desc')->orderBy("id", "desc")->first();
@@ -457,10 +491,10 @@ class VisitController extends UserGuardController
             }
             $visitors['data'][$k]['describe'] = $describe;
             $visitor_tag_type = 0;//未知
-            $unread_count = OperateRecord::where(
-                ['user_id' => $visitor['user_id'], 'photographer_id' => $visitor['photographer_id']]
+            $read_count = OperateRecord::where(
+                ['user_id' => $visitor['user_id'], 'photographer_id' => $visitor['photographer_id'], 'is_read' => 1]
             )->count();
-            if ($unread_count == $visitor['unread_count']) {
+            if ($read_count == 0) {
                 $visitor_tag_type = 1;//新客
             } else {
                 if ($visitor['visitor_tag_id'] > 0) {
@@ -486,7 +520,7 @@ class VisitController extends UserGuardController
     {
         $this->notPhotographerIdentityVerify();
         $photographer = User::photographer(null, $this->guard);
-        $all_unread_count = Visitor::where(['photographer_id' => $photographer->id])->sum('unread_count');
+        $all_unread_count = OperateRecord::where(['photographer_id' => $photographer->id, 'is_read' => 0])->count();
 
         return $this->responseParseArray(compact('all_unread_count'));
     }
@@ -530,10 +564,11 @@ class VisitController extends UserGuardController
 
                 return $this->response->error('访客信息有误', 500);
             }
-            $visitor->unread_count = 0;//未读置0
             $visitor->save();
+            OperateRecord::where(
+                ['user_id' => $visitor->user_id, 'photographer_id' => $photographer->id, 'is_read' => 0]
+            )->update(['is_read' => 1]);
             $visitor = $visitor->toArray();
-            unset($visitor['unread_count']);
             $visitor['user'] = User::select(User::allowFields())->where('id', $visitor['user_id'])->first()->toArray();
             $operateRecord = OperateRecord::where(
                 [

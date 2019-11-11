@@ -16,9 +16,9 @@ class CreateSystemUserNodesTable extends Migration
         Schema::create('system_user_nodes', function (Blueprint $table) {
             $table->engine = 'innodb';
             $table->increments('id');
-            $table->unsignedInteger('system_user_id')->default(0)
+            $table->unsignedInteger('system_user_id')->index()->default(0)
                 ->comment('账号');
-            $table->unsignedInteger('system_node_id')->default(0)
+            $table->unsignedInteger('system_node_id')->index()->default(0)
                 ->comment('节点');
         });
         DB::statement("ALTER TABLE `system_user_nodes` COMMENT '后台:账号节点直赋'"); // 表注释

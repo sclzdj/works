@@ -16,7 +16,7 @@ class CreateRandomPhotographersTable extends Migration
         Schema::create('random_photographers', function (Blueprint $table) {
             $table->engine = 'innodb';
             $table->increments('id');
-            $table->unsignedInteger('user_id')->default(0)->comment('用户ID');
+            $table->unsignedInteger('user_id')->index()->default(0)->comment('用户ID');
             $table->unsignedInteger('photographer_id')->default(0)->comment('摄影师ID');
             $table->timestamps();
         });

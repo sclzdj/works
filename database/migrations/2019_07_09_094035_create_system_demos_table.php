@@ -17,18 +17,18 @@ class CreateSystemDemosTable extends Migration {
             $table->increments('id');
             $table->string('name')->unique()->default('')->comment('标识');
             $table->longText('value')->comment('值');
-            //            $table->string('demo_text_1')->default('')->comment('输入框_1');
-            //            $table->string('demo_text_2')->default('')->comment('输入框_2');
-            //            $table->string('demo_textarea_1',1000)->default('')->comment('文本域_1');
-            //            $table->string('demo_textarea_2',1000)->default('')->comment('文本域_2');
-            //            $table->string('demo_radio_1')->default('')->comment('单选按钮_1');
-            //            $table->string('demo_radio_2')->default('')->comment('单选按钮_2');
-            //            $table->string('demo_checkbox_1')->default('')->comment('多选按钮_1');
-            //            $table->string('demo_checkbox_2')->default('')->comment('多选按钮_2');
-            //            $table->string('demo_select_1')->default('')->comment('下拉选择_1');
-            //            $table->string('demo_select_2')->default('')->comment('下拉选择_2');
-            //            $table->string('demo_select2_1')->default('')->comment('查找下拉选择_1');
-            //            $table->string('demo_select2_2')->default('')->comment('查找下拉选择_2');
+            $table->string('demo_text_1')->default('')->comment('输入框_1');
+            $table->string('demo_text_2')->default('')->comment('输入框_2');
+            $table->string('demo_textarea_1', 1000)->default('')->comment('文本域_1');
+            $table->string('demo_textarea_2', 1000)->default('')->comment('文本域_2');
+            $table->string('demo_radio_1')->default('')->comment('单选按钮_1');
+            $table->string('demo_radio_2')->default('')->comment('单选按钮_2');
+            $table->string('demo_checkbox_1')->default('')->comment('多选按钮_1');
+            $table->string('demo_checkbox_2')->default('')->comment('多选按钮_2');
+            $table->string('demo_select_1')->default('')->comment('下拉选择_1');
+            $table->string('demo_select_2')->default('')->comment('下拉选择_2');
+            $table->string('demo_select2_1')->default('')->comment('查找下拉选择_1');
+            $table->string('demo_select2_2')->default('')->comment('查找下拉选择_2');
         }
         );
         DB::statement("ALTER TABLE `system_configs` COMMENT '后台:系统示例'"); // 表注释

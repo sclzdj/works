@@ -15,7 +15,7 @@ class CreateCrowdFundingOrdersTable extends Migration
     {
         Schema::create('crowd_funding_orders', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('user_id')->default(0)->comment('用户ID');
+            $table->unsignedInteger('user_id')->index()->default(0)->comment('用户ID');
             $table->string("order_trade_no", 255)->default("")->comment("用户电话");
             $table->unsignedInteger("pay_status")->default(0)->comment("是否支付 0未支付,1支付");
             $table->unsignedInteger("type")->default(0)->comment("参与的众筹档0未参与,1 2 3个档位");

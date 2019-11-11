@@ -16,9 +16,9 @@ class CreateSystemUserRolesTable extends Migration
         Schema::create('system_user_roles', function (Blueprint $table) {
             $table->engine = 'innodb';
             $table->increments('id');
-            $table->unsignedInteger('system_user_id')->default(0)
+            $table->unsignedInteger('system_user_id')->index()->default(0)
                 ->comment('账号');
-            $table->unsignedInteger('system_role_id')->default(0)
+            $table->unsignedInteger('system_role_id')->index()->default(0)
                 ->comment('角色');
         });
         DB::statement("ALTER TABLE `system_user_roles` COMMENT '后台:账号角色所属'"); // 表注释

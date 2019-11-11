@@ -48,6 +48,7 @@ class LoginController extends UserGuardController
                 $user->openid = $data['openid'];
                 $userPresetCreate = User::presetCreate();
                 $user->photographer_id = $userPresetCreate['photographer_id'];
+                $user->save();
                 $xacode = User::createXacode($userPresetCreate['photographer_id']);
                 $user->xacode = $xacode;
             }

@@ -15,7 +15,7 @@ class CreateSystemAreasTable extends Migration
     {
         Schema::create('system_areas', function (Blueprint $table) {
             $table->engine = 'innodb';
-            $table->unsignedInteger('id')->default(0)->comment('ID');
+            $table->unsignedInteger('id')->unique()->default(0)->comment('ID');
             $table->string('name')->index()->default('')->comment('名称');
             $table->unsignedInteger('pid')->default(0)->comment('父级ID');
             $table->string('short_name')->index()->default('')->comment('简称');

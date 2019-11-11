@@ -16,9 +16,9 @@ class CreateSystemRoleNodesTable extends Migration
         Schema::create('system_role_nodes', function (Blueprint $table) {
             $table->engine = 'innodb';
             $table->increments('id');
-            $table->unsignedInteger('system_role_id')->default(0)
+            $table->unsignedInteger('system_role_id')->index()->default(0)
                 ->comment('角色');
-            $table->unsignedInteger('system_node_id')->default(0)
+            $table->unsignedInteger('system_node_id')->index()->default(0)
                 ->comment('节点');
         });
         DB::statement("ALTER TABLE `system_role_nodes` COMMENT '后台:角色节点分配'"); // 表注释

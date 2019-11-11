@@ -16,8 +16,8 @@ class CreateViewRecordsTable extends Migration
         Schema::create('view_records', function (Blueprint $table) {
             $table->engine = 'innodb';
             $table->increments('id');
-            $table->unsignedInteger('user_id')->default(0)->comment('用户ID');
-            $table->unsignedInteger('photographer_id')->default(0)->comment('访问的摄影师ID');
+            $table->unsignedInteger('user_id')->index()->default(0)->comment('用户ID');
+            $table->unsignedInteger('photographer_id')->index()->default(0)->comment('访问的摄影师ID');
             $table->unsignedTinyInteger('is_newest')->default(0)->comment('是否最新【0:否;1:是】');
             $table->timestamps();
         });

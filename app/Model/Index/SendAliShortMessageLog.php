@@ -4,7 +4,7 @@ namespace App\Model\Index;
 
 use Illuminate\Database\Eloquent\Model;
 
-class SmsCode extends Model
+class SendAliShortMessageLog extends Model
 {
     /**
      * The attributes that are mass assignable.
@@ -13,13 +13,10 @@ class SmsCode extends Model
      */
     protected $fillable = [
         'mobile',
-        'code',
-        'purpose',
-        'ip',
-        'is_used',
-        'third_type',
-        'third_log_id',
-        'expired_at',
+        'template_code',
+        'content_vars',
+        'status',
+        'third_response',
     ];
 
     /**
@@ -27,23 +24,23 @@ class SmsCode extends Model
      *
      * @var array
      */
-    protected $hidden = [];
+    protected $hidden = [
+
+    ];
 
     /**
      * 允许查询的字段
      * @return array
      */
-    public static function allowFields() {
+    public static function allowFields()
+    {
         return [
             'id',
             'mobile',
-            'code',
-            'purpose',
-            'ip',
-            'is_used',
-            'third_type',
-            'third_log_id',
-            'expired_at',
+            'template_code',
+            'content_vars',
+            'status',
+            'third_response',
             'created_at',
         ];
     }

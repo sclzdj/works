@@ -21,7 +21,7 @@ class CreateInvoteCodesTable extends Migration
             $table->unsignedInteger('status')->default(0)->comment("状态 0未使用，1已占用 2已使用");
             $table->unsignedInteger('is_use')->default(0)->comment("是否使用过 0 未使用 1使用过");
             $table->unsignedInteger('is_send')->default(0)->comment("是否发送了邀请码 0 未发送 1发送了");
-            $table->unsignedInteger('user_id')->default(0)->comment('用户ID');
+            $table->unsignedInteger('user_id')->index()->default(0)->comment('用户ID');
             $table->unsignedInteger('order_id')->default(0)->comment("通过订单创建的邀请码");
             $table->timestamps();
         });
