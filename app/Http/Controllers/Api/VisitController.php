@@ -319,15 +319,18 @@ class VisitController extends UserGuardController
             $keyword1_text = $user->nickname;
             $keyword2_text = implode('；', $describes);
             $keyword3_text = $user->purePhoneNumber;
+            $miniprogram_pagepath = 'pages/visitorDetails/visitorDetails?id='.$visitor->id;//访客详情页
             if ($visit_send_message['is_remind'] == 0) {
                 if ($visit_send_message['num'] == 1) {
                     $first_text = '想知道你的第一个人脉是谁嘛？嘿嘿，再来两个告诉你。';
                     $keyword1_text = '神秘人物1';
                     $keyword3_text = '***********';
+                    $miniprogram_pagepath = 'subPage/share/share';//注册成功分享页
                 } elseif ($visit_send_message['num'] == 2) {
                     $first_text = '叮咚！又来了一个，距离开启云作品只差一个人啦。';
                     $keyword1_text = '神秘人物2';
                     $keyword3_text = '***********';
+                    $miniprogram_pagepath = 'subPage/share/share';//注册成功分享页
                 }
             } elseif ($visit_send_message['is_remind'] == 1) {
                 $first_text = $photographer->name.'，你特别关注的人脉有新动态，请及时查看。';
@@ -341,7 +344,7 @@ class VisitController extends UserGuardController
                     'url' => config('app.url'),
                     'miniprogram' => [
                         'appid' => config('custom.wechat.mp.appid'),
-                        'pagepath' => 'pages/visitorDetails/visitorDetails?id='.$visitor->id,//访客详情页
+                        'pagepath' => $miniprogram_pagepath,
                     ],
                     'data' => [
                         'first' => $first_text,

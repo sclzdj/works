@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\InvoteCode;
 use App\Http\Controllers\Admin\BaseController;
 use App\Model\Index\InvoteCode;
 use App\Model\Index\User;
+use App\Servers\AliSendShortMessageServer;
 use Illuminate\Http\Request;
 use Log;
 
@@ -37,20 +38,25 @@ class IndexController extends BaseController
         $page = ($page - 1) * $size;
 
         $where = [];
-        if ($form['type'] != 0)
+        if ($form['type'] != 0) {
             $where[] = ['type', $form['type']];
+        }
 
-        if ($form['status'] != -1)
+        if ($form['status'] != -1) {
             $where[] = ['status', $form['status']];
+        }
 
-        if ($form['is_send'] != -1)
+        if ($form['is_send'] != -1) {
             $where[] = ['is_send', $form['is_send']];
+        }
 
-        if (isset($form['created_at'][0]))
-            $where[] = array("created_at", ">=", $form['created_at'][0] . ' 00:00:01');
+        if (isset($form['created_at'][0])) {
+            $where[] = array("created_at", ">=", $form['created_at'][0].' 00:00:01');
+        }
 
-        if (isset($form['created_at'][1]))
-            $where[] = array("created_at", "<=", $form['created_at'][1] . ' 23:59:59');
+        if (isset($form['created_at'][1])) {
+            $where[] = array("created_at", "<=", $form['created_at'][1].' 23:59:59');
+        }
 
         $data = InvoteCode::where($where)->skip($page)->take($size)->orderBy('created_at', 'desc')->get();
         $count = InvoteCode::where($where)->count();
@@ -59,6 +65,7 @@ class IndexController extends BaseController
             $datum['type'] = $datum['type'] == 1 ? '用户创建' : '后台创建';
             $datum['status'] = $statusArr[$datum['status']] ?? '未知';
         }
+
         return response()->json(compact('data', 'count'));
     }
 
@@ -75,15 +82,17 @@ class IndexController extends BaseController
                 $number = intval($request->input('number'));
 
                 if ($number > 30) {
-                    return response()->json([
-                        'result' => false,
-                        'msg' => '一次最多生成30个邀请码'
-                    ]);
+                    return response()->json(
+                        [
+                            'result' => false,
+                            'msg' => '一次最多生成30个邀请码',
+                        ]
+                    );
                 }
 
                 for ($i = 0; $i < $number; $i++) {
                     $invoteCode = new InvoteCode();
-                    $invoteCode->code = substr($i . $this->str_Rand(3) . mt_rand(0, 9999), 0, 6);
+                    $invoteCode->code = substr($i.$this->str_Rand(3).mt_rand(0, 9999), 0, 6);
                     $invoteCode->type = 2;
                     $invoteCode->status = 0;
                     $invoteCode->user_id = 0;
@@ -98,10 +107,12 @@ class IndexController extends BaseController
                 break;
             case 'send':
                 $app = app('wechat.official_account');
-                $datas = InvoteCode::where([
-                    'type' => 1,
-                    'is_send' => 0
-                ])->whereIn('status', [0, 1])->get();
+                $datas = InvoteCode::where(
+                    [
+                        'type' => 1,
+                        'is_send' => 0,
+                    ]
+                )->whereIn('status', [0, 1])->get();
 
                 foreach ($datas as $data) {
                     if ($data['user_id'] == 0) {
@@ -117,14 +128,15 @@ class IndexController extends BaseController
                                     'appid' => config('wechat.payment.default.app_id'),
                                     'pagepath' => '/pages/web/web',
                                 ],
-                              //  'url' => 'https://www.zuopin.cloud/oauth/invotecode?userId=' . $userInfo->id,
+                                'url' => config('app.url'),
+                                //  'url' => 'https://www.zuopin.cloud/oauth/invotecode?userId=' . $userInfo->id,
                                 'data' => [
-                                    'first' => $userInfo->nickname . '你的云作品注册码已经生成，请点击详情开始注册。使用中，无论你有任何问题或建议，都可以通过使用帮助告诉我们，我们会重视你说的每一个字',
+                                    'first' => $userInfo->nickname.'你的云作品注册码已经生成，请点击详情开始注册。使用中，无论你有任何问题或建议，都可以通过使用帮助告诉我们，我们会重视你说的每一个字',
                                     'keyword1' => $userInfo->nickname,
                                     'keyword2' => $userInfo->phoneNumber,
                                     'keyword3' => $data['code'],
                                     'keyword4' => date('Y-m-d'),
-                                    'remark' => '注册码只能使用一次，在完成注册前，请勿将其外泄。'
+                                    'remark' => '注册码只能使用一次，在完成注册前，请勿将其外泄。',
                                 ],
                             ]
                         );
@@ -133,19 +145,40 @@ class IndexController extends BaseController
                             InvoteCode::where('id', $data['id'])->update(['is_send' => 1]);
                         }
                     }
+                    if ($userInfo->purePhoneNumber != '') {
+                        //发送短信
+                        $third_type = config('custom.send_short_message.third_type');
+                        $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
+                        if ($third_type == 'ali') {
+                            AliSendShortMessageServer::quickSendSms(
+                                $userInfo->purePhoneNumber,
+                                $TemplateCodes,
+                                'register_code_generate',
+                                [
+                                    'code' => $data['code'],
+                                ]
+                            );
+                        }
+                    }
                 }
-                return response()->json([
-                    'result' => true,
-                    'msg' => $datas
-                ]);
+
+                return response()->json(
+                    [
+                        'result' => true,
+                        'msg' => $datas,
+                    ]
+                );
                 break;
             default:
                 break;
         }
-        return response()->json([
-            'result' => true,
-            'msg' => '生成成功'
-        ]);
+
+        return response()->json(
+            [
+                'result' => true,
+                'msg' => '生成成功',
+            ]
+        );
     }
 
     /**
@@ -156,6 +189,7 @@ class IndexController extends BaseController
     private function str_Rand($length)
     {
         $strs = "QWERTYUIOPASDFGHJKLZXCVBNM1234567890";
+
         return substr(str_shuffle($strs), mt_rand(0, strlen($strs) - 11), $length);
     }
 }

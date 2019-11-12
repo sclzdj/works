@@ -53,6 +53,7 @@ class PhotographerRanking extends Command
 //比赛名称：云作品人脉排行榜
 //获得奖项：XX 名
 //备注：点击详情查看
+        set_time_limit(0);
         $rankingList = PhotographerServer::visitorRankingList(50);
         $date = date('Y-m-d');
         $time = date('Y-m-d H:i:s');

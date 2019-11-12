@@ -58,6 +58,7 @@ class VisitSummary extends Command
 //昨日活跃人脉：XXX 人（新模板增加）
 //昨日累计人脉：XXX 人（新模板增加）
 //备注：昨日新增人脉 XXX/活跃人脉 XXX/累计人脉 XXX（新模板删除）
+        set_time_limit(0);
         $photographers = $this->getPhotographerList();
         foreach ($photographers as $k => $photographer) {
             if ($photographer->gh_openid != '') {
@@ -120,7 +121,7 @@ class VisitSummary extends Command
         $fields = array_merge($fields, ['`users`.`nickname`', '`users`.`gh_openid`']);
         $fields = implode(',', $fields);
         $yesterday = date('Y-m-d', strtotime('-1 days'));
-        $sql = "SELECT {$fields},(SELECT count(*) FROM `visitors` WHERE `visitors`.`photographer_id`=`photographers`.`id` AND date(`created_at`) = '{$yesterday}') AS `visitor_yesterday_count`,(SELECT count(distinct `user_id`) FROM `operate_records` WHERE `operate_records`.`photographer_id`=`photographers`.`id` AND date(`created_at`) = '{$yesterday}') AS `visitor_yesterday_active_count`,(SELECT count(*) FROM `visitors` WHERE `visitors`.`photographer_id`=`photographers`.`id`) AS `visitor_count` FROM `photographers` LEFT JOIN `users` ON `photographers`.`id`=`users`.`photographer_id` WHERE `photographers`.`status`=200 ORDER BY `visitor_yesterday_count` DESC,`visitor_yesterday_active_count` DESC,`visitor_count` DESC,`photographers`.`created_at` ASC";
+        $sql = "SELECT {$fields},(SELECT count(*) FROM `visitors` WHERE `visitors`.`photographer_id`=`photographers`.`id` AND date(`created_at`) = '{$yesterday}') AS `visitor_yesterday_count`,(SELECT count(distinct `user_id`) FROM `operate_records` WHERE `operate_records`.`photographer_id`=`photographers`.`id` AND date(`created_at`) = '{$yesterday}') AS `visitor_yesterday_active_count`,(SELECT count(*) FROM `visitors` WHERE `visitors`.`photographer_id`=`photographers`.`id`) AS `visitor_count` FROM `photographers` LEFT JOIN `users` ON `photographers`.`id`=`users`.`photographer_id` WHERE`users`.`is_formal_photographer`=1 AND `photographers`.`status`=200 ORDER BY `visitor_yesterday_count` DESC,`visitor_yesterday_active_count` DESC,`visitor_count` DESC,`photographers`.`created_at` ASC";
         $photographers = \DB::select($sql, []);
 
         return $photographers;

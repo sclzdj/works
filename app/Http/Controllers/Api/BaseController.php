@@ -15,7 +15,8 @@ class BaseController extends Controller
         $log_filename = 'logs/api_request/'.date('Y-m-d').'/'.date('H').'.log';
         $requset_params = Request::all();
         $log = [];
-        $log['时间'] = date('i:s', $microtime[1]).ltrim($microtime[0],'0');
+        $log['时间'] = date('i:s', $microtime[1]).ltrim($microtime[0], '0');
+        $log['来源'] = Request::getClientIp();
         $log['地址'] = $requset_params['s'] ?? '';
         $log['参数'] = Request::all();
 
