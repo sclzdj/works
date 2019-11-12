@@ -86,7 +86,6 @@ class ViewSummary extends Command
             Photographer::allowFields()
         );
         $fields = implode(',', $fields);
-        $yesterday = date('Y-m-d', strtotime('-1 days'));
         $sql = "SELECT {$fields},(SELECT count(*) FROM `visitors` WHERE `visitors`.`photographer_id`=`photographers`.`id` AND `created_at` >= '{$week_start}' AND `created_at` <= '{$week_end}') AS `visitor_week_count`,(SELECT count(*) FROM `operate_records` WHERE `operate_records`.`photographer_id`=`photographers`.`id` AND `created_at` >= '{$week_start}' AND `created_at` <= '{$week_end}') AS `record_week_count` FROM `photographers` LEFT JOIN `users` ON `photographers`.`id`=`users`.`photographer_id` WHERE `users`.`is_formal_photographer`=1 AND `photographers`.`mobile` is not null AND `photographers`.`mobile`!='' AND `photographers`.`status`=200 ORDER BY `visitor_week_count` DESC,`record_week_count` DESC,`photographers`.`created_at` ASC";
         $photographers = \DB::select($sql, []);
 
