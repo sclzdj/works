@@ -90,6 +90,7 @@ class MiniProgramController extends BaseController
 
                     $userInfo = User::where('id', $orderInfo->user_id)->first();
                     if ($userInfo->gh_openid) {
+                        $nickeName = $userInfo->is_wx_authorize == 1 ? $userInfo->nickname : '亲';
                         $tmr = $app->template_message->send(
                             [
                                 'touser' => $userInfo->gh_openid,
@@ -99,10 +100,7 @@ class MiniProgramController extends BaseController
                                     'pagepath' => '/subPage/crouwdPay/crouwdPay',
                                 ],
                                 'data' => [
-                                    'first' => '亲,
-感谢你对云作品团队的信任!我们将于在 2019 年 11 月 18 日,通过公众号向你推送云作品注册码。
-
-备注:云作品微信客服 JUSHEKEJI。',
+                                    'first' => $nickeName . ', 感谢你对云作品团队的信任! 我们将于2019年11月18日，通过公众号向你推送云作品注册码。备注：云作品微信客服 JUSHEKEJI。',
                                     'keyword1' => '云作品众筹',
                                     'keyword2' => "成功",
                                 ],
