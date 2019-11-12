@@ -113,18 +113,18 @@ class IndexController extends BaseController
                             [
                                 'touser' => $userInfo->gh_openid,
                                 'template_id' => 'D0A51QNL0-EI_fA65CJQQ4LKotXelLNoATCwtpvwFco',
-//                                'miniprogram' => [
-//                                    'appid' => config('wechat.payment.default.app_id'),
-//                                    'pagepath' => '/subPage/crouwdPay/crouwdPay',
-//                                ],
-                                'url' => 'https://www.zuopin.cloud/oauth/invotecode?userId=' . $userInfo->id,
+                                'miniprogram' => [
+                                    'appid' => config('wechat.payment.default.app_id'),
+                                    'pagepath' => '/pages/web/web',
+                                ],
+                              //  'url' => 'https://www.zuopin.cloud/oauth/invotecode?userId=' . $userInfo->id,
                                 'data' => [
-                                    'first' => $userInfo->nickname . '你的云作品注册码已经生成，请点击详情开始注册。使用中，无论你 有任何问题或建议，都可以通过使用帮助告诉我们，我们会重视你说的每一 个字',
+                                    'first' => $userInfo->nickname . '你的云作品注册码已经生成，请点击详情开始注册。使用中，无论你有任何问题或建议，都可以通过使用帮助告诉我们，我们会重视你说的每一个字',
                                     'keyword1' => $userInfo->nickname,
                                     'keyword2' => $userInfo->phoneNumber,
                                     'keyword3' => $data['code'],
                                     'keyword4' => date('Y-m-d'),
-                                    'remark' => '注册码只能使用一次，在完成注册前，请勿将其外泄'
+                                    'remark' => '注册码只能使用一次，在完成注册前，请勿将其外泄。'
                                 ],
                             ]
                         );

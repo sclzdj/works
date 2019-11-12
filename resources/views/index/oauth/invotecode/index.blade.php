@@ -34,7 +34,7 @@
         	margin-top: 0.48rem;
         	line-height: 1.466666rem;
         }
-        
+
         input::-webkit-input-placeholder {
             /* Chrome/Opera/Safari */
             font-size: 0.48rem;
@@ -42,7 +42,7 @@
             font-weight: 400;
             color: rgba(200, 200, 200, 1);
         }
-        
+
         input::-moz-placeholder {
             /* Firefox 19+ */
             font-size: 0.48rem;
@@ -50,7 +50,7 @@
             font-weight: 500;
             color: rgba(200, 200, 200, 1);
         }
-        
+
         input:-ms-input-placeholder {
             /* IE 10+ */
             font-size: 0.48rem;
@@ -58,7 +58,7 @@
             font-weight: 500;
             color: rgba(200, 200, 200, 1);
         }
-        
+
         input:-moz-placeholder {
             /* Firefox 18- */
             font-size: 0.48rem;
@@ -68,7 +68,7 @@
         }
     </style>
     <script type="text/javascript" charset="utf-8">
-        wx.config(<?php echo $app->jssdk->buildConfig(array(), false) ?>);
+        wx.config(<?php echo $app->jssdk->buildConfig(array('checkJSApi'), false) ?>);
     </script>
 
     <script type="application/javascript">
@@ -88,7 +88,7 @@
 		    <div class="" style="font-size:0.333333rem;font-family:PingFang SC;font-weight:500;color:rgba(255,255,255,1);margin-left: 0.23rem;margin-top: -0.026666rem;">怎样获得邀请码</div>
 		</div>
 	</div>
-    <img src="{{asset('images/phone.png')}}" style="margin: auto;width: 6.013333rem;height: 9.653333rem;position: fixed;bottom: 0;left: 50%;margin-left: -3rem;" />
+    <img src="{{asset('images/phone.png')}}" style="margin: auto;width: 6.013333rem;height: 9.653333rem;position: absolute;bottom: 0;left: 50%;margin-left: -3rem;" />
 </div>
 <script src="{{asset('/static/admin/js/core/jquery.min.js')}}"></script>
 
@@ -103,7 +103,6 @@
                 wx.miniProgram.navigateTo({url: "/subPage/crouwdUp/crouwdUp"})
             },
             inputWrite:function(){
-
                 if (this.inputData.length === 6) {
                     var data = {
                         'code': this.inputData,
@@ -115,7 +114,7 @@
                         url: '/api/invote/query',
                         data: data,
                         success: function (response) {
-                            if (response.data.result === true) {
+                            if (response.data.result == true) {
                                 wx.miniProgram.redirectTo({url: "/pages/login2/login2"})
                             } else {
                                 alert(response.data.msg);
