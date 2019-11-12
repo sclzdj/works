@@ -317,7 +317,7 @@ class VisitController extends UserGuardController
             }
             $first_text = $photographer->name.'，人脉有新动态，请及时查看。';
             $keyword1_text = $user->nickname;
-            $keyword2_text = implode('；', $describes);
+            $keyword2_text = implode('并', $describes);
             $keyword3_text = $user->purePhoneNumber;
             $miniprogram_pagepath = 'pages/visitorDetails/visitorDetails?id='.$visitor->id;//访客详情页
             if ($visit_send_message['is_remind'] == 0) {
