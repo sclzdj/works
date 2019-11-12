@@ -282,17 +282,17 @@ class VisitController extends UserGuardController
                             );
                         }
                     }
-                }
-                if ($photographer->mobile) {//发送短信
-                    $third_type = config('custom.send_short_message.third_type');
-                    $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
-                    if ($third_type == 'ali') {
-                        AliSendShortMessageServer::quickSendSms(
-                            $photographer->mobile,
-                            $TemplateCodes,
-                            'service_open',
-                            ['name' => $photographer->name]
-                        );
+                    if ($photographer->mobile) {//发送短信
+                        $third_type = config('custom.send_short_message.third_type');
+                        $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
+                        if ($third_type == 'ali') {
+                            AliSendShortMessageServer::quickSendSms(
+                                $photographer->mobile,
+                                $TemplateCodes,
+                                'service_open',
+                                ['name' => $photographer->name]
+                            );
+                        }
                     }
                 }
             }
