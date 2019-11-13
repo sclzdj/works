@@ -366,6 +366,7 @@ class VisitController extends UserGuardController
             }
         }
         if ($visit_send_message['is'] && $photographer->mobile) {//发送短信
+            $purpose = '';
             if ($visit_send_message['is_remind'] == 0) {
                 if ($visit_send_message['num'] == 1) {
                     $purpose = 'visit_remind_1';
@@ -373,14 +374,16 @@ class VisitController extends UserGuardController
                     $purpose = 'visit_remind_2';
                 }
             }
-            $third_type = config('custom.send_short_message.third_type');
-            $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
-            if ($third_type == 'ali') {
-                AliSendShortMessageServer::quickSendSms(
-                    $photographer->mobile,
-                    $TemplateCodes,
-                    $purpose
-                );
+            if ($purpose) {
+                $third_type = config('custom.send_short_message.third_type');
+                $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
+                if ($third_type == 'ali') {
+                    AliSendShortMessageServer::quickSendSms(
+                        $photographer->mobile,
+                        $TemplateCodes,
+                        $purpose
+                    );
+                }
             }
         }
         $visitor->last_operate_record_at = date('Y-m-d H:i:s');
