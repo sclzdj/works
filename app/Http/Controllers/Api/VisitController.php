@@ -688,7 +688,7 @@ class VisitController extends UserGuardController
                 if ($operateRecord->page_name == 'photographer_home') {
                     $describe = '扫描你的主页小程序码进入';
                 } elseif ($operateRecord->page_name == 'photographer_work') {
-                    $describe = '通过扫描「'.$photographer_work_customer_name.'」的小程序码进入';
+                    $describe = '扫描「'.$photographer_work_customer_name.'」的小程序码进入';
                 }
             } elseif ($operateRecord->in_type == 'xacard_in') {
                 $describe = '通过'.$shared_user_nickname.'分享的小程序卡片进入';

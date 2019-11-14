@@ -128,7 +128,7 @@ class SystemServer
     /**
      * 格式化作品集封面数据
      * @param $data 数据
-     * @param $random 是否随机取一张图片，否则取第一张
+     * @param $random 是否随机取一个资源，否则取第一张
      * @return array
      */
     public static function parsePhotographerWorkCover($data, $random = false)
@@ -138,7 +138,7 @@ class SystemServer
                 $data[$k] = self::parsePhotographerWorkCover($v, false);
             } else {
                 if ($k == 'id' && !isset($data['cover'])) {
-                    $where = ['photographer_work_id' => $v, 'type' => 'image', 'status' => 200];
+                    $where = ['photographer_work_id' => $v, 'status' => 200];
                     $total = PhotographerWorkSource::where($where)->count();
                     $data['cover'] = '';
                     if ($total > 0) {
@@ -375,7 +375,7 @@ class SystemServer
         $response = curl_exec($curl);
         $code = curl_errno($curl);
         if ($code !== 0) {
-            return ['code' => 500, 'msg' => 'curl request error：'. curl_error($curl)];
+            return ['code' => 500, 'msg' => 'curl request error：'.curl_error($curl)];
         } else {
             $data = is_null(json_decode($response, true)) ? $response : json_decode($response, true);
 

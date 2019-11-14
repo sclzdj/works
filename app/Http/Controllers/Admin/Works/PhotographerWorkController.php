@@ -748,14 +748,32 @@ class PhotographerWorkController extends BaseController
      *
      * @param int $id
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id, Request $request)
     {
         \DB::beginTransaction();//开启事务
         try {
             if ($id > 0) {
-                PhotographerWork::where('id', $id)->update(['status' => 400]);
+                $photographer_work = PhotographerWork::where(
+                    ['status' => 200, 'id' => $id]
+                )->first();
+                if (!$photographer_work) {
+                    \DB::rollback();//回滚事务
+
+                    return $this->response('摄影师作品集不存在', 500);
+                }
+                $count = PhotographerWork::where('id', '!=', $id)->where(
+                    ['photographer_id' => $photographer_work->photographer_id, 'status' => 200]
+                )->count();
+                if ($count == 0) {
+                    \DB::rollback();//回滚事务
+
+                    return $this->response('每个摄影师至少保留一个作品集', 500);
+                }
+                $photographer_work->status = 400;
+                $photographer_work->save();
+
                 \DB::commit();//提交事务
 
                 return $this->response('删除成功', 200);
@@ -763,7 +781,24 @@ class PhotographerWorkController extends BaseController
                 $ids = is_array($request->ids) ?
                     $request->ids :
                     explode(',', $request->ids);
-                PhotographerWork::whereIn('id', $ids)->update(['status' => 400]);
+                foreach ($ids as $id) {
+                    $photographer_work = PhotographerWork::where(
+                        ['status' => 200, 'id' => $id]
+                    )->first();
+                    if (!$photographer_work) {
+                        continue;
+                    }
+                    $count = PhotographerWork::whereNotIn('id', $ids)->where(
+                        ['photographer_id' => $photographer_work->photographer_id, 'status' => 200]
+                    )->count();
+                    if ($count == 0) {
+                        \DB::rollback();//回滚事务
+
+                        return $this->response('每个摄影师至少保留一个作品集', 500);
+                    }
+                    $photographer_work->status = 400;
+                    $photographer_work->save();
+                }
                 \DB::commit();//提交事务
 
                 return $this->response('批量删除成功', 200);

@@ -47,29 +47,25 @@ class VisitSummary extends Command
     public function handle()
     {
 //        log::info('test');
-//（人脉无增长）XXX，过去 24 小时，你的人脉没有增长，要加油哦！
-//（人脉有增长）XXX，过去 24 小时，你的人脉变多了，再接再厉哦！
-//（进入排行榜）厉害了，XXX！过去 24 小时，你的人脉增长迅速，还进入了云作品人脉排行榜。
-//
-//报告类型：云作品人脉日报
-//生成时间：201XX.XX.XX XX:XX
-//用户姓名：XXX
-//昨日新增人脉：XXX 人（新模板增加）
-//昨日活跃人脉：XXX 人（新模板增加）
-//昨日累计人脉：XXX 人（新模板增加）
-//备注：昨日新增人脉 XXX/活跃人脉 XXX/累计人脉 XXX（新模板删除）
         set_time_limit(0);
         $photographers = $this->getPhotographerList();
         foreach ($photographers as $k => $photographer) {
             if ($photographer->gh_openid != '') {
-                if (PhotographerRankingLog::where(['photographer_id' => $photographer->id])->whereDate(
+                $photographerRankingLog = PhotographerRankingLog::where(
+                    ['photographer_id' => $photographer->id]
+                )->whereDate(
                     'created_at',
                     date('Y-m-d', strtotime('-1 days'))
-                )->first()) {
-                    $firstText = '厉害了，'.$photographer->name.'！昨天你的人脉增长迅速，还进入了云作品人脉排行榜。';
-                } else {
-                    if ($photographer->visitor_yesterday_count > 0) {
+                )->first();
+                if ($photographer->visitor_yesterday_count > 0) {
+                    if ($photographerRankingLog) {
+                        $firstText = '厉害了，'.$photographer->name.'！昨天你的人脉增长迅速，还进入了云作品人脉排行榜。';
+                    } else {
                         $firstText = $photographer->name.'，昨天你的人脉变多了，再接再厉哦！';
+                    }
+                } else {
+                    if ($photographerRankingLog) {
+                        $firstText = $photographer->name.'，昨天你的人脉没有增长，要加油哦！';
                     } else {
                         $firstText = $photographer->name.'，昨天你的人脉没有增长，要加油哦！';
                     }

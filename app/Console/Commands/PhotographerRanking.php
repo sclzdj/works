@@ -65,8 +65,8 @@ class PhotographerRanking extends Command
             $photographerRankingLog->photographer_id = $photographer->id;
             $photographerRankingLog->ranking = $k + 1;
             $photographerRankingLog->save();
-//            if (!$photographerRankingLog0) {
-            if (true) {
+            if (!$photographerRankingLog0) {
+//            if (true) {
                 $user = User::where('photographer_id', $photographer->id)->first();
                 if ($user && $user->gh_openid != '') {
                     $app = app('wechat.official_account');
