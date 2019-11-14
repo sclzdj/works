@@ -338,6 +338,7 @@ class PhotographerController extends BaseController
         try {
             if ($id > 0) {
                 Photographer::where('id', $id)->update(['status' => 0]);
+                PhotographerWork::where('photographer_id', $id)->update(['status' => 400]);
                 User::where('photographer_id', $id)->update(['identity' => 0]);
                 \DB::commit();//提交事务
 
@@ -347,6 +348,7 @@ class PhotographerController extends BaseController
                     $request->ids :
                     explode(',', $request->ids);
                 Photographer::whereIn('id', $ids)->update(['status' => 0]);
+                PhotographerWork::whereIn('photographer_id', $ids)->update(['status' => 400]);
                 User::whereIn('photographer_id', $ids)->update(['identity' => 0]);
                 \DB::commit();//提交事务
 

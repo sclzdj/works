@@ -52,8 +52,8 @@ return [
             'Scheme' => 'https',
             'TemplateCodes' => [
                 /*此为发送验证码场景*/
-                'photographer_register' => ['TemplateCode' => 'SMS_174580890', 'SignName' => '云作品'],//摄影师注册场景
-                'update_my_photographer_info' => ['TemplateCode' => 'SMS_174580890', 'SignName' => '云作品'],//修改摄影师信息场景
+                'photographer_register' => ['TemplateCode' => 'SMS_177545627', 'SignName' => '云作品'],//摄影师注册场景
+                'update_my_photographer_info' => ['TemplateCode' => 'SMS_177545627', 'SignName' => '云作品'],//修改摄影师信息场景
 
                 /*此为发送通知场景*/
                 'crowd_raising_result' => ['TemplateCode' => 'SMS_177241298', 'SignName' => '云作品'],//众筹结果通知

@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\Auth\UserGuardController;
 use App\Http\Requests\Index\PhotographerRequest;
+use App\Model\Admin\SystemArea;
 use App\Model\Index\Photographer;
+use App\Model\Index\PhotographerRank;
 use App\Model\Index\PhotographerWork;
 use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\PhotographerWorkTag;
@@ -31,13 +33,26 @@ class DraftController extends UserGuardController
     public function registerPhotographerWorkSource()
     {
         $this->notVisitorIdentityVerify();
-        $photographer_work = User::photographer(null, $this->guard)->photographerWorks()->where(['status' => 0])->first(
-        );
-        $photographer_work_sources = $photographer_work->photographerWorkSources()->select(
-            PhotographerWorkSource::allowFields()
-        )->where('status', 200)->orderBy('sort', 'asc')->get()->toArray();
+        \DB::beginTransaction();//开启事务
+        try {
+            $photographer = User::photographer(null, $this->guard);
+            $photographer_work = $photographer->photographerWorks()->where(['status' => 0])->first();
+            if (!$photographer_work) {
+                $photographer_work = PhotographerWork::create();
+                $photographer_work->photographer_id = $photographer->id;
+                $photographer_work->save();
+            }
+            $photographer_work_sources = $photographer_work->photographerWorkSources()->select(
+                PhotographerWorkSource::allowFields()
+            )->where('status', 200)->orderBy('sort', 'asc')->get()->toArray();
+            \DB::commit();//提交事务
 
-        return $this->responseParseArray($photographer_work_sources);
+            return $this->responseParseArray($photographer_work_sources);
+        } catch (\Exception $e) {
+            \DB::rollback();//回滚事务
+
+            return $this->response->error($e->getMessage(), 500);
+        }
     }
 
     /**
@@ -53,6 +68,11 @@ class DraftController extends UserGuardController
             $photographer_work = User::photographer(null, $this->guard)->photographerWorks()->where(
                 ['status' => 0]
             )->first();
+            if (!$photographer_work) {
+                $photographer_work = PhotographerWork::create();
+                $photographer_work->photographer_id = $photographer->id;
+                $photographer_work->save();
+            }
             $photographer_work->photographerWorkSources()->where(['status' => 200])->update(['status' => 300]);
             foreach ($request->sources as $k => $v) {
                 $photographer_work_source = PhotographerWorkSource::where(
@@ -155,21 +175,34 @@ class DraftController extends UserGuardController
     public function registerPhotographerWork()
     {
         $this->notVisitorIdentityVerify();
-        $photographer_work = User::photographer(null, $this->guard)->photographerWorks()->where(['status' => 0])->first(
-        );
-        $photographer_work_tags = $photographer_work->photographerWorkTags()->select(
-            PhotographerWorkTag::allowFields()
-        )->get()->toArray();
-        $photographer_work = ArrServer::inData($photographer_work->toArray(), PhotographerWork::allowFields());
-        $photographer_work = ArrServer::toNullStrData(
-            $photographer_work,
-            ['project_amount', 'sheets_number', 'shooting_duration']
-        );
-        $photographer_work['tags'] = $photographer_work_tags;
-        $photographer_work = SystemServer::parsePhotographerWorkCustomerIndustry($photographer_work);
-        $photographer_work = SystemServer::parsePhotographerWorkCategory($photographer_work);
+        \DB::beginTransaction();//开启事务
+        try {
+            $photographer = User::photographer(null, $this->guard);
+            $photographer_work = $photographer->photographerWorks()->where(['status' => 0])->first();
+            if (!$photographer_work) {
+                $photographer_work = PhotographerWork::create();
+                $photographer_work->photographer_id = $photographer->id;
+                $photographer_work->save();
+            }
+            $photographer_work_tags = $photographer_work->photographerWorkTags()->select(
+                PhotographerWorkTag::allowFields()
+            )->get()->toArray();
+            $photographer_work = ArrServer::inData($photographer_work->toArray(), PhotographerWork::allowFields());
+            $photographer_work = ArrServer::toNullStrData(
+                $photographer_work,
+                ['project_amount', 'sheets_number', 'shooting_duration']
+            );
+            $photographer_work['tags'] = $photographer_work_tags;
+            $photographer_work = SystemServer::parsePhotographerWorkCustomerIndustry($photographer_work);
+            $photographer_work = SystemServer::parsePhotographerWorkCategory($photographer_work);
+            \DB::commit();//提交事务
 
-        return $this->responseParseArray($photographer_work);
+            return $this->responseParseArray($photographer_work);
+        } catch (\Exception $e) {
+            \DB::rollback();//回滚事务
+
+            return $this->response->error($e->getMessage(), 500);
+        }
     }
 
     /**
@@ -182,9 +215,15 @@ class DraftController extends UserGuardController
         $this->notVisitorIdentityVerify();
         \DB::beginTransaction();//开启事务
         try {
-            $photographer_work = User::photographer(null, $this->guard)->photographerWorks()->where(
+            $photographer = User::photographer(null, $this->guard);
+            $photographer_work = $photographer->photographerWorks()->where(
                 ['status' => 0]
             )->first();
+            if (!$photographer_work) {
+                $photographer_work = PhotographerWork::create();
+                $photographer_work->photographer_id = $photographer->id;
+                $photographer_work->save();
+            }
             $photographer_work->customer_name = $request->customer_name;
             $photographer_work->photographer_work_customer_industry_id = $request->photographer_work_customer_industry_id;
             $photographer_work->project_amount = $request->project_amount;
@@ -323,7 +362,7 @@ class DraftController extends UserGuardController
             $user->save();
             if ($user->gh_openid != '') {
                 $app = app('wechat.official_account');
-                $template_id = '87Q8nqQV87zTDFnz_h6__5ifexePwCYq2VG0uQxFbYc';
+                $template_id = 'zEnIDOdegmj_qB1i4JUV0m0QdM-7COCXpr_3WzBB3Kg';
                 $tmr = $app->template_message->send(
                     [
                         'touser' => $user->gh_openid,
@@ -336,8 +375,12 @@ class DraftController extends UserGuardController
                         'data' => [
                             'first' => $photographer->name.'，你已成功注册云作品！为了方便使用，建议苹果用户将云作品拽入我的小程序，建议安卓用户将云作品设为桌面图标。',
                             'keyword1' => $photographer->name,
-                            'keyword2' => $photographer->mobile,
-//                            'keyword3' => $photographer->wechat,
+                            'keyword2' => SystemArea::where('id', $photographer->city)->value('short_name'),
+                            'keyword3' => PhotographerRank::where('id', $photographer->photographer_rank_id)->value(
+                                    'name'
+                                ).'摄影师',
+                            'keyword4' => $photographer->wechat,
+                            'keyword5' => $photographer->mobile,
                             'remark' => '更多技巧，请浏览使用帮助。',
                         ],
                     ]
