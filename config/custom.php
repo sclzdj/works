@@ -56,8 +56,8 @@ return [
                 'update_my_photographer_info' => ['TemplateCode' => 'SMS_177545627', 'SignName' => '云作品'],//修改摄影师信息场景
 
                 /*此为发送通知场景*/
-                'crowd_raising_result' => ['TemplateCode' => 'SMS_177241298', 'SignName' => '云作品'],//众筹结果通知
-                'register_code_generate' => ['TemplateCode' => 'SMS_177251206', 'SignName' => '云作品'],//注册码生成通知
+                'crowd_raising_result' => ['TemplateCode' => 'SMS_177540698', 'SignName' => '云作品'],//众筹结果通知
+                'register_code_generate' => ['TemplateCode' => 'SMS_177545667', 'SignName' => '云作品'],//注册码生成通知
                 'register_success' => ['TemplateCode' => 'SMS_177256158', 'SignName' => '云作品'],//注册成功通知
                 'service_open' => ['TemplateCode' => 'SMS_177251207', 'SignName' => '云作品'],//服务开启通知
                 'visit_remind_1' => ['TemplateCode' => 'SMS_177251208', 'SignName' => '云作品'],//来访提醒1
