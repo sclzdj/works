@@ -47,7 +47,8 @@
                                                mime-type='["image/png", "image/jpeg", "image/gif","image/bmp"]'>
                                     </div>
                                     <div class="col-md-1 form-option-line">
-                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
+                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空
+                                        </button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
                                         <div class="help-block help-block-line">最大5M</div>
@@ -64,10 +65,34 @@
                                                mime-type='["image/png", "image/jpeg", "image/gif","image/bmp"]'>
                                     </div>
                                     <div class="col-md-1 form-option-line">
-                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
+                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空
+                                        </button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
                                         <div class="help-block help-block-line">最大20M</div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-gender">
+                                    <label class="col-md-1 control-label form-option-line">
+                                        <span class="form-option-require"></span>
+                                        性别
+                                    </label>
+                                    <div class="col-md-11 form-option-line">
+                                        <label class="css-input css-radio css-radio-primary css-radio-sm push-10-r">
+                                            <input type="radio" name="gender" value="0"
+                                                   @if($photographer->gender==0) checked @endif>
+                                            <span></span> 未知</label>
+                                        </label>
+                                        <label class="css-input css-radio css-radio-primary css-radio-sm push-10-r">
+                                            <input type="radio" name="gender" value="1"
+                                                   @if($photographer->gender==1) checked @endif>
+                                            <span></span> 男</label>
+                                        </label>
+                                        <label class="css-input css-radio css-radio-primary css-radio-sm push-10-r">
+                                            <input type="radio" name="gender" value="2"
+                                                   @if($photographer->gender==2) checked @endif>
+                                            <span></span> 女</label>
+                                        </label>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-area">

@@ -64,7 +64,7 @@ class UserRequest extends BaseRequest
             case 'savePhotographerWorkInfo':
                 $rules = [
                     'photographer_work_id' => 'required|integer',
-                    'sources' => 'required|array|min:1|max:18',
+                    'sources' => 'required|array|min:1|max:9',
                     'sources.*.key' => 'required',
                     'sources.*.url' => 'required',
                     'sources.*.type' => 'required|in:image,video',
@@ -176,7 +176,7 @@ class UserRequest extends BaseRequest
                     'sources.required' => '资源不能为空',
                     'sources.array' => '资源必须是数组',
                     'sources.min' => '资源至少1个',
-                    'sources.max' => '资源至少18个',
+                    'sources.max' => '资源至少9个',
                     'sources.*.key.required' => '资源key不能为空',
                     'sources.*.url.required' => '资源url不能为空',
                     'sources.*.type.required' => '资源类型不能为空',

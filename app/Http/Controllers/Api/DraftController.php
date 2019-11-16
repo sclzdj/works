@@ -308,6 +308,7 @@ class DraftController extends UserGuardController
                 $photographer->avatar = $user->avatar;
             }
             $photographer->name = $request->name;
+            $photographer->gender = $request->gender ?? 0;
             $photographer->province = $request->province;
             $photographer->city = $request->city;
             $photographer->area = $request->area;

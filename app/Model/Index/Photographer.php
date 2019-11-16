@@ -14,6 +14,7 @@ class Photographer extends Model
      */
     protected $fillable = [
         'name',
+        'gender',
         'avatar',
         'bg_img',
         'province',
@@ -41,6 +42,7 @@ class Photographer extends Model
         return [
             'id',
             'name',
+            'gender',
             'avatar',
             'bg_img',
             'province',

@@ -17,6 +17,7 @@ class CreatePhotographersTable extends Migration
             $table->engine = 'innodb';
             $table->increments('id');
             $table->string('name', 50)->index()->default('')->comment('姓名');
+            $table->unsignedTinyInteger('gender')->default(0)->comment('性别【0:未知;1:男;2:女】');
             $table->string('avatar', 1000)->default('')->comment('头像');
             $table->string('bg_img', 1000)->default('')->comment('背景');
             $table->unsignedInteger('province')->index()->default(0)->comment('省份');

@@ -40,6 +40,9 @@ class PhotographerController extends BaseController
             'name' => $request['name'] !== null ?
                 $request['name'] :
                 '',
+            'gender' => $request['gender'] !== null ?
+                $request['gender'] :
+                '',
             'province' => $request['province'] !== null ?
                 $request['province'] :
                 '',
@@ -68,43 +71,46 @@ class PhotographerController extends BaseController
         $orderBy = [
             'order_field' => $request['order_field'] !== null ?
                 $request['order_field'] :
-                'id',
+                'photographers.id',
             'order_type' => $request['order_type'] !== null ?
                 $request['order_type'] :
                 'asc',
         ];
         $where = [];
         if ($filter['id'] !== '') {
-            $where[] = ['id', 'like', '%'.$filter['id'].'%'];
+            $where[] = ['photographers.id', 'like', '%'.$filter['id'].'%'];
         }
         if ($filter['name'] !== '') {
-            $where[] = ['name', 'like', '%'.$filter['name'].'%'];
+            $where[] = ['photographers.name', 'like', '%'.$filter['name'].'%'];
+        }
+        if ($filter['gender'] !== '') {
+            $where[] = ['photographers.gender', '=', $filter['gender']];
         }
         if ($filter['province'] !== '') {
-            $where[] = ['province', '=', $filter['province']];
+            $where[] = ['photographers.province', '=', $filter['province']];
         }
         if ($filter['city'] !== '') {
-            $where[] = ['city', '=', $filter['city']];
+            $where[] = ['photographers.city', '=', $filter['city']];
         }
         if ($filter['area'] !== '') {
-            $where[] = ['area', '=', $filter['area']];
+            $where[] = ['photographers.area', '=', $filter['area']];
         }
         if ($filter['mobile'] !== '') {
-            $where[] = ['mobile', 'like', '%'.$filter['mobile'].'%'];
+            $where[] = ['photographers.mobile', 'like', '%'.$filter['mobile'].'%'];
         }
         if ($filter['wechat'] !== '') {
-            $where[] = ['wechat', 'like', '%'.$filter['wechat'].'%'];
+            $where[] = ['photographers.wechat', 'like', '%'.$filter['wechat'].'%'];
         }
         if ($filter['created_at_start'] !== '' &&
             $filter['created_at_end'] !== ''
         ) {
             $where[] = [
-                'created_at',
+                'photographers.created_at',
                 '>=',
                 $filter['created_at_start']." 00:00:00",
             ];
             $where[] = [
-                'created_at',
+                'photographers.created_at',
                 '<=',
                 $filter['created_at_end']." 23:59:59",
             ];
@@ -112,7 +118,7 @@ class PhotographerController extends BaseController
             $filter['created_at_end'] !== ''
         ) {
             $where[] = [
-                'created_at',
+                'photographers.created_at',
                 '<=',
                 $filter['created_at_end']." 23:59:59",
             ];
@@ -120,12 +126,19 @@ class PhotographerController extends BaseController
             $filter['created_at_end'] === ''
         ) {
             $where[] = [
-                'created_at',
+                'photographers.created_at',
                 '>=',
                 $filter['created_at_start']." 00:00:00",
             ];
         }
-        $Photographer = Photographer::where($where)->where(['status' => 200]);
+        $Photographer = Photographer::select(
+            \DB::raw('photographers.*,count(photographers.id) as works_count')
+        )->leftJoin(
+            'photographer_works',
+            'photographers.id',
+            '=',
+            'photographer_works.photographer_id'
+        )->where($where)->where(['photographers.status' => 200, 'photographer_works.status' => 200]);
         if ($filter['photographer_rank_id'] !== '') {
             $photographerRanks = PhotographerRank::where(['pid' => $filter['photographer_rank_id']])->orderBy(
                 'sort',
@@ -135,7 +148,9 @@ class PhotographerController extends BaseController
             $photographerRankIds[] = $filter['photographer_rank_id'];
             $Photographer = $Photographer->whereIn('photographer_rank_id', $photographerRankIds);
         }
-        $photographers = $Photographer->orderBy($orderBy['order_field'], $orderBy['order_type'])->paginate(
+        $photographers = $Photographer->orderBy($orderBy['order_field'], $orderBy['order_type'])->groupBy(
+            'photographers.id'
+        )->paginate(
             $pageInfo['pageSize']
         );
         foreach ($photographers as $k => $photographer) {
@@ -148,7 +163,6 @@ class PhotographerController extends BaseController
             $photographers[$k]['province'] = SystemArea::find($photographer->province);
             $photographers[$k]['city'] = SystemArea::find($photographer->city);
             $photographers[$k]['area'] = SystemArea::find($photographer->area);
-            $photographers[$k]['works_count'] = $photographer->photographerWorks()->where(['status' => 200])->count();
         }
         $provinces = SystemArea::select(SystemArea::allowFields())->where(['pid' => 0, 'level' => 1])->orderBy(
             'sort',

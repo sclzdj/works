@@ -21,7 +21,7 @@
                         </li>
                     </ul>
                     @if($photographer['id']>0)
-                        <h3 class="block-title"><span style="color: #f00000">{{$photographer['name']}}</span>摄影师的作品集管理
+                        <h3 class="block-title">摄影师<span style="color: #f00000">{{$photographer['name']}}</span>的作品集管理
                             <a href="{{action('Admin\Works\PhotographerWorkController@index')}}"
                                style="font-size: 12px;">[全部摄影师]</a>
                         </h3>

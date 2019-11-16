@@ -511,6 +511,7 @@ class MyController extends UserGuardController
                 return $this->response->error('摄影师不存在', 500);
             }
             $photographer->name = $request->name;
+            $photographer->gender = $request->gender ?? 0;
             $photographer->province = $request->province;
             $photographer->city = $request->city;
             $photographer->area = $request->area;
