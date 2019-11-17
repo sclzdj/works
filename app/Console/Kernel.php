@@ -30,7 +30,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('visit_summary')->dailyAt('10:00');//->everyTenMinutes()->between('12:00', '23:59');
         $schedule->command('photographer_ranking')->everyTenMinutes()->between('12:00', '23:59');
         $schedule->command('view_summary')->dailyAt('10:05')->mondays();//->hourly()->between('12:00', '23:59');
-        $schedule->command('silent_activation')->hourly();//->dailyAt('19:55');
+        $schedule->command('silent_activation')->dailyAt('19:55');//->hourly();
     }
 
     /**

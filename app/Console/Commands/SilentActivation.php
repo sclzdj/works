@@ -49,13 +49,13 @@ class SilentActivation extends Command
     {
         set_time_limit(0);
         $photographers = $this->getPhotographerList();
-//        $day_10 = date('Y-m-d 00:0000', strtotime('-10 days'));
-//        $day_20 = date('Y-m-d 00:0000', strtotime('-20 days'));
-//        $day_30 = date('Y-m-d 00:0000', strtotime('-30 days'));
-        $now_time = time();
-        $day_10 = date('Y-m-d H:i:s', $now_time - 60 * 60 * 12);
-        $day_20 = date('Y-m-d H:i:s', $now_time - 60 * 60 * 24);
-        $day_30 = date('Y-m-d H:i:s', $now_time - 60 * 60 * 36);
+        $day_10 = date('Y-m-d 00:0000', strtotime('-10 days'));
+        $day_20 = date('Y-m-d 00:0000', strtotime('-20 days'));
+        $day_30 = date('Y-m-d 00:0000', strtotime('-30 days'));
+//        $now_time = time();
+//        $day_10 = date('Y-m-d H:i:s', $now_time - 60 * 60 * 12);
+//        $day_20 = date('Y-m-d H:i:s', $now_time - 60 * 60 * 24);
+//        $day_30 = date('Y-m-d H:i:s', $now_time - 60 * 60 * 36);
         foreach ($photographers as $k => $photographer) {
             if (!$photographer->max_created_at || strtotime($photographer->max_created_at) < strtotime($day_30)) {
                 $purpose = 'silent_activation_3';
