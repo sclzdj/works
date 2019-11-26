@@ -438,6 +438,29 @@ class SystemNodesTableSeeder extends Seeder
                                     ],
                                 ],
                             ],
+                            [
+                                'name' => '大咖管理',
+                                'icon' => 'fa fas fa-user-md',
+                                'action' => 'Admin\Works\StarController@index',
+                                'children' => [
+                                    [
+                                        'name' => '列表',
+                                        'action' => 'Admin\Works\StarController@list',
+                                    ],
+                                    [
+                                        'name' => '搜索',
+                                        'action' => 'Admin\Works\StarController@search',
+                                    ],
+                                    [
+                                        'name' => '添加',
+                                        'action' => 'Admin\Works\StarController@create',
+                                    ],
+                                    [
+                                        'name' => '删除',
+                                        'action' => 'Admin\Works\StarController@destroy',
+                                    ],
+                                ],
+                            ],
                         ],
                     ],
                 ],

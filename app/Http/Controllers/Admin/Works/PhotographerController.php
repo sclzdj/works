@@ -139,6 +139,7 @@ class PhotographerController extends BaseController
             '=',
             'photographer_works.photographer_id'
         )->where($where)->where(['photographers.status' => 200, 'photographer_works.status' => 200]);
+
         if ($filter['photographer_rank_id'] !== '') {
             $photographerRanks = PhotographerRank::where(['pid' => $filter['photographer_rank_id']])->orderBy(
                 'sort',

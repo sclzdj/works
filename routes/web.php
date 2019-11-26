@@ -101,6 +101,10 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         // 邀请码管理
         Route::get('invotecode/lists' , 'InvoteCode\IndexController@lists');
         Route::resource('invotecode' , 'InvoteCode\IndexController');
+
+        // 大咖管理
+        Route::get('works/star/lists', 'Works\StarController@lists');
+        Route::resource('works/star', 'Works\StarController');
     });
     //这下面写不需要登录的路由
     Route::get('login', 'Auth\LoginController@showLoginForm');//账号登录
