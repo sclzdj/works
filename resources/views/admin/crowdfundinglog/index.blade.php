@@ -1,8 +1,13 @@
+
+@php
+    $SFV=\App\Model\Admin\SystemConfig::getVal('basic_static_file_version');
+@endphp
+
 @extends('admin.layouts.master')
 
 @section('css')
     <!-- 引入样式 -->
-    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="{{asset('/static/admin/css/element.css').'?'.$SFV}}">
     <style>
         .wd {
             width: 150px;
@@ -157,8 +162,8 @@
 @section('javascript')
 
     <!-- 引入组件库 -->
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="{{asset('/static/admin/js/vue.js').'?'.$SFV}}"></script>
+    <script src="{{asset('/static/admin/js/element.js').'?'.$SFV}}"></script>
 
     <script>
 
