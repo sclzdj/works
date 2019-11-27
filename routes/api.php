@@ -139,6 +139,9 @@ $api->version(
                 $api->post('crowdfunding/order', 'CrowdFundingController@order');
                 $api->post('crowdfunding/log', 'CrowdFundingController@log');
                 $api->post('notify/miniprogram/crowdfunding', 'Notify\MiniProgramController@crowdfunding');
+
+                // 大咖
+                $api->get('star/getStars', 'StarController@getStars');
             }
         );
     }
