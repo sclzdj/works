@@ -141,7 +141,7 @@ $api->version(
                 $api->post('notify/miniprogram/crowdfunding', 'Notify\MiniProgramController@crowdfunding');
 
                 // 大咖
-                $api->get('star/getStars', 'StarController@getStars');
+                $api->post('star/getStars', 'StarController@getStars');
             }
         );
     }
