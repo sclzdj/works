@@ -215,7 +215,8 @@ class QiniuController extends BaseController
                         } elseif ($photographerWorkSource->type == 'video') {
 
                         }
-                    } elseif ($request_data['step'] == 2) {
+                    }
+                    elseif ($request_data['step'] == 2) {
                         if ($photographerWorkSource->type == 'image') {
                             $photographerWorkSource->rich_key = $request_data['items'][0]['key'];
                             $photographerWorkSource->rich_url = $domain.'/'.$request_data['items'][0]['key'];

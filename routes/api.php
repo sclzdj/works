@@ -143,6 +143,7 @@ $api->version(
                 // 大咖
                 $api->post('star/getStars', 'StarController@getStars');
                 $api->get('star/test' , 'StarController@test');
+                $api->get('star/test2' , 'StarController@test2');
             }
         );
     }
