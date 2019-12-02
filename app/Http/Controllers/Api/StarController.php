@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Model\Admin\SystemArea;
 use App\Model\Index\InvoteCode;
 use App\Model\Index\Photographer;
+use App\Model\Index\PhotographerRank;
 use App\Model\Index\PhotographerWork;
 use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\Star;
@@ -84,8 +85,7 @@ class StarController extends BaseController
         $project_number = $work->hide_project_amount == 1 ? '保密' : $work->project_amount . '元';
         $shooting_duration = $work->hide_shooting_duration == 1 ? '保密' : $work->shooting_duration . '小时';
         $customer_name = $work->customer_name;
-        $buttonText = $project_number . '.' . $sheets_number . '.' . $shooting_duration;
-
+        $buttonText = $project_number . '·' . $sheets_number . '·' . $shooting_duration;
         $firstPhoto = PhotographerWorkSource::where(
             [
                 'photographer_work_id' => $work->id,
@@ -95,53 +95,91 @@ class StarController extends BaseController
         // 拿到七牛url
         $buckets = config('custom.qiniu.buckets');
         $domain = $buckets['zuopin']['domain'] ?? '';
-        $whiteBg = $domain . '/FtSr3gPOeI8CjSgh5fBkeHaIsJnm?imageMogr2/auto-orient/crop/1200x303';
-
-        $handleUrl = [];
-        $handleUrl[] = $firstPhoto->url;
-        $handleUrl[] = "?imageMogr2/auto-orient/crop/1200x960"; //原图
-        $handleUrl[] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode($whiteBg) . "/gravity/South/dx/0/dy/0";
-        $handleUrl[] = "/text/" . \Qiniu\base64_urlSafeEncode($customer_name) . "/fontsize/1500/fill/" . base64_urlSafeEncode("#323232") . "/gravity/South/dx/0/dy/136";
-        $handleUrl[] = "/text/" . \Qiniu\base64_urlSafeEncode($buttonText) . "/fontsize/700/fill/" . base64_urlSafeEncode("#969696") . "/gravity/South/dx/0/dy/20";
-
-        dd(implode("", $handleUrl));
-
-    }
-
-    public function test2()
-    {
-        $photographer_id = 16;
-        $buckets = config('custom.qiniu.buckets');
-        $domain = $buckets['zuopin']['domain'] ?? '';
+        // 背景图
         $whiteBg = $domain . '/FtSr3gPOeI8CjSgh5fBkeHaIsJnm?imageMogr2/auto-orient/thumbnail/1200x960!';
-
-        $workIds = PhotographerWork::where('photographer_id', $photographer_id)
-            ->where('status', 200)->get()->pluck('id');
-
-        $resources = PhotographerWorkSource::where(['status' => 200])->whereIn('photographer_work_id', $workIds)
-            ->orderBy('created_at', 'desc')
-            ->limit(6)
-            ->get();
+        // 上面图
+        $sharePhoto = $firstPhoto->url . "?imageMogr2/auto-orient/thumbnail/1200x657!";
 
         $handleUrl = [];
         $handleUrl[] = $whiteBg;
+        $handleUrl[] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode($sharePhoto) . "/gravity/North/dx/0/dy/0";
+        $handleUrl[] = "/text/" . \Qiniu\base64_urlSafeEncode($customer_name) . "/fontsize/1500/fill/" . base64_urlSafeEncode("#323232") . "/gravity/North/dx/0/dy/743";
+        $handleUrl[] = "/text/" . \Qiniu\base64_urlSafeEncode($buttonText) . "/fontsize/900/fill/" . base64_urlSafeEncode("#969696") . "/gravity/North/dx/0/dy/887";
+
+        echo implode("", $handleUrl);
+    }
+
+    public function upload()
+    {
+        $filename = 'xacodes/' . time() . mt_rand(10000, 99999) . '.png';
+        $bgimg = Image::make('xacodes/bbg.jpg')->resize(383, 320);
+        $bgimg->save($filename);
+        $bucket = 'zuopin';
+        $buckets = config('custom.qiniu.buckets');
+        $domain = $buckets[$bucket]['domain'] ?? '';
+        //用于签名的公钥和私钥
+        $accessKey = config('custom.qiniu.accessKey');
+        $secretKey = config('custom.qiniu.secretKey');
+        // 初始化签权对象
+        $auth = new Auth($accessKey, $secretKey);
+        // 生成上传Token
+        $upToken = $auth->uploadToken($bucket);
+        // 构建 UploadManager 对象
+        $uploadMgr = new UploadManager();
+        list($ret, $err) = $uploadMgr->putFile($upToken, null, $filename);
+
+        dd($ret);
+    }
+
+    public function test2(Request $request)
+    {
+        $buckets = config('custom.qiniu.buckets');
+        $domain = $buckets['zuopin']['domain'] ?? '';
+        // 白背景图
+        $whiteBg = $domain . '/FtSr3gPOeI8CjSgh5fBkeHaIsJnm?imageMogr2/auto-orient/thumbnail/1200x960!';
+        // 黑背景图
+        $blackBgs = [];
+        $blackBg = $domain . '/FtXkbly4Qu-tEeiBiolLj-FFPXeo?imageMogr2/auto-orient/thumbnail/383x320!';
+        $blackBgs = array_fill(0, 6, $blackBg);
+
+        $photographer = User::photographer($request->photographer_id);
+        if (!$photographer || $photographer->status != 200) {
+            return $this->response->error('摄影师不存在', 500);
+        }
+        $workIds = PhotographerWork::where('photographer_id', $request->photographer_id)
+            ->where('status', 200)->get()->pluck('id');
+        $resources = PhotographerWorkSource::where(['status' => 200])
+            ->where('type' , 'image')
+            ->whereIn('photographer_work_id', $workIds)
+            ->orderBy('created_at', 'desc')
+            ->limit(6)
+            ->get();
+        $buttonText = SystemArea::find($photographer->province)->name . ' · ' . PhotographerRank::find($photographer->photographer_rank_id)->name . '摄影师';
 
         foreach ($resources as $key => $resource) {
-            if ($key == 0) {
-                $imgs = $domain .'/'. $resource->key.'?imageMogr2/auto-orient/thumbnail/382x320!';
-                $handleUrl[] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode($imgs) . "/gravity/NorthWest/dx/0/dy/0";
-            }
 
-            if ($key == 1) {
-                $imgs = $domain .'/'. $resource->key.'?imageMogr2/auto-orient/thumbnail/382x320!';
-                $handleUrl[] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode($imgs) . "/gravity/North/dx/0/dy/0";
+            if ($resource->deal_width < $resource->deal_height) {  // 长图
+                $width = 380;
+                $height = $resource->deal_height;
+                $imgs = $domain . '/' . $resource->deal_key . "?imageMogr2/auto-orient/thumbnail/{$width}x{$height}/crop/382x320";
+            } else    { // 宽图
+                $width = $resource->deal_width;
+                $height = $resource->deal_height / 2;
+                $imgs = $domain . '/' . $resource->deal_key . "?imageMogr2/auto-orient/thumbnail/{$width}x{$height}/crop/382x320";
             }
-
-            if ($key == 2) {
-                $imgs = $domain .'/'. $resource->key.'?imageMogr2/auto-orient/thumbnail/382x320!';
-                $handleUrl[] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode($imgs) . "/gravity/NorthEast/dx/0/dy/0";
-            }
+            $blackBgs[$key] = $imgs;
         }
+
+        $handleUrl = array();
+        $handleUrl[] = $whiteBg;
+        $handleUrl[] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode($blackBgs[0]) . "/gravity/NorthWest/dx/0/dy/0";
+        $handleUrl[] = "/image/" . \Qiniu\base64_urlSafeEncode($blackBgs[1]) . "/gravity/NorthWest/dx/409/dy/0";
+        $handleUrl[] = "/image/" . \Qiniu\base64_urlSafeEncode($blackBgs[2]) . "/gravity/NorthWest/dx/817/dy/0";
+        $handleUrl[] = "/image/" . \Qiniu\base64_urlSafeEncode($blackBgs[3]) . "/gravity/NorthWest/dx/0/dy/340";
+        $handleUrl[] = "/image/" . \Qiniu\base64_urlSafeEncode($blackBgs[4]) . "/gravity/NorthWest/dx/409/dy/340";
+        $handleUrl[] = "/image/" . \Qiniu\base64_urlSafeEncode($blackBgs[5]) . "/gravity/NorthWest/dx/817/dy/340";
+        $handleUrl[] = "/text/" . \Qiniu\base64_urlSafeEncode($photographer->name) . "/fontsize/1500/fill/" . base64_urlSafeEncode("#323232") . "/gravity/North/dx/0/dy/743";
+        $handleUrl[] = "/text/" . \Qiniu\base64_urlSafeEncode($buttonText) . "/fontsize/1000/fill/" . base64_urlSafeEncode("#969696") . "/gravity/North/dx/0/dy/886";
 
         echo implode("", $handleUrl);
 
