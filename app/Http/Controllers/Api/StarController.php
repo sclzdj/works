@@ -10,6 +10,7 @@ use App\Model\Index\PhotographerWork;
 use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\Star;
 use App\Model\Index\User;
+use App\Servers\ErrLogServer;
 use App\Servers\SystemServer;
 use Illuminate\Http\Request;
 use Intervention\Image\Facades\Image;
@@ -78,9 +79,9 @@ class StarController extends BaseController
         return $this->responseParseArray($this->data);
     }
 
-    public function test()
+    public function test(Request $request)
     {
-        $work = PhotographerWork::find(17);
+        $work = PhotographerWork::find(16);
         $sheets_number = $work->hide_sheets_number == 1 ? '保密' : $work->sheets_number . '张';
         $project_number = $work->hide_project_amount == 1 ? '保密' : $work->project_amount . '元';
         $shooting_duration = $work->hide_shooting_duration == 1 ? '保密' : $work->shooting_duration . '小时';
@@ -92,21 +93,52 @@ class StarController extends BaseController
                 'status' => 200,
             ]
         )->orderBy('created_at', 'asc')->first();
+
+        if (empty($firstPhoto)) {
+            return ['result' => false, 'msg' => "作品集不存在"];
+        }
+
         // 拿到七牛url
         $buckets = config('custom.qiniu.buckets');
         $domain = $buckets['zuopin']['domain'] ?? '';
         // 背景图
         $whiteBg = $domain . '/FtSr3gPOeI8CjSgh5fBkeHaIsJnm?imageMogr2/auto-orient/thumbnail/1200x960!';
         // 上面图
-        $sharePhoto = $firstPhoto->url . "?imageMogr2/auto-orient/thumbnail/1200x657!";
+        $sharePhoto = $firstPhoto->deal_url . "?imageMogr2/auto-orient/crop/1200x657";
 
-        $handleUrl = [];
-        $handleUrl[] = $whiteBg;
-        $handleUrl[] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode($sharePhoto) . "/gravity/North/dx/0/dy/0";
-        $handleUrl[] = "/text/" . \Qiniu\base64_urlSafeEncode($customer_name) . "/fontsize/1500/fill/" . base64_urlSafeEncode("#323232") . "/gravity/North/dx/0/dy/743";
-        $handleUrl[] = "/text/" . \Qiniu\base64_urlSafeEncode($buttonText) . "/fontsize/900/fill/" . base64_urlSafeEncode("#969696") . "/gravity/North/dx/0/dy/887";
+        $handleUrl = array();
+        $handleUrl[0] = $whiteBg;
+        $handleUrl[1] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode($sharePhoto) . "/gravity/North/dx/0/dy/0";
+        $handleUrl[2] = "/text/" . \Qiniu\base64_urlSafeEncode($customer_name) . "/fontsize/1500/fill/" . base64_urlSafeEncode("#323232") . "/gravity/North/dx/0/dy/743";
+        $handleUrl[3] = "/text/" . \Qiniu\base64_urlSafeEncode($buttonText) . "/fontsize/900/fill/" . base64_urlSafeEncode("#969696") . "/gravity/North/dx/0/dy/887";
 
-        echo implode("", $handleUrl);
+        // echo implode("", $handleUrl);
+        array_shift($handleUrl);
+
+        $fops = ["imageMogr2/auto-orient/thumbnail/1200x960!" . implode("", $handleUrl)];
+        $bucket = 'zuopin';
+        $qrst = SystemServer::qiniuPfop(
+            $bucket,
+            "FtSr3gPOeI8CjSgh5fBkeHaIsJnm",
+            $fops,
+            null,
+            config(
+                'app.url'
+            ) . '/api/notify/qiniu/fop?photographer_work_source_id=' . $firstPhoto->id . '&step=4',
+            true
+        );
+        if ($qrst['err']) {
+            ErrLogServer::QiniuNotifyFop(
+                0,
+                '七牛持久化接口返回错误信息',
+                $request->all(),
+                $firstPhoto,
+                $qrst['err']
+            );
+        }
+
+        var_dump($qrst);
+
     }
 
     public function upload()
@@ -149,7 +181,7 @@ class StarController extends BaseController
         $workIds = PhotographerWork::where('photographer_id', $request->photographer_id)
             ->where('status', 200)->get()->pluck('id');
         $resources = PhotographerWorkSource::where(['status' => 200])
-            ->where('type' , 'image')
+            ->where('type', 'image')
             ->whereIn('photographer_work_id', $workIds)
             ->orderBy('created_at', 'desc')
             ->limit(6)
@@ -162,7 +194,7 @@ class StarController extends BaseController
                 $width = 380;
                 $height = $resource->deal_height;
                 $imgs = $domain . '/' . $resource->deal_key . "?imageMogr2/auto-orient/thumbnail/{$width}x{$height}/crop/382x320";
-            } else    { // 宽图
+            } else { // 宽图
                 $width = $resource->deal_width;
                 $height = $resource->deal_height / 2;
                 $imgs = $domain . '/' . $resource->deal_key . "?imageMogr2/auto-orient/thumbnail/{$width}x{$height}/crop/382x320";

@@ -105,6 +105,7 @@ class QiniuController extends BaseController
     public function fop()
     {
         $request_data = \Request::all();
+        \Log::debug(json_encode($request_data , JSON_UNESCAPED_UNICODE));
         $photographerWorkSource = PhotographerWorkSource::where(
             ['id' => $request_data['photographer_work_source_id']]
         )->first();
@@ -249,7 +250,10 @@ class QiniuController extends BaseController
                         } elseif ($photographerWorkSource->type == 'video') {
 
                         }
-                    } elseif ($request_data['step'] == 3) {
+                    }
+                    elseif ($request_data['step'] == 3) {
+
+                    } elseif ($request_data['step'] == 4) {
 
                     }
                 } else {
