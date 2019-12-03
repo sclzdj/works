@@ -138,30 +138,29 @@ class StarController extends BaseController
         }
 
         var_dump($qrst);
-
     }
 
-    public function upload()
-    {
-        $filename = 'xacodes/' . time() . mt_rand(10000, 99999) . '.png';
-        $bgimg = Image::make('xacodes/bbg.jpg')->resize(383, 320);
-        $bgimg->save($filename);
-        $bucket = 'zuopin';
-        $buckets = config('custom.qiniu.buckets');
-        $domain = $buckets[$bucket]['domain'] ?? '';
-        //用于签名的公钥和私钥
-        $accessKey = config('custom.qiniu.accessKey');
-        $secretKey = config('custom.qiniu.secretKey');
-        // 初始化签权对象
-        $auth = new Auth($accessKey, $secretKey);
-        // 生成上传Token
-        $upToken = $auth->uploadToken($bucket);
-        // 构建 UploadManager 对象
-        $uploadMgr = new UploadManager();
-        list($ret, $err) = $uploadMgr->putFile($upToken, null, $filename);
-
-        dd($ret);
-    }
+//    public function upload()
+//    {
+//        $filename = 'xacodes/' . time() . mt_rand(10000, 99999) . '.png';
+//        $bgimg = Image::make('xacodes/bbg.jpg')->resize(383, 320);
+//        $bgimg->save($filename);
+//        $bucket = 'zuopin';
+//        $buckets = config('custom.qiniu.buckets');
+//        $domain = $buckets[$bucket]['domain'] ?? '';
+//        //用于签名的公钥和私钥
+//        $accessKey = config('custom.qiniu.accessKey');
+//        $secretKey = config('custom.qiniu.secretKey');
+//        // 初始化签权对象
+//        $auth = new Auth($accessKey, $secretKey);
+//        // 生成上传Token
+//        $upToken = $auth->uploadToken($bucket);
+//        // 构建 UploadManager 对象
+//        $uploadMgr = new UploadManager();
+//        list($ret, $err) = $uploadMgr->putFile($upToken, null, $filename);
+//
+//        dd($ret);
+//    }
 
     public function test2(Request $request)
     {
@@ -188,8 +187,9 @@ class StarController extends BaseController
             ->get();
         $buttonText = SystemArea::find($photographer->province)->name . ' · ' . PhotographerRank::find($photographer->photographer_rank_id)->name . '摄影师';
 
+        $resourceId = 0;
         foreach ($resources as $key => $resource) {
-
+            $resourceId = $resource->id;
             if ($resource->deal_width < $resource->deal_height) {  // 长图
                 $width = 380;
                 $height = $resource->deal_height;
@@ -213,9 +213,21 @@ class StarController extends BaseController
         $handleUrl[] = "/text/" . \Qiniu\base64_urlSafeEncode($photographer->name) . "/fontsize/1500/fill/" . base64_urlSafeEncode("#323232") . "/gravity/North/dx/0/dy/743";
         $handleUrl[] = "/text/" . \Qiniu\base64_urlSafeEncode($buttonText) . "/fontsize/1000/fill/" . base64_urlSafeEncode("#969696") . "/gravity/North/dx/0/dy/886";
 
-        echo implode("", $handleUrl);
+        array_shift($handleUrl);
 
-
+        $fops = ["imageMogr2/auto-orient/thumbnail/1200x960!" . implode("", $handleUrl)];
+        $bucket = 'zuopin';
+        $qrst = SystemServer::qiniuPfop(
+            $bucket,
+            "FtSr3gPOeI8CjSgh5fBkeHaIsJnm",
+            $fops,
+            null,
+            config(
+                'app.url'
+            ) . '/api/notify/qiniu/fop?photographer_work_source_id=' . $resourceId . '&step=5',
+            true
+        );
+        var_dump($qrst);
     }
 
 

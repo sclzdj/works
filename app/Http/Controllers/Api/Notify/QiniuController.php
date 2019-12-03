@@ -105,7 +105,6 @@ class QiniuController extends BaseController
     public function fop()
     {
         $request_data = \Request::all();
-        \Log::debug(json_encode($request_data , JSON_UNESCAPED_UNICODE));
         $photographerWorkSource = PhotographerWorkSource::where(
             ['id' => $request_data['photographer_work_source_id']]
         )->first();
@@ -253,8 +252,12 @@ class QiniuController extends BaseController
                     }
                     elseif ($request_data['step'] == 3) {
 
-                    } elseif ($request_data['step'] == 4) {
-
+                    } elseif ($request_data['step'] == 4) {  // 把持久化的图放到作品集
+                        $photographerWork->share_url = $request_data['items'][0]['key'];
+                        $photographerWork->save();
+                    } elseif ($request_data['step'] == 5) {  // 把持久化的图放到作品集
+                        $photographer->share_url = $request_data['items'][0]['key'];
+                        $photographer->save();
                     }
                 } else {
                     return ErrLogServer::QiniuNotifyFop(

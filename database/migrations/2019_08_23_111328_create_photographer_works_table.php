@@ -28,6 +28,7 @@ class CreatePhotographerWorksTable extends Migration
             $table->unsignedInteger('photographer_work_category_id')->default(0)->comment('作品分类id');
             $table->unsignedSmallInteger('roof')->default(0)->comment('置顶');
             $table->unsignedSmallInteger('status')->default(0)->comment('状态【0:草稿;200:成功;400:删除;500:失败】');
+            $table->string('share_url',1000)->default('')->nullable()->comment('作品集首图');
             $table->timestamps();
         });
         DB::statement("ALTER TABLE `photographer_works` COMMENT '前台：摄影师作品集'"); // 表注释
