@@ -203,7 +203,8 @@ class QiniuController extends BaseController
                                         );
                                     }
                                 }
-                            } else {
+                            }
+                            else {
                                 return ErrLogServer::QiniuNotifyFop(
                                     $request_data['step'],
                                     '系统请求七牛图片信息接口时失败：'.$response['msg'],
@@ -252,11 +253,13 @@ class QiniuController extends BaseController
                     }
                     elseif ($request_data['step'] == 3) {
 
-                    } elseif ($request_data['step'] == 4) {  // 把持久化的图放到作品集
+                    }
+                    elseif ($request_data['step'] == 4) {  // 把持久化的图放到作品集
                         \Log::debug(json_encode($request_data , JSON_UNESCAPED_UNICODE));
                         $photographerWork->share_url = $request_data['items'][0]['key'];
                         $photographerWork->save();
-                    } elseif ($request_data['step'] == 5) {  // 把持久化的图放到作品集
+                    }
+                    elseif ($request_data['step'] == 5) {  // 把持久化的图放到作品集
                         \Log::debug(json_encode($request_data , JSON_UNESCAPED_UNICODE));
                         $photographer->share_url = $request_data['items'][0]['key'];
                         $photographer->save();

@@ -466,7 +466,8 @@ class MyController extends UserGuardController
             $photographer_work->status = 400;
             $photographer_work->save();
             \DB::commit();//提交事务
-
+            // 重新生成个人作品集图片
+            Photographer::generateShare($photographer->id);
             return $this->response->noContent();
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
@@ -521,6 +522,8 @@ class MyController extends UserGuardController
             $photographer->save();
             \DB::commit();//提交事务
 
+            // 重新生成一下海报
+            Photographer::generateShare($photographer->id);
             return $this->response->noContent();
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
@@ -781,6 +784,11 @@ class MyController extends UserGuardController
             }
             $photographer_work->photographerWorkSources()->where(['status' => 300])->update(['status' => 400]);
             \DB::commit();//提交事务
+
+            $generateResult = PhotographerWork::generateShare($photographer_work->id);
+            if (!$generateResult['result']) {
+                \Log::debug('photographer_work' . $photographer_work->id);
+            }
 
             return $this->response->noContent();
         } catch (\Exception $e) {
