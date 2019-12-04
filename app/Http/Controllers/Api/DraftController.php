@@ -643,7 +643,6 @@ class DraftController extends UserGuardController
             if (!$generateResult['result']) {
                 \Log::debug('photographer_work' . $photographer_work->id);
             }
-
             Photographer::generateShare($photographer->id);
             return $this->responseParseArray(['photographer_work_id' => $photographer_work->id]);
         } catch (\Exception $e) {

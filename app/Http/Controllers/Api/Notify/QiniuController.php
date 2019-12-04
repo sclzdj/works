@@ -48,17 +48,17 @@ class QiniuController extends BaseController
             $buckets = config('custom.qiniu.buckets');
             $domain = $buckets[$bucket]['domain'] ?? '';
             $photographerWorkSource->key = $request_data['key'];
-            $photographerWorkSource->url = $domain.'/'.$request_data['key'];
+            $photographerWorkSource->url = $domain . '/' . $request_data['key'];
             $photographerWorkSource->size = $request_data['size'];
             $photographerWorkSource->width = $request_data['width'];
             $photographerWorkSource->height = $request_data['height'];
             $photographerWorkSource->deal_key = $request_data['key'];
-            $photographerWorkSource->deal_url = $domain.'/'.$request_data['key'];
+            $photographerWorkSource->deal_url = $domain . '/' . $request_data['key'];
             $photographerWorkSource->deal_size = $request_data['size'];
             $photographerWorkSource->deal_width = $request_data['width'];
             $photographerWorkSource->deal_height = $request_data['height'];
             $photographerWorkSource->rich_key = $request_data['key'];
-            $photographerWorkSource->rich_url = $domain.'/'.$request_data['key'];
+            $photographerWorkSource->rich_url = $domain . '/' . $request_data['key'];
             $photographerWorkSource->rich_size = $request_data['size'];
             $photographerWorkSource->rich_width = $request_data['width'];
             $photographerWorkSource->rich_height = $request_data['height'];
@@ -83,7 +83,7 @@ class QiniuController extends BaseController
                     null,
                     config(
                         'app.url'
-                    ).'/api/notify/qiniu/fop?photographer_work_source_id='.$photographerWorkSource->id.'&step=1',
+                    ) . '/api/notify/qiniu/fop?photographer_work_source_id=' . $photographerWorkSource->id . '&step=1',
                     true
                 );
                 if ($qrst['err']) {
@@ -141,12 +141,12 @@ class QiniuController extends BaseController
                     $domain = $buckets[$bucket]['domain'] ?? '';
                     if ($request_data['step'] == 1) {
                         $photographerWorkSource->deal_key = $request_data['items'][0]['key'];
-                        $photographerWorkSource->deal_url = $domain.'/'.$request_data['items'][0]['key'];
+                        $photographerWorkSource->deal_url = $domain . '/' . $request_data['items'][0]['key'];
                         $photographerWorkSource->rich_key = $request_data['items'][0]['key'];
-                        $photographerWorkSource->rich_url = $domain.'/'.$request_data['items'][0]['key'];
+                        $photographerWorkSource->rich_url = $domain . '/' . $request_data['items'][0]['key'];
                         $photographerWorkSource->save();
                         if ($photographerWorkSource->type == 'image') {
-                            $response = SystemServer::request('GET', $photographerWorkSource->deal_url.'?imageInfo');
+                            $response = SystemServer::request('GET', $photographerWorkSource->deal_url . '?imageInfo');
                             if ($response['code'] == 200) {
                                 if (isset($response['data']['code']) && $response['data']['code'] != 200) {
                                     return ErrLogServer::QiniuNotifyFop(
@@ -168,21 +168,21 @@ class QiniuController extends BaseController
                                     $xacode = User::createXacode($photographerWork->id, 'photographer_work');
                                     if ($xacode) {
                                         $water2_image = \Qiniu\base64_urlSafeEncode(
-                                            $xacode.'|imageMogr2/thumbnail/210x210!'
+                                            $xacode . '|imageMogr2/thumbnail/210x210!'
                                         );
                                     } else {
                                         $water2_image = \Qiniu\base64_urlSafeEncode(
-                                            $domain.'/'.config(
+                                            $domain . '/' . config(
                                                 'custom.qiniu.crop_work_source_image_bg'
-                                            ).'?imageMogr2/thumbnail/210x210!|roundPic/radius/!50p'
+                                            ) . '?imageMogr2/thumbnail/210x210!|roundPic/radius/!50p'
                                         );
                                     }
                                     $water2_image_dy = $response['data']['height'] - 105;
-                                    $water3_text = \Qiniu\base64_urlSafeEncode("我是摄影师".$photographer->name);
+                                    $water3_text = \Qiniu\base64_urlSafeEncode("我是摄影师" . $photographer->name);
                                     $water3_text_dy = $response['data']['height'] + 130;
                                     $water4_text = \Qiniu\base64_urlSafeEncode("微信扫一扫，看我的全部作品");
                                     $water4_text_dy = $response['data']['height'] + 160;
-                                    $fops = ["imageMogr2/auto-orient/crop/{$response['data']['width']}x".($response['data']['height'] + 250)."|watermark/3/image/{$water1_image}/gravity/North/dx/0/dy/0/image/{$water2_image}/gravity/North/dx/0/dy/{$water2_image_dy}/text/{$water3_text}/fontsize/500/gravity/North/dx/0/dy/{$water3_text_dy}/text/{$water4_text}/fontsize/500/gravity/North/dx/0/dy/{$water4_text_dy}|imageslim"];
+                                    $fops = ["imageMogr2/auto-orient/crop/{$response['data']['width']}x" . ($response['data']['height'] + 250) . "|watermark/3/image/{$water1_image}/gravity/North/dx/0/dy/0/image/{$water2_image}/gravity/North/dx/0/dy/{$water2_image_dy}/text/{$water3_text}/fontsize/500/gravity/North/dx/0/dy/{$water3_text_dy}/text/{$water4_text}/fontsize/500/gravity/North/dx/0/dy/{$water4_text_dy}|imageslim"];
                                     $qrst = SystemServer::qiniuPfop(
                                         $bucket,
                                         config('custom.qiniu.crop_work_source_image_bg'),
@@ -190,7 +190,7 @@ class QiniuController extends BaseController
                                         null,
                                         config(
                                             'app.url'
-                                        ).'/api/notify/qiniu/fop?photographer_work_source_id='.$photographerWorkSource->id.'&step=2&width='.$response['data']['width'].'&height='.$response['data']['height'],
+                                        ) . '/api/notify/qiniu/fop?photographer_work_source_id=' . $photographerWorkSource->id . '&step=2&width=' . $response['data']['width'] . '&height=' . $response['data']['height'],
                                         true
                                     );
                                     if ($qrst['err']) {
@@ -203,11 +203,10 @@ class QiniuController extends BaseController
                                         );
                                     }
                                 }
-                            }
-                            else {
+                            } else {
                                 return ErrLogServer::QiniuNotifyFop(
                                     $request_data['step'],
-                                    '系统请求七牛图片信息接口时失败：'.$response['msg'],
+                                    '系统请求七牛图片信息接口时失败：' . $response['msg'],
                                     $request_data,
                                     $photographerWorkSource,
                                     $response
@@ -216,13 +215,12 @@ class QiniuController extends BaseController
                         } elseif ($photographerWorkSource->type == 'video') {
 
                         }
-                    }
-                    elseif ($request_data['step'] == 2) {
+                    } elseif ($request_data['step'] == 2) {
                         if ($photographerWorkSource->type == 'image') {
                             $photographerWorkSource->rich_key = $request_data['items'][0]['key'];
-                            $photographerWorkSource->rich_url = $domain.'/'.$request_data['items'][0]['key'];
+                            $photographerWorkSource->rich_url = $domain . '/' . $request_data['items'][0]['key'];
                             $photographerWorkSource->save();
-                            $response = SystemServer::request('GET', $photographerWorkSource->rich_url.'?imageInfo');
+                            $response = SystemServer::request('GET', $photographerWorkSource->rich_url . '?imageInfo');
                             if ($response['code'] == 200) {
                                 if (isset($response['data']['code']) && $response['data']['code'] != 200) {
                                     return ErrLogServer::QiniuNotifyFop(
@@ -241,7 +239,7 @@ class QiniuController extends BaseController
                             } else {
                                 return ErrLogServer::QiniuNotifyFop(
                                     $request_data['step'],
-                                    '系统请求七牛图片信息接口时失败：'.$response['msg'],
+                                    '系统请求七牛图片信息接口时失败：' . $response['msg'],
                                     $request_data,
                                     $photographerWorkSource,
                                     $response
@@ -250,17 +248,13 @@ class QiniuController extends BaseController
                         } elseif ($photographerWorkSource->type == 'video') {
 
                         }
-                    }
-                    elseif ($request_data['step'] == 3) {
-
-                    }
-                    elseif ($request_data['step'] == 4) {  // 把持久化的图放到作品集
-                        \Log::debug(json_encode($request_data , JSON_UNESCAPED_UNICODE));
+                    } elseif ($request_data['step'] == 3) {
+                    } elseif ($request_data['step'] == 4) {  // 把持久化的图放到作品集
+                        \Log::debug(json_encode($request_data, JSON_UNESCAPED_UNICODE));
                         $photographerWork->share_url = $request_data['items'][0]['key'];
                         $photographerWork->save();
-                    }
-                    elseif ($request_data['step'] == 5) {  // 把持久化的图放到作品集
-                        \Log::debug(json_encode($request_data , JSON_UNESCAPED_UNICODE));
+                    } elseif ($request_data['step'] == 5) {  // 把持久化的图放到作品集
+                        \Log::debug(json_encode($request_data, JSON_UNESCAPED_UNICODE));
                         $photographer->share_url = $request_data['items'][0]['key'];
                         $photographer->save();
                     }
