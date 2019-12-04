@@ -782,6 +782,11 @@ class MyController extends UserGuardController
             $photographer_work->photographerWorkSources()->where(['status' => 300])->update(['status' => 400]);
             \DB::commit();//提交事务
 
+            $generateResult = PhotographerWork::generateShare($photographer_work->id);
+            if (!$generateResult['result']) {
+                \Log::debug('photographer_work' . $photographer_work->id);
+            }
+
             return $this->response->noContent();
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
