@@ -97,7 +97,7 @@ class DraftController extends UserGuardController
                     $photographer_work_source->status = 200;
                     $photographer_work_source->save();
                     if ($photographer_work_source->type == 'image') {
-                        $res = SystemServer::request('GET', $photographer_work_source->url.'?imageInfo');
+                        $res = SystemServer::request('GET', $photographer_work_source->url . '?imageInfo');
                         if ($res['code'] == 200) {
                             if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
                                 $photographer_work_source->size = $res['data']['size'];
@@ -122,14 +122,14 @@ class DraftController extends UserGuardController
                         } else {
                             ErrLogServer::QiniuNotifyFop(
                                 0,
-                                '请求七牛图片信息接口报错：'.$res['msg'],
+                                '请求七牛图片信息接口报错：' . $res['msg'],
                                 $request->all(),
                                 $photographer_work_source,
                                 $res
                             );
                         }
                     } elseif ($photographer_work_source->type == 'video') {
-                        $res = SystemServer::request('GET', $photographer_work_source->url.'?avinfo');
+                        $res = SystemServer::request('GET', $photographer_work_source->url . '?avinfo');
                         if ($res['code'] == 200) {
                             if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
                                 $photographer_work_source->size = $res['data']['format']['size'];
@@ -148,7 +148,7 @@ class DraftController extends UserGuardController
                         } else {
                             ErrLogServer::QiniuNotifyFop(
                                 0,
-                                '请求七牛视频信息接口报错：'.$res['msg'],
+                                '请求七牛视频信息接口报错：' . $res['msg'],
                                 $request->all(),
                                 $photographer_work_source,
                                 $res
@@ -342,7 +342,7 @@ class DraftController extends UserGuardController
                             null,
                             config(
                                 'app.url'
-                            ).'/api/notify/qiniu/fop?photographer_work_source_id='.$photographerWorkSource->id.'&step=1',
+                            ) . '/api/notify/qiniu/fop?photographer_work_source_id=' . $photographerWorkSource->id . '&step=1',
                             true
                         );
                         if ($qrst['err']) {
@@ -374,12 +374,12 @@ class DraftController extends UserGuardController
                             'pagepath' => 'subPage/share/share',//注册成功分享页
                         ],
                         'data' => [
-                            'first' => $photographer->name.'，你已成功注册云作品！为了方便使用，建议苹果用户将云作品拽入我的小程序，建议安卓用户将云作品设为桌面图标。',
+                            'first' => $photographer->name . '，你已成功注册云作品！为了方便使用，建议苹果用户将云作品拽入我的小程序，建议安卓用户将云作品设为桌面图标。',
                             'keyword1' => $photographer->name,
                             'keyword2' => SystemArea::where('id', $photographer->city)->value('short_name'),
                             'keyword3' => PhotographerRank::where('id', $photographer->photographer_rank_id)->value(
                                     'name'
-                                ).'摄影师',
+                                ) . '摄影师',
                             'keyword4' => $photographer->wechat,
                             'keyword5' => $photographer->mobile,
                             'remark' => '更多技巧，请浏览使用帮助。',
@@ -392,7 +392,7 @@ class DraftController extends UserGuardController
             }
             if ($photographer->mobile) {//发送短信
                 $third_type = config('custom.send_short_message.third_type');
-                $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
+                $TemplateCodes = config('custom.send_short_message.' . $third_type . '.TemplateCodes');
                 if ($third_type == 'ali') {
                     AliSendShortMessageServer::quickSendSms(
                         $photographer->mobile,
@@ -419,8 +419,7 @@ class DraftController extends UserGuardController
     public function addPhotographerWorkSource()
     {
         $this->notPhotographerIdentityVerify();
-        $photographer_work = User::photographer(null, $this->guard)->photographerWorks()->where(['status' => 0])->first(
-        );
+        $photographer_work = User::photographer(null, $this->guard)->photographerWorks()->where(['status' => 0])->first();
         if ($photographer_work) {
             $photographer_work_sources = $photographer_work->photographerWorkSources()->select(
                 PhotographerWorkSource::allowFields()
@@ -476,7 +475,7 @@ class DraftController extends UserGuardController
                     $photographer_work_source->status = 200;
                     $photographer_work_source->save();
                     if ($photographer_work_source->type == 'image') {
-                        $res = SystemServer::request('GET', $photographer_work_source->url.'?imageInfo');
+                        $res = SystemServer::request('GET', $photographer_work_source->url . '?imageInfo');
                         if ($res['code'] == 200) {
                             if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
                                 $photographer_work_source->size = $res['data']['size'];
@@ -501,14 +500,14 @@ class DraftController extends UserGuardController
                         } else {
                             ErrLogServer::QiniuNotifyFop(
                                 0,
-                                '请求七牛图片信息接口报错：'.$res['msg'],
+                                '请求七牛图片信息接口报错：' . $res['msg'],
                                 $request->all(),
                                 $photographer_work_source,
                                 $res
                             );
                         }
                     } elseif ($photographer_work_source->type == 'video') {
-                        $res = SystemServer::request('GET', $photographer_work_source->url.'?avinfo');
+                        $res = SystemServer::request('GET', $photographer_work_source->url . '?avinfo');
                         if ($res['code'] == 200) {
                             if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
                                 $photographer_work_source->size = $res['data']['format']['size'];
@@ -527,7 +526,7 @@ class DraftController extends UserGuardController
                         } else {
                             ErrLogServer::QiniuNotifyFop(
                                 0,
-                                '请求七牛视频信息接口报错：'.$res['msg'],
+                                '请求七牛视频信息接口报错：' . $res['msg'],
                                 $request->all(),
                                 $photographer_work_source,
                                 $res
@@ -544,7 +543,7 @@ class DraftController extends UserGuardController
                             null,
                             config(
                                 'app.url'
-                            ).'/api/notify/qiniu/fop?photographer_work_source_id='.$photographer_work_source->id.'&step=1',
+                            ) . '/api/notify/qiniu/fop?photographer_work_source_id=' . $photographer_work_source->id . '&step=1',
                             true
                         );
                         if ($qrst['err']) {
@@ -562,11 +561,10 @@ class DraftController extends UserGuardController
             }
             $photographer_work->photographerWorkSources()->where(['status' => 300])->update(['status' => 400]);
             \DB::commit();//提交事务
-
+            // 初始化作品集分享图
             return $this->response->noContent();
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
-
             return $this->response->error($e->getMessage(), 500);
         }
     }
@@ -578,8 +576,7 @@ class DraftController extends UserGuardController
     public function addPhotographerWork()
     {
         $this->notPhotographerIdentityVerify();
-        $photographer_work = User::photographer(null, $this->guard)->photographerWorks()->where(['status' => 0])->first(
-        );
+        $photographer_work = User::photographer(null, $this->guard)->photographerWorks()->where(['status' => 0])->first();
         if ($photographer_work) {
             $photographer_work_tags = $photographer_work->photographerWorkTags()->select(
                 PhotographerWorkTag::allowFields()
@@ -642,7 +639,14 @@ class DraftController extends UserGuardController
                 }
             }
             \DB::commit();//提交事务
-
+            $generateResult = PhotographerWork::generateShare($photographer_work->id);
+            if (!$generateResult['result']) {
+                \Log::debug('photographer_work' . $photographer_work->id);
+            } else {
+                \Log::debug('photographer_work' . $photographer_work->id);
+                \Log::debug(var_export($photographer_work,1));
+                \Log::debug(json_encode($generateResult, JSON_UNESCAPED_UNICODE));
+            }
             return $this->responseParseArray(['photographer_work_id' => $photographer_work->id]);
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务

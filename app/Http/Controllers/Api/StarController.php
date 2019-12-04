@@ -81,7 +81,7 @@ class StarController extends BaseController
 
     public function test(Request $request)
     {
-        $work = PhotographerWork::find(16);
+        $work = PhotographerWork::find(68);
         $sheets_number = $work->hide_sheets_number == 1 ? '保密' : $work->sheets_number . '张';
         $project_number = $work->hide_project_amount == 1 ? '保密' : $work->project_amount . '元';
         $shooting_duration = $work->hide_shooting_duration == 1 ? '保密' : $work->shooting_duration . '小时';
@@ -112,7 +112,7 @@ class StarController extends BaseController
         $handleUrl[2] = "/text/" . \Qiniu\base64_urlSafeEncode($customer_name) . "/fontsize/1500/fill/" . base64_urlSafeEncode("#323232") . "/gravity/North/dx/0/dy/743";
         $handleUrl[3] = "/text/" . \Qiniu\base64_urlSafeEncode($buttonText) . "/fontsize/900/fill/" . base64_urlSafeEncode("#969696") . "/gravity/North/dx/0/dy/887";
 
-        // echo implode("", $handleUrl);
+       // echo implode("", $handleUrl);die();
         array_shift($handleUrl);
 
         $fops = ["imageMogr2/auto-orient/thumbnail/1200x960!" . implode("", $handleUrl)];
