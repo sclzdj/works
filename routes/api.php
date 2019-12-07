@@ -81,6 +81,9 @@ $api->version(
                 $api->get('my/viewRecords', 'MyController@viewRecords');
                 $api->get('my/viewRecords', 'MyController@viewRecords');
                 $api->get('my/photographerStatistics', 'MyController@photographerStatistics');
+                $api->get('my/photographerShare' , 'MyController@photographerShare');
+                $api->get('my/photographerWorkShare' , 'MyController@photographerWorkShare');
+
                 //摄影师注册
                 $api->get('draft/registerPhotographerWorkSource', 'DraftController@registerPhotographerWorkSource');
                 $api->post(
@@ -144,6 +147,9 @@ $api->version(
                 $api->post('star/getStars', 'StarController@getStars');
                 $api->get('star/test' , 'StarController@test');
                 $api->get('star/test2' , 'StarController@test2');
+
+                // 查询用户是否使用过引导
+                $api->post('bootstrap/query' , 'BootstrapController@query');
             }
         );
     }

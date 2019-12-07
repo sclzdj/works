@@ -215,6 +215,17 @@ class Photographer extends Model
 
         $resourceId = 0;
         foreach ($resources as $key => $resource) {
+            if (empty($resource->deal_width) || empty($resource->deal_height)) {
+                $response = SystemServer::request('GET', $resource->deal_url . '?imageInfo');
+                if (isset($response['code']) && $response['code'] == 200) {
+                    $resource->deal_width = $response['data']['width'];
+                    $resource->deal_height = $response['data']['height'];
+                } else {
+                    $response = SystemServer::request('GET', $resource->url . '?imageInfo');
+                    $resource->deal_width = 1200;
+                    $resource->deal_height = $response['data']['height'];
+                }
+            }
             $resourceId = $resource->id;
             if ($resource->deal_width < $resource->deal_height) {  // 长图
                 $width = 380;
@@ -256,8 +267,6 @@ class Photographer extends Model
 
         if ($qrst['err']) {
             \Log::debug($qrst['err']);
-        } else {
-            \Log::debug(var_export($qrst , 1));
         }
 
         return ['result' => true, 'msg' => "成功"];

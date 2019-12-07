@@ -23,6 +23,7 @@ use App\Servers\ErrLogServer;
 use App\Servers\PhotographerServer;
 use App\Servers\SystemServer;
 use App\Servers\WechatServer;
+use Illuminate\Http\Request;
 use Qiniu\Auth;
 use Qiniu\Storage\BucketManager;
 
@@ -73,7 +74,7 @@ class MyController extends UserGuardController
 
                                 return $this->response->error($err->message(), 500);
                             } else {
-                                $avatar = $domain.'/'.$ret['key'];
+                                $avatar = $domain . '/' . $ret['key'];
                             }
                             $user->avatar = $avatar;
                         }
@@ -100,7 +101,7 @@ class MyController extends UserGuardController
             } else {
                 \DB::rollback();//回滚事务
 
-                return $this->response->error('微信解密错误：'.$errCode, 500);
+                return $this->response->error('微信解密错误：' . $errCode, 500);
             }
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
@@ -140,7 +141,7 @@ class MyController extends UserGuardController
             } else {
                 \DB::rollback();//回滚事务
 
-                return $this->response->error('微信解密错误：'.$errCode, 500);
+                return $this->response->error('微信解密错误：' . $errCode, 500);
             }
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
@@ -346,7 +347,7 @@ class MyController extends UserGuardController
         }
         $fields = array_map(
             function ($v) {
-                return 'photographer_work_sources.'.$v;
+                return 'photographer_work_sources.' . $v;
             },
             PhotographerWorkSource::allowFields()
         );
@@ -703,9 +704,9 @@ class MyController extends UserGuardController
                     $photographer_work_source->sort = $k + 1;
                     $photographer_work_source->status = 200;
                     $photographer_work_source->save();
-                    $log_filename = 'logs/qiniu_fop_error/'.date('Y-m-d').'/'.date('H').'.log';
+                    $log_filename = 'logs/qiniu_fop_error/' . date('Y-m-d') . '/' . date('H') . '.log';
                     if ($photographer_work_source->type == 'image') {
-                        $res = SystemServer::request('GET', $photographer_work_source->url.'?imageInfo');
+                        $res = SystemServer::request('GET', $photographer_work_source->url . '?imageInfo');
                         if ($res['code'] == 200) {
                             if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
                                 $photographer_work_source->size = $res['data']['size'];
@@ -720,7 +721,7 @@ class MyController extends UserGuardController
                             } else {
                                 ErrLogServer::QiniuNotifyFop(
                                     0,
-                                    '七牛图片信息接口返回错误信息：'.json_encode($res['data']),
+                                    '七牛图片信息接口返回错误信息：' . json_encode($res['data']),
                                     $request->all(),
                                     $photographer_work_source
                                 );
@@ -728,13 +729,13 @@ class MyController extends UserGuardController
                         } else {
                             ErrLogServer::QiniuNotifyFop(
                                 0,
-                                '请求七牛图片信息接口报错：'.$res['msg'].' '.json_encode($res),
+                                '请求七牛图片信息接口报错：' . $res['msg'] . ' ' . json_encode($res),
                                 $request->all(),
                                 $photographer_work_source
                             );
                         }
                     } elseif ($photographer_work_source->type == 'video') {
-                        $res = SystemServer::request('GET', $photographer_work_source->url.'?avinfo');
+                        $res = SystemServer::request('GET', $photographer_work_source->url . '?avinfo');
                         if ($res['code'] == 200) {
                             if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
                                 $photographer_work_source->size = $res['data']['format']['size'];
@@ -744,7 +745,7 @@ class MyController extends UserGuardController
                             } else {
                                 ErrLogServer::QiniuNotifyFop(
                                     0,
-                                    '七牛视频信息接口返回错误信息：'.json_encode($res['data']),
+                                    '七牛视频信息接口返回错误信息：' . json_encode($res['data']),
                                     $request->all(),
                                     $photographer_work_source
                                 );
@@ -752,7 +753,7 @@ class MyController extends UserGuardController
                         } else {
                             ErrLogServer::QiniuNotifyFop(
                                 0,
-                                '请求七牛视频信息接口报错：'.$res['msg'].' '.json_encode($res),
+                                '请求七牛视频信息接口报错：' . $res['msg'] . ' ' . json_encode($res),
                                 $request->all(),
                                 $photographer_work_source
                             );
@@ -768,13 +769,13 @@ class MyController extends UserGuardController
                             null,
                             config(
                                 'app.url'
-                            ).'/api/notify/qiniu/fop?photographer_work_source_id='.$photographer_work_source->id.'&step=1',
+                            ) . '/api/notify/qiniu/fop?photographer_work_source_id=' . $photographer_work_source->id . '&step=1',
                             true
                         );
                         if ($qrst['err']) {
                             ErrLogServer::QiniuNotifyFop(
                                 0,
-                                '持久化请求失败：'.json_encode($qrst['err']),
+                                '持久化请求失败：' . json_encode($qrst['err']),
                                 $request->all(),
                                 $photographer_work_source
                             );
@@ -789,11 +790,14 @@ class MyController extends UserGuardController
             if (!$generateResult['result']) {
                 \Log::debug('photographer_work' . $photographer_work->id);
             }
+            $generateResult = Photographer::generateShare($photographer_work->photographer_id);
+            if (!$generateResult['result']) {
+                \Log::debug('photographer' . $photographer_work->photographer_id);
+            }
 
             return $this->response->noContent();
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
-
             return $this->response->error($e->getMessage(), 500);
         }
     }
@@ -850,7 +854,7 @@ class MyController extends UserGuardController
             if ($photographers) {
                 $fields = array_map(
                     function ($v) {
-                        return 'photographer_work_sources.'.$v;
+                        return 'photographer_work_sources.' . $v;
                     },
                     PhotographerWorkSource::allowFields()
                 );
@@ -904,7 +908,7 @@ class MyController extends UserGuardController
         $user = auth($this->guard)->user();
         $fields = array_map(
             function ($v) {
-                return 'photographers.'.$v;
+                return 'photographers.' . $v;
             },
             Photographer::allowFields()
         );
@@ -928,7 +932,7 @@ class MyController extends UserGuardController
         if ($view_records['data']) {
             $fields = array_map(
                 function ($v) {
-                    return 'photographer_work_sources.'.$v;
+                    return 'photographer_work_sources.' . $v;
                 },
                 PhotographerWorkSource::allowFields()
             );
@@ -1082,6 +1086,53 @@ class MyController extends UserGuardController
             \DB::rollback();//回滚事务
 
             return $this->response->error($e->getMessage(), 500);
+        }
+
+    }
+
+    /**
+     * 获取摄影师的分享图
+     * @return mixed|void
+     */
+    public function photographerShare()
+    {
+        $userInfo = auth($this->guard)->user();
+        $photographer = Photographer::where('id', $userInfo->id)->first();
+        if (empty($photographer)) {
+            return [
+                'result' => false,
+                'share_url' => ''
+            ];
+        }
+        $buckets = config('custom.qiniu.buckets');
+        $domain = $buckets['zuopin']['domain'] ?? '';
+
+        return [
+            'result' => true,
+            'share_url' => $domain . '/' . $photographer->share_url
+        ];
+    }
+
+    /**
+     * 获取作品集的分享图
+     * @return mixed|void
+     */
+    public function photographerWorkShare(Request $request)
+    {
+        $photographer_work_id = $request->input('photographer_work_id', 0);
+        $PhotographerWork = PhotographerWork::find($photographer_work_id);
+        $buckets = config('custom.qiniu.buckets');
+        $domain = $buckets['zuopin']['domain'] ?? '';
+        if (empty($PhotographerWork)) {
+            return [
+                'result' => false,
+                'share_url' => ''
+            ];
+        } else {
+            return [
+                'result' => false,
+                'share_url' => $domain.'/'.$PhotographerWork->share_url
+            ];
         }
     }
 }

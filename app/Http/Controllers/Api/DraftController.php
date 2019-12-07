@@ -244,7 +244,11 @@ class DraftController extends UserGuardController
                 }
             }
             \DB::commit();//提交事务
-
+            $generateResult = PhotographerWork::generateShare($photographer_work->id);
+            if (!$generateResult['result']) {
+                \Log::debug('photographer_work' . $photographer_work->id);
+            }
+            Photographer::generateShare($photographer->id);
             return $this->response->noContent();
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务

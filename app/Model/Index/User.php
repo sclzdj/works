@@ -55,6 +55,7 @@ class User extends Authenticatable implements JWTSubject
         'gh_openid',
         'session_key',
         'xacode',
+        'share_url'
     ];
 
     /**
