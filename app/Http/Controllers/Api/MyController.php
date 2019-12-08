@@ -1094,10 +1094,10 @@ class MyController extends UserGuardController
      * 获取摄影师的分享图
      * @return mixed|void
      */
-    public function photographerShare()
+    public function photographerShare(Request $request)
     {
-        $userInfo = auth($this->guard)->user();
-        $photographer = Photographer::where('id', $userInfo->id)->first();
+        $photographer_id = $request->input('photographer_id');
+        $photographer = Photographer::where('id', $photographer_id->id)->first();
         if (empty($photographer)) {
             return [
                 'result' => false,
