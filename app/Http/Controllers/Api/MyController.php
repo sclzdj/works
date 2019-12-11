@@ -1097,7 +1097,8 @@ class MyController extends UserGuardController
     public function photographerShare(Request $request)
     {
         $photographer_id = $request->input('photographer_id');
-        $photographer = Photographer::where('id', $photographer_id->id)->first();
+        $photographer = Photographer::where('id',$photographer_id)->first();
+
         if (empty($photographer)) {
             return [
                 'result' => false,
@@ -1120,7 +1121,7 @@ class MyController extends UserGuardController
     public function photographerWorkShare(Request $request)
     {
         $photographer_work_id = $request->input('photographer_work_id', 0);
-        $PhotographerWork = PhotographerWork::find($photographer_work_id);
+        $PhotographerWork = PhotographerWork::where('id' ,$photographer_work_id)->first();
         $buckets = config('custom.qiniu.buckets');
         $domain = $buckets['zuopin']['domain'] ?? '';
         if (empty($PhotographerWork)) {
