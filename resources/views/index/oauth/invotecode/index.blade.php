@@ -115,7 +115,8 @@
                         data: data,
                         success: function (response) {
                             if (response.data.result == true) {
-                                wx.miniProgram.redirectTo({url: "/pages/login2/login2"})
+                                // wx.miniProgram.redirectTo({url: "/pages/login2/login2"})
+                                wx.miniProgram.redirectTo({url: "/pages/registGuid/index"})
                             } else {
                                 alert(response.data.msg);
                             }
