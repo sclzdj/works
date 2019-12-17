@@ -16,6 +16,7 @@ use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\PhotographerWorkTag;
 use App\Model\Index\RandomPhotographer;
 use App\Model\Index\User;
+use App\Model\Index\UserGrowths;
 use App\Model\Index\ViewRecord;
 use App\Model\Index\Visitor;
 use App\Servers\ArrServer;
@@ -389,12 +390,15 @@ class MyController extends UserGuardController
      */
     public function photographerStatistics(UserRequest $request)
     {
+
         $this->notPhotographerIdentityVerify();
         $rankListLast = $request->rankListLast ?? 50;
         $photographer = User::photographer(null, $this->guard);
         if (!$photographer || $photographer->status != 200) {
             return $this->response->error('摄影师不存在', 500);
         }
+        // 获取一下上次的登录时间
+        $user_growth_count = UserGrowths::getUserGrowthCount($this->guard);
         $photographer_work_count = PhotographerWork::where(
             ['photographer_id' => $photographer->id, 'status' => 200]
         )->count();
@@ -437,7 +441,8 @@ class MyController extends UserGuardController
                 'view_record_count',
                 'myRank',
                 'visitor_today_count_differ',
-                'visitor_count_differ'
+                'visitor_count_differ',
+                'user_growth_count'
             )
         );
     }
@@ -1097,7 +1102,7 @@ class MyController extends UserGuardController
     public function photographerShare(Request $request)
     {
         $photographer_id = $request->input('photographer_id');
-        $photographer = Photographer::where('id',$photographer_id)->first();
+        $photographer = Photographer::where('id', $photographer_id)->first();
 
         if (empty($photographer)) {
             return [
@@ -1121,7 +1126,7 @@ class MyController extends UserGuardController
     public function photographerWorkShare(Request $request)
     {
         $photographer_work_id = $request->input('photographer_work_id', 0);
-        $PhotographerWork = PhotographerWork::where('id' ,$photographer_work_id)->first();
+        $PhotographerWork = PhotographerWork::where('id', $photographer_work_id)->first();
         $buckets = config('custom.qiniu.buckets');
         $domain = $buckets['zuopin']['domain'] ?? '';
         if (empty($PhotographerWork)) {
@@ -1132,7 +1137,7 @@ class MyController extends UserGuardController
         } else {
             return [
                 'result' => false,
-                'share_url' => $domain.'/'.$PhotographerWork->share_url
+                'share_url' => $domain . '/' . $PhotographerWork->share_url
             ];
         }
     }
