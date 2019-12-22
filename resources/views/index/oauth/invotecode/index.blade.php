@@ -82,7 +82,7 @@
 <div id="content">
     <div id="topContent">
 		<img src="{{asset('images/titles.png')}}" style="margin: auto;width: 4rem;height: 1.48rem;" />
-		<input class="input" type="text" v-model="inputData" placeholder="请输入邀请码" id="inputs" maxlength="6" style="text-transform:uppercase" @input="inputWrite"/>
+		<input class="input" type="text" v-model="inputData" placeholder="请输入创建码" id="inputs" maxlength="6" style="text-transform:uppercase" @input="inputWrite"/>
 		<div style="width: 10rem;height: 0.4rem;margin: auto;margin-top: 0.533333rem;display: flex;justify-content: center;" @click="redirectTo">
 		    <div class="" style="text-align: center;line-height: 0.4rem;width:0.4rem;height:0.4rem;background:rgba(255,255,255,1);border-radius:50%;font-size:0.2666rem;font-family:PingFang SC;font-weight:500;color:rgba(62,205,246,1);">?</div>
 		    <div class="" style="font-size:0.333333rem;font-family:PingFang SC;font-weight:500;color:rgba(255,255,255,1);margin-left: 0.23rem;margin-top: -0.026666rem;">怎样获得邀请码</div>
