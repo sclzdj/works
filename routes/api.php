@@ -83,6 +83,8 @@ $api->version(
                 $api->get('my/photographerStatistics', 'MyController@photographerStatistics');
                 $api->get('my/photographerShare' , 'MyController@photographerShare');
                 $api->get('my/photographerWorkShare' , 'MyController@photographerWorkShare');
+                // 摄影师作品 成片个数 拍摄时长 项目金额
+                $api->get('my/photographerWorkHide' , 'MyController@photographerWorkHide');
 
                 //摄影师注册
                 $api->get('draft/registerPhotographerWorkSource', 'DraftController@registerPhotographerWorkSource');
@@ -145,8 +147,7 @@ $api->version(
 
                 // 大咖
                 $api->post('star/getStars', 'StarController@getStars');
-                $api->get('star/test' , 'StarController@test');
-                $api->get('star/test2' , 'StarController@test2');
+                $api->get('star/test3' , 'StarController@test3');
 
                 // 查询用户是否使用过引导
                 $api->post('bootstrap/query' , 'BootstrapController@query');

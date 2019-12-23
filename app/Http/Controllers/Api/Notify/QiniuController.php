@@ -170,7 +170,8 @@ class QiniuController extends BaseController
                                         $water2_image = \Qiniu\base64_urlSafeEncode(
                                             $xacode . '|imageMogr2/thumbnail/210x210!'
                                         );
-                                    } else {
+                                    }
+                                    else {
                                         $water2_image = \Qiniu\base64_urlSafeEncode(
                                             $domain . '/' . config(
                                                 'custom.qiniu.crop_work_source_image_bg'

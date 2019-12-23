@@ -60,7 +60,7 @@ class LoginController extends UserGuardController
                 return $this->response->error('登录失败', 422);
             }
             \DB::commit();//提交事务
-//            \Log::debug($token);
+            \Log::debug($token);
             return $this->respondWithToken($token);
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务

@@ -15,6 +15,7 @@ use App\Servers\SystemServer;
 use Illuminate\Http\Request;
 use Intervention\Image\Facades\Image;
 use Qiniu\Auth;
+use function Qiniu\base64_urlSafeDecode;
 use function Qiniu\base64_urlSafeEncode;
 use Qiniu\Storage\UploadManager;
 use Validator;
@@ -112,7 +113,7 @@ class StarController extends BaseController
         $handleUrl[2] = "/text/" . \Qiniu\base64_urlSafeEncode($customer_name) . "/fontsize/1500/fill/" . base64_urlSafeEncode("#323232") . "/gravity/North/dx/0/dy/743";
         $handleUrl[3] = "/text/" . \Qiniu\base64_urlSafeEncode($buttonText) . "/fontsize/900/fill/" . base64_urlSafeEncode("#969696") . "/gravity/North/dx/0/dy/887";
 
-       // echo implode("", $handleUrl);die();
+        // echo implode("", $handleUrl);die();
         array_shift($handleUrl);
 
         $fops = ["imageMogr2/auto-orient/thumbnail/1200x960!" . implode("", $handleUrl)];
@@ -228,6 +229,62 @@ class StarController extends BaseController
             true
         );
         var_dump($qrst);
+    }
+
+    public function test3(Request $request)
+    {
+
+        $bucket = 'zuopin';
+        $buckets = config('custom.qiniu.buckets');
+        $domain = $buckets[$bucket]['domain'] ?? '';
+
+        $photographerWorkSource = PhotographerWorkSource::where(
+            [
+                'id' => $request->input('photographer_work_source_id'),
+                'type' => 'image',
+            ]
+        )->first();
+        $photographerWork = PhotographerWork::where(['id' => $photographerWorkSource->photographer_work_id])->first();
+        $photographer = Photographer::where(['id' => $photographerWork->photographer_id])->first();
+
+        $water1_image = \Qiniu\base64_urlSafeEncode($photographerWorkSource->deal_url);
+        $xacode = User::createXacode2($photographerWork->id, 'photographer_work');
+
+//        echo $xacode;die();
+        if ($xacode) {
+            $water2_image = \Qiniu\base64_urlSafeEncode(
+                $xacode . '|imageMogr2/thumbnail/185x185!'
+            );
+        } else {
+            $water2_image = \Qiniu\base64_urlSafeEncode(
+                $domain . '/' . config(
+                    'custom.qiniu.crop_work_source_image_bg'
+                ) . '?imageMogr2/thumbnail/185x185!|roundPic/radius/!50p'
+            );
+        }
+
+
+        $buttonbackground = base64_encode("https://file.zuopin.cloud/Fgz6Zf0EmsLVLvpCf73jBDaCPr9T");
+        $hanlde = [];
+        $hanlde[] = "https://file.zuopin.cloud/work_source_image_bg.jpg";
+        $hanlde[] = "?imageMogr2/auto-orient/crop/" . $photographerWorkSource->deal_width . 'x' . ($photographerWorkSource->deal_height + 280);
+
+        $hanlde[] = "|watermark/3/image/{$water1_image}/gravity/North/dx/0/dy/0/";
+        $hanlde[] = "|watermark/3/image/{$buttonbackground}/gravity/South/dx/0/dy/0/";
+
+        $hanlde[] = "|watermark/3/image/{$water2_image}/gravity/SouthEast/dx/57/dy/47/";
+
+        $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode($photographerWork->customer_name) . "/fontsize/800/fill/" . base64_urlSafeEncode("#323232") . "/gravity/SouthWest/dx/71/dy/162/";
+        $fistX = 75 + intval(bcmul(mb_strlen($photographerWork->customer_name), 40));
+
+        $hanlde[] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode("https://file.zuopin.cloud/FlwzUiAItXVuajVB1_WNoteI-Fiw") . "/gravity/SouthWest/dx/" . $fistX . "/dy/162/";
+        $secondX = $fistX + 35;
+        $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer->name) . "/fontsize/800/fill/" . base64_urlSafeEncode("#969696") . "/gravity/SouthWest/dx/" . $secondX . "/dy/162/";
+
+        $count = PhotographerWorkSource::where('photographer_work_id', $photographerWorkSource->photographer_work_id)->count();
+        $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode("微信扫一扫,看剩余" . $count . "张作品") . "/fontsize/609/fill/" . base64_urlSafeEncode("#F7F7F7") . "/gravity/SouthWest/dx/101/dy/82/";
+
+        echo implode($hanlde) . PHP_EOL;
     }
 
 

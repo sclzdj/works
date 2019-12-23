@@ -482,6 +482,41 @@ class MyController extends UserGuardController
         }
     }
 
+    public function photographerWorkHide(UserRequest $request)
+    {
+        $this->notPhotographerIdentityVerify();
+        $photographer = User::photographer(null, $this->guard);
+        $photographer_work = PhotographerWork::where(
+            [   'status' => 200,
+                'id' => $request->photographer_work_id,
+                'photographer_id' => $photographer->id
+            ]
+        )->first();
+        if (empty($photographer_work)) {
+            return $this->response->error('摄影师作品集不存在', 500);
+        }
+        $type = $request->input('type');
+        $status = $request->input('status');
+
+        $types = [ 'hide_project_amount' , 'hide_sheets_number' , 'hide_shooting_duration'];
+
+        $updateResult = PhotographerWork::where([
+            'id' => $request->photographer_work_id,
+            'photographer_id' => $photographer->id
+        ])->update(
+            [$types[$type] => $status]
+        );
+
+        if (!$updateResult) {
+            return $this->response->error("没有更改成功", 500);
+        }
+
+        return $this->response->array([
+            'message' => '更改成功',
+            'status' => 200
+        ]);
+    }
+
     /**
      * 保存我的摄影师信息
      * @param UserRequest $request
@@ -1141,4 +1176,5 @@ class MyController extends UserGuardController
             ];
         }
     }
+
 }

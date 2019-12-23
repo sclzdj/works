@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Index;
 
 use App\Http\Requests\BaseRequest;
+use Illuminate\Validation\Rule;
 
 class UserRequest extends BaseRequest
 {
@@ -104,6 +105,13 @@ class UserRequest extends BaseRequest
             case 'docPdfs':
                 $rules = array_merge($rules, $this->predefined['paginate']['rules']);
                 break;
+            case 'photographerWorkHide':
+                $rules = [
+                    'photographer_work_id' => 'required|integer',
+                    'type' => ['required', 'integer', Rule::in([0, 1, 2]),],
+                    'status' => ['required', 'integer', Rule::in([0, 1]),],
+                ];
+                break;
         }
 
         return $rules;
@@ -165,8 +173,8 @@ class UserRequest extends BaseRequest
                     'photographer_work_id.required' => '摄影师作品集id必须传递',
                     'photographer_work_id.integer' => '摄影师作品集id必须为数字',
                     'operate_type.required' => '操作方式必须传递',
-                    'operate_type.integer'=>'操作方式必须为数字',
-                    'operate_type.in'=>'操作方式错误',
+                    'operate_type.integer' => '操作方式必须为数字',
+                    'operate_type.in' => '操作方式错误',
                 ];
                 break;
             case 'savePhotographerWorkInfo':
@@ -252,6 +260,7 @@ class UserRequest extends BaseRequest
             'save_info' => ['POST|App\Http\Controllers\Api\MyController@saveInfo'],
             'saveMobile' => ['POST|App\Http\Controllers\Api\MyController@saveMobile'],
             'photographerWorks' => ['GET|App\Http\Controllers\Api\MyController@photographerWorks'],
+            'photographerWorkHide' => ['GET|App\Http\Controllers\Api\MyController@photographerWorkHide'],
             'photographerWorkSources' => ['GET|App\Http\Controllers\Api\MyController@photographerWorkSources'],
             'photographerWork' => [
                 'GET|App\Http\Controllers\Api\MyController@photographerWork',
