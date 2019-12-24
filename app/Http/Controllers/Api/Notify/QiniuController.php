@@ -11,6 +11,7 @@ use App\Model\Index\User;
 use App\Servers\ErrLogServer;
 use App\Servers\SystemServer;
 use function AlibabaCloud\Client\json;
+use function Qiniu\base64_urlSafeEncode;
 
 /**
  * 七牛相关控制器
@@ -165,7 +166,7 @@ class QiniuController extends BaseController
                                     $photographerWorkSource->rich_height = $response['data']['height'];
                                     $photographerWorkSource->save();
                                     $water1_image = \Qiniu\base64_urlSafeEncode($photographerWorkSource->deal_url);
-                                    $xacode = User::createXacode($photographerWork->id, 'photographer_work');
+                                    $xacode = User::createXacode2($photographerWork->id, 'photographer_work');
                                     if ($xacode) {
                                         $water2_image = \Qiniu\base64_urlSafeEncode(
                                             $xacode . '|imageMogr2/thumbnail/210x210!'
@@ -178,12 +179,47 @@ class QiniuController extends BaseController
                                             ) . '?imageMogr2/thumbnail/210x210!|roundPic/radius/!50p'
                                         );
                                     }
-                                    $water2_image_dy = $response['data']['height'] - 105;
-                                    $water3_text = \Qiniu\base64_urlSafeEncode("我是摄影师" . $photographer->name);
-                                    $water3_text_dy = $response['data']['height'] + 130;
-                                    $water4_text = \Qiniu\base64_urlSafeEncode("微信扫一扫，看我的全部作品");
-                                    $water4_text_dy = $response['data']['height'] + 160;
-                                    $fops = ["imageMogr2/auto-orient/crop/{$response['data']['width']}x" . ($response['data']['height'] + 250) . "|watermark/3/image/{$water1_image}/gravity/North/dx/0/dy/0/image/{$water2_image}/gravity/North/dx/0/dy/{$water2_image_dy}/text/{$water3_text}/fontsize/500/gravity/North/dx/0/dy/{$water3_text_dy}/text/{$water4_text}/fontsize/500/gravity/North/dx/0/dy/{$water4_text_dy}|imageslim"];
+//                                    $water2_image_dy = $response['data']['height'] - 105;
+//                                    $water3_text = \Qiniu\base64_urlSafeEncode("我是摄影师" . $photographer->name);
+//                                    $water3_text_dy = $response['data']['height'] + 130;
+//                                    $water4_text = \Qiniu\base64_urlSafeEncode("微信扫一扫，看我的全部作品");
+//                                    $water4_text_dy = $response['data']['height'] + 160;
+//
+//
+//
+//                                    $fops = ["imageMogr2/auto-orient/crop/{$response['data']['width']}x" . ($response['data']['height'] + 250) . "|watermark/3/image/{$water1_image}/gravity/North/dx/0/dy/0/image/{$water2_image}/gravity/North/dx/0/dy/{$water2_image_dy}/text/{$water3_text}/fontsize/500/gravity/North/dx/0/dy/{$water3_text_dy}/text/{$water4_text}/fontsize/500/gravity/North/dx/0/dy/{$water4_text_dy}|imageslim"];
+
+
+                                    $hanlde = [];
+                                    $hanlde[] = "imageMogr2/auto-orient/crop/" . $response['data']['width'] . 'x' . ($response['data']['height'] + 250);
+                                    $hanlde[] = "|watermark/3/image/{$water1_image}/gravity/North/dx/0/dy/0/";
+                                    $hanlde[] = "|watermark/3/image/" . base64_encode("https://file.zuopin.cloud/Fgz6Zf0EmsLVLvpCf73jBDaCPr9T") . "/gravity/South/dx/0/dy/0/";
+
+                                    $hanlde[] = "|watermark/3/image/{$water2_image}/gravity/SouthEast/dx/57/dy/47/";
+
+                                    $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode($photographerWork->customer_name) . "/fontsize/800/fill/" . base64_urlSafeEncode("#323232") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/71/dy/162/";
+                                    $fistX = 75;
+                                    // 根据字体来判断宽度 中文40 数字字母20
+                                    for ($i = 0; $i < mb_strlen($photographerWork->customer_name); $i++) {
+                                        $char = mb_substr($photographerWork->customer_name, $i, 1);
+                                        if (ord($char) > 126) {
+                                            $fistX += 42;
+                                        } else {
+                                            $fistX += 24;
+                                        }
+                                    }
+
+                                    $hanlde[] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode("https://file.zuopin.cloud/FlwzUiAItXVuajVB1_WNoteI-Fiw") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/" . $fistX . "/dy/170/";
+                                    $secondX = $fistX + 45;
+                                    $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer->name) . "/fontsize/800/fill/" . base64_urlSafeEncode("#C8C8C8") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/" . $secondX . "/dy/162/";
+
+                                    $count = PhotographerWorkSource::where('photographer_work_id', $photographerWorkSource->photographer_work_id)->count();
+                                    $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode("微信扫一扫,看剩余" . $count . "张作品") . "/fontsize/609/fill/" . base64_urlSafeEncode("#F7F7F7") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/101/dy/80/";
+                                    $hanlde[] = "|imageslim";
+
+                                    $fops[] = implode($hanlde);
+
+                                    \Log::debug( implode($hanlde));
                                     $qrst = SystemServer::qiniuPfop(
                                         $bucket,
                                         config('custom.qiniu.crop_work_source_image_bg'),
@@ -251,11 +287,11 @@ class QiniuController extends BaseController
                         }
                     } elseif ($request_data['step'] == 3) {
                     } elseif ($request_data['step'] == 4) {  // 把持久化的图放到作品集
-                        \Log::debug(json_encode($request_data, JSON_UNESCAPED_UNICODE));
+//                        \Log::debug(json_encode($request_data, JSON_UNESCAPED_UNICODE));
                         $photographerWork->share_url = $request_data['items'][0]['key'];
                         $photographerWork->save();
                     } elseif ($request_data['step'] == 5) {  // 把持久化的图放到作品集
-                        \Log::debug(json_encode($request_data, JSON_UNESCAPED_UNICODE));
+//                        \Log::debug(json_encode($request_data, JSON_UNESCAPED_UNICODE));
                         $photographer->share_url = $request_data['items'][0]['key'];
                         $photographer->save();
                     }

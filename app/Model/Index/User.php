@@ -226,14 +226,13 @@ class User extends Authenticatable implements JWTSubject
             if (!$photographer->avatar) {
                 return $domain.'/'.$ret['key'].'?roundPic/radius/!50p';
             }
-            $avatar = $photographer->avatar.'?imageMogr2/thumbnail/170x170!|roundPic/radius/!50p';
+            $avatar = $photographer->avatar.'?imageMogr2/thumbnail/190x190!|roundPic/radius/!50p';
+
             $avatar_bg = config('app.url').'/xacodes/avatar_bg.png';
 
             return $domain.'/'.$ret['key'].'?watermark/3/image/'.\Qiniu\base64_urlSafeEncode(
-                    $avatar_bg
-                ).'/dx/125/dy/125/image/'.\Qiniu\base64_urlSafeEncode(
                     $avatar
-                ).'/dx/125/dy/125|roundPic/radius/!50p';
+                ).'/dx/115/dy/115';
         } else {
             return '';
         }
