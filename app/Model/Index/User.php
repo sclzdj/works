@@ -180,9 +180,6 @@ class User extends Authenticatable implements JWTSubject
         }
     }
 
-    /**
-     * 改成185 x 185大小的 小程序码
-     */
     public static function createXacode2($id, $type = 'photographer')
     {
         if ($type == 'photographer_work') {
@@ -203,8 +200,6 @@ class User extends Authenticatable implements JWTSubject
         if ($response['code'] == 200) {
             $filename = 'xacodes/'.time().mt_rand(10000, 99999).'.png';
             $xacode = Image::make($response['data'])->resize(420, 420);
-//            $bgimg = Image::make('xacodes/bg.png')->resize(420, 420);
-//            $xacode->insert($xacode, 'top-left', 25, 25);
             $xacode->save($filename);
             $bucket = 'zuopin';
             $buckets = config('custom.qiniu.buckets');
@@ -227,9 +222,6 @@ class User extends Authenticatable implements JWTSubject
                 return $domain.'/'.$ret['key'].'?roundPic/radius/!50p';
             }
             $avatar = $photographer->avatar.'?imageMogr2/thumbnail/190x190!|roundPic/radius/!50p';
-
-            $avatar_bg = config('app.url').'/xacodes/avatar_bg.png';
-
             return $domain.'/'.$ret['key'].'?watermark/3/image/'.\Qiniu\base64_urlSafeEncode(
                     $avatar
                 ).'/dx/115/dy/115';
@@ -237,4 +229,6 @@ class User extends Authenticatable implements JWTSubject
             return '';
         }
     }
+
+
 }
