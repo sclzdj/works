@@ -350,9 +350,10 @@ class StarController extends BaseController
         $data['url2'] = $this->getPersonStyle2($xacodeImgage, $photographer, $photographer_city, $photographer_rank, $text);
         $data['url3'] = $this->getPersonStyle3($xacodeImgage, $photographer, $photographer_city, $photographer_rank, $text);
 
-echo $data['url3'];die();
+        echo $data['url3'] . PHP_EOL;
 
 
+        die();
 
 
     }
@@ -365,25 +366,25 @@ echo $data['url3'];die();
         $handle[] = $bg;
         $handle[] = "|watermark/3/image/" . base64_urlSafeEncode("https://file.zuopin.cloud/FqRtRSleuVUJEN61BSRXvszMmzTH") . "/gravity/South/dx/0/dy/0/";
         $handle[] = "image/" . $xacodeImgage . "/gravity/SouthEast/dx/100/dy/325/";
-        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode("微信扫一扫 看全部作品") . "/fontsize/720/fill/" . base64_urlSafeEncode("#F7F7F7") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/141/dy/338/";
-        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer->name) . "/fontsize/1300/fill/" . base64_urlSafeEncode("#323232") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/98/dy/529/";
-        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer_city . ' · ' . $photographer_rank . '摄影师') . "/fontsize/720/fill/" . base64_urlSafeEncode("#646464") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/99/dy/457/";
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode("微信扫一扫 看全部作品") . "/fontsize/720/fill/" . base64_urlSafeEncode("#F7F7F7") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/141/dy/334/";
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer->name) . "/fontsize/1300/fill/" . base64_urlSafeEncode("#323232") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/98/dy/520/";
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer_city . ' · ' . $photographer_rank . '摄影师') . "/fontsize/720/fill/" . base64_urlSafeEncode("#646464") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/99/dy/450/";
 
         // 最下面那行
         $footerFont = mb_substr(implode(' · ', $text), 0, 34);
         mb_strlen(implode(' · ', $text)) > 34 ? $footerFont .= '…' : "";
 
-        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($footerFont) . "/fontsize/720/fill/" . base64_urlSafeEncode("#969696") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/99/dy/98/";
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($footerFont) . "/fontsize/720/fill/" . base64_urlSafeEncode("#969696") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/99/dy/90/";
 
-        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode("Hi!") . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/101/dy/194/";
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode("Hi!") . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/101/dy/180/";
 
-        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode("我是摄影师") . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/101/dy/340/";
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode("我是摄影师") . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/101/dy/330/";
 
-        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer->name) . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/101/dy/490/";
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer->name) . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/101/dy/480/";
 
-        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode('擅长' . $photographer_rank . '摄像') . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/101/dy/945/";
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode('Base' . $photographer_city) . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/West/dx/101/dy/-220/";
 
-        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode('Base' . $photographer_city) . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/101/dy/1095/";
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode('擅长' . $photographer_rank . '摄像') . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/West/dx/101/dy/-70/";
 
         $handle[] = "|imageslim";
 
@@ -407,16 +408,15 @@ echo $data['url3'];die();
         }
 
         $handle[] = "image/" . $xacodeImgage . "/gravity/SouthEast/dx/100/dy/325/";
-        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode("微信扫一扫 看全部作品") . "/fontsize/720/fill/" . base64_urlSafeEncode("#F7F7F7") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/141/dy/338/";
-        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer->name) . "/fontsize/1300/fill/" . base64_urlSafeEncode("#323232") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/98/dy/529/";
-        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer_city . ' · ' . $photographer_rank . '摄影师') . "/fontsize/720/fill/" . base64_urlSafeEncode("#646464") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/99/dy/457/";
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode("微信扫一扫 看全部作品") . "/fontsize/720/fill/" . base64_urlSafeEncode("#F7F7F7") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/140/dy/333/";
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer->name) . "/fontsize/1300/fill/" . base64_urlSafeEncode("#323232") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/100/dy/520/";
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer_city . ' · ' . $photographer_rank . '摄影师') . "/fontsize/720/fill/" . base64_urlSafeEncode("#646464") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/100/dy/450/";
 
         // 最下面那行
         $footerFont = mb_substr(implode(' · ', $text), 0, 34);
         mb_strlen(implode(' · ', $text)) > 34 ? $footerFont .= '…' : "";
 
-        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($footerFont) . "/fontsize/720/fill/" . base64_urlSafeEncode("#969696") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/99/dy/98/";
-
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($footerFont) . "/fontsize/720/fill/" . base64_urlSafeEncode("#969696") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/100/dy/90/";
 
         $handle[] = "|imageslim";
 
@@ -439,6 +439,28 @@ echo $data['url3'];die();
         mb_strlen(implode(' · ', $text)) > 34 ? $footerFont .= '…' : "";
 
         $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($footerFont) . "/fontsize/720/fill/" . base64_urlSafeEncode("#969696") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/99/dy/98/";
+        $endKey = count($text);
+
+        $indexPos = 190;
+        foreach ($text as $key => $item) {
+            $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($item) .
+                "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") .
+                "/fontstyle/" . base64_urlSafeEncode("Bold") .
+                "/font/" . base64_urlSafeEncode("Microsoft YaHei") .
+                "/gravity/NorthWest/dx/100/dy/" . ($indexPos + ($key * 150)) . "/";
+        }
+
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode("……") .
+            "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") .
+            "/fontstyle/" . base64_urlSafeEncode("Bold") .
+            "/font/" . base64_urlSafeEncode("Microsoft YaHei") .
+            "/gravity/NorthWest/dx/100/dy/" . ($indexPos + ($endKey  * 150)) . "/";
+
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode("都是我拍的") .
+            "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") .
+            "/fontstyle/" . base64_urlSafeEncode("Bold") .
+            "/font/" . base64_urlSafeEncode("Microsoft YaHei") .
+            "/gravity/SouthWest/dx/100/dy/946/";
 
         $handle[] = "|imageslim";
 
