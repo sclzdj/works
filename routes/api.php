@@ -147,7 +147,8 @@ $api->version(
 
                 // 大咖
                 $api->post('star/getStars', 'StarController@getStars');
-                $api->get('star/test3' , 'StarController@test4');
+                $api->get('star/test3' , 'StarController@test3');
+                $api->get('star/test4' , 'StarController@test4');
 
                 // 查询用户是否使用过引导
                 $api->post('bootstrap/query' , 'BootstrapController@query');
