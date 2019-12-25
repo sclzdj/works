@@ -197,7 +197,7 @@ class QiniuController extends BaseController
 
                                     $hanlde[] = "|watermark/3/image/{$water2_image}/gravity/SouthEast/dx/57/dy/47/";
 
-                                    $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode($photographerWork->customer_name) . "/fontsize/800/fill/" . base64_urlSafeEncode("#323232") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/71/dy/162/";
+                                    $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode($photographerWork->customer_name) . "/fontsize/800/fill/" . base64_urlSafeEncode("#323232") . "/fontstyle/".base64_urlSafeEncode("Bold")."/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/71/dy/162/";
                                     $fistX = 75;
                                     // 根据字体来判断宽度 中文40 数字字母20
                                     for ($i = 0; $i < mb_strlen($photographerWork->customer_name); $i++) {
@@ -205,7 +205,7 @@ class QiniuController extends BaseController
                                         if (ord($char) > 126) {
                                             $fistX += 42;
                                         } else {
-                                            $fistX += 24;
+                                            $fistX += 26;
                                         }
                                     }
 
