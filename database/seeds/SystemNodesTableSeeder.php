@@ -445,7 +445,7 @@ class SystemNodesTableSeeder extends Seeder
                                 'children' => [
                                     [
                                         'name' => '列表',
-                                        'action' => 'Admin\Works\StarController@list',
+                                        'action' => 'Admin\Works\StarController@lists',
                                     ],
                                     [
                                         'name' => '搜索',
@@ -458,6 +458,33 @@ class SystemNodesTableSeeder extends Seeder
                                     [
                                         'name' => '删除',
                                         'action' => 'Admin\Works\StarController@destroy',
+                                    ],
+                                ],
+                            ],
+                            [
+                                'name' => '海报模版管理',
+                                'icon' => 'fa fas fa-user-md',
+                                'action' => 'Admin\Works\TemplatesController@index',
+                                'children' => [
+                                    [
+                                        'name' => '列表',
+                                        'action' => 'Admin\Works\TemplatesController@lists',
+                                    ],
+                                    [
+                                        'name' => '保存',
+                                        'action' => 'Admin\Works\TemplatesController@store',
+                                    ],
+                                    [
+                                        'name' => '添加',
+                                        'action' => 'Admin\Works\TemplatesController@create',
+                                    ],
+                                    [
+                                        'name' => '删除',
+                                        'action' => 'Admin\Works\TemplatesController@destroy',
+                                    ],
+                                    [
+                                        'name' => '删除',
+                                        'action' => 'Admin\Works\TemplatesController@show',
                                     ],
                                 ],
                             ],

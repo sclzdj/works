@@ -445,6 +445,7 @@ class PermissionServer
             $action = strtolower($action);
         }
 
+
         return in_array($action, $actions);
     }
 

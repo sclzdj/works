@@ -105,6 +105,10 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         // 大咖管理
         Route::get('works/star/lists', 'Works\StarController@lists');
         Route::resource('works/star', 'Works\StarController');
+
+        // 大咖管理
+        Route::get('templates/lists', 'Works\TemplatesController@lists');
+        Route::resource('templates', 'Works\TemplatesController');
     });
     //这下面写不需要登录的路由
     Route::get('login', 'Auth\LoginController@showLoginForm');//账号登录
