@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Model\Admin\SystemArea;
+use App\Model\Admin\SystemConfig;
 use App\Model\Index\InvoteCode;
 use App\Model\Index\Photographer;
 use App\Model\Index\PhotographerRank;
@@ -11,6 +12,7 @@ use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\Star;
 use App\Model\Index\User;
 use App\Servers\ErrLogServer;
+use App\Servers\FileServer;
 use App\Servers\SystemServer;
 use Illuminate\Http\Request;
 use Intervention\Image\Facades\Image;
@@ -141,27 +143,27 @@ class StarController extends BaseController
         var_dump($qrst);
     }
 
-    public function upload()
-    {
-        $filename = 'xacodes/' . time() . mt_rand(10000, 99999) . '.png';
-        $bgimg = Image::make('xacodes/bbg.jpg')->resize(383, 320);
-        $bgimg->save($filename);
-        $bucket = 'zuopin';
-        $buckets = config('custom.qiniu.buckets');
-        $domain = $buckets[$bucket]['domain'] ?? '';
-        //用于签名的公钥和私钥
-        $accessKey = config('custom.qiniu.accessKey');
-        $secretKey = config('custom.qiniu.secretKey');
-        // 初始化签权对象
-        $auth = new Auth($accessKey, $secretKey);
-        // 生成上传Token
-        $upToken = $auth->uploadToken($bucket);
-        // 构建 UploadManager 对象
-        $uploadMgr = new UploadManager();
-        list($ret, $err) = $uploadMgr->putFile($upToken, null, $filename);
-
-        dd($ret);
-    }
+//    public function upload()
+//    {
+//        $filename = 'xacodes/' . time() . mt_rand(10000, 99999) . '.png';
+//        $bgimg = Image::make('xacodes/bbg.jpg')->resize(383, 320);
+//        $bgimg->save($filename);
+//        $bucket = 'zuopin';
+//        $buckets = config('custom.qiniu.buckets');
+//        $domain = $buckets[$bucket]['domain'] ?? '';
+//        //用于签名的公钥和私钥
+//        $accessKey = config('custom.qiniu.accessKey');
+//        $secretKey = config('custom.qiniu.secretKey');
+//        // 初始化签权对象
+//        $auth = new Auth($accessKey, $secretKey);
+//        // 生成上传Token
+//        $upToken = $auth->uploadToken($bucket);
+//        // 构建 UploadManager 对象
+//        $uploadMgr = new UploadManager();
+//        list($ret, $err) = $uploadMgr->putFile($upToken, null, $filename);
+//
+//        dd($ret);
+//    }
 
     public function test2(Request $request)
     {
@@ -449,7 +451,7 @@ class StarController extends BaseController
             "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") .
             "/fontstyle/" . base64_urlSafeEncode("Bold") .
             "/font/" . base64_urlSafeEncode("Microsoft YaHei") .
-            "/gravity/NorthWest/dx/100/dy/" . ($indexPos + ($endKey  * 160)) . "/";
+            "/gravity/NorthWest/dx/100/dy/" . ($indexPos + ($endKey * 160)) . "/";
 
         $handle[] = "text/" . \Qiniu\base64_urlSafeEncode("都是我拍的") .
             "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") .
@@ -460,6 +462,270 @@ class StarController extends BaseController
         $handle[] = "|imageslim";
 
         return implode($handle);
+    }
+
+    /**
+     * 主要针对前端webuploader插件不能识别http错误码
+     *
+     * @param       $message
+     * @param int $status_code
+     * @param array $data
+     * @param array $headers
+     * @param int $options
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    protected function uploadResponse($message, $status_code = 200, $data = [],
+                                      $headers = [], $options = 0
+    )
+    {
+        $code = $status_code == 201 ?
+            201 :
+            200;
+
+        return response()->json([
+            'message' => $message,
+            'status_code' => $status_code,
+            'data' => $data
+        ], $code, $headers, $options);
+    }
+
+    public function upload(Request $request, $path = 'uploads', $key = 'file')
+    {
+        $upload_type = (string)$request->instance()->post('upload_type', (string)$request->instance()->get('upload_type', 'file'));
+        $filename = (string)$request->instance()->post('filename', urldecode((string)$request->instance()->get('filename', '')));
+        $scene = (string)$request->instance()->post('scene', (string)$request->instance()->get('scene', ''));
+        $filename = ltrim(str_replace('\\', '/', $filename), '/');
+
+        if ($filename === ''
+            || in_array($upload_type, [
+                    'images',
+                    'files',
+                ]
+            )) {
+            $filename = date("Ymd/") . time() . mt_rand(10000, 99999);
+        }
+        if (!$request->file($key)) {
+            if ($scene == 'ueditor_upload') {
+                return response()->json([
+                        "state" => '没有选择上传文件',
+                    ]
+                );
+            }
+
+            return $this->uploadResponse('没有选择上传文件', 400);
+        }
+        $iniSize = $request->file($key)->getMaxFilesize();
+        if (!$request->hasFile($key)) {
+            if ($scene == 'ueditor_upload') {
+                return response()->json([
+                        "state" => 'php.ini最大限制上传' .
+                            number_format($iniSize /
+                                1024 / 1024, 2, '.',
+                                ''
+                            ) . 'M的文件',
+                    ]
+                );
+            }
+
+            return $this->uploadResponse('php.ini最大限制上传' .
+                number_format($iniSize /
+                    1024 / 1024, 2, '.',
+                    ''
+                ) . 'M的文件', 400
+            );
+        }
+        if (!$request->file($key)->isValid()) {
+            if ($scene == 'ueditor_upload') {
+                return response()->json([
+                        "state" => '上传过程中出错，请主要检查php.ini是否配置正确',
+                    ]
+                );
+            }
+
+            return $this->uploadResponse('上传过程中出错，请主要检查php.ini是否配置正确', 400);
+        }
+        $fileInfo = [];
+        $fileInfo['extension'] = $request->file($key)->clientExtension() !== '' ? $request->file($key)->clientExtension() : $request->file($key)->extension();
+        $fileInfo['mimeType'] = $request->file($key)->getMimeType();
+        $fileInfo['size'] = $request->file($key)->getSize();
+        $fileInfo['iniSize'] = $iniSize;
+        if ($fileInfo['size'] > $fileInfo['iniSize']) {
+            if ($scene == 'ueditor_upload') {
+                return response()->json([
+                        "state" => 'php.ini最大限制上传' .
+                            number_format($fileInfo['iniSize'] /
+                                1024 / 1024, 2, '.',
+                                ''
+                            ) . 'M的文件',
+                    ]
+                );
+            }
+
+            return $this->uploadResponse('php.ini最大限制上传' .
+                number_format($fileInfo['iniSize'] /
+                    1024 / 1024, 2, '.',
+                    ''
+                ) . 'M的文件', 400
+            );
+        }
+        if ($scene == '这里写你要判断的场景') {//这里是上传场景可以根据这个做一些特殊判断，下面写出对应的限制即可
+            $upload_image_limit_size = '';
+            $upload_image_allow_extension = '';
+            $upload_file_limit_size = '';
+            $upload_file_allow_extension = '';
+        }
+        $filetype = 'file';
+        if (strpos($fileInfo['mimeType'], 'image/') !== false) {
+            $filetype = 'image';
+            $upload_image_limit_size = $upload_image_limit_size ?? SystemConfig::getVal('upload_image_limit_size', 'upload');
+            if ($upload_image_limit_size > 0
+                && $fileInfo['size'] > $upload_image_limit_size * 1000
+            ) {
+                if ($scene == 'ueditor_upload') {
+                    return response()->json([
+                            "state" => '最大允许上传' .
+                                $upload_image_limit_size . 'K的图片',
+                        ]
+                    );
+                }
+
+                return $this->uploadResponse('最大允许上传' .
+                    $upload_image_limit_size . 'K的图片',
+                    400
+                );
+            }
+            $upload_image_allow_extension = $upload_image_allow_extension ?? SystemConfig::getVal('upload_image_allow_extension', 'upload');
+            if ($upload_image_allow_extension !== '') {
+                $upload_image_allow_extension_arr =
+                    explode(',', $upload_image_allow_extension);
+                if (!in_array($fileInfo['extension'],
+                    $upload_image_allow_extension_arr
+                )
+                ) {
+                    if ($scene == 'ueditor_upload') {
+                        return response()->json([
+                                "state" => '只允许上传图片的后缀类型：' .
+                                    $upload_image_allow_extension,
+                            ]
+                        );
+                    }
+
+                    return $this->uploadResponse('只允许上传图片的后缀类型：' .
+                        $upload_image_allow_extension,
+                        400
+                    );
+                }
+            }
+        } else {
+            $upload_file_limit_size = $upload_file_limit_size ?? SystemConfig::getVal('upload_file_limit_size', 'upload');
+            if ($upload_file_limit_size > 0
+                && $fileInfo['size'] > $upload_file_limit_size * 1000
+            ) {
+                if ($scene == 'ueditor_upload') {
+                    return response()->json([
+                            "state" => '最大允许上传' .
+                                $upload_file_limit_size . 'K的文件',
+                        ]
+                    );
+                }
+
+                return $this->uploadResponse('最大允许上传' .
+                    $upload_file_limit_size . 'K的文件',
+                    400
+                );
+            }
+            $upload_file_allow_extension = $upload_file_allow_extension ?? SystemConfig::getVal('upload_file_allow_extension', 'upload');
+            if ($upload_file_allow_extension !== '') {
+                $upload_file_allow_extension_arr =
+                    explode(',', $upload_file_allow_extension);
+                if (!in_array($fileInfo['extension'],
+                    $upload_file_allow_extension_arr
+                )
+                ) {
+                    if ($scene == 'ueditor_upload') {
+                        return response()->json([
+                                "state" => "只允许上传文件的后缀类型",
+                            ]
+                        );
+                    }
+
+                    return $this->uploadResponse('只允许上传文件的后缀类型：' .
+                        $upload_file_allow_extension,
+                        400
+                    );
+                }
+            }
+        }
+        $fileInfo['scene'] = $scene;
+        \DB::beginTransaction();//开启事务
+        $FileServer = new FileServer();
+        try {
+            if (request()->method() == 'OPTIONS') {
+                return $this->response([]);
+            }
+
+            $url = $FileServer->upload($filetype, $filename, $path, $request->file($key), $fileInfo, $upload_type);
+            if ($url !== false) {
+                \DB::commit();//提交事务
+                if ($scene == 'ueditor_upload') {
+                    return response()->json([
+                            "state" => "SUCCESS",
+                            "url" => $url,
+                            "title" => $url,
+                            "original" => $url,
+                        ]
+                    );
+                }
+
+
+                $storagefilename = storage_path('app/public' . substr($url, 28));
+
+                $bucket = 'zuopin';
+                $buckets = config('custom.qiniu.buckets');
+                $domain = $buckets[$bucket]['domain'] ?? '';
+                //用于签名的公钥和私钥
+                $accessKey = config('custom.qiniu.accessKey');
+                $secretKey = config('custom.qiniu.secretKey');
+                // 初始化签权对象
+                $auth = new Auth($accessKey, $secretKey);
+                // 生成上传Token
+                $upToken = $auth->uploadToken($bucket);
+                // 构建 UploadManager 对象
+                $uploadMgr = new UploadManager();
+                list($ret, $err) = $uploadMgr->putFile($upToken, null, $storagefilename);
+
+                if (empty($err)) {
+                    return $this->uploadResponse('上传成功', 201, ['url' => $domain . '/' . $ret['key']]);
+                }
+
+                return $this->uploadResponse('上传失败', 400);
+
+            } else {
+                \DB::rollback();//回滚事务
+                $FileServer->delete($FileServer->objects);
+                if ($scene == 'ueditor_upload') {
+                    return response()->json([
+                            "state" => "上传失败",
+                        ]
+                    );
+                }
+
+                return $this->uploadResponse('上传失败', 400);
+            }
+        } catch (\Exception $e) {
+            \DB::rollback();//回滚事务
+            $FileServer->delete($FileServer->objects);
+            if ($scene == 'ueditor_upload') {
+                return response()->json([
+                        "state" => $e->getMessage(),
+                    ]
+                );
+            }
+
+            dd($e->getMessage());
+            return $this->eResponse($e->getMessage(), 500);
+        }
     }
 
 }

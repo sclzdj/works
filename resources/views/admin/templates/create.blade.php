@@ -1,4 +1,3 @@
-
 @php
     $SFV=\App\Model\Admin\SystemConfig::getVal('basic_static_file_version');
 @endphp
@@ -71,6 +70,35 @@
         }
 
     </style>
+    <style>
+        .avatar-uploader .el-upload {
+            border: 1px dashed #d9d9d9;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .avatar-uploader .el-upload:hover {
+            border-color: #409EFF;
+        }
+        .avatar-uploader-icon {
+            font-size: 28px;
+            color: #8c939d;
+            width: 178px;
+            height: 178px;
+            line-height: 178px;
+            text-align: center;
+        }
+        .avatar {
+            width: 178px;
+            height: 178px;
+            display: block;
+        }
+        .el-upload__input  {
+            display: none !important
+        }
+    </style>
+
 @endsection
 
 @section('content')
@@ -95,247 +123,110 @@
                     <div class="tab-pane active">
                         <div class="block-content">
                             <form class="form-horizontal form-builder row" id="create-form">
-                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                    <label class="col-md-2 control-label form-option-line">
-                                        <span class="form-option-require"></span>
-                                    </label>
-                                    <div class="col-md-2 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">真实数据</div>
-                                    </div>
-                                    <div class="col-md-4 form-control-static form-option-line">
-                                        <div class="help-block help-block-line" style="text-align: center;">显示数据</div>
-                                    </div>
 
-                                </div>
 
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                    <label class="col-md-2 control-label form-option-line">
+                                    <label class="col-md-4 control-label form-option-line">
                                         <span class="form-option-require"></span>
-                                        目标值
+                                        序号
                                     </label>
-                                    <div class="col-md-2 form-control-static form-option-line">
-                                        <div class="help-block help-block-line" v-text="crowdFunding.amount"></div>
-                                    </div>
+
                                     <div class="col-md-4 form-option-line" style="text-align: right;">
-                                        <el-input v-model.trim="form.amount" placeholder="请输入内容"
+                                        <el-input v-model.trim="form.number" placeholder="请输入内容"
                                                   style='width: 150px'></el-input>
-                                        <button type="button" class="button1" @click="update('amount' , 'reset')"> 重置
                                         </button>
                                     </div>
                                 </div>
 
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                    <label class="col-md-2 control-label form-option-line">
+                                    <label class="col-md-4 control-label form-option-line">
                                         <span class="form-option-require"></span>
-                                        已筹人数
+                                        用途
                                     </label>
-                                    <div class="col-md-2 form-control-static form-option-line">
-                                        <div class="help-block help-block-line" v-text="crowdFunding.total"></div>
-                                    </div>
+
                                     <div class="col-md-4 form-option-line" style="text-align: right;">
-
-                                        <el-button plain @click="update('total' , 'sub')">-</el-button>
-                                        <el-input v-model.trim="form.total" type="number" placeholder="请输入内容"
-                                                  style='width: 150px'></el-input>
-                                        <el-button plain @click="update('total' , 'add')">+</el-button>
-
-                                    </div>
-                                </div>
-
-                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                    <label class="col-md-2 control-label form-option-line">
-                                        <span class="form-option-require"></span>
-                                        已筹金额
-                                    </label>
-                                    <div class="col-md-2 form-control-static form-option-line">
-                                        <div class="help-block help-block-line" v-text="crowdFunding.total_price"></div>
-                                    </div>
-                                    <div class="col-md-4 form-option-line" style="text-align: right;">
-
-                                        <el-button plain @click="update('total_price' , 'sub')">-</el-button>
-                                        <el-input v-model.trim="form.total_price" type="number" placeholder="请输入内容"
-                                                  style='width: 150px'></el-input>
-                                        <el-button plain @click="update('total_price' , 'add')">+</el-button>
-
-                                    </div>
-                                </div>
-
-                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                    <label class="col-md-2 control-label form-option-line">
-                                        <span class="form-option-require"></span>
-                                        达成率
-                                    </label>
-                                    <div class="col-md-2 form-control-static form-option-line">
-                                        <div class="help-block help-block-line" v-text="rate + '%'"></div>
-                                    </div>
-                                    <div class="col-md-4 form-option-line" style="text-align: right;">
-                                        <el-button :disabled="true" plain>-</el-button>
-                                        <el-input v-model.trim="input" :disabled="true" placeholder="请输入内容"
-                                                  style='width: 150px'></el-input>
-                                        <el-button :disabled="true" plain>+</el-button>
-                                    </div>
-                                </div>
-
-
-                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                    <label class="col-md-2 control-label form-option-line">
-                                        <span class="form-option-require" ></span>
-                                        99限制
-                                    </label>
-                                    <div class="col-md-2 form-control-static form-option-line">
-                                        <div class="help-block help-block-line" v-text="crowdFunding.limit_99"></div>
-                                    </div>
-                                    <div class="col-md-4 form-option-line" style="text-align: right;">
-                                        <el-input v-model.trim="form.limit_99" placeholder="请输入内容"
-                                                  style='width: 150px'></el-input>
-                                        <button type="button" class="button1" @click="update('limit_99' , 'reset')">
-                                            重置
+                                        <el-input v-model.trim="form.purpose" placeholder="请输入内容"
+                                                  style='width: 550px'></el-input>
                                         </button>
                                     </div>
                                 </div>
 
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                    <label class="col-md-2 control-label form-option-line">
-                                        <span class="form-option-require"  ></span>
-                                        99实购
+                                    <label class="col-md-4 control-label form-option-line">
+                                        <span class="form-option-require"></span>
+                                        文案一
                                     </label>
-                                    <div class="col-md-2 form-control-static form-option-line">
-                                        <div class="help-block help-block-line" v-text="crowdFunding.data_99"></div>
-                                    </div>
+
                                     <div class="col-md-4 form-option-line" style="text-align: right;">
-                                        <el-button plain @click="update('data_99' , 'sub')">-</el-button>
-                                        <el-input v-model.trim="form.data_99" type="number" placeholder="请输入内容"
-                                                  style='width: 150px'></el-input>
-                                        <el-button plain @click="update('data_99' , 'add')">+</el-button>
+                                        <el-input v-model.trim="form.text1" placeholder="请输入内容"
+                                                  style='width: 550px'>
+
+                                        </el-input>
                                     </div>
                                 </div>
 
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                    <label class="col-md-2 control-label form-option-line">
-                                        <span class="form-option-require"></span>
-                                        399限制
+                                    <label class="col-md-4 control-label form-option-line">
+                                        <span></span>
+                                        文案二
                                     </label>
-                                    <div class="col-md-2 form-control-static form-option-line">
-                                        <div class="help-block help-block-line" v-text="crowdFunding.limit_399">
 
-                                        </div>
-                                    </div>
                                     <div class="col-md-4 form-option-line" style="text-align: right;">
-                                        <el-input v-model.trim="form.limit_399" placeholder="请输入内容"
-                                                  style='width: 150px'></el-input>
+                                        <el-input v-model.trim="form.text2" placeholder="请输入内容"
+                                                  style='width: 550px'>
 
-                                        <button type="button" class="button1" @click="update('limit_399' , 'reset')">
-                                            重置
-                                        </button>
+                                        </el-input>
+
                                     </div>
                                 </div>
 
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                    <label class="col-md-2 control-label form-option-line">
-                                        <span class="form-option-require"></span>
-                                        399实购
+                                    <label class="col-md-4 control-label form-option-line">
+                                        <span></span>
+                                        文案三
                                     </label>
-                                    <div class="col-md-2 form-control-static form-option-line">
-                                        <div class="help-block help-block-line" v-text="crowdFunding.data_399"></div>
-                                    </div>
+
                                     <div class="col-md-4 form-option-line" style="text-align: right;">
-                                        <el-button plain @click="update('data_399' , 'sub')">-</el-button>
-                                        <el-input v-model.trim="form.data_399" type="number" placeholder="请输入内容"
-                                                  style='width: 150px'></el-input>
-                                        <el-button plain @click="update('data_399' , 'add')">+</el-button>
+                                        <el-input v-model.trim="form.text3" placeholder="请输入内容"
+                                                  style='width: 550px'>
+
+                                        </el-input>
+
                                     </div>
                                 </div>
 
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                    <label class="col-md-2 control-label form-option-line">
-                                        <span class="form-option-require"></span>
-                                        599限制
+                                    <label class="col-md-4 control-label form-option-line">
+                                        <span></span>
+                                        文案四
                                     </label>
-                                    <div class="col-md-2 form-control-static form-option-line">
-                                        <div class="help-block help-block-line" v-text="crowdFunding.limit_599"></div>
-                                    </div>
-                                    <div class="col-md-4 form-option-line" style="text-align: right;">
-                                        <el-input v-model.trim="form.limit_599" type="number"
-                                                  placeholder="请输入内容" style='width: 150px'></el-input>
 
-                                        <button type="button" class="button1" @click="update('limit_599' , 'reset')">
-                                            重置
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                    <label class="col-md-2 control-label form-option-line">
-                                        <span class="form-option-require"></span>
-                                        599实购
-                                    </label>
-                                    <div class="col-md-2 form-control-static form-option-line">
-                                        <div class="help-block help-block-line" v-text="crowdFunding.data_599"></div>
-                                    </div>
                                     <div class="col-md-4 form-option-line" style="text-align: right;">
-                                        <el-button plain @click="update('data_599' , 'sub')">-</el-button>
-                                        <el-input v-model.trim="form.data_599" type="number" placeholder="请输入内容"
-                                                  style='width: 150px'></el-input>
-                                        <el-button plain @click="update('data_599' , 'add')">+</el-button>
+                                        <el-input v-model.trim="form.text4" placeholder="请输入内容"
+                                                  style='width: 550px'>
+
+                                        </el-input>
+
                                     </div>
                                 </div>
 
 
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                    <label class="col-md-2 control-label form-option-line">
-                                        <span class="form-option-require"></span>
-                                        开始时间
+                                    <label class="col-md-4 control-label form-option-line">
+                                        <span></span>
+                                        上传背景图
                                     </label>
-                                    <div class="col-md-2 form-control-static form-option-line">
 
-                                    </div>
                                     <div class="col-md-4 form-option-line" style="text-align: right;">
-                                        <el-date-picker
-
-                                                value-format="yyyy-MM-dd HH:mm:ss"
-                                                @change="function (data) {return changeTime(data , 'start_date')}"
-                                                v-model="crowdFunding.start_date"
-                                                type="datetime"
-                                                placeholder="开始时间">
-                                        </el-date-picker>
-                                    </div>
-                                </div>
-
-                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                    <label class="col-md-2 control-label form-option-line">
-                                        <span class="form-option-require"></span>
-                                        结束时间
-                                    </label>
-                                    <div class="col-md-2 form-control-static form-option-line">
-
-                                    </div>
-                                    <div class="col-md-4 form-option-line" style="text-align: right;">
-                                        <el-date-picker
-
-                                                v-model="crowdFunding.end_date"
-                                                value-format="yyyy-MM-dd HH:mm:ss"
-                                                @change="function (data) {return changeTime(data , 'end_date')}"
-                                                type="datetime"
-                                                placeholder="结束时间">
-                                        </el-date-picker>
-                                    </div>
-                                </div>
-
-                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                    <label class="col-md-2 control-label form-option-line">
-                                        <span class="form-option-require"></span>
-                                        发放时间
-                                    </label>
-                                    <div class="col-md-2 form-control-static form-option-line">
-
-                                    </div>
-                                    <div class="col-md-4 form-option-line" style="text-align: right;">
-                                        <el-date-picker @change="function (data) {return changeTime(data , 'send_date')} "
-                                                        v-model="crowdFunding.send_date"
-                                                        value-format="yyyy-MM-dd HH:mm:ss"
-                                                        type="datetime"
-                                                        placeholder="发放时间">
-                                        </el-date-picker>
+                                        <el-upload
+                                                class="avatar-uploader"
+                                                action="https://zuopin.cloud/api/star/upload"
+                                                :show-file-list="false"
+                                                :on-success="handleAvatarSuccess"
+                                                :before-upload="beforeAvatarUpload">
+                                            <img v-if="form.background" :src="form.background" class="avatar">
+                                            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                        </el-upload>
                                     </div>
                                 </div>
 
@@ -371,134 +262,47 @@
                 input: "",
                 crowdFunding: {},
                 form: {
-                    data_99: 0,
-                    data_399: 0,
-                    data_599: 0,
-                    limit_99: 0,
-                    limit_399: 0,
-                    limit_599: 0,
-                    total: 0,
-                    total_price: 0,
-                    amount: 0,
+                    number: 0,
+                    purpose: "",
+                    text1: "",
+                    text2: "",
+                    text3: "",
+                    text4: "",
+                    background: "",
                 }
             },
             methods: {
-                init: function () {
-                    var that = this;
-                    var data = {};
-                    $.ajax({
-                        type: 'GET',
-                        url: '/admin/crowdfunding/lists',
-                        data: data,
-                        success: function (response) {
-                            that.crowdFunding = response.crowdFunding;
-                        },
-                        error: function (xhr, status, error) {
-                            var response = JSON.parse(xhr.responseText);
-                            if (xhr.status == 419) { // csrf错误，错误码固定为419
-                                alert('请勿重复请求~');
-                            } else if (xhr.status == 422) { // 验证错误
-                                var message = [];
-                                for (var i in response.errors) {
-                                    message = message.concat(response.errors[i]);
-                                }
-                                message = message.join(',');
-                                alert(message);
-                            } else {
-                                if (response.message) {
-                                    alert(response.message);
-                                } else {
-                                    alert('服务器错误~');
-                                }
-                            }
-                        }
-                    });
+
+                handleAvatarSuccess(res, file) {
+                    console.log(res.data.url);
+                    this.form.background = res.data.url;
                 },
-                update: function (key, action) {
-                    if (this.form[key] === 0) {
-                        return;
+                beforeAvatarUpload(file) {
+                    const isJPG = file.type === 'image/jpeg';
+                    const isLt2M = file.size / 1024 / 1024 < 2;
+                    if (!isLt2M) {
+                        this.$message.error('上传头像图片大小不能超过 2MB!');
                     }
-
-                    if (this.form[key] === "") {
-                        return;
-                    }
-
-                    var that = this;
-                    var data = {
-                        actions: action,
-                        keys: key,
-                        data: this.form[key]
-                    };
-
-                    $.ajax({
-                        type: 'POST',
-                        url: '/admin/crowdfunding',
-                        data: data,
-                        success: function (response) {
-                            if (response.result) {
-                                switch (action) {
-                                    case "reset":
-                                        that.crowdFunding[key] = data.data;
-                                        break;
-                                    case "add":
-                                        that.crowdFunding[key] = Number(that.crowdFunding[key]) + Number(data.data);
-                                        that.crowdFunding['total_price'] = Number(response.total_price);
-                                        break;
-                                    case "sub":
-                                        that.crowdFunding[key] = Number(that.crowdFunding[key]) - Number(data.data);
-                                        that.crowdFunding['total_price'] = Number(response.total_price);
-                                        break;
-                                }
-                                that.form[key] = 0;
-                            }
-                            else {
-                                alert(response.msg);
-                            }
-                        },
-                        error: function (xhr, status, error) {
-
-                        }
-                    });
-
-                },
-                changeTime: function (data , key) {
-
-                    var that = this;
-                    var postData = {
-                        actions: "set",
-                        keys: key,
-                        data: data
-                    };
-
-                    $.ajax({
-                        type: 'POST',
-                        url: '/admin/crowdfunding',
-                        data: postData,
-                        success: function (response) {
-                            if (response.result) {
-
-                            }
-                            else {
-                                alert(response.msg);
-                            }
-                        },
-                        error: function (xhr, status, error) {
-
-                        }
-                    });
-
-
+                    return  isLt2M;
                 }
+
             },
             mounted: function () {
-                this.init();
+
             },
-            computed: {
-                amount_price: function () {
-                    return (Number(this.crowdFunding.data_99) * 99) + (Number(this.crowdFunding.data_399) * 399) + (Number(this.crowdFunding.data_599) * 599);
-                },
-                rate: function () {
-                    return (Number(this.crowdFunding.total_price) / Number(this.crowdFunding.amount) * 100).toFixed(2);
+            watch: {
+                form: {
+                    handler: function () {
+                        // 发送名字不能有中文
+                        for (let i = 0; i < this.form.number.length; i++) {
+                            let char_code_at_i = this.form.number.charCodeAt(i);
+                            if ( (char_code_at_i > 48 && char_code_at_i < 57)) {
+                            } else {
+                                this.form.number = this.form.number.substr(0, i) + this.form.number.substr(i + 1);
+                            }
+                        }
+                    },
+                    deep: true
                 }
             }
         });
