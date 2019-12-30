@@ -722,8 +722,6 @@ class StarController extends BaseController
                     ]
                 );
             }
-
-            dd($e->getMessage());
             return $this->eResponse($e->getMessage(), 500);
         }
     }

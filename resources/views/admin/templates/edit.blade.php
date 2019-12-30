@@ -267,7 +267,7 @@
     <script src="{{asset('/static/admin/js/vue.js').'?'.$SFV}}"></script>
     <script src="{{asset('/static/admin/js/element.js').'?'.$SFV}}"></script>
     <script>
-
+        var id = "<?php echo $id;?>";
         Vue.config.devtools = true;
         var vm = new Vue({
             el: '#app',
@@ -302,8 +302,8 @@
                         form: this.form
                     };
                     $.ajax({
-                        type: 'Post',
                         url: '/admin/templates',
+                        method: 'post',
                         data: data,
                         success: function (response) {
                             if (response.result == false) {
@@ -332,11 +332,44 @@
                             }
                         }
                     });
-                }
+                },
+                init: function (page) {
+                    var that = this;
+                    var data = {
+                        id: id,
+                    };
+                    $.ajax({
+                        type: 'GET',
+                        url: '/admin/templates/lists',
+                        data: data,
+                        success: function (response) {
+                            that.form = response.template;
+                        },
+                        error: function (xhr, status, error) {
+                            var response = JSON.parse(xhr.responseText);
+                            if (xhr.status == 419) { // csrf错误，错误码固定为419
+                                alert('请勿重复请求~');
+                            } else if (xhr.status == 422) { // 验证错误
+                                var message = [];
+                                for (var i in response.errors) {
+                                    message = message.concat(response.errors[i]);
+                                }
+                                message = message.join(',');
+                                alert(message);
+                            } else {
+                                if (response.message) {
+                                    alert(response.message);
+                                } else {
+                                    alert('服务器错误~');
+                                }
+                            }
+                        }
+                    });
+                },
 
             },
             mounted: function () {
-
+                this.init();
             },
             watch: {
                 form: {
