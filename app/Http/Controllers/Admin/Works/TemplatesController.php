@@ -49,7 +49,7 @@ class TemplatesController extends BaseController
     public function store(Request $request)
     {
         $form = $request->input('form');
-        if ($form['id']) {
+        if (isset($form['id']) && $form['id']) {
             $validateRequest = Validator::make(
                 $form, [
                 'purpose' => 'required|max:50',
@@ -102,7 +102,6 @@ class TemplatesController extends BaseController
                 ];
             }
         }
-
 
         $validateRequest = Validator::make(
             $form, [
@@ -215,6 +214,10 @@ class TemplatesController extends BaseController
         }
         if ($template->text3) {
             $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($template->text3) . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/101/dy/490/";
+        }
+
+        if ($template->text4) {
+            $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($template->text4) . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/101/dy/640/";
         }
 
         return [

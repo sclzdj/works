@@ -244,6 +244,21 @@
                                     <label class="col-md-4 control-label form-option-line">
                                         <span></span>
                                         <el-button @click="submit" type="primary">保存</el-button>
+{{--                                        <el-button @click="help">帮助</el-button>--}}
+
+                                        <el-tooltip placement="top">
+                                            <div slot="content">
+                                                <span style="font-size: 20px">
+                                                ##money##       项目金额<br/>
+                                                ##number##      成品张数<br/>
+                                                ##time##        拍摄时长<br/>
+                                                ##customer##    项目名称<br/>
+                                                ##name##        摄影师姓名<br/>
+                                                ##title##       摄影师头衔<br/>
+                                                </span>
+                                            </div>
+                                            <el-button>帮助</el-button>
+                                        </el-tooltip>
                                     </label>
 
                                 </div>
@@ -332,6 +347,8 @@
                             }
                         }
                     });
+                },
+                help() {
                 }
 
             },
