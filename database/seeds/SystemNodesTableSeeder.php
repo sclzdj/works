@@ -483,8 +483,16 @@ class SystemNodesTableSeeder extends Seeder
                                         'action' => 'Admin\Works\TemplatesController@destroy',
                                     ],
                                     [
-                                        'name' => '删除',
+                                        'name' => '展示',
                                         'action' => 'Admin\Works\TemplatesController@show',
+                                    ],
+                                    [
+                                        'name' => '修改',
+                                        'action' => 'Admin\Works\TemplatesController@edit',
+                                    ],
+                                    [
+                                        'name' => '更新',
+                                        'action' => 'Admin\Works\TemplatesController@update',
                                     ],
                                 ],
                             ],

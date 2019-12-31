@@ -149,7 +149,6 @@ class PhotographerController extends BaseController
         }
 
 
-
         return $this->response->array($data);
 
     }
@@ -340,6 +339,11 @@ class PhotographerController extends BaseController
         if ($template->text3) {
             $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($template->text3) . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/101/dy/490/";
         }
+
+        if ($template->text4) {
+            $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($template->text4) . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/101/dy/640/";
+        }
+
 
         $url = implode($handle);
 

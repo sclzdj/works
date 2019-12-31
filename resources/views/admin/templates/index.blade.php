@@ -81,7 +81,7 @@
                         </li>
                         <li>
                             <button type="button" data-toggle="block-option" data-action="fullscreen_toggle"><i
-                                        class="si si-size-fullscreen"></i></button>
+                                    class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
                     <h3 class="block-title">模版管理</h3>
@@ -96,36 +96,41 @@
 
                         <div class="block-content">
                             <el-table
-                                    :data="data"
-                                    style="width: 100%"
+                                :data="data"
+                                style="width: 100%"
 
                             >
 
                                 <el-table-column
-                                        prop="number"
-                                        label="序号"
-                                        width="180">
+                                    prop="number"
+                                    label="序号"
+                                    width="180">
                                 </el-table-column>
                                 <el-table-column
-                                        prop="text1"
-                                        label="文案1"
-                                        width="180">
+                                    prop="text1"
+                                    label="文案1"
+                                    width="180">
                                 </el-table-column>
                                 <el-table-column
-                                        prop="purpose"
-                                        label="用途">
+                                    prop="purpose"
+                                    label="用途">
                                 </el-table-column>
 
                                 <el-table-column
-                                        prop="created_at"
-                                        label="创建时间">
+                                    prop="created_at"
+                                    label="创建时间">
                                 </el-table-column>
                                 <el-table-column fixed="right" label="操作" width="100">
                                     <template slot-scope="scope">
-                                        <el-button @click="upadteStatus(scope.row)" type="text" size="small">预览
+                                        <el-button @click="handleShow(scope.row)" type="text" size="small">预览
                                         </el-button>
-                                        <el-button @click="handleDelete(scope.$index, scope.row)" type="text" size="small">删除
+                                        <el-button @click="handleDelete(scope.$index, scope.row)" type="text"
+                                                   size="small">删除
                                         </el-button>
+
+                                        <el-button @click="handleEdit(scope.$index, scope.row)" type="text"
+                                                                                           size="small">编辑
+                                         </el-button>
                                     </template>
                                 </el-table-column>
                             </el-table>
@@ -336,11 +341,41 @@
                 },
 
                 create: function () {
-                    window.location.href ="/admin/templates/create";
+                    window.location.href = "/admin/templates/create";
                 },
-
+                handleShow(row) {
+                    $.ajax({
+                        type: 'GET',
+                        url: '/admin/templates/' + row.id,
+                        success: function (response) {
+                            // window.location.href = response.msg;
+                            window.open( response.msg)
+                        },
+                        error: function (xhr, status, error) {
+                            var response = JSON.parse(xhr.responseText);
+                            if (xhr.status == 419) { // csrf错误，错误码固定为419
+                                alert('请勿重复请求~');
+                            } else if (xhr.status == 422) { // 验证错误
+                                var message = [];
+                                for (var i in response.errors) {
+                                    message = message.concat(response.errors[i]);
+                                }
+                                message = message.join(',');
+                                alert(message);
+                            } else {
+                                if (response.message) {
+                                    alert(response.message);
+                                } else {
+                                    alert('服务器错误~');
+                                }
+                            }
+                        }
+                    });
+                },
+                handleEdit(index, row) {
+                     window.location.href = "/admin/templates/" + row.id + '/edit';
+                },
                 handleDelete(index, row) {
-
                     if (!confirm("是否删除")) {
                         return;
                     }
