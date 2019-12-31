@@ -214,7 +214,7 @@ class QiniuController extends BaseController
                                     $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer->name) . "/fontsize/800/fill/" . base64_urlSafeEncode("#C8C8C8") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/" . $secondX . "/dy/162/";
 
                                     $count = PhotographerWorkSource::where('photographer_work_id', $photographerWorkSource->photographer_work_id)->count();
-                                    $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode("微信扫一扫,看剩余" . $count . "张作品") . "/fontsize/609/fill/" . base64_urlSafeEncode("#F7F7F7") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/101/dy/80/";
+                                    $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode("微信扫一扫,看剩余" . $count . "张作品") . "/fontsize/609/fill/" . base64_urlSafeEncode("#F7F7F7") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/100/dy/78/";
                                     $hanlde[] = "|imageslim";
 
                                     $fops[] = implode($hanlde);
