@@ -104,6 +104,8 @@ $api->version(
                 $api->get('photographer/poster', 'PhotographerController@poster');
                 $api->get('photographer/workPoster', 'PhotographerController@workPoster');
                 $api->get('photographer/workPoster2', 'PhotographerController@workPoster2');
+                $api->get('templates/list', 'PhotographerController@getTemplates');
+
                 $api->get('photographer/rankingList', 'PhotographerController@rankingList');
                 //游客
                 $api->get('randomPhotographers', 'MyController@randomPhotographers');
