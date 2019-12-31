@@ -78,9 +78,11 @@
             position: relative;
             overflow: hidden;
         }
+
         .avatar-uploader .el-upload:hover {
             border-color: #409EFF;
         }
+
         .avatar-uploader-icon {
             font-size: 28px;
             color: #8c939d;
@@ -89,12 +91,14 @@
             line-height: 178px;
             text-align: center;
         }
+
         .avatar {
             width: 178px;
             height: 178px;
             display: block;
         }
-        .el-upload__input  {
+
+        .el-upload__input {
             display: none !important
         }
     </style>
@@ -114,7 +118,7 @@
                         </li>
                         <li>
                             <button type="button" data-toggle="block-option" data-action="fullscreen_toggle"><i
-                                        class="si si-size-fullscreen"></i></button>
+                                    class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
                     <h3 class="block-title">众筹管理</h3>
@@ -219,21 +223,30 @@
 
                                     <div class="col-md-4 form-option-line" style="text-align: right;">
                                         <el-upload
-                                                class="avatar-uploader"
-                                                action="https://zuopin.cloud/api/star/upload"
-                                                :show-file-list="false"
-                                                :on-success="handleAvatarSuccess"
-                                                :before-upload="beforeAvatarUpload">
+                                            class="avatar-uploader"
+                                            action="https://zuopin.cloud/api/star/upload"
+                                            :show-file-list="false"
+                                            :on-success="handleAvatarSuccess"
+                                            :before-upload="beforeAvatarUpload">
                                             <img v-if="form.background" :src="form.background" class="avatar">
                                             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                                         </el-upload>
                                     </div>
+
                                 </div>
+                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
 
 
+                                    <label class="col-md-4 control-label form-option-line">
+                                        <span></span>
 
+                                    </label>
+                                    <label class="col-md-4 control-label form-option-line">
+                                        <span></span>
+                                        <el-button @click="submit" type="primary">保存</el-button>
+                                    </label>
 
-
+                                </div>
 
                             </form>
                         </div>
@@ -272,9 +285,7 @@
                 }
             },
             methods: {
-
                 handleAvatarSuccess(res, file) {
-                    console.log(res.data.url);
                     this.form.background = res.data.url;
                 },
                 beforeAvatarUpload(file) {
@@ -283,7 +294,44 @@
                     if (!isLt2M) {
                         this.$message.error('上传头像图片大小不能超过 2MB!');
                     }
-                    return  isLt2M;
+                    return isLt2M;
+                },
+                submit() {
+                    var that = this;
+                    var data = {
+                        form: this.form
+                    };
+                    $.ajax({
+                        type: 'Post',
+                        url: '/admin/templates',
+                        data: data,
+                        success: function (response) {
+                            if (response.result == false) {
+                                alert(response.msg);
+                            } else {
+                                window.location.href = "/admin/templates";
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            var response = JSON.parse(xhr.responseText);
+                            if (xhr.status == 419) { // csrf错误，错误码固定为419
+                                alert('请勿重复请求~');
+                            } else if (xhr.status == 422) { // 验证错误
+                                var message = [];
+                                for (var i in response.errors) {
+                                    message = message.concat(response.errors[i]);
+                                }
+                                message = message.join(',');
+                                alert(message);
+                            } else {
+                                if (response.message) {
+                                    alert(response.message);
+                                } else {
+                                    alert('服务器错误~');
+                                }
+                            }
+                        }
+                    });
                 }
 
             },
@@ -296,7 +344,7 @@
                         // 发送名字不能有中文
                         for (let i = 0; i < this.form.number.length; i++) {
                             let char_code_at_i = this.form.number.charCodeAt(i);
-                            if ( (char_code_at_i > 48 && char_code_at_i < 57)) {
+                            if ((char_code_at_i > 48 && char_code_at_i < 57)) {
                             } else {
                                 this.form.number = this.form.number.substr(0, i) + this.form.number.substr(i + 1);
                             }

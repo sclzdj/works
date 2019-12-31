@@ -100,8 +100,10 @@ $api->version(
                 $api->get('photographer/info', 'PhotographerController@info');
                 $api->get('photographer/works', 'PhotographerController@works');
                 $api->get('photographer/work', 'PhotographerController@work');
+                $api->get('photographer/workNext', 'PhotographerController@workNext');
                 $api->get('photographer/poster', 'PhotographerController@poster');
                 $api->get('photographer/workPoster', 'PhotographerController@workPoster');
+                $api->get('photographer/workPoster2', 'PhotographerController@workPoster2');
                 $api->get('photographer/rankingList', 'PhotographerController@rankingList');
                 //游客
                 $api->get('randomPhotographers', 'MyController@randomPhotographers');

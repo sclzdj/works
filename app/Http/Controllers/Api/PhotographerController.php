@@ -17,11 +17,15 @@ use App\Model\Index\PhotographerRank;
 use App\Model\Index\PhotographerWork;
 use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\PhotographerWorkTag;
+use App\Model\Index\Templates;
 use App\Model\Index\User;
 use App\Model\Index\Visitor;
 use App\Servers\ArrServer;
 use App\Servers\PhotographerServer;
 use App\Servers\SystemServer;
+use Illuminate\Http\Request;
+use function Qiniu\base64_urlSafeEncode;
+
 
 /**
  * 摄影师相关
@@ -117,6 +121,40 @@ class PhotographerController extends BaseController
     }
 
     /**
+     * 获取摄影师作品的上一个和下一个id
+     * @param PhotographerRequest $request
+     */
+    public function workNext(Request $request)
+    {
+        $photographer = User::photographer($request->photographer_id);
+        if (!$photographer || $photographer->status != 200) {
+            return $this->response->error('摄影师不存在', 500);
+        }
+        $photographerWorks = $photographer->photographerWorks()->where(['photographer_works.status' => 200])->orderBy(
+            'photographer_works.roof',
+            'desc'
+        )->orderBy(
+            'photographer_works.created_at',
+            'desc'
+        )->get()->pluck('id')->toArray();
+
+        $data = [];
+        $data['next'] = 0;
+        $data['previous'] = 0;
+        foreach ($photographerWorks as $key => $item) {
+            if ($item == $request->current_photographerwork_id) {
+                $data['next'] = $photographerWorks[$key - 1] ?? 0;
+                $data['previous'] = $photographerWorks[$key + 1] ?? 0;
+            }
+        }
+
+
+
+        return $this->response->array($data);
+
+    }
+
+    /**
      * 摄影师作品集信息
      * @param PhotographerRequest $request
      */
@@ -197,6 +235,117 @@ class PhotographerController extends BaseController
         return $this->responseParseArray(compact('url'));
     }
 
+    public function workPoster2(Request $request)
+    {
+        $photographer_work_id = $request->input('photographer_work_id', 0);
+        $template_id = $request->input('template_id', 0);
+        $photographer_work = PhotographerWork::where(
+            ['status' => 200, 'id' => $photographer_work_id]
+        )->first();
+        $photographer = User::photographer($photographer_work->photographer_id);
+        if (!$photographer_work) {
+            return $this->response->error('摄影师作品集不存在', 500);
+        }
+        $photographer = User::photographer($photographer_work->photographer_id);
+        if (!$photographer || $photographer->status != 200) {
+            return $this->response->error('摄影师不存在', 500);
+        }
+
+        $user = User::where(['photographer_id' => $photographer->id])->first();
+        if (!$user) {
+            $response['code'] = 500;
+            $response['msg'] = '用户不存在';
+            return $response;
+        }
+        if ($user->identity != 1) {
+            $response['code'] = 500;
+            $response['msg'] = '用户不是摄影师';
+            return $response;
+        }
+
+        $photographer_work_source = $photographer_work->photographerWorkSources()
+            ->where(
+                ['status' => 200, 'type' => 'image']
+            )
+            ->orderBy(
+                'sort',
+                'asc'
+            )
+            ->first();
+
+        $bucket = 'zuopin';
+        $buckets = config('custom.qiniu.buckets');
+        $domain = $buckets[$bucket]['domain'] ?? '';
+
+        $template = Templates::where('number', $template_id)->first();
+        if (empty($template)) {
+            return $this->response->error('模板不存在', 500);
+        }
+
+        $xacode = User::createXacode2($photographer->id);
+        if ($xacode) {
+            $xacodeImgage = \Qiniu\base64_urlSafeEncode(
+                $xacode . '|imageMogr2/thumbnail/250x250!'
+            );
+        } else {
+            $xacodeImgage = \Qiniu\base64_urlSafeEncode(
+                $domain . '/' . config(
+                    'custom.qiniu.crop_work_source_image_bg'
+                ) . '?imageMogr2/thumbnail/250x250!|roundPic/radius/!50p'
+            );
+        }
+
+        $photographer_rank = (string)PhotographerRank::where('id', $photographer->photographer_rank_id)->value('name');
+        $workName = $photographer_work->customer_name;
+        $name = "{$photographer->name} · 摄影作品";
+        $money = "{$photographer_work->project_amount}元 · {$photographer_work->sheets_number}张 · {$photographer_work->shooting_duration}小时";
+        $datas = [
+            '##money##' => "{$photographer_work->project_amount}元",
+            '##number##' => "{$photographer_work->sheets_number}张",
+            '##time##' => "{$photographer_work->shooting_duration}小时",
+            '##customer##' => $workName,
+            '##name##' => $photographer->name,
+            '##title##' => "{$photographer_rank}摄像师",
+        ];
+
+        if ($photographer_work_source->deal_height > 600) {  // 长图
+            $width = 1000;
+            $height = $photographer_work_source->deal_height;
+            $imgs = $domain . '/' . $photographer_work_source->deal_key . "?imageMogr2/auto-orient/thumbnail/{$width}x{$height}/gravity/Center/crop/1000x600";
+        } else { // 宽图
+            $imgs = $domain . '/' . $photographer_work_source->deal_key . "?imageMogr2/auto-orient/thumbnail/x600/gravity/Center/crop/!1000x600-0-0|imageslim";
+        }
+
+        $bg = $template->background . "?imageMogr2/thumbnail/1200x2133!";
+        $handle = array();
+        $handle[] = $bg;
+        $handle[] = "|watermark/3/image/" . $xacodeImgage . "/gravity/SouthEast/dx/180/dy/275/";
+        $handle[] = "/image/" . \Qiniu\base64_urlSafeEncode($imgs) . "/gravity/South/dx/0/dy/600/";
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($workName) . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/fontsize/960/fill/" . base64_urlSafeEncode("#323232") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/180/dy/478/";
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($name) . "/fontsize/720/fill/" . base64_urlSafeEncode("#646464") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/180/dy/342/";
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($money) . "/fontsize/720/fill/" . base64_urlSafeEncode("#646464") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/180/dy/275/";
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode("微信扫一扫 看完整作品") . "/fontsize/600/fill/" . base64_urlSafeEncode("#FFFFFF") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/South/dx/0/dy/86/";
+
+        foreach ($datas as $key => $data) {
+            $template->text1 = str_replace($key, $data, $template->text1);
+            $template->text2 = str_replace($key, $data, $template->text2);
+            $template->text3 = str_replace($key, $data, $template->text3);
+            $template->text4 = str_replace($key, $data, $template->text4);
+        }
+
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($template->text1) . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/101/dy/190/";
+        if ($template->text2) {
+            $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($template->text2) . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/101/dy/340/";
+        }
+        if ($template->text3) {
+            $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($template->text3) . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/101/dy/490/";
+        }
+
+        $url = implode($handle);
+
+        return $this->responseParseArray(compact('url'));
+    }
+
     /**
      * 人脉排行榜
      * @param PhotographerRequest $request
@@ -208,7 +357,7 @@ class PhotographerController extends BaseController
         $photographers = PhotographerServer::visitorRankingList($limit);
         $_fields = array_map(
             function ($v) {
-                return 'photographer_work_sources.'.$v;
+                return 'photographer_work_sources.' . $v;
             },
             PhotographerWorkSource::allowFields()
         );
