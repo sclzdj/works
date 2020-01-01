@@ -65,7 +65,7 @@ class UserRequest extends BaseRequest
             case 'savePhotographerWorkInfo':
                 $rules = [
                     'photographer_work_id' => 'required|integer',
-                    'sources' => 'required|array|min:1|max:9',
+                    'sources' => 'array|min:1|max:9',
                     'sources.*.key' => 'required',
                     'sources.*.url' => 'required',
                     'sources.*.type' => 'required|in:image,video',
