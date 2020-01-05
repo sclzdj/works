@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Api\BaseController;
+use App\Model\Index\BaiduOauth;
 
 class UserGuardController extends BaseController
 {
@@ -54,5 +55,24 @@ class UserGuardController extends BaseController
         if ($info->identity != 1) {
             return $this->response->error('非摄影师身份', 403);
         }
+    }
+
+    /**
+     * 获取accesstoken
+     * @return mixed
+     */
+    protected function _getBaiduAccessToken()
+    {
+        $access_token = BaiduOauth::where(
+            [
+                ['user_id', '=', auth($this->guard)->id()],
+                ['expired_at', '>', date('Y-m-d H:i:s')],
+            ]
+        )->value('access_token');
+        if (!$access_token) {
+            return $this->response->error('百度网盘未授权或者授权过期', 500);
+        }
+
+        return $access_token;
     }
 }

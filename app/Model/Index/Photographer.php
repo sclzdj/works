@@ -222,8 +222,12 @@ class Photographer extends Model
                     $resource->deal_height = $response['data']['height'];
                 } else {
                     $response = SystemServer::request('GET', $resource->url . '?imageInfo');
-                    $resource->deal_width = 1200;
-                    $resource->deal_height = $response['data']['height'];
+                    if (isset($response['code']) && $response['code'] == 200) {
+                        $resource->deal_width = 1200;
+                        $resource->deal_height = $response['data']['height'];
+                    }else{
+                        \Log::debug($response['msg']);
+                    }
                 }
             }
             $resourceId = $resource->id;

@@ -484,7 +484,7 @@ class PhotographerController extends BaseController
             $height = $photographer_work_source->deal_height;
             $imgs = $domain . '/' . $photographer_work_source->deal_key . "?imageMogr2/auto-orient/thumbnail/{$width}x{$height}/gravity/Center/crop/1000x700|roundPic/radius/30";
         } else { // 宽图
-            $imgs = $domain . '/' . $photographer_work_source->deal_key . "?imageMogr2/auto-orient/thumbnail/x600/gravity/Center/crop/!1000x700-0-0|imageslim|roundPic/radius/30";
+            $imgs = $domain . '/' . $photographer_work_source->deal_key . "?imageMogr2/auto-orient/thumbnail/x600/gravity/Center/crop/!1000x700-0-0|roundPic/radius/30|imageslim";
         }
 
 
