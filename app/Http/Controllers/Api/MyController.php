@@ -559,6 +559,13 @@ class MyController extends UserGuardController
             if (!$photographer || $photographer->status != 200) {
                 return $this->response->error('摄影师不存在', 500);
             }
+            if($request->avatar){
+                $photographer->avatar = (string)$request->avatar;
+                $xacode = User::createXacode($photographer->id);
+                $user = auth($this->guard)->user();
+                $user->xacode = $xacode;
+                $user->save();
+            }
             $photographer->name = $request->name;
             $photographer->gender = $request->gender ?? 0;
             $photographer->province = $request->province;
