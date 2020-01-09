@@ -102,6 +102,7 @@ $api->version(
                 $api->get('photographer/work', 'PhotographerController@work');
                 $api->get('photographer/workNext', 'PhotographerController@workNext');
                 $api->get('photographer/poster', 'PhotographerController@poster');
+                $api->get('photographer/poster2', 'PhotographerController@poster2');
                 $api->get('photographer/workPoster', 'PhotographerController@workPoster');
                 $api->get('photographer/workPoster2', 'PhotographerController@workPoster2');
                 $api->get('templates/list', 'PhotographerController@getTemplates');

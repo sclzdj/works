@@ -43,7 +43,7 @@ class SystemServer
                 return ['status' => 'SUCCESS', 'message' => 'OK'];
             }
         } else {
-            return ['status' => 'ERROR', 'message' => '请填写正确的验证码'];
+            return ['status' => 'ERROR', 'message' => '验证码错误'];
         }
     }
 

@@ -257,23 +257,4 @@ class BaiduController extends UserGuardController
 
         return $response;
     }
-
-    /**
-     * 获取accesstoken
-     * @return mixed
-     */
-    private function _getBaiduAccessToken()
-    {
-        $access_token = BaiduOauth::where(
-            [
-                ['user_id', '=', auth($this->guard)->id()],
-                ['expired_at', '>', date('Y-m-d H:i:s')],
-            ]
-        )->value('access_token');
-        if (!$access_token) {
-            return $this->response->error('百度网盘未授权或者授权过期', 500);
-        }
-
-        return $access_token;
-    }
 }
