@@ -507,9 +507,14 @@ class MyController extends UserGuardController
             [$types[$type] => $status]
         );
 
+
+
         if (!$updateResult) {
             return $this->response->error("没有更改成功", 500);
         }
+
+
+        PhotographerWork::generateShare($request->photographer_work_id);
 
         return $this->response->array([
             'message' => '更改成功',
