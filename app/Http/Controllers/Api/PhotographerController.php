@@ -359,7 +359,7 @@ class PhotographerController extends BaseController
 
     public function getTemplates()
     {
-        return $this->responseParseArray(Templates::all()->pluck('id'));
+        return $this->responseParseArray(Templates::all()->pluck('number'));
     }
 
     /**
