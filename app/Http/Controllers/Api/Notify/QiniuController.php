@@ -169,7 +169,7 @@ class QiniuController extends BaseController
                                     $xacode = User::createXacode2($photographerWork->id, 'photographer_work');
                                     if ($xacode) {
                                         $water2_image = \Qiniu\base64_urlSafeEncode(
-                                            $xacode . '|imageMogr2/thumbnail/210x210!'
+                                            $xacode . '|imageMogr2/thumbnail/185x185!'
                                         );
                                     }
                                     else {
@@ -184,12 +184,7 @@ class QiniuController extends BaseController
 //                                    $water3_text_dy = $response['data']['height'] + 130;
 //                                    $water4_text = \Qiniu\base64_urlSafeEncode("微信扫一扫，看我的全部作品");
 //                                    $water4_text_dy = $response['data']['height'] + 160;
-//
-//
-//
 //                                    $fops = ["imageMogr2/auto-orient/crop/{$response['data']['width']}x" . ($response['data']['height'] + 250) . "|watermark/3/image/{$water1_image}/gravity/North/dx/0/dy/0/image/{$water2_image}/gravity/North/dx/0/dy/{$water2_image_dy}/text/{$water3_text}/fontsize/500/gravity/North/dx/0/dy/{$water3_text_dy}/text/{$water4_text}/fontsize/500/gravity/North/dx/0/dy/{$water4_text_dy}|imageslim"];
-
-
                                     $hanlde = [];
                                     $hanlde[] = "imageMogr2/auto-orient/crop/" . $response['data']['width'] . 'x' . ($response['data']['height'] + 250);
                                     $hanlde[] = "|watermark/3/image/{$water1_image}/gravity/North/dx/0/dy/0/";
@@ -214,7 +209,7 @@ class QiniuController extends BaseController
                                     $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer->name) . "/fontsize/800/fill/" . base64_urlSafeEncode("#C8C8C8") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/" . $secondX . "/dy/162/";
 
                                     $count = PhotographerWorkSource::where('photographer_work_id', $photographerWorkSource->photographer_work_id)->count();
-                                    $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode("微信扫一扫,看剩余" . ($count - 1) . "张作品") . "/fontsize/609/fill/" . base64_urlSafeEncode("#F7F7F7") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/100/dy/78/";
+                                    $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode("微信扫一扫，看剩余" . ($count - 1) . "张作品") . "/fontsize/609/fill/" . base64_urlSafeEncode("#F7F7F7") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/100/dy/78/";
                                     $hanlde[] = "|imageslim";
 
                                     $fops[] = implode($hanlde);

@@ -235,7 +235,6 @@ class StarController extends BaseController
 
     public function test3(Request $request)
     {
-
         $bucket = 'zuopin';
         $buckets = config('custom.qiniu.buckets');
         $domain = $buckets[$bucket]['domain'] ?? '';
@@ -256,6 +255,7 @@ class StarController extends BaseController
             $water2_image = \Qiniu\base64_urlSafeEncode(
                 $xacode . '|imageMogr2/thumbnail/185x185!'
             );
+
         } else {
             $water2_image = \Qiniu\base64_urlSafeEncode(
                 $domain . '/' . config(
@@ -290,7 +290,7 @@ class StarController extends BaseController
         $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer->name) . "/fontsize/800/fill/" . base64_urlSafeEncode("#C8C8C8") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/" . $secondX . "/dy/162/";
 
         $count = PhotographerWorkSource::where('photographer_work_id', $photographerWorkSource->photographer_work_id)->count();
-        $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode("微信扫一扫,看剩余" . $count . "张作品") . "/fontsize/609/fill/" . base64_urlSafeEncode("#F7F7F7") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/101/dy/80/";
+        $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode("微信扫一扫，看剩余" . $count . "张作品") . "/fontsize/609/fill/" . base64_urlSafeEncode("#F7F7F7") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/101/dy/80/";
         $hanlde[] = "|imageslim";
         echo implode($hanlde) . PHP_EOL;
     }
