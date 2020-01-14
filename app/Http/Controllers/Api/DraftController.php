@@ -642,7 +642,13 @@ class DraftController extends UserGuardController
                     $photographer_work_tag->save();
                 }
             }
+
             \DB::commit();//提交事务
+
+            $generateWaterMarkResult = PhotographerWork::generateWatermark($photographer_work->id);
+            if (!$generateWaterMarkResult['result']) {
+                \Log::debug('photographer_work' . $photographer_work->id);
+            }
             $generateResult = PhotographerWork::generateShare($photographer_work->id);
             if (!$generateResult['result']) {
                 \Log::debug('photographer_work' . $photographer_work->id);
