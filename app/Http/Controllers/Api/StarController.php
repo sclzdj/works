@@ -321,7 +321,9 @@ class StarController extends BaseController
         $buckets = config('custom.qiniu.buckets');
         $domain = $buckets[$bucket]['domain'] ?? '';
 
-        $xacode = User::createXacode2($photographer_id);
+        $sence = "0/{$photographer_id}";
+        $xacode = User::createXacode2($photographer_id , 'other' , $sence);
+
         if ($xacode) {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
                 $xacode . '|imageMogr2/thumbnail/250x250!'

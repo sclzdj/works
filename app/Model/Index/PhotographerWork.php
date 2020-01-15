@@ -138,6 +138,7 @@ class PhotographerWork extends Model
             }
         }
         $xacode = User::createXacode($photographer_work_id, 'photographer_work');
+
         if ($xacode) {
             $xacode = $xacode . '|imageMogr2/thumbnail/250x250!';
         } else {

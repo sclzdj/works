@@ -201,6 +201,8 @@ class User extends Authenticatable implements JWTSubject
             return '';
         }
         $response = WechatServer::getxacodeunlimit($id, $page);
+
+
         if ($response['code'] == 200) {
             $filename = 'xacodes/' . time() . mt_rand(10000, 99999) . '.png';
             $xacode = Image::make($response['data'])->resize(420, 420);
