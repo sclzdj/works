@@ -19,7 +19,7 @@
                                     class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
-                    <h3 class="block-title">添加作品集</h3>
+                    <h3 class="block-title">添加项目</h3>
                 </div>
                 <div class="tab-content">
                     <div class="tab-pane active">

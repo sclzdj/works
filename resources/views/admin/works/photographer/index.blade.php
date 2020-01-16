@@ -182,9 +182,9 @@
                                             <col class="">
                                             <col class="">
 {{--                                            <col class="">--}}
-{{--                                            <col class="">--}}
+                                            <col class="">
 {{--                                            <col class="" width="160">--}}
-                                            <col class="" width="190">
+                                            <col class="" width="180">
                                         </colgroup>
                                         <thead>
                                         <tr>
@@ -244,32 +244,32 @@
 {{--                                            <th class="">--}}
 {{--                                                微信号<span></span>--}}
 {{--                                            </th>--}}
-{{--                                            <th class="">--}}
-{{--                                                作品集数量--}}
-{{--                                                @if($orderBy['order_field']=='works_count')--}}
-{{--                                                    @if($orderBy['order_type']=='asc')--}}
-{{--                                                        <span><a--}}
-{{--                                                                href="{{action('Admin\Works\PhotographerController@index',array_merge($filter,['order_field'=>'works_count','order_type'=>'desc'],$pageInfo))}}"--}}
-{{--                                                                data-toggle="tooltip" data-original-title="点击降序"--}}
-{{--                                                                alt="已升序">--}}
-{{--                                                            <i class="fa fa-caret-up"></i>--}}
-{{--                                                        </a></span>--}}
-{{--                                                    @elseif($orderBy['order_type']=='desc')--}}
-{{--                                                        <span><a--}}
-{{--                                                                href="{{action('Admin\Works\PhotographerController@index',array_merge($filter,['order_field'=>'works_count','order_type'=>'asc'],$pageInfo))}}"--}}
-{{--                                                                data-toggle="tooltip" data-original-title="点击升序"--}}
-{{--                                                                alt="已降序">--}}
-{{--                                                            <i class="fa fa-caret-down"></i>--}}
-{{--                                                        </a></span>--}}
-{{--                                                    @endif--}}
-{{--                                                @else--}}
-{{--                                                    <span><a--}}
-{{--                                                            href="{{action('Admin\Works\PhotographerController@index',array_merge($filter,['order_field'=>'works_count'],$pageInfo))}}"--}}
-{{--                                                            data-toggle="tooltip" data-original-title="点击排序" alt="未排序">--}}
-{{--                                                            <i class="fa fa-sort text-muted"></i>--}}
-{{--                                                        </a></span>--}}
-{{--                                                @endif--}}
-{{--                                            </th>--}}
+                                            <th class="">
+                                                项目
+                                                @if($orderBy['order_field']=='works_count')
+                                                    @if($orderBy['order_type']=='asc')
+                                                        <span><a
+                                                                href="{{action('Admin\Works\PhotographerController@index',array_merge($filter,['order_field'=>'works_count','order_type'=>'desc'],$pageInfo))}}"
+                                                                data-toggle="tooltip" data-original-title="点击降序"
+                                                                alt="已升序">
+                                                            <i class="fa fa-caret-up"></i>
+                                                        </a></span>
+                                                    @elseif($orderBy['order_type']=='desc')
+                                                        <span><a
+                                                                href="{{action('Admin\Works\PhotographerController@index',array_merge($filter,['order_field'=>'works_count','order_type'=>'asc'],$pageInfo))}}"
+                                                                data-toggle="tooltip" data-original-title="点击升序"
+                                                                alt="已降序">
+                                                            <i class="fa fa-caret-down"></i>
+                                                        </a></span>
+                                                    @endif
+                                                @else
+                                                    <span><a
+                                                            href="{{action('Admin\Works\PhotographerController@index',array_merge($filter,['order_field'=>'works_count'],$pageInfo))}}"
+                                                            data-toggle="tooltip" data-original-title="点击排序" alt="未排序">
+                                                            <i class="fa fa-sort text-muted"></i>
+                                                        </a></span>
+                                                @endif
+                                            </th>
 {{--                                            <th class="">--}}
 {{--                                                创建时间--}}
 {{--                                                @if($orderBy['order_field']=='photographers.created_at')--}}
@@ -318,9 +318,9 @@
                                             <col class="">
                                             <col class="">
 {{--                                            <col class="">--}}
-{{--                                            <col class="">--}}
+                                            <col class="">
 {{--                                            <col class="" width="160">--}}
-                                            <col class="" width="190">
+                                            <col class="" width="180">
                                         </colgroup>
                                         <tbody>
                                         @forelse ($photographers as $key=>$photographer)
@@ -388,11 +388,14 @@
 {{--                                                        {{$photographer->wechat}}--}}
 {{--                                                    </div>--}}
 {{--                                                </td>--}}
-{{--                                                <td class=" ">--}}
-{{--                                                    <div class="table-cell">--}}
-{{--                                                        {{$photographer['works_count']}}--}}
-{{--                                                    </div>--}}
-{{--                                                </td>--}}
+                                                <td class=" ">
+                                                    <div class="table-cell">
+                                                        @if(\App\Servers\PermissionServer::allowAction('Admin\Works\PhotographerWorkController@index'))
+                                                            <a style="margin: 2px 0;" class="btn btn-xs btn-default" target="_blank"
+                                                               href="{{action('Admin\Works\PhotographerWorkController@index',['photographer_id'=>$photographer->id])}}">{{$photographer['works_count']}}个项目</a>
+                                                        @endif
+                                                    </div>
+                                                </td>
 {{--                                                <td class=" ">--}}
 {{--                                                    <div class="table-cell">--}}
 {{--                                                        {{$photographer->created_at}}--}}
@@ -400,7 +403,7 @@
 {{--                                                </td>--}}
                                                 <td class=" ">
                                                     <div class="table-cell">
-                                                        <div class="btn-group" style="text-align: center;">
+                                                        <div class="btn-group">
                                                             @if(\App\Servers\PermissionServer::allowAction('Admin\Works\PhotographerController@gallery'))
                                                                 <a class="btn btn-xs btn-default"
                                                                    href="{{action('Admin\Works\PhotographerController@gallery',['id'=>$photographer->id])}}"
@@ -420,10 +423,6 @@
                                                                    submit-type="DELETE"
                                                                    href="{{action('Admin\Works\PhotographerController@destroy',['id'=>$photographer->id])}}"
                                                                    confirm="<div class='text-center'>确定要删除吗？</div>">删除</a>
-                                                            @endif
-                                                            @if(\App\Servers\PermissionServer::allowAction('Admin\Works\PhotographerWorkController@index'))
-                                                                <a style="margin: 2px 0;" class="btn btn-xs btn-default" target="_blank"
-                                                                   href="{{action('Admin\Works\PhotographerWorkController@index',['photographer_id'=>$photographer->id])}}">{{$photographer['works_count']}}个项目</a>
                                                             @endif
                                                         </div>
                                                     </div>

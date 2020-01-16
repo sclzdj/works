@@ -19,7 +19,7 @@
                                     class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
-                    <h3 class="block-title">修改作品集</h3>
+                    <h3 class="block-title">修改项目</h3>
                 </div>
                 <div class="tab-content">
                     <div class="tab-pane active">
