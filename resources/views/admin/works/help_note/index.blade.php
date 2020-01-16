@@ -61,13 +61,13 @@
                                                        name="title" placeholder="请输入标题">
                                             </div>
                                         </div>
-                                        <div class="search-bar search-bar-150" style="display: inline-block">
-                                            <div class="input-group">
-                                                <div class="input-group-addon">内容</div>
-                                                <input type="text" class="form-control" value="{{$filter['content']}}"
-                                                       name="content" placeholder="请输入内容">
-                                            </div>
-                                        </div>
+{{--                                        <div class="search-bar search-bar-150" style="display: inline-block">--}}
+{{--                                            <div class="input-group">--}}
+{{--                                                <div class="input-group-addon">内容</div>--}}
+{{--                                                <input type="text" class="form-control" value="{{$filter['content']}}"--}}
+{{--                                                       name="content" placeholder="请输入内容">--}}
+{{--                                            </div>--}}
+{{--                                        </div>--}}
                                         <div class="search-bar search-bar-340" style="display: inline-block">
                                             <div class="input-daterange input-group" data-date-format="yyyy-mm-dd">
                                                 <span class="input-group-addon" style="border-width:1px;">创建日期</span>
@@ -104,7 +104,7 @@
                                             <col width="50">
                                             <col class="" width="50">
                                             <col class="">
-                                            <col class="">
+{{--                                            <col class="">--}}
                                             <col class="" width="80">
                                             <col class="" width="160">
                                             <col class="" width="100">
@@ -146,9 +146,9 @@
                                             <th class="">
                                                 帮助标题<span></span>
                                             </th>
-                                            <th class="">
-                                                帮助内容<span></span>
-                                            </th>
+{{--                                            <th class="">--}}
+{{--                                                帮助内容<span></span>--}}
+{{--                                            </th>--}}
                                             <th class="">
                                                 序号
                                                 @if($orderBy['order_field']=='sort')
@@ -216,7 +216,7 @@
                                             <col width="50">
                                             <col class="" width="50">
                                             <col class="">
-                                            <col class="">
+{{--                                            <col class="">--}}
                                             <col width="80" class="">
                                             <col width="160" class="">
                                             <col width="100" class="">
@@ -243,12 +243,12 @@
                                                         {{$helpNote->title}}
                                                     </div>
                                                 </td>
-                                                <td class=" ">
-                                                    <div class="table-cell" data-toggle="tooltip"
-                                                         data-original-title="{{$helpNote->content}}">
-                                                        {{$helpNote->content}}
-                                                    </div>
-                                                </td>
+{{--                                                <td class=" ">--}}
+{{--                                                    <div class="table-cell" data-toggle="tooltip"--}}
+{{--                                                         data-original-title="{{$helpNote->content}}">--}}
+{{--                                                        {{$helpNote->content}}--}}
+{{--                                                    </div>--}}
+{{--                                                </td>--}}
                                                 <td class=" ">
                                                     <div class="table-cell">
                                                         {{$helpNote->sort}}

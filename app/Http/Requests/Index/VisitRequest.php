@@ -32,7 +32,7 @@ class VisitRequest extends BaseRequest
                     'share_type' => 'required|in:xacard_share,poster_share,all_photo_share',
                 ];
                 break;
-            case 'copyWxRecord':
+            case 'operateRecord':
                 $rules = [
                     'operate_type' => 'required|in:copy_wx,view_project_amount',
                     'page_name' => 'required|in:photographer_home,photographer_work',
@@ -107,10 +107,16 @@ class VisitRequest extends BaseRequest
                     'share_type.in' => '分享方式错误',
                 ];
                 break;
-            case 'copyWxRecord':
+            case 'operateRecord':
                 $messages = [
+                    'operate_type.required' => '操作类型必须传递',
+                    'operate_type.in' => '操作类型错误',
+                    'page_name.required' => '页面名称必须传递',
+                    'page_name.in' => '页面名称错误',
                     'photographer_id.required' => '摄影师id必须传递',
                     'photographer_id.integer' => '摄影师id必须为数字',
+                    'photographer_work_id.required_if' => '作品集id必须传递',
+                    'photographer_work_id.integer' => '作品集id必须为数字',
                 ];
                 break;
             case 'setRemind':
@@ -162,7 +168,7 @@ class VisitRequest extends BaseRequest
         return [
             'inRecord' => ['POST|App\Http\Controllers\Api\VisitController@inRecord'],
             'shareRecord' => ['POST|App\Http\Controllers\Api\VisitController@shareRecord'],
-            'copyWxRecord' => ['POST|App\Http\Controllers\Api\VisitController@copyWxRecord'],
+            'operateRecord' => ['POST|App\Http\Controllers\Api\VisitController@operateRecord'],
             'setRemind' => ['POST|App\Http\Controllers\Api\VisitController@setRemind'],
             'setTag' => ['POST|App\Http\Controllers\Api\VisitController@setTag'],
             'visitors' => ['GET|App\Http\Controllers\Api\VisitController@visitors'],

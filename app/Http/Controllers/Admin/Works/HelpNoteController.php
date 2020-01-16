@@ -34,9 +34,9 @@ class HelpNoteController extends BaseController
             'title' => $request['title'] !== null ?
                 $request['title'] :
                 '',
-            'content' => $request['content'] !== null ?
-                $request['content'] :
-                '',
+//            'content' => $request['content'] !== null ?
+//                $request['content'] :
+//                '',
             'created_at_start' => $request['created_at_start'] !== null ?
                 $request['created_at_start'] :
                 '',
@@ -59,9 +59,9 @@ class HelpNoteController extends BaseController
         if ($filter['title'] !== '') {
             $where[] = ['title', 'like', '%'.$filter['title'].'%'];
         }
-        if ($filter['content'] !== '') {
-            $where[] = ['content', 'like', '%'.$filter['content'].'%'];
-        }
+//        if ($filter['content'] !== '') {
+//            $where[] = ['content', 'like', '%'.$filter['content'].'%'];
+//        }
         if ($filter['created_at_start'] !== '' &&
             $filter['created_at_end'] !== ''
         ) {

@@ -222,7 +222,7 @@
                                         <input type="file" class="qiniu-file-upload hide" value-type="key">
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">只能上传图片或视频</div>
+                                        <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则小程序海报和水印生成会报错)或视频</div>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[1]">
@@ -238,7 +238,7 @@
                                         <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">只能上传图片或视频</div>
+                                        <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则小程序海报和水印生成会报错)或视频</div>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[2]">
@@ -254,7 +254,7 @@
                                         <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">只能上传图片或视频</div>
+                                        <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则小程序海报和水印生成会报错)或视频</div>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[3]">
@@ -270,7 +270,7 @@
                                         <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">只能上传图片或视频</div>
+                                        <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则小程序海报和水印生成会报错)或视频</div>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[4]">
@@ -286,7 +286,7 @@
                                         <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">只能上传图片或视频</div>
+                                        <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则小程序海报和水印生成会报错)或视频</div>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[5]">
@@ -302,7 +302,7 @@
                                         <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">只能上传图片或视频</div>
+                                        <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则小程序海报和水印生成会报错)或视频</div>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[6]">
@@ -319,7 +319,7 @@
                                         </button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">只能上传图片或视频</div>
+                                        <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则小程序海报和水印生成会报错)或视频</div>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[7]">
@@ -335,7 +335,7 @@
                                         <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">只能上传图片或视频</div>
+                                        <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则小程序海报和水印生成会报错)或视频</div>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[8]">
@@ -351,7 +351,7 @@
                                         <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">只能上传图片或视频</div>
+                                        <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则小程序海报和水印生成会报错)或视频</div>
                                     </div>
                                 </div>
 

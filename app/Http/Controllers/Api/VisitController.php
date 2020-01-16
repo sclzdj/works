@@ -484,10 +484,10 @@ class VisitController extends UserGuardController
         foreach ($visitors['data'] as $k => $visitor) {
             $visitors['data'][$k]['unread_count'] = OperateRecord::where(
                 ['user_id' => $visitor['user_id'], 'photographer_id' => $visitor['photographer_id'], 'is_read' => 0]
-            )->count();
+            )->where('operate_type', '!=', 'in')->count();
             $operateRecord = OperateRecord::where(
                 ['user_id' => $visitor['user_id'], 'photographer_id' => $visitor['photographer_id']]
-            )->orderBy('created_at', 'desc')->orderBy("id", "desc")->first();
+            )->where('operate_type', '!=', 'in')->orderBy('created_at', 'desc')->orderBy("id", "desc")->first();
             $describe = '';
             if ($operateRecord) {
                 $describe = $this->_makeDescribe($operateRecord->id);
@@ -523,7 +523,7 @@ class VisitController extends UserGuardController
     {
         $this->notPhotographerIdentityVerify();
         $photographer = User::photographer(null, $this->guard);
-        $all_unread_count = OperateRecord::where(['photographer_id' => $photographer->id, 'is_read' => 0])->count();
+        $all_unread_count = OperateRecord::where(['photographer_id' => $photographer->id, 'is_read' => 0])->where('operate_type', '!=', 'in')->count();
 
         return $this->responseParseArray(compact('all_unread_count'));
     }
@@ -580,10 +580,17 @@ class VisitController extends UserGuardController
                     'operate_type' => 'in',
                 ]
             )->orderBy('created_at', 'asc')->orderBy("id", "asc")->first();
-            $visitor['first_in_operate_record'] = [
-                'date' => date('Y-m-d', strtotime($operateRecord->created_at)),
-                'describe' => $this->_makeDescribe($operateRecord->id),
-            ];
+            if ($operateRecord) {
+                $visitor['first_in_operate_record'] = [
+                    'date' => date('Y-m-d', strtotime($operateRecord->created_at)),
+                    'describe' => $this->_makeDescribe($operateRecord->id),
+                ];
+            } else {
+                $visitor['first_in_operate_record'] = [
+                    'date' => '',
+                    'describe' => '',
+                ];
+            }
             \DB::commit();//提交事务
             $visitor = SystemServer::parseVisitorTag($visitor);
 
@@ -618,7 +625,9 @@ class VisitController extends UserGuardController
         $view_records = OperateRecord::where('photographer_id', $photographer->id)->where(
             'user_id',
             $visitor->user_id
-        )->selectRaw('DATE(created_at) as date,COUNT(id) as total')->groupBy('date')->orderBy(
+        )->where('operate_type', '!=', 'in')->selectRaw('DATE(created_at) as date,COUNT(id) as total')->groupBy(
+            'date'
+        )->orderBy(
             "date",
             "desc"
         )->orderBy("id", "desc")->skip(($page - 1) * $pageSize)->take($pageSize)->get()->toArray();
@@ -626,7 +635,7 @@ class VisitController extends UserGuardController
             $records = OperateRecord::where('photographer_id', $photographer->id)->where(
                 'user_id',
                 $visitor->user_id
-            )->select(OperateRecord::allowFields())->whereDate(
+            )->where('operate_type', '!=', 'in')->select(OperateRecord::allowFields())->whereDate(
                 'created_at',
                 $view_record['date']
             )->orderBy('created_at', 'desc')->orderBy('id', 'desc')->get()->toArray();
@@ -710,11 +719,11 @@ class VisitController extends UserGuardController
                 }
             } elseif ($operateRecord->page_name == 'photographer_work') {
                 if ($operateRecord->share_type == 'xacard_share') {
-                    $describe = '将「'.$photographer_work_customer_name.'】分享给了微信好友';
+                    $describe = '将「'.$photographer_work_customer_name.'」分享给了微信好友';
                 } elseif ($operateRecord->share_type == 'poster_share') {
-                    $describe = '生成了「'.$photographer_work_customer_name.'】的海报';
+                    $describe = '生成了「'.$photographer_work_customer_name.'」的海报';
                 } elseif ($operateRecord->share_type == 'all_photo_share') {
-                    $describe = '保存了「'.$photographer_work_customer_name.'】的所有照片';
+                    $describe = '保存了「'.$photographer_work_customer_name.'」的所有照片';
                 }
             }
         } elseif ($operateRecord->operate_type == 'copy_wx') {

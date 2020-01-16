@@ -35,17 +35,16 @@
                                         <div class="help-block help-block-line">自己控制好长度</div>
                                     </div>
                                 </div>
-
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-content">
                                     <label class="col-md-1 control-label form-option-line">
                                         <span class="form-option-require"></span>
                                         帮助内容
                                     </label>
-                                    <div class="col-md-6 form-option-line">
-                                        <textarea class="form-control" rows="7" name="content" placeholder="请输入帮助内容">{{$helpNote->content}}</textarea>
+                                    <div class="col-md-9 form-option-line">
+                                        <script class="js-ueditor" name="content" type="text/plain">{!! $helpNote->content !!}</script>
                                     </div>
-                                    <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">自己控制好长度</div>
+                                    <div class="col-md-11 col-md-offset-1 form-validate-msg form-option-line">
+                                        <span class="form-control-static help-line">最多可输入10000个字符</span>
                                     </div>
                                 </div>
 
@@ -71,6 +70,10 @@
 @endsection
 @section('javascript')
     <script src="{{asset('/static/admin/js/change-node.js').'?'.$SFV}}"></script>
+    <script src="{{asset('/static/libs/ueditor/ueditor.config.js').'?'.$SFV}}"></script>
+    <script src="{{asset('/static/libs/ueditor/ueditor.all.min.js').'?'.$SFV}}"></script>
+    <script src="{{asset('/static/libs/ueditor/lang/zh-cn/zh-cn.js').'?'.$SFV}}"></script>
+    <script src="{{asset('/static/admin/js/ueditor-handle.js').'?'.$SFV}}"></script>
     <script>
         $(function () {
             $(document).on('click', '#create-submit', function () {
