@@ -28,21 +28,21 @@ class HelpNoteController extends BaseController
         ];
 
         $filter = [
-            'id' => $request['id'] !== null ?
-                $request['id'] :
-                '',
+//            'id' => $request['id'] !== null ?
+//                $request['id'] :
+//                '',
             'title' => $request['title'] !== null ?
                 $request['title'] :
                 '',
 //            'content' => $request['content'] !== null ?
 //                $request['content'] :
 //                '',
-            'created_at_start' => $request['created_at_start'] !== null ?
-                $request['created_at_start'] :
-                '',
-            'created_at_end' => $request['created_at_end'] !== null ?
-                $request['created_at_end'] :
-                '',
+//            'created_at_start' => $request['created_at_start'] !== null ?
+//                $request['created_at_start'] :
+//                '',
+//            'created_at_end' => $request['created_at_end'] !== null ?
+//                $request['created_at_end'] :
+//                '',
         ];
         $orderBy = [
             'order_field' => $request['order_field'] !== null ?
@@ -53,45 +53,45 @@ class HelpNoteController extends BaseController
                 'asc',
         ];
         $where = [];
-        if ($filter['id'] !== '') {
-            $where[] = ['id', 'like', '%'.$filter['id'].'%'];
-        }
+//        if ($filter['id'] !== '') {
+//            $where[] = ['id', 'like', '%'.$filter['id'].'%'];
+//        }
         if ($filter['title'] !== '') {
             $where[] = ['title', 'like', '%'.$filter['title'].'%'];
         }
 //        if ($filter['content'] !== '') {
 //            $where[] = ['content', 'like', '%'.$filter['content'].'%'];
 //        }
-        if ($filter['created_at_start'] !== '' &&
-            $filter['created_at_end'] !== ''
-        ) {
-            $where[] = [
-                'created_at',
-                '>=',
-                $filter['created_at_start']." 00:00:00",
-            ];
-            $where[] = [
-                'created_at',
-                '<=',
-                $filter['created_at_end']." 23:59:59",
-            ];
-        } elseif ($filter['created_at_start'] === '' &&
-            $filter['created_at_end'] !== ''
-        ) {
-            $where[] = [
-                'created_at',
-                '<=',
-                $filter['created_at_end']." 23:59:59",
-            ];
-        } elseif ($filter['created_at_start'] !== '' &&
-            $filter['created_at_end'] === ''
-        ) {
-            $where[] = [
-                'created_at',
-                '>=',
-                $filter['created_at_start']." 00:00:00",
-            ];
-        }
+//        if ($filter['created_at_start'] !== '' &&
+//            $filter['created_at_end'] !== ''
+//        ) {
+//            $where[] = [
+//                'created_at',
+//                '>=',
+//                $filter['created_at_start']." 00:00:00",
+//            ];
+//            $where[] = [
+//                'created_at',
+//                '<=',
+//                $filter['created_at_end']." 23:59:59",
+//            ];
+//        } elseif ($filter['created_at_start'] === '' &&
+//            $filter['created_at_end'] !== ''
+//        ) {
+//            $where[] = [
+//                'created_at',
+//                '<=',
+//                $filter['created_at_end']." 23:59:59",
+//            ];
+//        } elseif ($filter['created_at_start'] !== '' &&
+//            $filter['created_at_end'] === ''
+//        ) {
+//            $where[] = [
+//                'created_at',
+//                '>=',
+//                $filter['created_at_start']." 00:00:00",
+//            ];
+//        }
         $helpNotes = HelpNote::where($where)->where(['status' => 200])
             ->orderBy($orderBy['order_field'], $orderBy['order_type'])
             ->paginate($pageInfo['pageSize']);

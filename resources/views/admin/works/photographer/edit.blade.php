@@ -16,7 +16,7 @@
                                     class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
-                    <h3 class="block-title">修改摄影师</h3>
+                    <h3 class="block-title">修改用户</h3>
                 </div>
                 <div class="tab-content">
                     <div class="tab-pane active">
@@ -56,7 +56,7 @@
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-bg_img">
                                     <label class="col-md-1 control-label form-option-line">
-                                        背景图像
+                                        背景
                                     </label>
                                     <div class="col-md-5 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="bg_img" readonly
@@ -98,7 +98,7 @@
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-area">
                                     <label class="col-md-1 control-label form-option-line">
                                         <span class="form-option-require"></span>
-                                        地区
+                                        城市
                                     </label>
                                     <div class="col-md-2 form-option-line">
                                         <select class="form-control area-select-box-1 area-select-box-province"

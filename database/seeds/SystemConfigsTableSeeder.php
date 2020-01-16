@@ -36,7 +36,7 @@ class SystemConfigsTableSeeder extends Seeder
             [
                 'name' => 'basic_page_size',
                 'title' => '默认分页数量',
-                'value' => 20,
+                'value' => 100,
                 'type' => 'basic',
                 'genre' => 'text',
                 'tips' => '含有分页的接口或列表页面默认数量都从这里取值',

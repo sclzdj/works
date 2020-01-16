@@ -310,12 +310,12 @@ class SystemNodesTableSeeder extends Seeder
                         'icon' => 'fa fas fa-cogs',
                         'children' => [
                             [
-                                'name' => '系统设置',
+                                'name' => '客服信息',
                                 'icon' => 'fa fas fa-cog',
                                 'action' => 'Admin\Works\IndexController@config',
                             ],
                             [
-                                'name' => '众筹管理',
+                                'name' => '众筹活动',
                                 'icon' => 'fa fas fa-dollar-sign',
                                 'action' => 'Admin\CrowdFunding\IndexController@index',
                                 'children' => [
@@ -330,7 +330,7 @@ class SystemNodesTableSeeder extends Seeder
                                 ],
                             ],
                             [
-                                'name' => '创建码管理',
+                                'name' => '邀请创建',
                                 'icon' => 'fa fab fa-cc-discover',
                                 'action' => 'Admin\InvoteCode\IndexController@index',
                                 'children' => [
@@ -349,7 +349,7 @@ class SystemNodesTableSeeder extends Seeder
                                 ],
                             ],
                             [
-                                'name' => '众筹记录管理',
+                                'name' => '众筹记录',
                                 'icon' => 'fa fab fa-cc-discover',
                                 'action' => 'Admin\CrowdFundingLog\IndexController@index',
                                 'children' => [
@@ -360,7 +360,7 @@ class SystemNodesTableSeeder extends Seeder
                                 ]
                             ],
                             [
-                                'name' => '使用帮助管理',
+                                'name' => '使用帮助',
                                 'icon' => 'fa fas fa-question-circle',
                                 'action' => 'Admin\Works\HelpNoteController@index',
                                 'children' => [
@@ -389,7 +389,7 @@ class SystemNodesTableSeeder extends Seeder
                         'icon' => 'fa fas fa-camera',
                         'children' => [
                             [
-                                'name' => '摄影师管理',
+                                'name' => '全部用户',
                                 'icon' => 'fa fas fa-user-md',
                                 'action' => 'Admin\Works\PhotographerController@index',
                                 'children' => [
@@ -416,7 +416,7 @@ class SystemNodesTableSeeder extends Seeder
                                 ],
                             ],
                             [
-                                'name' => '作品集管理',
+                                'name' => '全部项目',
                                 'icon' => 'fa fas fa-camera-retro',
                                 'action' => 'Admin\Works\PhotographerWorkController@index',
                                 'children' => [
@@ -439,7 +439,7 @@ class SystemNodesTableSeeder extends Seeder
                                 ],
                             ],
                             [
-                                'name' => '大咖管理',
+                                'name' => '大咖用户',
                                 'icon' => 'fa fas fa-user-md',
                                 'action' => 'Admin\Works\StarController@index',
                                 'children' => [

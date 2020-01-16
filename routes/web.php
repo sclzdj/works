@@ -94,7 +94,7 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::get('crowdfunding/lists' , 'CrowdFunding\IndexController@lists');
         Route::resource('crowdfunding' , 'CrowdFunding\IndexController');
 
-        // 众筹记录管理
+        // 众筹记录
         Route::get('crowdfundinglog/lists' , 'CrowdFundingLog\IndexController@lists');
         Route::resource('crowdfundinglog' , 'CrowdFundingLog\IndexController');
 

@@ -547,7 +547,7 @@ div.tagsinput {
 .table-builder > tbody > tr > td {
     vertical-align: middle;
     padding: 10px;
-    white-space: nowrap;
+    /*white-space: nowrap;*/
     min-width: 0;
     height: 48px;
     box-sizing: border-box;

@@ -21,7 +21,7 @@
                                     class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
-                    <h3 class="block-title">摄影师管理</h3>
+                    <h3 class="block-title">全部用户</h3>
                 </div>
                 <div class="block-content tab-content">
                     <div class="tab-pane active">
@@ -36,20 +36,20 @@
                                     @endif
                                     @if(\App\Servers\PermissionServer::allowAction('Admin\Works\PhotographerWorkController@index'))
                                         <a class="btn btn-default btn-table-top"
-                                           href="{{action('Admin\Works\PhotographerWorkController@index')}}">作品集管理</a>
+                                           href="{{action('Admin\Works\PhotographerWorkController@index')}}">全部项目</a>
                                     @endif
                                 </div>
                                 <form action="{{action('Admin\Works\PhotographerController@index')}}" method="get">
                                     <input type="hidden" name="order_field" value="{{$orderBy['order_field']}}">
                                     <input type="hidden" name="order_type" value="{{$orderBy['order_type']}}">
                                     <div class="pull-right text-right">
-                                        <div class="search-bar search-bar-130" style="display: inline-block">
-                                            <div class="input-group">
-                                                <div class="input-group-addon">ID</div>
-                                                <input type="text" class="form-control" value="{{$filter['id']}}"
-                                                       name="id" placeholder="请输入ID">
-                                            </div>
-                                        </div>
+{{--                                        <div class="search-bar search-bar-130" style="display: inline-block">--}}
+{{--                                            <div class="input-group">--}}
+{{--                                                <div class="input-group-addon">ID</div>--}}
+{{--                                                <input type="text" class="form-control" value="{{$filter['id']}}"--}}
+{{--                                                       name="id" placeholder="请输入ID">--}}
+{{--                                            </div>--}}
+{{--                                        </div>--}}
                                         <div class="search-bar search-bar-150" style="display: inline-block">
                                             <div class="input-group">
                                                 <div class="input-group-addon">姓名</div>
@@ -78,30 +78,30 @@
                                                        name="mobile" placeholder="请输入手机号">
                                             </div>
                                         </div>
-                                        <div class="search-bar search-bar-200" style="display: inline-block">
-                                            <div class="input-group">
-                                                <div class="input-group-addon">微信号</div>
-                                                <input type="text" class="form-control" value="{{$filter['wechat']}}"
-                                                       name="wechat" placeholder="请输入微信号">
-                                            </div>
-                                        </div>
-                                        <div class="search-bar search-bar-340" style="display: inline-block">
-                                            <div class="input-daterange input-group" data-date-format="yyyy-mm-dd">
-                                                <span class="input-group-addon" style="border-width:1px;">创建日期</span>
-                                                <input class="form-control" type="text"
-                                                       value="{{$filter['created_at_start']}}" name="created_at_start"
-                                                       placeholder="开始日期" autocomplete="off">
-                                                <span class="input-group-addon"><i
-                                                        class="fa fa-chevron-right"></i></span>
-                                                <input class="form-control" type="text"
-                                                       value="{{$filter['created_at_end']}}" name="created_at_end"
-                                                       placeholder="结束日期" autocomplete="off">
-                                            </div>
-                                        </div>
+{{--                                        <div class="search-bar search-bar-200" style="display: inline-block">--}}
+{{--                                            <div class="input-group">--}}
+{{--                                                <div class="input-group-addon">微信号</div>--}}
+{{--                                                <input type="text" class="form-control" value="{{$filter['wechat']}}"--}}
+{{--                                                       name="wechat" placeholder="请输入微信号">--}}
+{{--                                            </div>--}}
+{{--                                        </div>--}}
+{{--                                        <div class="search-bar search-bar-340" style="display: inline-block">--}}
+{{--                                            <div class="input-daterange input-group" data-date-format="yyyy-mm-dd">--}}
+{{--                                                <span class="input-group-addon" style="border-width:1px;">创建日期</span>--}}
+{{--                                                <input class="form-control" type="text"--}}
+{{--                                                       value="{{$filter['created_at_start']}}" name="created_at_start"--}}
+{{--                                                       placeholder="开始日期" autocomplete="off">--}}
+{{--                                                <span class="input-group-addon"><i--}}
+{{--                                                        class="fa fa-chevron-right"></i></span>--}}
+{{--                                                <input class="form-control" type="text"--}}
+{{--                                                       value="{{$filter['created_at_end']}}" name="created_at_end"--}}
+{{--                                                       placeholder="结束日期" autocomplete="off">--}}
+{{--                                            </div>--}}
+{{--                                        </div>--}}
                                         <br>
                                         <div class="search-bar search-bar-300" style="display: inline-block">
                                             <div class="input-group" style="width: 100%;">
-                                                <div class="input-group-addon">地区</div>
+                                                <div class="input-group-addon">城市</div>
                                                 <select class="form-control area-select-box-1 area-select-box-province"
                                                         name="province" level="1">
                                                     <option value="">全部省份</option>
@@ -173,7 +173,7 @@
                                         style="width: 1571px;">
                                         <colgroup>
                                             <col width="50">
-                                            <col class="" width="100">
+{{--                                            <col class="" width="100">--}}
                                             <col class="">
                                             <col class="">
                                             <col class="">
@@ -181,10 +181,10 @@
                                             <col class="">
                                             <col class="">
                                             <col class="">
-                                            <col class="">
-                                            <col class="">
-                                            <col class="" width="160">
-                                            <col class="" width="230">
+{{--                                            <col class="">--}}
+{{--                                            <col class="">--}}
+{{--                                            <col class="" width="160">--}}
+                                            <col class="" width="190">
                                         </colgroup>
                                         <thead>
                                         <tr>
@@ -194,37 +194,37 @@
                                                     <input type="checkbox" id="check-all"><span></span>
                                                 </label>
                                             </th>
-                                            <th class="">
-                                                ID
-                                                @if($orderBy['order_field']=='photographers.id')
-                                                    @if($orderBy['order_type']=='asc')
-                                                        <span><a
-                                                                href="{{action('Admin\Works\PhotographerController@index',array_merge($filter,['order_field'=>'photographers.id','order_type'=>'desc'],$pageInfo))}}"
-                                                                data-toggle="tooltip" data-original-title="点击降序"
-                                                                alt="已升序">
-                                                            <i class="fa fa-caret-up"></i>
-                                                        </a></span>
-                                                    @elseif($orderBy['order_type']=='desc')
-                                                        <span><a
-                                                                href="{{action('Admin\Works\PhotographerController@index',array_merge($filter,['order_field'=>'photographers.id','order_type'=>'asc'],$pageInfo))}}"
-                                                                data-toggle="tooltip" data-original-title="点击升序"
-                                                                alt="已降序">
-                                                            <i class="fa fa-caret-down"></i>
-                                                        </a></span>
-                                                    @endif
-                                                @else
-                                                    <span><a
-                                                            href="{{action('Admin\Works\PhotographerController@index',array_merge($filter,['order_field'=>'photographers.id'],$pageInfo))}}"
-                                                            data-toggle="tooltip" data-original-title="点击排序" alt="未排序">
-                                                            <i class="fa fa-sort text-muted"></i>
-                                                        </a></span>
-                                                @endif
-                                            </th>
-                                            <th class="">
-                                                用户昵称<span></span>
-                                            </th>
+{{--                                            <th class="">--}}
+{{--                                                ID--}}
+{{--                                                @if($orderBy['order_field']=='photographers.id')--}}
+{{--                                                    @if($orderBy['order_type']=='asc')--}}
+{{--                                                        <span><a--}}
+{{--                                                                href="{{action('Admin\Works\PhotographerController@index',array_merge($filter,['order_field'=>'photographers.id','order_type'=>'desc'],$pageInfo))}}"--}}
+{{--                                                                data-toggle="tooltip" data-original-title="点击降序"--}}
+{{--                                                                alt="已升序">--}}
+{{--                                                            <i class="fa fa-caret-up"></i>--}}
+{{--                                                        </a></span>--}}
+{{--                                                    @elseif($orderBy['order_type']=='desc')--}}
+{{--                                                        <span><a--}}
+{{--                                                                href="{{action('Admin\Works\PhotographerController@index',array_merge($filter,['order_field'=>'photographers.id','order_type'=>'asc'],$pageInfo))}}"--}}
+{{--                                                                data-toggle="tooltip" data-original-title="点击升序"--}}
+{{--                                                                alt="已降序">--}}
+{{--                                                            <i class="fa fa-caret-down"></i>--}}
+{{--                                                        </a></span>--}}
+{{--                                                    @endif--}}
+{{--                                                @else--}}
+{{--                                                    <span><a--}}
+{{--                                                            href="{{action('Admin\Works\PhotographerController@index',array_merge($filter,['order_field'=>'photographers.id'],$pageInfo))}}"--}}
+{{--                                                            data-toggle="tooltip" data-original-title="点击排序" alt="未排序">--}}
+{{--                                                            <i class="fa fa-sort text-muted"></i>--}}
+{{--                                                        </a></span>--}}
+{{--                                                @endif--}}
+{{--                                            </th>--}}
                                             <th class="">
                                                 姓名<span></span>
+                                            </th>
+                                            <th class="">
+                                                微信昵称<span></span>
                                             </th>
                                             <th class="">
                                                 头像<span></span>
@@ -233,7 +233,7 @@
                                                 性别<span></span>
                                             </th>
                                             <th class="">
-                                                地区<span></span>
+                                                城市<span></span>
                                             </th>
                                             <th class="">
                                                 头衔<span></span>
@@ -241,61 +241,61 @@
                                             <th class="">
                                                 手机号<span></span>
                                             </th>
-                                            <th class="">
-                                                微信号<span></span>
-                                            </th>
-                                            <th class="">
-                                                作品集数量
-                                                @if($orderBy['order_field']=='works_count')
-                                                    @if($orderBy['order_type']=='asc')
-                                                        <span><a
-                                                                href="{{action('Admin\Works\PhotographerController@index',array_merge($filter,['order_field'=>'works_count','order_type'=>'desc'],$pageInfo))}}"
-                                                                data-toggle="tooltip" data-original-title="点击降序"
-                                                                alt="已升序">
-                                                            <i class="fa fa-caret-up"></i>
-                                                        </a></span>
-                                                    @elseif($orderBy['order_type']=='desc')
-                                                        <span><a
-                                                                href="{{action('Admin\Works\PhotographerController@index',array_merge($filter,['order_field'=>'works_count','order_type'=>'asc'],$pageInfo))}}"
-                                                                data-toggle="tooltip" data-original-title="点击升序"
-                                                                alt="已降序">
-                                                            <i class="fa fa-caret-down"></i>
-                                                        </a></span>
-                                                    @endif
-                                                @else
-                                                    <span><a
-                                                            href="{{action('Admin\Works\PhotographerController@index',array_merge($filter,['order_field'=>'works_count'],$pageInfo))}}"
-                                                            data-toggle="tooltip" data-original-title="点击排序" alt="未排序">
-                                                            <i class="fa fa-sort text-muted"></i>
-                                                        </a></span>
-                                                @endif
-                                            </th>
-                                            <th class="">
-                                                创建时间
-                                                @if($orderBy['order_field']=='photographers.created_at')
-                                                    @if($orderBy['order_type']=='asc')
-                                                        <span><a
-                                                                href="{{action('Admin\Works\PhotographerController@index',array_merge($filter,['order_field'=>'photographers.created_at','order_type'=>'desc'],$pageInfo))}}"
-                                                                data-toggle="tooltip" data-original-title="点击降序"
-                                                                alt="已升序">
-                                                            <i class="fa fa-caret-up"></i>
-                                                        </a></span>
-                                                    @elseif($orderBy['order_type']=='desc')
-                                                        <span><a
-                                                                href="{{action('Admin\Works\PhotographerController@index',array_merge($filter,['order_field'=>'photographers.created_at','order_type'=>'asc'],$pageInfo))}}"
-                                                                data-toggle="tooltip" data-original-title="点击升序"
-                                                                alt="已降序">
-                                                            <i class="fa fa-caret-down"></i>
-                                                        </a></span>
-                                                    @endif
-                                                @else
-                                                    <span><a
-                                                            href="{{action('Admin\Works\PhotographerController@index',array_merge($filter,['order_field'=>'photographers.created_at'],$pageInfo))}}"
-                                                            data-toggle="tooltip" data-original-title="点击排序" alt="未排序">
-                                                            <i class="fa fa-sort text-muted"></i>
-                                                        </a></span>
-                                                @endif
-                                            </th>
+{{--                                            <th class="">--}}
+{{--                                                微信号<span></span>--}}
+{{--                                            </th>--}}
+{{--                                            <th class="">--}}
+{{--                                                作品集数量--}}
+{{--                                                @if($orderBy['order_field']=='works_count')--}}
+{{--                                                    @if($orderBy['order_type']=='asc')--}}
+{{--                                                        <span><a--}}
+{{--                                                                href="{{action('Admin\Works\PhotographerController@index',array_merge($filter,['order_field'=>'works_count','order_type'=>'desc'],$pageInfo))}}"--}}
+{{--                                                                data-toggle="tooltip" data-original-title="点击降序"--}}
+{{--                                                                alt="已升序">--}}
+{{--                                                            <i class="fa fa-caret-up"></i>--}}
+{{--                                                        </a></span>--}}
+{{--                                                    @elseif($orderBy['order_type']=='desc')--}}
+{{--                                                        <span><a--}}
+{{--                                                                href="{{action('Admin\Works\PhotographerController@index',array_merge($filter,['order_field'=>'works_count','order_type'=>'asc'],$pageInfo))}}"--}}
+{{--                                                                data-toggle="tooltip" data-original-title="点击升序"--}}
+{{--                                                                alt="已降序">--}}
+{{--                                                            <i class="fa fa-caret-down"></i>--}}
+{{--                                                        </a></span>--}}
+{{--                                                    @endif--}}
+{{--                                                @else--}}
+{{--                                                    <span><a--}}
+{{--                                                            href="{{action('Admin\Works\PhotographerController@index',array_merge($filter,['order_field'=>'works_count'],$pageInfo))}}"--}}
+{{--                                                            data-toggle="tooltip" data-original-title="点击排序" alt="未排序">--}}
+{{--                                                            <i class="fa fa-sort text-muted"></i>--}}
+{{--                                                        </a></span>--}}
+{{--                                                @endif--}}
+{{--                                            </th>--}}
+{{--                                            <th class="">--}}
+{{--                                                创建时间--}}
+{{--                                                @if($orderBy['order_field']=='photographers.created_at')--}}
+{{--                                                    @if($orderBy['order_type']=='asc')--}}
+{{--                                                        <span><a--}}
+{{--                                                                href="{{action('Admin\Works\PhotographerController@index',array_merge($filter,['order_field'=>'photographers.created_at','order_type'=>'desc'],$pageInfo))}}"--}}
+{{--                                                                data-toggle="tooltip" data-original-title="点击降序"--}}
+{{--                                                                alt="已升序">--}}
+{{--                                                            <i class="fa fa-caret-up"></i>--}}
+{{--                                                        </a></span>--}}
+{{--                                                    @elseif($orderBy['order_type']=='desc')--}}
+{{--                                                        <span><a--}}
+{{--                                                                href="{{action('Admin\Works\PhotographerController@index',array_merge($filter,['order_field'=>'photographers.created_at','order_type'=>'asc'],$pageInfo))}}"--}}
+{{--                                                                data-toggle="tooltip" data-original-title="点击升序"--}}
+{{--                                                                alt="已降序">--}}
+{{--                                                            <i class="fa fa-caret-down"></i>--}}
+{{--                                                        </a></span>--}}
+{{--                                                    @endif--}}
+{{--                                                @else--}}
+{{--                                                    <span><a--}}
+{{--                                                            href="{{action('Admin\Works\PhotographerController@index',array_merge($filter,['order_field'=>'photographers.created_at'],$pageInfo))}}"--}}
+{{--                                                            data-toggle="tooltip" data-original-title="点击排序" alt="未排序">--}}
+{{--                                                            <i class="fa fa-sort text-muted"></i>--}}
+{{--                                                        </a></span>--}}
+{{--                                                @endif--}}
+{{--                                            </th>--}}
                                             <th class="">
                                                 操作<span></span>
                                             </th>
@@ -309,7 +309,7 @@
                                         id="builder-table-main">
                                         <colgroup>
                                             <col width="50">
-                                            <col class="" width="100">
+{{--                                            <col class="" width="100">--}}
                                             <col class="">
                                             <col class="">
                                             <col class="">
@@ -317,10 +317,10 @@
                                             <col class="">
                                             <col class="">
                                             <col class="">
-                                            <col class="">
-                                            <col class="">
-                                            <col class="" width="160">
-                                            <col class="" width="230">
+{{--                                            <col class="">--}}
+{{--                                            <col class="">--}}
+{{--                                            <col class="" width="160">--}}
+                                            <col class="" width="190">
                                         </colgroup>
                                         <tbody>
                                         @forelse ($photographers as $key=>$photographer)
@@ -333,19 +333,19 @@
                                                         </label>
                                                     </div>
                                                 </td>
+{{--                                                <td class=" ">--}}
+{{--                                                    <div class="table-cell">--}}
+{{--                                                        {{$photographer->id}}--}}
+{{--                                                    </div>--}}
+{{--                                                </td>--}}
                                                 <td class=" ">
                                                     <div class="table-cell">
-                                                        {{$photographer->id}}
+                                                        {{$photographer->name}}
                                                     </div>
                                                 </td>
                                                 <td class=" ">
                                                     <div class="table-cell">
                                                         {{$photographer['user']->nickname}}
-                                                    </div>
-                                                </td>
-                                                <td class=" ">
-                                                    <div class="table-cell">
-                                                        {{$photographer->name}}
                                                     </div>
                                                 </td>
                                                 <td class=" ">
@@ -383,24 +383,24 @@
                                                         {{$photographer->mobile}}
                                                     </div>
                                                 </td>
+{{--                                                <td class=" ">--}}
+{{--                                                    <div class="table-cell">--}}
+{{--                                                        {{$photographer->wechat}}--}}
+{{--                                                    </div>--}}
+{{--                                                </td>--}}
+{{--                                                <td class=" ">--}}
+{{--                                                    <div class="table-cell">--}}
+{{--                                                        {{$photographer['works_count']}}--}}
+{{--                                                    </div>--}}
+{{--                                                </td>--}}
+{{--                                                <td class=" ">--}}
+{{--                                                    <div class="table-cell">--}}
+{{--                                                        {{$photographer->created_at}}--}}
+{{--                                                    </div>--}}
+{{--                                                </td>--}}
                                                 <td class=" ">
                                                     <div class="table-cell">
-                                                        {{$photographer->wechat}}
-                                                    </div>
-                                                </td>
-                                                <td class=" ">
-                                                    <div class="table-cell">
-                                                        {{$photographer['works_count']}}
-                                                    </div>
-                                                </td>
-                                                <td class=" ">
-                                                    <div class="table-cell">
-                                                        {{$photographer->created_at}}
-                                                    </div>
-                                                </td>
-                                                <td class=" ">
-                                                    <div class="table-cell">
-                                                        <div class="btn-group">
+                                                        <div class="btn-group" style="text-align: center;">
                                                             @if(\App\Servers\PermissionServer::allowAction('Admin\Works\PhotographerController@gallery'))
                                                                 <a class="btn btn-xs btn-default"
                                                                    href="{{action('Admin\Works\PhotographerController@gallery',['id'=>$photographer->id])}}"
@@ -422,8 +422,8 @@
                                                                    confirm="<div class='text-center'>确定要删除吗？</div>">删除</a>
                                                             @endif
                                                             @if(\App\Servers\PermissionServer::allowAction('Admin\Works\PhotographerWorkController@index'))
-                                                                <a class="btn btn-xs btn-default"
-                                                                   href="{{action('Admin\Works\PhotographerWorkController@index',['photographer_id'=>$photographer->id])}}">作品集</a>
+                                                                <a style="margin: 2px 0;" class="btn btn-xs btn-default" target="_blank"
+                                                                   href="{{action('Admin\Works\PhotographerWorkController@index',['photographer_id'=>$photographer->id])}}">{{$photographer['works_count']}}个项目</a>
                                                             @endif
                                                         </div>
                                                     </div>
