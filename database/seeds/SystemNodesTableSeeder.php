@@ -330,7 +330,7 @@ class SystemNodesTableSeeder extends Seeder
                                 ],
                             ],
                             [
-                                'name' => '邀请码管理',
+                                'name' => '创建码管理',
                                 'icon' => 'fa fab fa-cc-discover',
                                 'action' => 'Admin\InvoteCode\IndexController@index',
                                 'children' => [
