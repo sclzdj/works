@@ -19,7 +19,7 @@
                                     class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
-                    <h3 class="block-title">添加作品集</h3>
+                    <h3 class="block-title">添加项目</h3>
                 </div>
                 <div class="tab-content">
                     <div class="tab-pane active">
@@ -27,7 +27,7 @@
                             <form class="form-horizontal form-builder row" id="create-form">
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <label class="col-md-1 control-label form-option-line">
-                                        摄影师
+                                        用户
                                     </label>
                                     <div class="col-md-11 form-option-line">
                                         <div class="form-control-static">{{$photographer->name}}</div>
@@ -38,10 +38,10 @@
                                      id="create-customer_name">
                                     <label class="col-md-1 control-label form-option-line">
                                         <span class="form-option-require"></span>
-                                        客户名称
+                                        项目名称
                                     </label>
                                     <div class="col-md-6 form-option-line">
-                                        <input class="form-control" name="customer_name" placeholder="请输入客户名称"
+                                        <input class="form-control" name="customer_name" placeholder="请输入项目名称"
                                                value="">
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
@@ -214,7 +214,7 @@
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[0]">
                                     <label class="col-md-1 control-label form-option-line">
                                         <span class="form-option-require"></span>
-                                        资源1
+                                        作品1
                                     </label>
                                     <div class="col-md-6 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="sources[]" readonly
@@ -222,12 +222,12 @@
                                         <input type="file" class="qiniu-file-upload hide" value-type="key">
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">只能上传图片或视频</div>
+                                        <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频</div>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[1]">
                                     <label class="col-md-1 control-label form-option-line">
-                                        资源2
+                                        作品2
                                     </label>
                                     <div class="col-md-5 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="sources[]" readonly
@@ -238,12 +238,12 @@
                                         <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">只能上传图片或视频</div>
+                                        <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频</div>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[2]">
                                     <label class="col-md-1 control-label form-option-line">
-                                        资源3
+                                        作品3
                                     </label>
                                     <div class="col-md-5 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="sources[]" readonly
@@ -254,12 +254,12 @@
                                         <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">只能上传图片或视频</div>
+                                        <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频</div>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[3]">
                                     <label class="col-md-1 control-label form-option-line">
-                                        资源4
+                                        作品4
                                     </label>
                                     <div class="col-md-5 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="sources[]" readonly
@@ -270,12 +270,12 @@
                                         <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">只能上传图片或视频</div>
+                                        <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频</div>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[4]">
                                     <label class="col-md-1 control-label form-option-line">
-                                        资源5
+                                        作品5
                                     </label>
                                     <div class="col-md-5 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="sources[]" readonly
@@ -286,12 +286,12 @@
                                         <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">只能上传图片或视频</div>
+                                        <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频</div>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[5]">
                                     <label class="col-md-1 control-label form-option-line">
-                                        资源6
+                                        作品6
                                     </label>
                                     <div class="col-md-5 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="sources[]" readonly
@@ -302,12 +302,12 @@
                                         <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">只能上传图片或视频</div>
+                                        <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频</div>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[6]">
                                     <label class="col-md-1 control-label form-option-line">
-                                        资源7
+                                        作品7
                                     </label>
                                     <div class="col-md-5 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="sources[]" readonly
@@ -319,12 +319,12 @@
                                         </button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">只能上传图片或视频</div>
+                                        <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频</div>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[7]">
                                     <label class="col-md-1 control-label form-option-line">
-                                        资源8
+                                        作品8
                                     </label>
                                     <div class="col-md-5 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="sources[]" readonly
@@ -335,12 +335,12 @@
                                         <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">只能上传图片或视频</div>
+                                        <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频</div>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[8]">
                                     <label class="col-md-1 control-label form-option-line">
-                                        资源9
+                                        作品9
                                     </label>
                                     <div class="col-md-5 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="sources[]" readonly
@@ -351,7 +351,7 @@
                                         <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">只能上传图片或视频</div>
+                                        <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频</div>
                                     </div>
                                 </div>
 

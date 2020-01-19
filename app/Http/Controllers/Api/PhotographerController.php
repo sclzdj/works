@@ -240,7 +240,8 @@ class PhotographerController extends BaseController
         $buckets = config('custom.qiniu.buckets');
         $domain = $buckets[$bucket]['domain'] ?? '';
 
-        $xacode = User::createXacode2($photographer_id);
+        $sence = "0/{$photographer_id}";
+        $xacode = User::createXacode2($photographer_id , 'other' , $sence);
         if ($xacode) {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
                 $xacode . '|imageMogr2/thumbnail/250x250!'
@@ -452,8 +453,8 @@ class PhotographerController extends BaseController
         if (empty($template)) {
             return $this->response->error('模板不存在', 500);
         }
-
-        $xacode = User::createXacode2($photographer->id);
+        $sence = "1/{$photographer_work_id}";
+        $xacode = User::createXacode2($photographer->id , 'other',$sence);
         if ($xacode) {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
                 $xacode . '|imageMogr2/thumbnail/250x250!'
@@ -531,7 +532,8 @@ class PhotographerController extends BaseController
 
     public function getTemplates()
     {
-        return $this->responseParseArray(Templates::all()->pluck('number'));
+        $data = Templates::orderBy('number' , 'asc')->pluck('number');
+        return $this->responseParseArray($data);
     }
 
     /**

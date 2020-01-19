@@ -88,7 +88,7 @@
                                     class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
-                    <h3 class="block-title">大咖管理</h3>
+                    <h3 class="block-title">大咖用户</h3>
                 </div>
                 <div class="tab-content" id="app">
                     <div class="tab-pane active">

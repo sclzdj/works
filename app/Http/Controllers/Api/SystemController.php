@@ -13,6 +13,7 @@ use App\Http\Requests\Index\UserRequest;
 use App\Model\Admin\SystemArea;
 use App\Model\Admin\SystemConfig;
 use App\Model\Index\BaiduOauth;
+use App\Model\Index\CrowdFunding;
 use App\Model\Index\HelpNote;
 use App\Model\Index\Photographer;
 use App\Model\Index\PhotographerRank;
@@ -40,6 +41,7 @@ class SystemController extends BaseController
      */
     public function sendSmsCode(SystemRequest $request)
     {
+        //发送短信
         $expire = config('custom.send_short_message.sms_code.expire');
         $space = config('custom.send_short_message.sms_code.space');
         $third_type = config('custom.send_short_message.third_type');

@@ -34,9 +34,9 @@ class PhotographerController extends BaseController
         ];
 
         $filter = [
-            'id' => $request['id'] !== null ?
-                $request['id'] :
-                '',
+//            'id' => $request['id'] !== null ?
+//                $request['id'] :
+//                '',
             'name' => $request['name'] !== null ?
                 $request['name'] :
                 '',
@@ -58,15 +58,15 @@ class PhotographerController extends BaseController
             'mobile' => $request['mobile'] !== null ?
                 $request['mobile'] :
                 '',
-            'wechat' => $request['wechat'] !== null ?
-                $request['wechat'] :
-                '',
-            'created_at_start' => $request['created_at_start'] !== null ?
-                $request['created_at_start'] :
-                '',
-            'created_at_end' => $request['created_at_end'] !== null ?
-                $request['created_at_end'] :
-                '',
+//            'wechat' => $request['wechat'] !== null ?
+//                $request['wechat'] :
+//                '',
+//            'created_at_start' => $request['created_at_start'] !== null ?
+//                $request['created_at_start'] :
+//                '',
+//            'created_at_end' => $request['created_at_end'] !== null ?
+//                $request['created_at_end'] :
+//                '',
         ];
         $orderBy = [
             'order_field' => $request['order_field'] !== null ?
@@ -77,9 +77,9 @@ class PhotographerController extends BaseController
                 'asc',
         ];
         $where = [];
-        if ($filter['id'] !== '') {
-            $where[] = ['photographers.id', 'like', '%'.$filter['id'].'%'];
-        }
+//        if ($filter['id'] !== '') {
+//            $where[] = ['photographers.id', 'like', '%'.$filter['id'].'%'];
+//        }
         if ($filter['name'] !== '') {
             $where[] = ['photographers.name', 'like', '%'.$filter['name'].'%'];
         }
@@ -98,39 +98,39 @@ class PhotographerController extends BaseController
         if ($filter['mobile'] !== '') {
             $where[] = ['photographers.mobile', 'like', '%'.$filter['mobile'].'%'];
         }
-        if ($filter['wechat'] !== '') {
-            $where[] = ['photographers.wechat', 'like', '%'.$filter['wechat'].'%'];
-        }
-        if ($filter['created_at_start'] !== '' &&
-            $filter['created_at_end'] !== ''
-        ) {
-            $where[] = [
-                'photographers.created_at',
-                '>=',
-                $filter['created_at_start']." 00:00:00",
-            ];
-            $where[] = [
-                'photographers.created_at',
-                '<=',
-                $filter['created_at_end']." 23:59:59",
-            ];
-        } elseif ($filter['created_at_start'] === '' &&
-            $filter['created_at_end'] !== ''
-        ) {
-            $where[] = [
-                'photographers.created_at',
-                '<=',
-                $filter['created_at_end']." 23:59:59",
-            ];
-        } elseif ($filter['created_at_start'] !== '' &&
-            $filter['created_at_end'] === ''
-        ) {
-            $where[] = [
-                'photographers.created_at',
-                '>=',
-                $filter['created_at_start']." 00:00:00",
-            ];
-        }
+//        if ($filter['wechat'] !== '') {
+//            $where[] = ['photographers.wechat', 'like', '%'.$filter['wechat'].'%'];
+//        }
+//        if ($filter['created_at_start'] !== '' &&
+//            $filter['created_at_end'] !== ''
+//        ) {
+//            $where[] = [
+//                'photographers.created_at',
+//                '>=',
+//                $filter['created_at_start']." 00:00:00",
+//            ];
+//            $where[] = [
+//                'photographers.created_at',
+//                '<=',
+//                $filter['created_at_end']." 23:59:59",
+//            ];
+//        } elseif ($filter['created_at_start'] === '' &&
+//            $filter['created_at_end'] !== ''
+//        ) {
+//            $where[] = [
+//                'photographers.created_at',
+//                '<=',
+//                $filter['created_at_end']." 23:59:59",
+//            ];
+//        } elseif ($filter['created_at_start'] !== '' &&
+//            $filter['created_at_end'] === ''
+//        ) {
+//            $where[] = [
+//                'photographers.created_at',
+//                '>=',
+//                $filter['created_at_start']." 00:00:00",
+//            ];
+//        }
         $Photographer = Photographer::select(
             \DB::raw('photographers.*,count(photographers.id) as works_count')
         )->leftJoin(

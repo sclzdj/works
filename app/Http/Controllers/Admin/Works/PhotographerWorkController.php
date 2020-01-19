@@ -37,27 +37,27 @@ class PhotographerWorkController extends BaseController
         ];
 
         $filter = [
-            'id' => $request['id'] !== null ?
-                $request['id'] :
-                '',
+//            'id' => $request['id'] !== null ?
+//                $request['id'] :
+//                '',
             'customer_name' => $request['customer_name'] !== null ?
                 $request['customer_name'] :
                 '',
-            'photographer_work_customer_industry_id' => $request['photographer_work_customer_industry_id'] !== null ?
-                $request['photographer_work_customer_industry_id'] :
-                '',
-            'photographer_work_category_id' => $request['photographer_work_category_id'] !== null ?
-                $request['photographer_work_category_id'] :
-                '',
-            'tag_name' => $request['tag_name'] !== null ?
-                $request['tag_name'] :
-                '',
-            'created_at_start' => $request['created_at_start'] !== null ?
-                $request['created_at_start'] :
-                '',
-            'created_at_end' => $request['created_at_end'] !== null ?
-                $request['created_at_end'] :
-                '',
+//            'photographer_work_customer_industry_id' => $request['photographer_work_customer_industry_id'] !== null ?
+//                $request['photographer_work_customer_industry_id'] :
+//                '',
+//            'photographer_work_category_id' => $request['photographer_work_category_id'] !== null ?
+//                $request['photographer_work_category_id'] :
+//                '',
+//            'tag_name' => $request['tag_name'] !== null ?
+//                $request['tag_name'] :
+//                '',
+//            'created_at_start' => $request['created_at_start'] !== null ?
+//                $request['created_at_start'] :
+//                '',
+//            'created_at_end' => $request['created_at_end'] !== null ?
+//                $request['created_at_end'] :
+//                '',
         ];
         $orderBy = [
             'order_field' => $request['order_field'] !== null ?
@@ -68,90 +68,90 @@ class PhotographerWorkController extends BaseController
                 'asc',
         ];
         $where = [];
-        if ($filter['id'] !== '') {
-            $where[] = ['photographer_works.id', 'like', '%'.$filter['id'].'%'];
-        }
+//        if ($filter['id'] !== '') {
+//            $where[] = ['photographer_works.id', 'like', '%'.$filter['id'].'%'];
+//        }
         if ($filter['customer_name'] !== '') {
             $where[] = ['photographer_works.customer_name', 'like', '%'.$filter['customer_name'].'%'];
         }
-        if ($filter['tag_name'] !== '') {
-            $where[] = ['photographer_work_tags.name', 'like', '%'.$filter['tag_name'].'%'];
-        }
-        if ($filter['created_at_start'] !== '' &&
-            $filter['created_at_end'] !== ''
-        ) {
-            $where[] = [
-                'photographer_works.created_at',
-                '>=',
-                $filter['created_at_start']." 00:00:00",
-            ];
-            $where[] = [
-                'photographer_works.created_at',
-                '<=',
-                $filter['created_at_end']." 23:59:59",
-            ];
-        } elseif ($filter['created_at_start'] === '' &&
-            $filter['created_at_end'] !== ''
-        ) {
-            $where[] = [
-                'photographer_works.created_at',
-                '<=',
-                $filter['created_at_end']." 23:59:59",
-            ];
-        } elseif ($filter['created_at_start'] !== '' &&
-            $filter['created_at_end'] === ''
-        ) {
-            $where[] = [
-                'photographer_works.created_at',
-                '>=',
-                $filter['created_at_start']." 00:00:00",
-            ];
-        }
+//        if ($filter['tag_name'] !== '') {
+//            $where[] = ['photographer_work_tags.name', 'like', '%'.$filter['tag_name'].'%'];
+//        }
+//        if ($filter['created_at_start'] !== '' &&
+//            $filter['created_at_end'] !== ''
+//        ) {
+//            $where[] = [
+//                'photographer_works.created_at',
+//                '>=',
+//                $filter['created_at_start']." 00:00:00",
+//            ];
+//            $where[] = [
+//                'photographer_works.created_at',
+//                '<=',
+//                $filter['created_at_end']." 23:59:59",
+//            ];
+//        } elseif ($filter['created_at_start'] === '' &&
+//            $filter['created_at_end'] !== ''
+//        ) {
+//            $where[] = [
+//                'photographer_works.created_at',
+//                '<=',
+//                $filter['created_at_end']." 23:59:59",
+//            ];
+//        } elseif ($filter['created_at_start'] !== '' &&
+//            $filter['created_at_end'] === ''
+//        ) {
+//            $where[] = [
+//                'photographer_works.created_at',
+//                '>=',
+//                $filter['created_at_start']." 00:00:00",
+//            ];
+//        }
         $PhotographerWork = PhotographerWork::select('photographer_works.*')->join(
             'photographers',
             'photographers.id',
             '=',
             'photographer_works.photographer_id'
         );
-        if ($filter['tag_name'] !== '') {
-            $PhotographerWork = $PhotographerWork->join(
-                'photographer_work_tags',
-                'photographer_work_tags.photographer_work_id',
-                '=',
-                'photographer_works.id'
-            );
-        }
+//        if ($filter['tag_name'] !== '') {
+//            $PhotographerWork = $PhotographerWork->join(
+//                'photographer_work_tags',
+//                'photographer_work_tags.photographer_work_id',
+//                '=',
+//                'photographer_works.id'
+//            );
+//        }
         $PhotographerWork = $PhotographerWork->where($where)->where(
             ['photographers.status' => 200, 'photographer_works.status' => 200]
         );
-        if ($filter['photographer_work_customer_industry_id'] !== '') {
-            $photographerWorkCustomerIndustries = PhotographerWorkCustomerIndustry::where(
-                ['pid' => $filter['photographer_work_customer_industry_id']]
-            )->orderBy(
-                'sort',
-                'asc'
-            )->get()->toArray();
-            $photographerWorkCustomerIndustryIds = ArrServer::ids($photographerWorkCustomerIndustries);
-            $photographerWorkCustomerIndustryIds[] = $filter['photographer_work_customer_industry_id'];
-            $PhotographerWork = $PhotographerWork->whereIn(
-                'photographer_works.photographer_work_customer_industry_id',
-                $photographerWorkCustomerIndustryIds
-            );
-        }
-        if ($filter['photographer_work_category_id'] !== '') {
-            $photographerWorkCategories = PhotographerWorkCategory::where(
-                ['pid' => $filter['photographer_work_category_id']]
-            )->orderBy(
-                'sort',
-                'asc'
-            )->get()->toArray();
-            $photographerWorkCategoryIds = ArrServer::ids($photographerWorkCategories);
-            $photographerWorkCategoryIds[] = $filter['photographer_work_category_id'];
-            $PhotographerWork = $PhotographerWork->whereIn(
-                'photographer_works.photographer_work_category_id',
-                $photographerWorkCategoryIds
-            );
-        }
+//        if ($filter['photographer_work_customer_industry_id'] !== '') {
+//            $photographerWorkCustomerIndustries = PhotographerWorkCustomerIndustry::where(
+//                ['pid' => $filter['photographer_work_customer_industry_id']]
+//            )->orderBy(
+//                'sort',
+//                'asc'
+//            )->get()->toArray();
+//            $photographerWorkCustomerIndustryIds = ArrServer::ids($photographerWorkCustomerIndustries);
+//            $photographerWorkCustomerIndustryIds[] = $filter['photographer_work_customer_industry_id'];
+//            $PhotographerWork = $PhotographerWork->whereIn(
+//                'photographer_works.photographer_work_customer_industry_id',
+//                $photographerWorkCustomerIndustryIds
+//            );
+//        }
+//        if ($filter['photographer_work_category_id'] !== '') {
+//            $photographerWorkCategories = PhotographerWorkCategory::where(
+//                ['pid' => $filter['photographer_work_category_id']]
+//            )->orderBy(
+//                'sort',
+//                'asc'
+//            )->get()->toArray();
+//            $photographerWorkCategoryIds = ArrServer::ids($photographerWorkCategories);
+//            $photographerWorkCategoryIds[] = $filter['photographer_work_category_id'];
+//            $PhotographerWork = $PhotographerWork->whereIn(
+//                'photographer_works.photographer_work_category_id',
+//                $photographerWorkCategoryIds
+//            );
+//        }
         if ($request->photographer_id > 0) {
             $PhotographerWork = $PhotographerWork->where(
                 'photographer_works.photographer_id',

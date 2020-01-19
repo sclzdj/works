@@ -127,14 +127,14 @@ class User extends Authenticatable implements JWTSubject
     public static function createXacode($id, $type = 'photographer')
     {
         if ($type == 'photographer_work') {
-            $page =  'pages/productDetails/productDetails';
+            $page = 'pages/productDetails/productDetails';
             $photographer_work = PhotographerWork::find($id);
             if (!$photographer_work) {
                 return '';
             }
             $photographer = Photographer::find($photographer_work->photographer_id);
         } else {
-            $page ='pages/homes/homes';
+            $page = 'pages/homes/homes';
             $photographer = Photographer::find($id);
         }
         if (!$photographer) {
@@ -142,7 +142,7 @@ class User extends Authenticatable implements JWTSubject
         }
         $response = WechatServer::getxacodeunlimit($id, $page);
         if ($response['code'] == 200) {
-            $filename = 'xacodes/'.time().mt_rand(10000, 99999).'.png';
+            $filename = 'xacodes/' . time() . mt_rand(10000, 99999) . '.png';
             $xacode = Image::make($response['data'])->resize(370, 370);
             $bgimg = Image::make('xacodes/bg.png')->resize(420, 420);
             $bgimg->insert($xacode, 'top-left', 25, 25);
@@ -165,40 +165,46 @@ class User extends Authenticatable implements JWTSubject
                 return '';
             }
             if (!$photographer->avatar) {
-                return $domain.'/'.$ret['key'].'?roundPic/radius/!50p';
+                return $domain . '/' . $ret['key'] . '?roundPic/radius/!50p';
             }
-            $avatar = $photographer->avatar.'?imageMogr2/thumbnail/170x170!|roundPic/radius/!50p';
-            $avatar_bg = config('app.url').'/xacodes/avatar_bg.png';
+            $avatar = $photographer->avatar . '?imageMogr2/thumbnail/170x170!|roundPic/radius/!50p';
+            $avatar_bg = config('app.url') . '/xacodes/avatar_bg.png';
 
-            return $domain.'/'.$ret['key'].'?watermark/3/image/'.\Qiniu\base64_urlSafeEncode(
+            return $domain . '/' . $ret['key'] . '?watermark/3/image/' . \Qiniu\base64_urlSafeEncode(
                     $avatar_bg
-                ).'/dx/125/dy/125/image/'.\Qiniu\base64_urlSafeEncode(
+                ) . '/dx/125/dy/125/image/' . \Qiniu\base64_urlSafeEncode(
                     $avatar
-                ).'/dx/125/dy/125|roundPic/radius/!50p';
+                ) . '/dx/125/dy/125|roundPic/radius/!50p';
         } else {
             return '';
         }
     }
 
-    public static function createXacode2($id, $type = 'photographer')
+    public static function createXacode2($id, $type = 'photographer' , $scene = "")
     {
         if ($type == 'photographer_work') {
-            $page =  'pages/productDetails/productDetails';
+            $page = 'pages/productDetails/productDetails';
             $photographer_work = PhotographerWork::find($id);
             if (!$photographer_work) {
                 return '';
             }
             $photographer = Photographer::find($photographer_work->photographer_id);
+        } elseif ($type = 'other') {
+            $photographer = Photographer::find($id);
+            $page = "pages/authorization/step1/index";
+            $id = $scene;
         } else {
-            $page ='pages/homes/homes';
+            $page = 'pages/homes/homes';
             $photographer = Photographer::find($id);
         }
         if (!$photographer) {
             return '';
         }
         $response = WechatServer::getxacodeunlimit($id, $page);
+
+
         if ($response['code'] == 200) {
-            $filename = 'xacodes/'.time().mt_rand(10000, 99999).'.png';
+            $filename = 'xacodes/' . time() . mt_rand(10000, 99999) . '.png';
             $xacode = Image::make($response['data'])->resize(420, 420);
             $xacode->save($filename);
             $bucket = 'zuopin';
@@ -219,12 +225,12 @@ class User extends Authenticatable implements JWTSubject
                 return '';
             }
             if (!$photographer->avatar) {
-                return $domain.'/'.$ret['key'].'?roundPic/radius/!50p';
+                return $domain . '/' . $ret['key'] . '?roundPic/radius/!50p';
             }
-            $avatar = $photographer->avatar.'?imageMogr2/thumbnail/190x190!|roundPic/radius/!50p';
-            return $domain.'/'.$ret['key'].'?watermark/3/image/'.\Qiniu\base64_urlSafeEncode(
+            $avatar = $photographer->avatar . '?imageMogr2/thumbnail/190x190!|roundPic/radius/!50p';
+            return $domain . '/' . $ret['key'] . '?watermark/3/image/' . \Qiniu\base64_urlSafeEncode(
                     $avatar
-                ).'/dx/115/dy/115';
+                ) . '/dx/115/dy/115';
         } else {
             return '';
         }

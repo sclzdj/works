@@ -132,7 +132,7 @@
                             <el-input v-model="number" type="Number" style="width: 200px" placeholder="输入数字"></el-input>
                             <el-button type="primary" @click="create" icon="el-icon-search">创建</el-button>
                             <br/>
-                            <el-button type="primary" @click="send">发送邀请码</el-button>
+                            <el-button type="primary" @click="send">发送创建码</el-button>
                         </div>
                         <div class="block-content">
                             <el-table
@@ -147,17 +147,25 @@
 
                                 <el-table-column
                                         prop="code"
-                                        label="邀请码"
+                                        label="创建码"
                                         width="180">
                                 </el-table-column>
                                 <el-table-column
                                         prop="type"
-                                        label="邀请码类型"
+                                        label="创建码类型"
                                         width="180">
                                 </el-table-column>
                                 <el-table-column
                                         prop="status"
                                         label="状态">
+                                </el-table-column>
+
+                                <el-table-column
+                                        prop="is_use"
+                                        label="是否使用">
+                                    <template slot-scope="scope">
+                                        @{{ scope.row.is_use === 0?'未使用':'已使用' }}
+                                    </template>
                                 </el-table-column>
 
                                 <el-table-column
@@ -377,7 +385,7 @@
                 sendOption: [
                     {
                         value: -1,
-                        label: '选择状态'
+                        label: '选择发送状态'
                     },
                     {
                         value: 0,

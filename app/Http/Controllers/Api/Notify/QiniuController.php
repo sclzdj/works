@@ -84,7 +84,7 @@ class QiniuController extends BaseController
                     null,
                     config(
                         'app.url'
-                    ) . '/api/notify/qiniu/fop?photographer_work_source_id=' . $photographerWorkSource->id . '&step=1',
+                    ) . '/api/notify/qiniu/fop?photographer_work_source_id=' . $photographerWorkSource->id . '&step=3',
                     true
                 );
                 if ($qrst['err']) {
@@ -106,6 +106,7 @@ class QiniuController extends BaseController
     public function fop()
     {
         $request_data = \Request::all();
+        \Log::warning(var_export($request_data, 1));
         $photographerWorkSource = PhotographerWorkSource::where(
             ['id' => $request_data['photographer_work_source_id']]
         )->first();
@@ -165,6 +166,7 @@ class QiniuController extends BaseController
                                     $photographerWorkSource->rich_width = $response['data']['width'];
                                     $photographerWorkSource->rich_height = $response['data']['height'];
                                     $photographerWorkSource->save();
+
                                     $water1_image = \Qiniu\base64_urlSafeEncode($photographerWorkSource->deal_url);
                                     $xacode = User::createXacode2($photographerWork->id, 'photographer_work');
                                     if ($xacode) {
@@ -235,6 +237,7 @@ class QiniuController extends BaseController
                                             $qrst['err']
                                         );
                                     }
+
                                 }
                             } else {
                                 return ErrLogServer::QiniuNotifyFop(
@@ -250,8 +253,10 @@ class QiniuController extends BaseController
                         }
                     } elseif ($request_data['step'] == 2) {
                         if ($photographerWorkSource->type == 'image') {
-                            $photographerWorkSource->rich_key = $request_data['items'][0]['key'];
-                            $photographerWorkSource->rich_url = $domain . '/' . $request_data['items'][0]['key'];
+                            $sort = $request_data['sort'] ?? 0;
+                            $key = $request_data['items'][$sort]['key'] ?? $request_data['items'][0]['key'];
+                            $photographerWorkSource->rich_key = $key;
+                            $photographerWorkSource->rich_url = $domain . '/' . $key;
                             $photographerWorkSource->save();
                             $response = SystemServer::request('GET', $photographerWorkSource->rich_url . '?imageInfo');
                             if ($response['code'] == 200) {
@@ -281,7 +286,49 @@ class QiniuController extends BaseController
                         } elseif ($photographerWorkSource->type == 'video') {
 
                         }
-                    } elseif ($request_data['step'] == 3) {
+                    } elseif ($request_data['step'] == 3) {  // 其实就是原先1的功能，给编辑项目用
+
+                        $photographerWorkSource->deal_key = $request_data['items'][0]['key'];
+                        $photographerWorkSource->deal_url = $domain . '/' . $request_data['items'][0]['key'];
+                        $photographerWorkSource->rich_key = $request_data['items'][0]['key'];
+                        $photographerWorkSource->rich_url = $domain . '/' . $request_data['items'][0]['key'];
+                        $photographerWorkSource->save();
+                        if ($photographerWorkSource->type == 'image') {
+                            $response = SystemServer::request('GET', $photographerWorkSource->deal_url . '?imageInfo');
+                            if ($response['code'] == 200) {
+                                if (isset($response['data']['code']) && $response['data']['code'] != 200) {
+                                    return ErrLogServer::QiniuNotifyFop(
+                                        $request_data['step'],
+                                        '七牛请求图片信息接口失败',
+                                        $request_data,
+                                        $photographerWorkSource,
+                                        $response['data']
+                                    );
+                                } else {
+                                    $photographerWorkSource->deal_size = $response['data']['size'];
+                                    $photographerWorkSource->deal_width = $response['data']['width'];
+                                    $photographerWorkSource->deal_height = $response['data']['height'];
+                                    $photographerWorkSource->rich_size = $response['data']['size'];
+                                    $photographerWorkSource->rich_width = $response['data']['width'];
+                                    $photographerWorkSource->rich_height = $response['data']['height'];
+                                    $photographerWorkSource->save();
+
+                                    // 生成水印图
+                                    PhotographerWork::generateOneWaterMark($photographerWorkSource, $photographerWork, $photographer);
+                                }
+                            } else {
+                                return ErrLogServer::QiniuNotifyFop(
+                                    $request_data['step'],
+                                    '系统请求七牛图片信息接口时失败：' . $response['msg'],
+                                    $request_data,
+                                    $photographerWorkSource,
+                                    $response
+                                );
+                            }
+                        } elseif ($photographerWorkSource->type == 'video') {
+
+                        }
+
                     } elseif ($request_data['step'] == 4) {  // 把持久化的图放到作品集
 //                        \Log::debug(json_encode($request_data, JSON_UNESCAPED_UNICODE));
                         $photographerWork->share_url = $request_data['items'][0]['key'];

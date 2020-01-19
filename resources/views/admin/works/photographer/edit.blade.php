@@ -16,7 +16,7 @@
                                     class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
-                    <h3 class="block-title">修改摄影师</h3>
+                    <h3 class="block-title">修改用户</h3>
                 </div>
                 <div class="tab-content">
                     <div class="tab-pane active">
@@ -44,32 +44,32 @@
                                         <input class="form-control qiniu-file-upload-trigger" name="avatar" readonly
                                                placeholder="请上传头像" value="{{$photographer->avatar}}">
                                         <input type="file" class="qiniu-file-upload hide" upload-max-size="5242880"
-                                               mime-type='["image/png", "image/jpeg", "image/gif","image/bmp"]'>
+                                               mime-type='["image/png", "image/jpeg"]'>
                                     </div>
                                     <div class="col-md-1 form-option-line">
                                         <button type="button" class="btn btn-default qiniu-file-upload-clear">清空
                                         </button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">最大5M</div>
+                                        <div class="help-block help-block-line">最大5M，只支持mime类型为image/png、image/jpeg</div>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-bg_img">
                                     <label class="col-md-1 control-label form-option-line">
-                                        背景图像
+                                        背景
                                     </label>
                                     <div class="col-md-5 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="bg_img" readonly
                                                placeholder="请上传背景图片" value="{{$photographer->bg_img}}">
                                         <input type="file" class="qiniu-file-upload hide" upload-max-size="20971520"
-                                               mime-type='["image/png", "image/jpeg", "image/gif","image/bmp"]'>
+                                               mime-type='["image/png", "image/jpeg"]'>
                                     </div>
                                     <div class="col-md-1 form-option-line">
                                         <button type="button" class="btn btn-default qiniu-file-upload-clear">清空
                                         </button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">最大20M</div>
+                                        <div class="help-block help-block-line">最大20M，只支持mime类型为image/png、image/jpeg</div>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-gender">
@@ -98,7 +98,7 @@
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-area">
                                     <label class="col-md-1 control-label form-option-line">
                                         <span class="form-option-require"></span>
-                                        地区
+                                        城市
                                     </label>
                                     <div class="col-md-2 form-option-line">
                                         <select class="form-control area-select-box-1 area-select-box-province"

@@ -15,7 +15,7 @@
             <div class="block">
                 <ul class="nav nav-tabs">
                     <li>
-                        <a href="{{action('Admin\Works\HelpNoteController@index')}}">使用帮助管理</a>
+                        <a href="{{action('Admin\Works\HelpNoteController@index')}}">使用帮助</a>
                     </li>
                     <li class="active">
                         <a>使用帮助排序</a>
