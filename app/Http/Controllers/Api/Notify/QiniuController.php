@@ -192,7 +192,7 @@ class QiniuController extends BaseController
                                     $hanlde[] = "|watermark/3/image/{$water2_image}/gravity/SouthEast/dx/57/dy/47/";
 
 //                                    \Log::debug(var_export($photographerWork->toArray() , 1));
-//                                    \Log::debug(var_export($photographerWork->customer_name , 1));
+                                    \Log::debug(var_export($photographerWork->customer_name , 1));
                                     $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode($photographerWork->customer_name) . "/fontsize/800/fill/" . base64_urlSafeEncode("#323232") . "/fontstyle/".base64_urlSafeEncode("Bold")."/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/71/dy/162/";
                                     $fistX = 75;
                                     // 根据字体来判断宽度 中文40 数字字母20
@@ -215,7 +215,7 @@ class QiniuController extends BaseController
 
                                     $fops[] = implode($hanlde);
 
-//                                    \Log::debug( implode($hanlde));
+                                    \Log::debug( implode($hanlde));
                                     $qrst = SystemServer::qiniuPfop(
                                         $bucket,
                                         config('custom.qiniu.crop_work_source_image_bg'),

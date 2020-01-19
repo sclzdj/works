@@ -464,7 +464,8 @@ class DraftController extends UserGuardController
                     $photographer_work_source->sort = $k + 1;
                     $photographer_work_source->status = 200;
                     $photographer_work_source->save();
-                } else {
+                }
+                else {
                     $photographer_work_source = PhotographerWorkSource::create();
                     $photographer_work_source->photographer_work_id = $photographer_work->id;
                     $photographer_work_source->key = $v['key'];
