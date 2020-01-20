@@ -38,19 +38,33 @@ class StarController extends BaseController
                 'photographers',
                 'photographers.id',
                 '=',
-                'stars.photographer_id')->get();
+                'stars.photographer_id')
+            ->orderBy('stars.sort', 'desc')
+            ->orderBy('stars.id', 'desc')
+            ->get();
 
-        $count =  (new Star())->leftJoin(
-                'photographers',
-                'photographers.id',
-                '=',
-                'stars.photographer_id')->count();
+        $count = (new Star())->leftJoin(
+            'photographers',
+            'photographers.id',
+            '=',
+            'stars.photographer_id')->count();
         $stars = Photographer::where('status', 200)->get();
         return response()->json(compact('data', 'count', 'stars'));
     }
 
     public function store(Request $request)
     {
+
+        if ($request->input('type', null) == "sort") {
+            $photographer_id = $request->input('form.photographer_id');
+            $result = Star::where(compact('photographer_id'))->update([
+                'sort' => $request->input('form.sort')
+            ]);
+            $msg = "排序完成";
+            return response()->json(compact('result', 'msg'));
+        }
+
+
         $result = false;
         $photographer_id = $request->input('form.status', 0);
         if (empty($photographer_id)) {

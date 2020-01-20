@@ -133,6 +133,8 @@
                                     prop="crowd_status"
                                     label="状态">
                                 </el-table-column>
+
+
                                 <el-table-column
                                     prop="updated_at"
                                     label="创建时间">

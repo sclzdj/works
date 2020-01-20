@@ -16,6 +16,7 @@ class CreateStarsTable extends Migration
         Schema::create('stars', function (Blueprint $table) {
             $table->engine = 'innodb';
             $table->increments('id');
+            $table->unsignedInteger('sort')->default(0)->comment('排序字段');
             $table->unsignedInteger('photographer_id')->index()->default(0)->comment('摄影师ID');
             $table->timestamps();
         });

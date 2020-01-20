@@ -234,11 +234,11 @@ class Photographer extends Model
             if ($resource->deal_width < $resource->deal_height) {  // 长图
                 $width = 380;
                 $height = $resource->deal_height;
-                $imgs = $domain . '/' . $resource->deal_key . "?imageMogr2/auto-orient/thumbnail/{$width}x{$height}/crop/382x320";
+                $imgs = $domain . '/' . $resource->deal_key . "?imageMogr2/auto-orient/thumbnail/{$width}x{$height}/gravity/Center/crop/382x320";
             } else { // 宽图
                 $width = $resource->deal_width;
-                $height = $resource->deal_height / 2;
-                $imgs = $domain . '/' . $resource->deal_key . "?imageMogr2/auto-orient/thumbnail/{$width}x{$height}/crop/382x320";
+                $height = $resource->deal_height;
+                $imgs = $domain . '/' . $resource->deal_key . "?imageMogr2/auto-orient/thumbnail/{$width}x{$height}/gravity/Center/crop/382x320";
             }
             $blackBgs[$key] = $imgs;
         }

@@ -205,13 +205,13 @@ class PhotographerWork extends Model
         // 背景图
         $whiteBg = $domain . '/FtSr3gPOeI8CjSgh5fBkeHaIsJnm?imageMogr2/auto-orient/thumbnail/1200x960!';
         // 上面图
-        $sharePhoto = $firstPhoto->deal_url . "?imageMogr2/auto-orient/crop/1200x657";
+        $sharePhoto = $firstPhoto->deal_url . "?imageMogr2/auto-orient/gravity/Center/crop/1200x657|roundPic/radius/20";
 
         $handleUrl = array();
         $handleUrl[0] = $whiteBg;
         $handleUrl[1] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode($sharePhoto) . "/gravity/North/dx/0/dy/0";
-        $handleUrl[2] = "/text/" . \Qiniu\base64_urlSafeEncode($customer_name) . "/fontsize/1500/fill/" . base64_urlSafeEncode("#323232") . "/gravity/North/dx/0/dy/743";
-        $handleUrl[3] = "/text/" . \Qiniu\base64_urlSafeEncode($buttonText) . "/fontsize/900/fill/" . base64_urlSafeEncode("#969696") . "/gravity/North/dx/0/dy/887";
+        $handleUrl[2] = "/text/" . \Qiniu\base64_urlSafeEncode($customer_name) . "/fontsize/1700/fill/" . base64_urlSafeEncode("#323232") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/South/dx/0/dy/136";
+        $handleUrl[3] = "/text/" . \Qiniu\base64_urlSafeEncode($buttonText) . "/fontsize/1140/fill/" . base64_urlSafeEncode("#969696") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/South/dx/0/dy/20";
 
         array_shift($handleUrl);
 

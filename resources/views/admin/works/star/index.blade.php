@@ -85,7 +85,7 @@
                         </li>
                         <li>
                             <button type="button" data-toggle="block-option" data-action="fullscreen_toggle"><i
-                                    class="si si-size-fullscreen"></i></button>
+                                        class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
                     <h3 class="block-title">大咖用户</h3>
@@ -103,10 +103,10 @@
                                        :remote-method="remoteMethod"
                             >
                                 <el-option
-                                    v-for="item in options"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
+                                        v-for="item in options"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
                                 </el-option>
                             </el-select>
 
@@ -115,40 +115,50 @@
                         </div>
                         <div class="block-content">
                             <el-table
-                                :data="data"
-                                style="width: 100%"
+                                    :data="data"
+                                    style="width: 100%"
                             >
                                 <el-table-column
-                                    type="index"
-                                    width="50">
+                                        type="index"
+                                        width="50">
                                 </el-table-column>
 
                                 <el-table-column
-                                    prop="mobile"
-                                    label="大咖电话"
-                                    width="180">
+                                        prop="mobile"
+                                        label="大咖电话"
+                                        width="180">
                                 </el-table-column>
 
                                 <el-table-column
-                                    prop="name"
-                                    label="大咖姓名"
-                                    width="180">
+                                        prop="name"
+                                        label="大咖姓名"
+                                        width="180">
                                 </el-table-column>
 
                                 <el-table-column
-                                    label="头像"
-                                    width="180">
+                                        label="头像"
+                                        width="180">
                                     <template slot-scope="scope">
                                         <img class="image" :src="scope.row.avatar">
+                                    </template>
+                                </el-table-column>
+
+                                <el-table-column
+                                        prop="sort"
+                                        label="排序"
+                                        width="180">
+
+                                    <template slot-scope="scope">
+                                        <input v-model="scope.row.sort" @change="handleSort(scope.row)"></input>
                                     </template>
                                 </el-table-column>
 
                                 <el-table-column label="操作">
                                     <template slot-scope="scope">
                                         <el-button
-                                            size="mini"
-                                            type="danger"
-                                            @click="handleDelete(scope.$index, scope.row)">删除
+                                                size="mini"
+                                                type="danger"
+                                                @click="handleDelete(scope.$index, scope.row)">删除
                                         </el-button>
                                     </template>
                                 </el-table-column>
@@ -464,6 +474,42 @@
                         this.options = [];
                     }
                 },
+                handleSort: function (row) {
+                    var that = this;
+                    var data = {
+                        form: row,
+                        type: 'sort'
+                    };
+                    $.ajax({
+                        type: 'POST',
+                        url: '/admin/works/star',
+                        data: data,
+                        success: function (response) {
+                            if (response.result == true) {
+                                window.location.reload();
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            var response = JSON.parse(xhr.responseText);
+                            if (xhr.status == 419) { // csrf错误，错误码固定为419
+                                alert('请勿重复请求~');
+                            } else if (xhr.status == 422) { // 验证错误
+                                var message = [];
+                                for (var i in response.errors) {
+                                    message = message.concat(response.errors[i]);
+                                }
+                                message = message.join(',');
+                                alert(message);
+                            } else {
+                                if (response.message) {
+                                    alert(response.message);
+                                } else {
+                                    alert('服务器错误~');
+                                }
+                            }
+                        }
+                    });
+                }
 
             },
             mounted: function () {

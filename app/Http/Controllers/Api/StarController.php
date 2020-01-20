@@ -48,23 +48,36 @@ class StarController extends BaseController
         $page = $request->input('page', 999);
         $size = $request->input('size', 15);
         if ($page == 999) {
-            $photographer_ids = Star::all()->pluck('photographer_id');
+            $photographer_ids = (new Star())
+                ->orderBy('sort', 'desc')
+                ->orderBy('id', 'desc')
+                ->pluck('photographer_id');
         } else {
             $page = ($page - 1) * $size;
-            $photographer_ids = (new Star())->skip($page)->take($size)->pluck('photographer_id');
+            $photographer_ids = (new Star())
+                ->skip($page)
+                ->take($size)
+                ->orderBy('sort', 'desc')
+                ->orderBy('id', 'desc')
+                ->pluck('photographer_id');
         }
 
-        $this->data['data'] = Photographer::with(['photographerWorks' => function ($query) {
-            $query->where('status', 200);
-        }])
-            ->whereIn('photographers.id', $photographer_ids)
-            ->leftJoin('photographer_ranks', 'photographers.photographer_rank_id', '=', 'photographer_ranks.id')
-            ->select([
-                'photographers.id', 'photographers.name',
-                'photographers.avatar', 'photographer_ranks.name as ranks',
-                'photographers.province', 'photographers.city', 'photographers.area'
-            ])
-            ->get();
+
+        foreach ($photographer_ids as $photographer_id) {
+            $photographer = Photographer::with(['photographerWorks' => function ($query) {$query->where('status', 200);}])
+                ->where('photographers.id', $photographer_id)
+                ->leftJoin('photographer_ranks', 'photographers.photographer_rank_id', '=', 'photographer_ranks.id')
+                ->select([
+                    'photographers.id', 'photographers.name',
+                    'photographers.avatar', 'photographer_ranks.name as ranks',
+                    'photographers.province', 'photographers.city', 'photographers.area'
+                ])
+                ->first();
+
+            $this->data['data'][] = $photographer;
+        }
+
+
         foreach ($this->data['data'] as &$datum) {
             $areas = SystemArea::whereIn('id', [$datum['province'], $datum['city'], $datum['area']])->get()->pluck('name');
             $datum['areas'] = $areas;
@@ -89,7 +102,7 @@ class StarController extends BaseController
         $project_number = $work->hide_project_amount == 1 ? '保密' : $work->project_amount . '元';
         $shooting_duration = $work->hide_shooting_duration == 1 ? '保密' : $work->shooting_duration . '小时';
         $customer_name = $work->customer_name;
-        $buttonText = $project_number . '·' . $sheets_number . '·' . $shooting_duration;
+        $buttonText = $project_number . ' · ' . $sheets_number . ' · ' . $shooting_duration;
         $firstPhoto = PhotographerWorkSource::where(
             [
                 'photographer_work_id' => $work->id,
@@ -108,13 +121,13 @@ class StarController extends BaseController
 
         $whiteBg = $domain . '/FtSr3gPOeI8CjSgh5fBkeHaIsJnm?imageMogr2/auto-orient/thumbnail/1200x960!';
         // 上面图
-        $sharePhoto = $firstPhoto->deal_url . "?imageMogr2/auto-orient/crop/1200x657";
+        $sharePhoto = $firstPhoto->deal_url . "?imageMogr2/auto-orient/gravity/Center/crop/1200x657|roundPic/radius/20";
 
         $handleUrl = array();
         $handleUrl[0] = $whiteBg;
         $handleUrl[1] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode($sharePhoto) . "/gravity/North/dx/0/dy/0";
         $handleUrl[2] = "/text/" . \Qiniu\base64_urlSafeEncode($customer_name) . "/fontsize/1700/fill/" . base64_urlSafeEncode("#323232") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/South/dx/0/dy/136";
-        $handleUrl[3] = "/text/" . \Qiniu\base64_urlSafeEncode($buttonText) . "/fontsize/1140/fill/" . base64_urlSafeEncode("#969696") . "/gravity/South/dx/0/dy/20";
+        $handleUrl[3] = "/text/" . \Qiniu\base64_urlSafeEncode($buttonText) . "/fontsize/1140/fill/" . base64_urlSafeEncode("#969696") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/South/dx/0/dy/20";
 
         echo implode("", $handleUrl);
         die();
@@ -198,12 +211,13 @@ class StarController extends BaseController
             if ($resource->deal_width < $resource->deal_height) {  // 长图
                 $width = 380;
                 $height = $resource->deal_height;
-                $imgs = $domain . '/' . $resource->deal_key . "?imageMogr2/auto-orient/thumbnail/{$width}x{$height}/crop/382x320";
+                $imgs = $domain . '/' . $resource->deal_key . "?imageMogr2/auto-orient/thumbnail/{$width}x{$height}/gravity/Center/crop/382x320";
             } else { // 宽图
                 $width = $resource->deal_width;
-                $height = $resource->deal_height / 2;
-                $imgs = $domain . '/' . $resource->deal_key . "?imageMogr2/auto-orient/thumbnail/{$width}x{$height}/crop/382x320";
+                $height = $resource->deal_height;
+                $imgs = $domain . '/' . $resource->deal_key . "?imageMogr2/auto-orient/thumbnail/{$width}x{$height}/gravity/Center/crop/382x320";
             }
+
             $blackBgs[$key] = $imgs;
         }
 
@@ -216,7 +230,7 @@ class StarController extends BaseController
         $handleUrl[] = "/image/" . \Qiniu\base64_urlSafeEncode($blackBgs[4]) . "/gravity/NorthWest/dx/409/dy/340";
         $handleUrl[] = "/image/" . \Qiniu\base64_urlSafeEncode($blackBgs[5]) . "/gravity/NorthWest/dx/817/dy/340";
         $handleUrl[] = "/text/" . \Qiniu\base64_urlSafeEncode($photographer->name) . "/fontsize/1700/fill/" . base64_urlSafeEncode("#323232") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/South/dx/0/dy/137";
-        $handleUrl[] = "/text/" . \Qiniu\base64_urlSafeEncode($buttonText) . "/fontsize/1140/fill/" . base64_urlSafeEncode("#969696") . "/gravity/South/dx/0/dy/20";
+        $handleUrl[] = "/text/" . \Qiniu\base64_urlSafeEncode($buttonText) . "/fontsize/1140/fill/" . base64_urlSafeEncode("#969696") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/South/dx/0/dy/20";
 
 
         echo implode("", $handleUrl);
