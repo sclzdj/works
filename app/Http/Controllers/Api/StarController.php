@@ -84,7 +84,7 @@ class StarController extends BaseController
 
     public function test(Request $request)
     {
-        $work = PhotographerWork::find(68);
+        $work = PhotographerWork::find(273);
         $sheets_number = $work->hide_sheets_number == 1 ? '保密' : $work->sheets_number . '张';
         $project_number = $work->hide_project_amount == 1 ? '保密' : $work->project_amount . '元';
         $shooting_duration = $work->hide_shooting_duration == 1 ? '保密' : $work->shooting_duration . '小时';
@@ -105,6 +105,7 @@ class StarController extends BaseController
         $buckets = config('custom.qiniu.buckets');
         $domain = $buckets['zuopin']['domain'] ?? '';
         // 背景图
+
         $whiteBg = $domain . '/FtSr3gPOeI8CjSgh5fBkeHaIsJnm?imageMogr2/auto-orient/thumbnail/1200x960!';
         // 上面图
         $sharePhoto = $firstPhoto->deal_url . "?imageMogr2/auto-orient/crop/1200x657";
@@ -112,10 +113,11 @@ class StarController extends BaseController
         $handleUrl = array();
         $handleUrl[0] = $whiteBg;
         $handleUrl[1] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode($sharePhoto) . "/gravity/North/dx/0/dy/0";
-        $handleUrl[2] = "/text/" . \Qiniu\base64_urlSafeEncode($customer_name) . "/fontsize/1500/fill/" . base64_urlSafeEncode("#323232") . "/gravity/North/dx/0/dy/743";
-        $handleUrl[3] = "/text/" . \Qiniu\base64_urlSafeEncode($buttonText) . "/fontsize/900/fill/" . base64_urlSafeEncode("#969696") . "/gravity/North/dx/0/dy/887";
+        $handleUrl[2] = "/text/" . \Qiniu\base64_urlSafeEncode($customer_name) . "/fontsize/1700/fill/" . base64_urlSafeEncode("#323232") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/South/dx/0/dy/136";
+        $handleUrl[3] = "/text/" . \Qiniu\base64_urlSafeEncode($buttonText) . "/fontsize/1140/fill/" . base64_urlSafeEncode("#969696") . "/gravity/South/dx/0/dy/20";
 
-        // echo implode("", $handleUrl);die();
+        echo implode("", $handleUrl);
+        die();
         array_shift($handleUrl);
 
         $fops = ["imageMogr2/auto-orient/thumbnail/1200x960!" . implode("", $handleUrl)];
@@ -213,10 +215,14 @@ class StarController extends BaseController
         $handleUrl[] = "/image/" . \Qiniu\base64_urlSafeEncode($blackBgs[3]) . "/gravity/NorthWest/dx/0/dy/340";
         $handleUrl[] = "/image/" . \Qiniu\base64_urlSafeEncode($blackBgs[4]) . "/gravity/NorthWest/dx/409/dy/340";
         $handleUrl[] = "/image/" . \Qiniu\base64_urlSafeEncode($blackBgs[5]) . "/gravity/NorthWest/dx/817/dy/340";
-        $handleUrl[] = "/text/" . \Qiniu\base64_urlSafeEncode($photographer->name) . "/fontsize/1500/fill/" . base64_urlSafeEncode("#323232") . "/gravity/North/dx/0/dy/743";
-        $handleUrl[] = "/text/" . \Qiniu\base64_urlSafeEncode($buttonText) . "/fontsize/1000/fill/" . base64_urlSafeEncode("#969696") . "/gravity/North/dx/0/dy/886";
+        $handleUrl[] = "/text/" . \Qiniu\base64_urlSafeEncode($photographer->name) . "/fontsize/1700/fill/" . base64_urlSafeEncode("#323232") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/South/dx/0/dy/137";
+        $handleUrl[] = "/text/" . \Qiniu\base64_urlSafeEncode($buttonText) . "/fontsize/1140/fill/" . base64_urlSafeEncode("#969696") . "/gravity/South/dx/0/dy/20";
 
+
+        echo implode("", $handleUrl);
+        die();
         array_shift($handleUrl);
+
 
         $fops = ["imageMogr2/auto-orient/thumbnail/1200x960!" . implode("", $handleUrl)];
         $bucket = 'zuopin';
@@ -322,7 +328,7 @@ class StarController extends BaseController
         $domain = $buckets[$bucket]['domain'] ?? '';
 
         $sence = "0/{$photographer_id}";
-        $xacode = User::createXacode2($photographer_id , 'other' , $sence);
+        $xacode = User::createXacode2($photographer_id, 'other', $sence);
 
         if ($xacode) {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
