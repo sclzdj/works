@@ -459,7 +459,8 @@ class PhotographerController extends BaseController
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
                 $xacode . '|imageMogr2/thumbnail/250x250!'
             );
-        } else {
+        }
+        else {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
                 $domain . '/' . config(
                     'custom.qiniu.crop_work_source_image_bg'
@@ -472,9 +473,9 @@ class PhotographerController extends BaseController
         $name = "{$photographer->name} · 摄影作品";
         $money = "{$photographer_work->project_amount}元 · {$photographer_work->sheets_number}张 · {$photographer_work->shooting_duration}小时";
         $datas = [
-            '##money##' => "{$photographer_work->project_amount}元",
-            '##number##' => "{$photographer_work->sheets_number}张",
-            '##time##' => "{$photographer_work->shooting_duration}小时",
+            '##money##' => "{$photographer_work->project_amount}",
+            '##number##' => "{$photographer_work->sheets_number}",
+            '##time##' => "{$photographer_work->shooting_duration}",
             '##customer##' => $workName,
             '##name##' => $photographer->name,
             '##title##' => "{$photographer_rank}摄像师",
