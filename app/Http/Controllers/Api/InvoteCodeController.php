@@ -59,7 +59,7 @@ class InvoteCodeController extends BaseController
         }
         if (empty($codeInfo)) {
             $this->data['result'] = false;
-            $this->data['msg'] = "邀请码不存在";
+            $this->data['msg'] = "创建码错误";
             return $this->responseParseArray($this->data);
         }
         // 如果是后台创建的验证码，第一次查询的时候做一下绑定,前提这个账户没有绑定过邀请码
@@ -122,7 +122,7 @@ class InvoteCodeController extends BaseController
         $codeInfo = InvoteCode::where('code', $code)->where('user_id', $userid)->first();
         $userInfo = User::where('id', $userid)->first();
         if (empty($codeInfo) || empty($userInfo)) {
-            $this->data['msg'] = "邀请码不存在";
+            $this->data['msg'] = "创建码错误";
             return $this->responseParseArray($this->data);
         }
 

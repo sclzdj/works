@@ -153,7 +153,8 @@ class MiniProgramController extends BaseController
                         );
 
                         // 用户支付失败
-                    } elseif (array_get($message, 'result_code') === 'FAIL') {
+                    }
+                    elseif (array_get($message, 'result_code') === 'FAIL') {
                         $orderInfo->pay_status = 2;
                         $orderInfo->notify = 1;
                     }
