@@ -52,7 +52,8 @@ class StarController extends BaseController
                 ->orderBy('sort', 'desc')
                 ->orderBy('id', 'desc')
                 ->pluck('photographer_id');
-        } else {
+        }
+        else {
             $page = ($page - 1) * $size;
             $photographer_ids = (new Star())
                 ->skip($page)
@@ -62,7 +63,7 @@ class StarController extends BaseController
                 ->pluck('photographer_id');
         }
 
-
+        $this->data['data'] = array();
         foreach ($photographer_ids as $photographer_id) {
             $photographer = Photographer::with(['photographerWorks' => function ($query) {$query->where('status', 200);}])
                 ->where('photographers.id', $photographer_id)
