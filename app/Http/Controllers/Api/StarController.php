@@ -78,7 +78,6 @@ class StarController extends BaseController
             $this->data['data'][] = $photographer;
         }
 
-
         foreach ($this->data['data'] as &$datum) {
             $areas = SystemArea::whereIn('id', [$datum['province'], $datum['city'], $datum['area']])->get()->pluck('name');
             $datum['areas'] = $areas;

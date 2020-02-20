@@ -48,7 +48,7 @@ class MiniProgramController extends BaseController
 
                 $queryTradeInfo = $miniProgram->order->queryByOutTradeNumber($message['out_trade_no']);
                 if ($queryTradeInfo['return_code'] != "SUCCESS") {
-                    Log::info('通信失败，请稍后再通知我'.$queryTradeInfo['return_msg']);
+                    Log::info('通信失败，请稍后再通知我' . $queryTradeInfo['return_msg']);
                 }
 
                 if ($queryTradeInfo['return_code'] == "SUCCESS" && $queryTradeInfo['trade_state'] == "SUCCESS") {
@@ -62,11 +62,11 @@ class MiniProgramController extends BaseController
                         $strs = "QWERTYUIOPASDFGHJKLZXCVBNM1234567890";
                         $invoteCode = new InvoteCode();
                         $invoteCode->code = substr(
-                            $orderInfo->user_id.$orderInfo->id.substr(
+                            $orderInfo->user_id . $orderInfo->id . substr(
                                 str_shuffle($strs),
                                 mt_rand(0, strlen($strs) - 11),
                                 3
-                            ).mt_rand(0, 9999),
+                            ) . mt_rand(0, 9999),
                             0,
                             6
                         );
@@ -81,7 +81,9 @@ class MiniProgramController extends BaseController
                             2 => 399,
                             3 => 599,
                         ];
-                        $key = "data_".$typeArr[$orderInfo->type];
+                        $key = "data_" . $typeArr[$orderInfo->type];
+                        $crowdFunding = CrowdFunding::find(1);
+                        $send_date = date('Y年m月d日', strtotime($crowdFunding->send_date));
                         // 增加具体数据
                         CrowdFunding::increValue($key, 1);
                         CrowdFunding::where('id', 1)
@@ -102,6 +104,7 @@ class MiniProgramController extends BaseController
                         $orderInfo->notify = 1;
 
                         $userInfo = User::where('id', $orderInfo->user_id)->first();
+//                        $time = date('Y年m月d日', $crowdFunding->send_date);
                         if ($userInfo->gh_openid) {
                             $nickeName = $userInfo->is_wx_authorize == 1 ? $userInfo->nickname : '亲';
                             $tmr = $app->template_message->send(
@@ -114,7 +117,7 @@ class MiniProgramController extends BaseController
                                         'pagepath' => '/subPage/crouwdPay/crouwdPay',
                                     ],
                                     'data' => [
-                                        'first' => $nickeName.'，感谢你对云作品团队的信任！我们将于2019年11月18日，通过公众号向你推送云作品注册码。备注：云作品微信客服 JUSHEKEJI。',
+                                        'first' => $nickeName . '，感谢你对云作品团队的信任！我们将于' . $send_date . '，通过公众号向你推送云作品注册码。备注：云作品微信客服 JUSHEKEJI。',
                                         'keyword1' => '云作品众筹',
                                         'keyword2' => "成功",
                                     ],
@@ -122,13 +125,24 @@ class MiniProgramController extends BaseController
                             );
                             Log::error(json_encode($tmr, JSON_UNESCAPED_UNICODE));
                         }
+
+                        CrowdFundingLog::where(
+                            [
+                                'user_id' => $orderInfo->user_id,
+                            ]
+                        )
+                            ->update(
+                                [
+                                    'crowd_status' => 1,
+                                    'order_id' => $orderInfo->id,
+                                ]
+                            );
+
                         if ($userInfo->purePhoneNumber != '') {
                             //发送短信
                             $third_type = config('custom.send_short_message.third_type');
-                            $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
+                            $TemplateCodes = config('custom.send_short_message.' . $third_type . '.TemplateCodes');
                             if ($third_type == 'ali') {
-                                $crowdFunding=CrowdFunding::find(1);
-                                $send_date=date('Y年m月d日',strtotime($crowdFunding->send_date));
                                 AliSendShortMessageServer::quickSendSms(
                                     $userInfo->purePhoneNumber,
                                     $TemplateCodes,
@@ -141,20 +155,8 @@ class MiniProgramController extends BaseController
                             }
                         }
 
-                        CrowdFundingLog::where(
-                            [
-                                'user_id' => $orderInfo->user_id,
-                            ]
-                        )->update(
-                            [
-                                'crowd_status' => 1,
-                                'order_id' => $orderInfo->id,
-                            ]
-                        );
-
                         // 用户支付失败
-                    }
-                    elseif (array_get($message, 'result_code') === 'FAIL') {
+                    } elseif (array_get($message, 'result_code') === 'FAIL') {
                         $orderInfo->pay_status = 2;
                         $orderInfo->notify = 1;
                     }
