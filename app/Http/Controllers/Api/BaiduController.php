@@ -83,7 +83,21 @@ class BaiduController extends UserGuardController
 
         return $this->responseParseArray($config);
     }
+    /**
+     * 获取用户信息
+     * @param SystemRequest $request
+     * @return mixed
+     */
+    public function getNasUinfo(SystemRequest $request)
+    {
+        $data = $request->all();
+        if (isset($data['s'])) {
+            unset($data['s']);
+        }
+        $response = $this->_baiduRequest('https://pan.baidu.com/rest/2.0/xpan/nas?method=uinfo', $data);
 
+        return $this->response->array($response);
+    }
     /**
      * 获取文件列表
      * @param SystemRequest $request

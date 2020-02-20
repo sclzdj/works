@@ -11,6 +11,7 @@ use App\Model\Index\PhotographerWork;
 use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\PhotographerWorkTag;
 use App\Model\Index\User;
+use App\Model\Index\Visitor;
 use App\Servers\AliSendShortMessageServer;
 use App\Servers\ArrServer;
 use App\Servers\ErrLogServer;
@@ -367,6 +368,8 @@ class DraftController extends UserGuardController
             $photographer_work->save();
             $user->identity = 1;
             $user->save();
+            //把他作为别人的访客标为同行
+            Visitor::where(['user_id'=>$user->id,'visitor_tag_id'=>0])->update(['visitor_tag_id'=>4]);
             if ($user->gh_openid != '') {
                 $app = app('wechat.official_account');
                 $template_id = 'zEnIDOdegmj_qB1i4JUV0m0QdM-7COCXpr_3WzBB3Kg';

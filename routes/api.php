@@ -131,6 +131,7 @@ $api->version(
                 $api->delete('baidu/oauth', 'BaiduController@clearOauth');
                 $api->get('baidu/oauth', 'BaiduController@getOauth');
                 $api->post('baidu/oauth', 'SystemController@baiduOauthStore');
+                $api->get('baidu/nasUinfo', 'BaiduController@getNasUinfo');
                 $api->get('baidu/fileList', 'BaiduController@getFileList');
                 $api->get('baidu/fileSearch', 'BaiduController@getFileSearch');
                 $api->post('baidu/qiniuFetchPan', 'BaiduController@qiniuFetchPan');

@@ -297,8 +297,8 @@ class VisitController extends UserGuardController
                 }
             }
             $visitor = Visitor::create(['photographer_id' => $request->photographer_id, 'user_id' => $user->id]);
-            if (!empty($request->in_type) && $request->in_type == 'ranking_list_in') {
-                $visitor->visitor_tag_id = 4;//第一次从人脉排行榜中进入标记为同行
+            if ($user->identity==1) {
+                $visitor->visitor_tag_id = 4;//如果访客也为摄影师标记为同行
             }
             if ($visitors_count + 1 < 3) {
                 $visit_send_message['is'] = true;//第一次发送模板消息，发模板消息
@@ -313,6 +313,18 @@ class VisitController extends UserGuardController
         if ($visit_send_message['is'] && $photographer_user->gh_openid != '') {
             $describes = [];
             foreach ($operate_records as $operate_record) {
+                if ($operate_record->operate_type == 'in') {
+                    $first_in_operate_record = OperateRecord::where(
+                        [
+                            'user_id' => $operate_record->user_id,
+                            'photographer_id' => $operate_record->photographer_id,
+                            'operate_type' => 'in',
+                        ]
+                    )->orderBy('created_at', 'asc')->first();
+                    if ($first_in_operate_record->id != $operate_record->id) {
+                        continue;
+                    }
+                }
                 $describes[] = $this->_makeDescribe($operate_record->id);
             }
             $first_text = $photographer->name.'，人脉有新动态，请及时查看。';
@@ -333,7 +345,7 @@ class VisitController extends UserGuardController
                     $miniprogram_pagepath = 'subPage/share/share';//注册成功分享页
                 }
             } elseif ($visit_send_message['is_remind'] == 1) {
-                $first_text = $photographer->name.'，你特别关注的人脉有新动态，请及时查看。';
+                $first_text = $photographer->name.'，你关注的人脉有新动态，请及时查看。';
             }
             $app = app('wechat.official_account');
             $template_id = 'RlRlrXRWpeONZZvu-HT1xQ1EhTvDbucp6Z60AgcQdGs';
@@ -351,7 +363,7 @@ class VisitController extends UserGuardController
                         'keyword1' => $keyword1_text,
                         'keyword2' => $keyword2_text,
                         'keyword3' => $keyword3_text,
-                        'keyword4' => date('Y.m.d H:i'),
+                        'keyword4' => date('Y/m/d H:i'),
                         'remark' => '点击详情查看',
                     ],
                 ]
@@ -523,7 +535,11 @@ class VisitController extends UserGuardController
     {
         $this->notPhotographerIdentityVerify();
         $photographer = User::photographer(null, $this->guard);
-        $all_unread_count = OperateRecord::where(['photographer_id' => $photographer->id, 'is_read' => 0])->where('operate_type', '!=', 'in')->count();
+        $all_unread_count = OperateRecord::where(['photographer_id' => $photographer->id, 'is_read' => 0])->where(
+            'operate_type',
+            '!=',
+            'in'
+        )->count();
 
         return $this->responseParseArray(compact('all_unread_count'));
     }
@@ -582,7 +598,7 @@ class VisitController extends UserGuardController
             )->orderBy('created_at', 'asc')->orderBy("id", "asc")->first();
             if ($operateRecord) {
                 $visitor['first_in_operate_record'] = [
-                    'date' => date('Y-m-d', strtotime($operateRecord->created_at)),
+                    'date' => date('Y/m/d', strtotime($operateRecord->created_at)),
                     'describe' => $this->_makeDescribe($operateRecord->id),
                 ];
             } else {
@@ -657,13 +673,14 @@ class VisitController extends UserGuardController
                         ['id' => $record['shared_user_id']]
                     )->first()->toArray();
                 }
-                $records[$_k]['time'] = date('H:i:s', strtotime($record['created_at']));
+                $records[$_k]['time'] = date('H:i', strtotime($record['created_at']));
                 $records[$_k]['describe'] = $this->_makeDescribe($record['id']);
                 $records[$_k] = [
                     'time' => $records[$_k]['time'],
                     'describe' => $records[$_k]['describe'],
                 ];
             }
+            $view_records[$k]['date']=date('Y/m/d',strtotime($view_record['date']));
             $view_records[$k]['view_records'] = $records;
         }
 
@@ -688,7 +705,7 @@ class VisitController extends UserGuardController
         $describe = '';
         if ($operateRecord->operate_type == 'view') {
             if ($operateRecord->page_name == 'photographer_home') {
-                $describe = '浏览了主页';
+                $describe = '浏览了你的主页';
             } elseif ($operateRecord->page_name == 'photographer_work') {
                 $describe = '浏览了「'.$photographer_work_customer_name.'」';
             }
