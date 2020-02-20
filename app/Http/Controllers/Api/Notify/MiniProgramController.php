@@ -128,7 +128,7 @@ class MiniProgramController extends BaseController
                             $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
                             if ($third_type == 'ali') {
                                 $crowdFunding=CrowdFunding::find(1);
-                                $send_date=date('Y年m月d日',$crowdFunding->send_date);
+                                $send_date=date('Y年m月d日',strtotime($crowdFunding->send_date));
                                 AliSendShortMessageServer::quickSendSms(
                                     $userInfo->purePhoneNumber,
                                     $TemplateCodes,
