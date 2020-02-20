@@ -137,8 +137,8 @@ class PhotographerWork extends Model
                 $bg_img = config('app.url') . '/' . 'images/poster_bg.jpg';
             }
         }
-        $xacode = User::createXacode($photographer_work_id, 'photographer_work');
-
+        $scene="1/{$photographer_work_id}";
+        $xacode = User::createXacode($photographer->id,'other',$scene);
         if ($xacode) {
             $xacode = $xacode . '|imageMogr2/thumbnail/250x250!';
         } else {
@@ -264,7 +264,8 @@ class PhotographerWork extends Model
         foreach ($photographerWorkSources as $sort => $photographerWorkSource) {
 
             $water1_image = \Qiniu\base64_urlSafeEncode($photographerWorkSource->deal_url);
-            $xacode = User::createXacode2($photographerWork->id, 'photographer_work');
+            $sence = "1/{$photographerWork->id}";
+            $xacode = User::createXacode($photographerWork->photographer_id , 'other' , $sence);
             if ($xacode) {
                 $water2_image = \Qiniu\base64_urlSafeEncode(
                     $xacode . '|imageMogr2/thumbnail/185x185!'
@@ -343,7 +344,8 @@ class PhotographerWork extends Model
         $domain = $buckets[$bucket]['domain'] ?? '';
         // 生成水印图
         $water1_image = \Qiniu\base64_urlSafeEncode($photographerWorkSource->deal_url);
-        $xacode = User::createXacode2($photographerWork->id, 'photographer_work');
+        $sence = "1/{$photographerWork->id}";
+        $xacode = User::createXacode($photographerWork->photographer_id , 'other' , $sence);
         if ($xacode) {
             $water2_image = \Qiniu\base64_urlSafeEncode(
                 $xacode . '|imageMogr2/thumbnail/185x185!'

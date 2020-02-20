@@ -241,7 +241,7 @@ class PhotographerController extends BaseController
         $domain = $buckets[$bucket]['domain'] ?? '';
 
         $sence = "0/{$photographer_id}";
-        $xacode = User::createXacode2($photographer_id , 'other' , $sence);
+        $xacode = User::createXacode($photographer_id , 'other' , $sence);
         if ($xacode) {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
                 $xacode . '|imageMogr2/thumbnail/250x250!'
@@ -454,7 +454,7 @@ class PhotographerController extends BaseController
             return $this->response->error('模板不存在', 500);
         }
         $sence = "1/{$photographer_work_id}";
-        $xacode = User::createXacode2($photographer->id , 'other',$sence);
+        $xacode = User::createXacode($photographer->id , 'other',$sence);
         if ($xacode) {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
                 $xacode . '|imageMogr2/thumbnail/250x250!'

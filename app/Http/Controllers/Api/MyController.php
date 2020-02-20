@@ -563,10 +563,12 @@ class MyController extends UserGuardController
                 return $this->response->error('摄影师不存在', 500);
             }
             if($request->avatar){
-                $photographer->avatar = (string)$request->avatar;
-                $xacode = User::createXacode($photographer->id);
                 $user = auth($this->guard)->user();
-                $user->xacode = $xacode;
+                $photographer->avatar = (string)$request->avatar;
+                $scene="0/{$photographer->id}";
+                $xacodes = User::createXacode($photographer->id,'other',$scene,'all');
+                $user->xacode = $xacodes['round'];
+                $user->xacode_square = $xacodes['square'];
                 $user->save();
             }
             $photographer->name = $request->name;
@@ -607,9 +609,11 @@ class MyController extends UserGuardController
             }
             $photographer->avatar = (string)$request->avatar;
             $photographer->save();
-            $xacode = User::createXacode($photographer->id);
             $user = auth($this->guard)->user();
-            $user->xacode = $xacode;
+            $scene="0/{$photographer->id}";
+            $xacodes = User::createXacode($photographer->id,'other',$scene,'all');
+            $user->xacode = $xacodes['round'];
+            $user->xacode_square = $xacodes['square'];
             $user->save();
             \DB::commit();//提交事务
 

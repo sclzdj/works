@@ -55,7 +55,8 @@ class User extends Authenticatable implements JWTSubject
         'gh_openid',
         'session_key',
         'xacode',
-        'share_url'
+        'xacode_square',
+        'share_url',
     ];
 
     /**
@@ -86,6 +87,8 @@ class User extends Authenticatable implements JWTSubject
             'province',
             'city',
             'xacode',
+            'xacode_square',
+            'share_url',
             'created_at',
         ];
     }
@@ -122,71 +125,119 @@ class User extends Authenticatable implements JWTSubject
     }
 
     /**
-     * 为用户生成小程序吗
+     * 为用户生成小程序码（已废弃）
+     * @param $id 摄影师id或作品集id
+     * @param string $type photographer=>摄影师 photographer_work=>作品集
+     * @param string $shape 形状 round圆形 square正方形 all圆形和正方形
+     * @return mixed
+     * @throws \Exception
      */
-    public static function createXacode($id, $type = 'photographer')
+//    public static function createXacode($id, $type = 'photographer', $shape = 'round')
+//    {
+//        if ($type == 'photographer_work') {
+//            $page = 'pages/productDetails/productDetails';
+//            $photographer_work = PhotographerWork::find($id);
+//            if (!$photographer_work) {
+//                return '';
+//            }
+//            $photographer = Photographer::find($photographer_work->photographer_id);
+//        } else {
+//            $page = 'pages/homes/homes';
+//            $photographer = Photographer::find($id);
+//        }
+//        if (!$photographer) {
+//            return '';
+//        }
+//        $response = WechatServer::getxacodeunlimit($id, $page);
+//        if ($response['code'] == 200) {
+//            $filename = 'xacodes/'.time().mt_rand(10000, 99999).'.png';
+//            $xacode = Image::make($response['data'])->resize(370, 370);
+//            $bgimg = Image::make('xacodes/bg.png')->resize(420, 420);
+//            $bgimg->insert($xacode, 'top-left', 25, 25);
+//            $bgimg->save($filename);
+//            $bucket = 'zuopin';
+//            $buckets = config('custom.qiniu.buckets');
+//            $domain = $buckets[$bucket]['domain'] ?? '';
+//            //用于签名的公钥和私钥
+//            $accessKey = config('custom.qiniu.accessKey');
+//            $secretKey = config('custom.qiniu.secretKey');
+//            // 初始化签权对象
+//            $auth = new Auth($accessKey, $secretKey);
+//            // 生成上传Token
+//            $upToken = $auth->uploadToken($bucket);
+//            // 构建 UploadManager 对象
+//            $uploadMgr = new UploadManager();
+//            list($ret, $err) = $uploadMgr->putFile($upToken, null, $filename);
+//            @unlink($filename);
+//            if ($err) {
+//                return '';
+//            }
+//            if (!$photographer->avatar) {
+//                if ($shape == 'round') {
+//                    return $domain.'/'.$ret['key'].'?roundPic/radius/!50p';
+//                } elseif ($shape == 'square') {
+//                    return $domain.'/'.$ret['key'];
+//                } else {
+//                    return [
+//                        'round' => $domain.'/'.$ret['key'].'?roundPic/radius/!50p',
+//                        'square' => $domain.'/'.$ret['key'],
+//                    ];
+//                }
+//            }
+//            $avatar = $photographer->avatar.'?imageMogr2/thumbnail/170x170!|roundPic/radius/!50p';
+//            $avatar_bg = config('app.url').'/xacodes/avatar_bg.png';
+//
+//            if ($shape == 'round') {
+//                return $domain.'/'.$ret['key'].'?watermark/3/image/'.\Qiniu\base64_urlSafeEncode(
+//                        $avatar_bg
+//                    ).'/dx/125/dy/125/image/'.\Qiniu\base64_urlSafeEncode(
+//                        $avatar
+//                    ).'/dx/125/dy/125|roundPic/radius/!50p';
+//            } elseif ($shape == 'square') {
+//                return $domain.'/'.$ret['key'].'?watermark/3/image/'.\Qiniu\base64_urlSafeEncode(
+//                        $avatar_bg
+//                    ).'/dx/125/dy/125/image/'.\Qiniu\base64_urlSafeEncode(
+//                        $avatar
+//                    ).'/dx/125/dy/125';
+//            } else {
+//                return [
+//                    'round' => $domain.'/'.$ret['key'].'?watermark/3/image/'.\Qiniu\base64_urlSafeEncode(
+//                            $avatar_bg
+//                        ).'/dx/125/dy/125/image/'.\Qiniu\base64_urlSafeEncode(
+//                            $avatar
+//                        ).'/dx/125/dy/125|roundPic/radius/!50p',
+//                    'square' => $domain.'/'.$ret['key'].'?watermark/3/image/'.\Qiniu\base64_urlSafeEncode(
+//                            $avatar_bg
+//                        ).'/dx/125/dy/125/image/'.\Qiniu\base64_urlSafeEncode(
+//                            $avatar
+//                        ).'/dx/125/dy/125',
+//                ];
+//            }
+//        } else {
+//            return '';
+//        }
+//    }
+
+    /**
+     * 为用户生成带有场景值的小程序码
+     * @param $id 摄影师id或作品集id或场景值
+     * @param string $type photographer=>摄影师 photographer_work=>作品集
+     * @param string $scene 场景值
+     * @param string $shape 形状 默认圆形 round圆形 square正方形 all圆形和正方形
+     * @return mixed
+     * @throws \Exception
+     */
+    public static function createXacode($id, $type = 'photographer', $scene = "", $shape = 'round')
     {
         if ($type == 'photographer_work') {
             $page = 'pages/productDetails/productDetails';
             $photographer_work = PhotographerWork::find($id);
             if (!$photographer_work) {
-                return '';
-            }
-            $photographer = Photographer::find($photographer_work->photographer_id);
-        } else {
-            $page = 'pages/homes/homes';
-            $photographer = Photographer::find($id);
-        }
-        if (!$photographer) {
-            return '';
-        }
-        $response = WechatServer::getxacodeunlimit($id, $page);
-        if ($response['code'] == 200) {
-            $filename = 'xacodes/' . time() . mt_rand(10000, 99999) . '.png';
-            $xacode = Image::make($response['data'])->resize(370, 370);
-            $bgimg = Image::make('xacodes/bg.png')->resize(420, 420);
-            $bgimg->insert($xacode, 'top-left', 25, 25);
-            $bgimg->save($filename);
-            $bucket = 'zuopin';
-            $buckets = config('custom.qiniu.buckets');
-            $domain = $buckets[$bucket]['domain'] ?? '';
-            //用于签名的公钥和私钥
-            $accessKey = config('custom.qiniu.accessKey');
-            $secretKey = config('custom.qiniu.secretKey');
-            // 初始化签权对象
-            $auth = new Auth($accessKey, $secretKey);
-            // 生成上传Token
-            $upToken = $auth->uploadToken($bucket);
-            // 构建 UploadManager 对象
-            $uploadMgr = new UploadManager();
-            list($ret, $err) = $uploadMgr->putFile($upToken, null, $filename);
-            @unlink($filename);
-            if ($err) {
-                return '';
-            }
-            if (!$photographer->avatar) {
-                return $domain . '/' . $ret['key'] . '?roundPic/radius/!50p';
-            }
-            $avatar = $photographer->avatar . '?imageMogr2/thumbnail/170x170!|roundPic/radius/!50p';
-            $avatar_bg = config('app.url') . '/xacodes/avatar_bg.png';
-
-            return $domain . '/' . $ret['key'] . '?watermark/3/image/' . \Qiniu\base64_urlSafeEncode(
-                    $avatar_bg
-                ) . '/dx/125/dy/125/image/' . \Qiniu\base64_urlSafeEncode(
-                    $avatar
-                ) . '/dx/125/dy/125|roundPic/radius/!50p';
-        } else {
-            return '';
-        }
-    }
-
-    public static function createXacode2($id, $type = 'photographer' , $scene = "")
-    {
-        if ($type == 'photographer_work') {
-            $page = 'pages/productDetails/productDetails';
-            $photographer_work = PhotographerWork::find($id);
-            if (!$photographer_work) {
-                return '';
+                if ($shape == 'round' || $shape == 'square') {
+                    return '';
+                } else {
+                    return ['round' => '', 'square' => ''];
+                }
             }
             $photographer = Photographer::find($photographer_work->photographer_id);
         } elseif ($type = 'other') {
@@ -198,13 +249,17 @@ class User extends Authenticatable implements JWTSubject
             $photographer = Photographer::find($id);
         }
         if (!$photographer) {
-            return '';
+            if ($shape == 'round' || $shape == 'square') {
+                return '';
+            } else {
+                return ['round' => '', 'square' => ''];
+            }
         }
         $response = WechatServer::getxacodeunlimit($id, $page);
 
 
         if ($response['code'] == 200) {
-            $filename = 'xacodes/' . time() . mt_rand(10000, 99999) . '.png';
+            $filename = 'xacodes/'.time().mt_rand(10000, 99999).'.png';
             $xacode = Image::make($response['data'])->resize(420, 420);
             $xacode->save($filename);
             $bucket = 'zuopin';
@@ -222,17 +277,49 @@ class User extends Authenticatable implements JWTSubject
             list($ret, $err) = $uploadMgr->putFile($upToken, null, $filename);
             @unlink($filename);
             if ($err) {
-                return '';
+                if ($shape == 'round' || $shape == 'square') {
+                    return '';
+                } else {
+                    return ['round' => '', 'square' => ''];
+                }
             }
             if (!$photographer->avatar) {
-                return $domain . '/' . $ret['key'] . '?roundPic/radius/!50p';
+                if ($shape == 'round') {
+                    return $domain.'/'.$ret['key'].'?roundPic/radius/!50p';
+                } elseif ($shape == 'square') {
+                    return $domain.'/'.$ret['key'];
+                } else {
+                    return [
+                        'round' => $domain.'/'.$ret['key'].'?roundPic/radius/!50p',
+                        'square' => $domain.'/'.$ret['key'],
+                    ];
+                }
             }
-            $avatar = $photographer->avatar . '?imageMogr2/thumbnail/190x190!|roundPic/radius/!50p';
-            return $domain . '/' . $ret['key'] . '?watermark/3/image/' . \Qiniu\base64_urlSafeEncode(
-                    $avatar
-                ) . '/dx/115/dy/115';
+            $avatar = $photographer->avatar.'?imageMogr2/thumbnail/190x190!|roundPic/radius/!50p';
+            if ($shape == 'round') {
+                return $domain.'/'.$ret['key'].'?watermark/3/image/'.\Qiniu\base64_urlSafeEncode(
+                        $avatar
+                    ).'/dx/115/dy/115|roundPic/radius/!50p';
+            } elseif ($shape == 'square') {
+                return $domain.'/'.$ret['key'].'?watermark/3/image/'.\Qiniu\base64_urlSafeEncode(
+                        $avatar
+                    ).'/dx/115/dy/115';
+            } else {
+                return [
+                    'round' => $domain.'/'.$ret['key'].'?watermark/3/image/'.\Qiniu\base64_urlSafeEncode(
+                            $avatar
+                        ).'/dx/115/dy/115|roundPic/radius/!50p',
+                    'square' => $domain.'/'.$ret['key'].'?watermark/3/image/'.\Qiniu\base64_urlSafeEncode(
+                            $avatar
+                        ).'/dx/115/dy/115',
+                ];
+            }
         } else {
-            return '';
+            if ($shape == 'round' || $shape == 'square') {
+                return '';
+            } else {
+                return ['round' => '', 'square' => ''];
+            }
         }
     }
 

@@ -166,8 +166,8 @@ class TemplatesController extends BaseController
                 'msg' => '模板生成失败'
             ];
         }
-
-        $xacode = User::createXacode2($photographer_id);
+        $sence = "0/{$photographer_id}";
+        $xacode = User::createXacode($photographer_id , 'other' , $sence);
         if ($xacode) {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
                 $xacode . '|imageMogr2/thumbnail/250x250!'

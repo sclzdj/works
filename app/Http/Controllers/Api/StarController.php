@@ -269,8 +269,8 @@ class StarController extends BaseController
         $photographer = Photographer::where(['id' => $photographerWork->photographer_id])->first();
 
         $water1_image = \Qiniu\base64_urlSafeEncode($photographerWorkSource->deal_url);
-        $xacode = User::createXacode2($photographerWork->id, 'photographer_work');
-
+        $sence = "1/{$photographerWork->id}";
+        $xacode = User::createXacode($photographerWork->photographer_id , 'other' , $sence);
         if ($xacode) {
             $water2_image = \Qiniu\base64_urlSafeEncode(
                 $xacode . '|imageMogr2/thumbnail/185x185!'
@@ -342,7 +342,7 @@ class StarController extends BaseController
         $domain = $buckets[$bucket]['domain'] ?? '';
 
         $sence = "0/{$photographer_id}";
-        $xacode = User::createXacode2($photographer_id, 'other', $sence);
+        $xacode = User::createXacode($photographer_id, 'other', $sence);
 
         if ($xacode) {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(

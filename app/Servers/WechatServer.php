@@ -57,7 +57,7 @@ class WechatServer
         $page = null,
         $width = 370,
         $auto_color = false,
-        $is_hyaline = true,
+        $is_hyaline = false,
         $line_color = ['r' => 0, 'g' => 0, 'b' => 0]
     ) {
         $access_token = WechatServer::getMpAccessToken();

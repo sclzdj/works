@@ -320,8 +320,10 @@ class PhotographerController extends BaseController
             $user = User::where('photographer_id', $photographer->id)->first();
             if (isset($data['avatar']) && $data['avatar'] != $photographer->avatar) {
                 $photographer->update($data);
-                $xacode = User::createXacode($photographer->id);
-                $user->xacode = $xacode;
+                $scene="0/{$photographer->id}";
+                $xacodes = User::createXacode($photographer->id,'other',$scene,'all');
+                $user->xacode = $xacodes['round'];
+                $user->xacode_square = $xacodes['square'];
                 $user->save();
             } else {
                 $photographer->update($data);

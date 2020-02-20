@@ -322,8 +322,10 @@ class DraftController extends UserGuardController
             $photographer->status = 200;
             $photographer->save();
             if ($photographer->avatar) {
-                $xacode = User::createXacode($photographer->id);
-                $user->xacode = $xacode;
+                $scene="0/{$photographer->id}";
+                $xacodes = User::createXacode($photographer->id,'other',$scene,'all');
+                $user->xacode = $xacodes['round'];
+                $user->xacode_square = $xacodes['square'];
             }
             $photographer_work = $photographer->photographerWorks()->where(['status' => 0])->first();
             if (!$photographer_work) {
