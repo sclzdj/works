@@ -8,7 +8,7 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>网盘授权成功</title>
+    <title></title>
     <style>
         img.baidu-cloud {
             margin-top: 140px;
@@ -19,13 +19,15 @@
             width: 130px;
             height: 100px;
         }
-        .bind-success-text{
-            font-size: 14px;
+
+        .bind-success-text {
+            font-size: 16px;
             text-align: center;
             line-height: 20px;
             color: #969696;
         }
-        .bind-success-box{
+
+        .bind-success-box {
             font-size: 16px;
             text-align: center;
             line-height: 44px;
@@ -36,10 +38,15 @@
             margin: 25px auto;
         }
     </style>
+    <script>
+        document.body.addEventListener('touchmove', function (e) {
+            e.preventDefault();
+        }, {passive: false});
+    </script>
 </head>
-<body>
+<body style="height: 100%;background: #fff;">
 <img src="{{asset('/images/baidu-cloud.png').'?'.$SFV}}" alt="百度云" class="baidu-cloud">
-<div class="bind-success-text">绑定成功</div>
+<div class="bind-success-text">百度网盘绑定成功</div>
 <div class="bind-success-box">右滑两次进入网盘</div>
 </body>
 </html>

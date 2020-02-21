@@ -36,10 +36,10 @@ class BaiduController extends Controller
     {
         $request = Request::all();
         if (empty($request['access_token'])) {
-            return abort(500, '缺少access_token参数');
+            return abort(400, '缺少access_token参数');
         }
         if (empty($request['expires_in'])) {
-            return abort(500, '缺少expires_in参数');
+            return abort(400, '缺少expires_in参数');
         }
         \DB::beginTransaction();//开启事务
         try {
@@ -50,7 +50,7 @@ class BaiduController extends Controller
             //$unionid=$user['original']['unionid'];die($unionid);
             $user = User::where(['gh_openid' => $gh_openid])->first();
             if (!$user) {
-                return abort(500, '该用户没有将公众号openid存在数据库中');
+                return abort(400, '该用户没有将公众号openid存在数据库中');
             }
             $expires_in = $request['expires_in'];
             $expired_at = date('Y-m-d H:i:s', time() + $expires_in);

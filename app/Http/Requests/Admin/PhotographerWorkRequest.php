@@ -32,7 +32,7 @@ class PhotographerWorkRequest extends FormRequest
             $rules = [
                 'customer_name' => 'required|max:50',
                 'photographer_work_customer_industry_id' => 'required|exists:photographer_work_customer_industries,id',
-                'project_amount' => 'required|integer|min:1',
+                'project_amount' => 'required|integer|min:0',
                 'hide_project_amount' => 'required|in:0,1',
                 'sheets_number' => 'required|integer|min:1',
                 'hide_sheets_number' => 'required|in:0,1',
@@ -73,7 +73,7 @@ class PhotographerWorkRequest extends FormRequest
             'photographer_work_customer_industry_id.exists' => '客户行业不存在',
             'project_amount.required' => '项目金额不能为空',
             'project_amount.integer' => '项目金额必须为整数',
-            'project_amount.min' => '项目金额最小为1元',
+            'project_amount.min' => '项目金额最小为0元',
             'hide_project_amount.required' => '隐藏项目金额必须传递',
             'hide_project_amount.in' => '隐藏项目金额传递错误',
             'sheets_number.required' => '成片张数不能为空',
