@@ -223,20 +223,20 @@ class User extends Authenticatable implements JWTSubject
      * @param $id 摄影师id或作品集id或场景值
      * @param string $type photographer=>摄影师 photographer_work=>作品集
      * @param string $scene 场景值
-     * @param string $shape 形状 默认圆形 round圆形 square正方形 all圆形和正方形
+     * @param string $shape 形状 默认透明 hyaline透明 square正方形 all透明和正方形
      * @return mixed
      * @throws \Exception
      */
-    public static function createXacode($id, $type = 'photographer', $scene = "", $shape = 'round')
+    public static function createXacode($id, $type = 'photographer', $scene = "", $shape = 'hyaline')
     {
         if ($type == 'photographer_work') {
             $page = 'pages/productDetails/productDetails';
             $photographer_work = PhotographerWork::find($id);
             if (!$photographer_work) {
-                if ($shape == 'round' || $shape == 'square') {
+                if ($shape == 'hyaline' || $shape == 'square') {
                     return '';
                 } else {
-                    return ['round' => '', 'square' => ''];
+                    return ['hyaline' => '', 'square' => ''];
                 }
             }
             $photographer = Photographer::find($photographer_work->photographer_id);
@@ -249,77 +249,84 @@ class User extends Authenticatable implements JWTSubject
             $photographer = Photographer::find($id);
         }
         if (!$photographer) {
-            if ($shape == 'round' || $shape == 'square') {
+            if ($shape == 'hyaline' || $shape == 'square') {
                 return '';
             } else {
-                return ['round' => '', 'square' => ''];
+                return ['hyaline' => '', 'square' => ''];
             }
         }
-        $response = WechatServer::getxacodeunlimit($id, $page);
-
-
-        if ($response['code'] == 200) {
-            $filename = 'xacodes/'.time().mt_rand(10000, 99999).'.png';
-            $xacode = Image::make($response['data'])->resize(420, 420);
-            $xacode->save($filename);
-            $bucket = 'zuopin';
-            $buckets = config('custom.qiniu.buckets');
-            $domain = $buckets[$bucket]['domain'] ?? '';
-            //用于签名的公钥和私钥
-            $accessKey = config('custom.qiniu.accessKey');
-            $secretKey = config('custom.qiniu.secretKey');
-            // 初始化签权对象
-            $auth = new Auth($accessKey, $secretKey);
-            // 生成上传Token
-            $upToken = $auth->uploadToken($bucket);
-            // 构建 UploadManager 对象
-            $uploadMgr = new UploadManager();
-            list($ret, $err) = $uploadMgr->putFile($upToken, null, $filename);
-            @unlink($filename);
-            if ($err) {
-                if ($shape == 'round' || $shape == 'square') {
-                    return '';
-                } else {
-                    return ['round' => '', 'square' => ''];
+        $hyaline = '';
+        $square = '';
+        if ($shape == 'hyaline' || $shape == 'all') {
+            $response = WechatServer::getxacodeunlimit($id, $page);
+            if ($response['code'] == 200) {
+                $filename = 'xacodes/'.time().mt_rand(10000, 99999).'.png';
+                $xacode = Image::make($response['data'])->resize(420, 420);
+                $xacode->save($filename);
+                $bucket = 'zuopin';
+                $buckets = config('custom.qiniu.buckets');
+                $domain = $buckets[$bucket]['domain'] ?? '';
+                //用于签名的公钥和私钥
+                $accessKey = config('custom.qiniu.accessKey');
+                $secretKey = config('custom.qiniu.secretKey');
+                // 初始化签权对象
+                $auth = new Auth($accessKey, $secretKey);
+                // 生成上传Token
+                $upToken = $auth->uploadToken($bucket);
+                // 构建 UploadManager 对象
+                $uploadMgr = new UploadManager();
+                list($ret, $err) = $uploadMgr->putFile($upToken, null, $filename);
+                @unlink($filename);
+                if ($err) {
+                    $hyaline = '';
                 }
-            }
-            if (!$photographer->avatar) {
-                if ($shape == 'round') {
-                    return $domain.'/'.$ret['key'].'?roundPic/radius/!50p';
-                } elseif ($shape == 'square') {
-                    return $domain.'/'.$ret['key'];
-                } else {
-                    return [
-                        'round' => $domain.'/'.$ret['key'].'?roundPic/radius/!50p',
-                        'square' => $domain.'/'.$ret['key'],
-                    ];
+                if (!$photographer->avatar) {
+                    $hyaline = $domain.'/'.$ret['key'];
                 }
-            }
-            $avatar = $photographer->avatar.'?imageMogr2/thumbnail/190x190!|roundPic/radius/!50p';
-            if ($shape == 'round') {
-                return $domain.'/'.$ret['key'].'?watermark/3/image/'.\Qiniu\base64_urlSafeEncode(
-                        $avatar
-                    ).'/dx/115/dy/115|roundPic/radius/!50p';
-            } elseif ($shape == 'square') {
-                return $domain.'/'.$ret['key'].'?watermark/3/image/'.\Qiniu\base64_urlSafeEncode(
+                $avatar = $photographer->avatar.'?imageMogr2/thumbnail/190x190!|roundPic/radius/!50p';
+                $hyaline = $domain.'/'.$ret['key'].'?watermark/3/image/'.\Qiniu\base64_urlSafeEncode(
                         $avatar
                     ).'/dx/115/dy/115';
-            } else {
-                return [
-                    'round' => $domain.'/'.$ret['key'].'?watermark/3/image/'.\Qiniu\base64_urlSafeEncode(
-                            $avatar
-                        ).'/dx/115/dy/115|roundPic/radius/!50p',
-                    'square' => $domain.'/'.$ret['key'].'?watermark/3/image/'.\Qiniu\base64_urlSafeEncode(
-                            $avatar
-                        ).'/dx/115/dy/115',
-                ];
             }
+        }
+        if ($shape == 'square' || $shape == 'all') {
+            $response = WechatServer::getxacodeunlimit($id, $page, false);
+            if ($response['code'] == 200) {
+                $filename = 'xacodes/'.time().mt_rand(10000, 99999).'.png';
+                $xacode = Image::make($response['data'])->resize(420, 420);
+                $xacode->save($filename);
+                $bucket = 'zuopin';
+                $buckets = config('custom.qiniu.buckets');
+                $domain = $buckets[$bucket]['domain'] ?? '';
+                //用于签名的公钥和私钥
+                $accessKey = config('custom.qiniu.accessKey');
+                $secretKey = config('custom.qiniu.secretKey');
+                // 初始化签权对象
+                $auth = new Auth($accessKey, $secretKey);
+                // 生成上传Token
+                $upToken = $auth->uploadToken($bucket);
+                // 构建 UploadManager 对象
+                $uploadMgr = new UploadManager();
+                list($ret, $err) = $uploadMgr->putFile($upToken, null, $filename);
+                @unlink($filename);
+                if ($err) {
+                    $square = '';
+                }
+                if (!$photographer->avatar) {
+                    $square = $domain.'/'.$ret['key'];
+                }
+                $avatar = $photographer->avatar.'?imageMogr2/thumbnail/190x190!|roundPic/radius/!50p';
+                $square = $domain.'/'.$ret['key'].'?watermark/3/image/'.\Qiniu\base64_urlSafeEncode(
+                        $avatar
+                    ).'/dx/115/dy/115';
+            }
+        }
+        if ($shape == 'hyaline') {
+            return $hyaline;
+        } elseif ($shape == 'square') {
+            return $square;
         } else {
-            if ($shape == 'round' || $shape == 'square') {
-                return '';
-            } else {
-                return ['round' => '', 'square' => ''];
-            }
+            return ['hyaline' => $hyaline, 'square' => $square];
         }
     }
 

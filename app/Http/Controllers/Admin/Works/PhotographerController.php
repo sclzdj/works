@@ -322,7 +322,7 @@ class PhotographerController extends BaseController
                 $photographer->update($data);
                 $scene="0/{$photographer->id}";
                 $xacodes = User::createXacode($photographer->id,'other',$scene,'all');
-                $user->xacode = $xacodes['round'];
+                $user->xacode = $xacodes['hyaline'];
                 $user->xacode_square = $xacodes['square'];
                 $user->save();
             } else {

@@ -51,7 +51,7 @@ class LoginController extends UserGuardController
                 $user->save();
                 $scene="0/{$userPresetCreate['photographer_id']}";
                 $xacodes = User::createXacode($userPresetCreate['photographer_id'],'other',$scene,'all');
-                $user->xacode = $xacodes['round'];
+                $user->xacode = $xacodes['hyaline'];
                 $user->xacode_square = $xacodes['square'];
             }
             $user->session_key = $data['session_key'];
