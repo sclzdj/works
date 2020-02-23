@@ -94,6 +94,9 @@ class PhotographerController extends BaseController
         )->orderBy(
             'photographer_works.created_at',
             'desc'
+        )->orderBy(
+            'photographer_works.id',
+            'desc'
         )->paginate(
             $request->pageSize
         );
@@ -171,7 +174,9 @@ class PhotographerController extends BaseController
         }
         $photographer_work_sources = $photographer_work->photographerWorkSources()->select(
             PhotographerWorkSource::allowFields()
-        )->where('status', 200)->orderBy('sort', 'asc')->get()->toArray();
+        )->where('status', 200)->orderBy('sort', 'asc')->get();
+        $photographer_work_sources=SystemServer::getPhotographerWorkSourcesThumb($photographer_work_sources);
+        $photographer_work_sources=$photographer_work_sources->toArray();
         $photographer_work_tags = $photographer_work->photographerWorkTags()->select(
             PhotographerWorkTag::allowFields()
         )->get()->toArray();
@@ -258,7 +263,13 @@ class PhotographerController extends BaseController
         $photographer_rank = (string)PhotographerRank::where('id', $photographer->photographer_rank_id)->value('name');
         $photographer_works_count = $photographer->photographerWorks()->where('status', 200)->count();
         $photographer_works = $photographer->photographerWorks()->where('status', 200)->orderBy(
+            'roof',
+            'desc'
+        )->orderBy(
             'created_at',
+            'desc'
+        )->orderBy(
+            'id',
             'desc'
         )->limit(4)->get()->toArray();
 
@@ -568,9 +579,21 @@ class PhotographerController extends BaseController
                         'photographer_works.photographer_id' => $p->id,
                         'photographer_work_sources.type' => 'image',
                     ]
-                )
-                ->orderBy('photographer_work_sources.created_at', 'desc')->take(3)->get()->toArray();
-            $photographers[$k]['photographer_work_sources'] = $photographer_work_sources;
+                )->orderBy(
+                    'photographer_works.roof',
+                    'desc'
+                )->orderBy(
+                    'photographer_works.created_at',
+                    'desc'
+                )->orderBy(
+                    'photographer_works.id',
+                    'desc'
+                )->orderBy(
+                    'photographer_work_sources.sort',
+                    'asc'
+                )->take(3)->get();
+            $photographer_work_sources=SystemServer::getPhotographerWorkSourcesThumb($photographer_work_sources);
+            $photographers[$k]['photographer_work_sources'] = $photographer_work_sources->toArray();
         }
         $photographers = SystemServer::parseRegionName($photographers);
         $photographers = SystemServer::parsePhotographerRank($photographers);
