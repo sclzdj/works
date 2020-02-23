@@ -330,9 +330,9 @@ class PhotographerController extends BaseController
         $handle[] = $bg;
 
         $handle[] = "|watermark/3/image/" . base64_urlSafeEncode("https://file.zuopin.cloud/FqRtRSleuVUJEN61BSRXvszMmzTH") . "/gravity/South/dx/0/dy/0/";
-        if ($photographer->bg_img) {
-            $handle[] = "image/" . base64_urlSafeEncode($photographer->bg_img) . "/gravity/North/dx/0/dy/0/";
-        }
+//        if ($photographer->bg_img) {
+//            $handle[] = "image/" . base64_urlSafeEncode($photographer->bg_img) . "/gravity/North/dx/0/dy/0/";
+//        }
 
         $handle[] = "image/" . $xacodeImgage . "/gravity/SouthEast/dx/100/dy/325/";
         $handle[] = "text/" . \Qiniu\base64_urlSafeEncode("微信扫一扫 看全部作品") . "/fontsize/720/fill/" . base64_urlSafeEncode("#F7F7F7") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/140/dy/333/";
