@@ -119,7 +119,13 @@ class Photographer extends Model
         $photographer_rank = (string)PhotographerRank::where('id', $photographer->photographer_rank_id)->value('name');
         $photographer_works_count = $photographer->photographerWorks()->where('status', 200)->count();
         $photographer_works = $photographer->photographerWorks()->where('status', 200)->orderBy(
+            'roof',
+            'desc'
+        )->orderBy(
             'created_at',
+            'desc'
+        )->orderBy(
+            'id',
             'desc'
         )->limit(4)->get()->toArray();
         if ($photographer_works_count > 4) {

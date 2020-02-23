@@ -79,17 +79,44 @@ class StarController extends BaseController
         }
 
         foreach ($this->data['data'] as &$datum) {
-            $areas = SystemArea::whereIn('id', [$datum['province'], $datum['city'], $datum['area']])->get()->pluck('name');
-            $datum['areas'] = $areas;
-            $works_ids = $datum['photographerWorks']->pluck('id');
-            $datum['cover'] = PhotographerWorkSource::whereIn('photographer_work_id', $works_ids)
-                ->where(['status' => 200, 'type' => 'image'])
-                ->select(['key', 'url'])
-                ->orderBy('updated_at', 'desc')->limit(3)->get();
+            $datum['province']  = SystemArea::select(['id','name','short_name'])->where('id', $datum['province'])->first();
+            $datum['city']  = SystemArea::select(['id','name','short_name'])->where('id', $datum['city'])->first();
+            $datum['area']  = SystemArea::select(['id','name','short_name'])->where('id', $datum['area'])->first();
+            $fields = array_map(
+                function ($v) {
+                    return 'photographer_work_sources.'.$v;
+                },
+                PhotographerWorkSource::allowFields()
+            );
+            $photographerWorkSources = PhotographerWorkSource::select(
+                $fields
+            )->join(
+                'photographer_works',
+                'photographer_work_sources.photographer_work_id',
+                '=',
+                'photographer_works.id'
+            )->where(
+                [
+                    'photographer_works.photographer_id' => $datum['id'],
+                    'photographer_work_sources.status' => 200,
+                    'photographer_works.status' => 200,
+                    'photographer_work_sources.type' => 'image',
+                ]
+            )->orderBy(
+                'photographer_works.roof',
+                'desc'
+            )->orderBy(
+                'photographer_works.created_at',
+                'desc'
+            )->orderBy(
+                'photographer_works.id',
+                'desc'
+            )->orderBy(
+                'photographer_work_sources.sort',
+                'asc'
+            )->take(3)->get();
+            $datum['cover']=SystemServer::getPhotographerWorkSourcesThumb($photographerWorkSources);
             unset($datum['photographerWorks']);
-            unset($datum['province']);
-            unset($datum['city']);
-            unset($datum['area']);
         }
         $this->data['result'] = true;
         return $this->responseParseArray($this->data);
