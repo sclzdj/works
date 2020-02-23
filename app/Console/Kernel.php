@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         \App\Console\Commands\VisitSummary::class,
         \App\Console\Commands\PhotographerRanking::class,
+        \App\Console\Commands\SendCode::class
     ];
 
     /**
@@ -31,6 +32,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('photographer_ranking')->everyTenMinutes()->between('12:00', '23:59');
         $schedule->command('view_summary')->dailyAt('10:05')->mondays();//->hourly()->between('12:00', '23:59');
         $schedule->command('silent_activation')->dailyAt('19:55');//->hourly();
+        $schedule->command('send_code')->hourly();//->hourly();
     }
 
     /**
