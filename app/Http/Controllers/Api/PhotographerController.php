@@ -318,11 +318,14 @@ class PhotographerController extends BaseController
     private function getPersonStyle2($xacodeImgage, $photographer, $photographer_city, $photographer_rank, $text)
     {
 
+        $photographerBgImg = "";
         if ($photographer->bg_img) {
-            $photographer->bg_img = $photographer->bg_img . '?imageMogr2/auto-orient/thumbnail/x1507/gravity/Center/crop/!1200x1507-0-0|imageslim';
+            $bg = $photographer->bg_img . '?imageMogr2/auto-orient/thumbnail/1200x/gravity/Center/crop/!1200x2133-0-0|imageslim';
+        } else {
+            $bg = "https://file.zuopin.cloud/FuELuuJ-zIV2QxzmDZrSCPesst51?imageMogr2/thumbnail/1200x2133!";
         }
 
-        $bg = "https://file.zuopin.cloud/FuELuuJ-zIV2QxzmDZrSCPesst51?imageMogr2/thumbnail/1200x2187!";
+        // $bg = "https://file.zuopin.cloud/FuELuuJ-zIV2QxzmDZrSCPesst51?imageMogr2/thumbnail/1200x2133!";
         $handle = array();
         $handle[] = $bg;
 
