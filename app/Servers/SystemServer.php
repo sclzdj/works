@@ -146,13 +146,17 @@ class SystemServer
                             $skip = mt_rand(0, $total - 1);
                             $photographer_work_source = PhotographerWorkSource::where($where)->select(
                                 PhotographerWorkSource::allowFields()
-                            )->skip($skip)->take(1)->first()->toArray();
-                            $data['cover'] = $photographer_work_source;
+                            )->skip($skip)->take(1)->first();
+                            $thumb_url = self::getPhotographerWorkSourceThumb($photographer_work_source);
+                            $data['cover'] = $photographer_work_source->toArray();
+                            $data['cover']['thumb_url'] = $thumb_url;
                         } else {
                             $photographer_work_source = PhotographerWorkSource::where($where)->select(
                                 PhotographerWorkSource::allowFields()
-                            )->orderBy('sort', 'asc')->first()->toArray();
-                            $data['cover'] = $photographer_work_source;
+                            )->orderBy('sort', 'asc')->first();
+                            $thumb_url = self::getPhotographerWorkSourceThumb($photographer_work_source);
+                            $data['cover'] = $photographer_work_source->toArray();
+                            $data['cover']['thumb_url'] = $thumb_url;
                         }
                     }
                     break;
@@ -500,5 +504,55 @@ class SystemServer
         list($id, $err) = $pfop->execute($bucket, $key, $fops, $pipeline, $notifyUrl, $force);
 
         return compact('id', 'err');
+    }
+
+    /**
+     * 统一获取七牛缩略图地址
+     * @param $url
+     * @return string
+     */
+    static public function getQiniuUnifiedThumb($url)
+    {
+        $fop = 'imageMogr2/thumbnail/!600x600r/gravity/Center/crop/!600x600';
+
+        return $url.'?'.$fop;
+    }
+
+    /**
+     * 根据资源获取缩略图地址
+     * @param PhotographerWorkSource $photographerWorkSource
+     * @return mixed|string
+     */
+    static public function getPhotographerWorkSourceThumb(PhotographerWorkSource $photographerWorkSource)
+    {
+        if ($photographerWorkSource) {
+            if ($photographerWorkSource->url && $photographerWorkSource->deal_url) {
+                if($photographerWorkSource->type != 'image'){
+                    return $photographerWorkSource->url;
+                }else{
+                    if ($photographerWorkSource->url == $photographerWorkSource->deal_url) {
+                        return $photographerWorkSource->url;
+                    } else {
+                        return self::getQiniuUnifiedThumb($photographerWorkSource->deal_url);
+                    }
+                }
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * 根据资源集合获取缩略图地址
+     * @param $photographerWorkSources
+     * @return mixed
+     */
+    static public function getPhotographerWorkSourcesThumb($photographerWorkSources)
+    {
+        foreach ($photographerWorkSources as $k => $photographerWorkSource) {
+            $photographerWorkSources[$k]['thumb_url'] = self::getPhotographerWorkSourceThumb($photographerWorkSource);
+        }
+
+        return $photographerWorkSources;
     }
 }

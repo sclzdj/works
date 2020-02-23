@@ -10,21 +10,33 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title></title>
     <style>
+        html,body{
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        .big-box{
+            position: relative;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
         img.baidu-cloud {
-            margin-top: 140px;
+            /*margin-top: 140px;*/
             margin-left: auto;
             margin-right: auto;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
             display: block;
             width: 130px;
             height: 100px;
         }
 
         .bind-success-text {
-            font-size: 16px;
+            font-size: 12px;
             text-align: center;
             line-height: 20px;
             color: #969696;
+            margin-bottom: 10px;
         }
 
         .bind-success-box {
@@ -38,15 +50,13 @@
             margin: 25px auto;
         }
     </style>
-    <script>
-        document.body.addEventListener('touchmove', function (e) {
-            e.preventDefault();
-        }, {passive: false});
-    </script>
 </head>
-<body style="height: 100%;background: #fff;">
-<img src="{{asset('/images/baidu-cloud.png').'?'.$SFV}}" alt="百度云" class="baidu-cloud">
-<div class="bind-success-text">百度网盘绑定成功</div>
-<div class="bind-success-box">右滑两次进入网盘</div>
+<body>
+<div class="big-box">
+    <img src="{{asset('/images/baidu-cloud.png').'?'.$SFV}}" alt="百度云" class="baidu-cloud">
+    <div class="bind-success-text">百度网盘绑定成功</div>
+    <div class="bind-success-box">右滑两次进入网盘</div>
+</div>
+<div style="clear: both;"></div>
 </body>
 </html>

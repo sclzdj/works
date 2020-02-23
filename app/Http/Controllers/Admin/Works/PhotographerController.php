@@ -10,6 +10,7 @@ use App\Model\Index\Photographer;
 use App\Model\Index\PhotographerRank;
 use App\Model\Index\PhotographerWork;
 use App\Model\Index\PhotographerWorkSource;
+use App\Model\Index\Star;
 use App\Model\Index\User;
 use App\Servers\ArrServer;
 use App\Servers\SystemServer;
@@ -357,6 +358,7 @@ class PhotographerController extends BaseController
                 Photographer::where('id', $id)->update(['status' => 0]);
                 PhotographerWork::where('photographer_id', $id)->update(['status' => 400]);
                 User::where('photographer_id', $id)->update(['identity' => 0]);
+                Star::where('photographer_id', $id)->delete();
                 \DB::commit();//提交事务
 
                 return $this->response('删除成功', 200);
@@ -367,6 +369,7 @@ class PhotographerController extends BaseController
                 Photographer::whereIn('id', $ids)->update(['status' => 0]);
                 PhotographerWork::whereIn('photographer_id', $ids)->update(['status' => 400]);
                 User::whereIn('photographer_id', $ids)->update(['identity' => 0]);
+                Star::whereIn('photographer_id', $ids)->delete();
                 \DB::commit();//提交事务
 
                 return $this->response('批量删除成功', 200);
@@ -437,6 +440,9 @@ class PhotographerController extends BaseController
             'desc'
         )->orderBy(
             'photographer_works.created_at',
+            'desc'
+        )->orderBy(
+            'photographer_works.id',
             'desc'
         )->orderBy(
             'photographer_work_sources.sort',

@@ -267,6 +267,9 @@ class MyController extends UserGuardController
         )->orderBy(
             'photographer_works.created_at',
             'desc'
+        )->orderBy(
+            'photographer_works.id',
+            'desc'
         )->paginate(
             $request->pageSize
         );
@@ -315,7 +318,9 @@ class MyController extends UserGuardController
         }
         $photographer_work_sources = $photographer_work->photographerWorkSources()->select(
             PhotographerWorkSource::allowFields()
-        )->where('status', 200)->orderBy('sort', 'asc')->get()->toArray();
+        )->where('status', 200)->orderBy('sort', 'asc')->get();
+        $photographer_work_sources = SystemServer::getPhotographerWorkSourcesThumb($photographer_work_sources);
+        $photographer_work_sources = $photographer_work_sources->toArray();
         $photographer_work_tags = $photographer_work->photographerWorkTags()->select(
             PhotographerWorkTag::allowFields()
         )->get()->toArray();
@@ -374,11 +379,15 @@ class MyController extends UserGuardController
             'photographer_works.created_at',
             'desc'
         )->orderBy(
+            'photographer_works.id',
+            'desc'
+        )->orderBy(
             'photographer_work_sources.sort',
             'asc'
         )->paginate(
             $request->pageSize
         );
+        $photographerWorkSources = SystemServer::getPhotographerWorkSourcesThumb($photographerWorkSources);
         $photographerWorkSources = SystemServer::parsePaginate($photographerWorkSources->toArray());
 
         return $this->response->array($photographerWorkSources);
@@ -434,11 +443,13 @@ class MyController extends UserGuardController
             $visitor_today_count_differ = $visitor_today_count_rank_list_last - $visitor_today_count_my;
             $visitor_count_differ = $visitor_count_rank_list_last - $visitor_count_my;
         }
+        $visitor_today_count = $visitor_today_count_my;
 
         return $this->responseParseArray(
             compact(
                 'photographer_work_count',
                 'visitor_count',
+                'visitor_today_count',
                 'view_record_count',
                 'myRank',
                 'visitor_today_count_differ',
@@ -513,7 +524,6 @@ class MyController extends UserGuardController
         );
 
 
-
         if (!$updateResult) {
             return $this->response->error("没有更改成功", 500);
         }
@@ -521,10 +531,12 @@ class MyController extends UserGuardController
 
         PhotographerWork::generateShare($request->photographer_work_id);
 
-        return $this->response->array([
-            'message' => '更改成功',
-            'status' => 200
-        ]);
+        return $this->response->array(
+            [
+                'message' => '更改成功',
+                'status' => 200,
+            ]
+        );
     }
 
     /**
@@ -562,11 +574,11 @@ class MyController extends UserGuardController
             if (!$photographer || $photographer->status != 200) {
                 return $this->response->error('摄影师不存在', 500);
             }
-            if($request->avatar){
+            if ($request->avatar) {
                 $user = auth($this->guard)->user();
                 $photographer->avatar = (string)$request->avatar;
-                $scene="0/{$photographer->id}";
-                $xacodes = User::createXacode($photographer->id,'other',$scene,'all');
+                $scene = "0/{$photographer->id}";
+                $xacodes = User::createXacode($photographer->id, 'other', $scene, 'all');
                 $user->xacode = $xacodes['hyaline'];
                 $user->xacode_square = $xacodes['square'];
                 $user->save();
@@ -610,8 +622,8 @@ class MyController extends UserGuardController
             $photographer->avatar = (string)$request->avatar;
             $photographer->save();
             $user = auth($this->guard)->user();
-            $scene="0/{$photographer->id}";
-            $xacodes = User::createXacode($photographer->id,'other',$scene,'all');
+            $scene = "0/{$photographer->id}";
+            $xacodes = User::createXacode($photographer->id, 'other', $scene, 'all');
             $user->xacode = $xacodes['hyaline'];
             $user->xacode_square = $xacodes['square'];
             $user->save();
@@ -1049,10 +1061,15 @@ class MyController extends UserGuardController
                         'photographer_works.created_at',
                         'desc'
                     )->orderBy(
+                        'photographer_works.id',
+                        'desc'
+                    )->orderBy(
                         'photographer_work_sources.sort',
                         'asc'
-                    )->take(3)->get()->toArray();
-                    $photographers[$k]['photographer_work_sources'] = $photographerWorkSources;
+                    )->take(3)->get();
+                    $photographerWorkSources=SystemServer::getPhotographerWorkSourcesThumb($photographerWorkSources);
+
+                    $photographers[$k]['photographer_work_sources'] = $photographerWorkSources->toArray();
                 }
                 $photographers = SystemServer::parseRegionName($photographers);
                 $photographers = SystemServer::parsePhotographerRank($photographers);
@@ -1127,10 +1144,14 @@ class MyController extends UserGuardController
                     'photographer_works.created_at',
                     'desc'
                 )->orderBy(
+                    'photographer_works.id',
+                    'desc'
+                )->orderBy(
                     'photographer_work_sources.sort',
                     'asc'
-                )->take(3)->get()->toArray();
-                $view_records['data'][$k]['photographer_work_sources'] = $photographerWorkSources;
+                )->take(3)->get();
+                $photographerWorkSources = SystemServer::getPhotographerWorkSourcesThumb($photographerWorkSources);
+                $view_records['data'][$k]['photographer_work_sources'] = $photographerWorkSources->toArray();
             }
             $view_records['data'] = SystemServer::parsePhotographerRank($view_records['data']);
         }
@@ -1300,7 +1321,7 @@ class MyController extends UserGuardController
             ];
         } else {
             return [
-                'result' => false,
+                'result' => true,
                 'share_url' => $domain.'/'.$PhotographerWork->share_url,
             ];
         }
