@@ -175,8 +175,8 @@ class PhotographerController extends BaseController
         $photographer_work_sources = $photographer_work->photographerWorkSources()->select(
             PhotographerWorkSource::allowFields()
         )->where('status', 200)->orderBy('sort', 'asc')->get();
-        $photographer_work_sources=SystemServer::getPhotographerWorkSourcesThumb($photographer_work_sources);
-        $photographer_work_sources=$photographer_work_sources->toArray();
+        $photographer_work_sources = SystemServer::getPhotographerWorkSourcesThumb($photographer_work_sources);
+        $photographer_work_sources = $photographer_work_sources->toArray();
         $photographer_work_tags = $photographer_work->photographerWorkTags()->select(
             PhotographerWorkTag::allowFields()
         )->get()->toArray();
@@ -246,7 +246,7 @@ class PhotographerController extends BaseController
         $domain = $buckets[$bucket]['domain'] ?? '';
 
         $sence = "0/{$photographer_id}";
-        $xacode = User::createXacode($photographer_id , 'other' , $sence);
+        $xacode = User::createXacode($photographer_id, 'other', $sence);
         if ($xacode) {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
                 $xacode . '|imageMogr2/thumbnail/250x250!'
@@ -287,8 +287,6 @@ class PhotographerController extends BaseController
     }
 
 
-
-
     private function getPersonStyle1($xacodeImgage, $photographer, $photographer_city, $photographer_rank, $text)
     {
         $bg = "https://file.zuopin.cloud/FuELuuJ-zIV2QxzmDZrSCPesst51?imageMogr2/thumbnail/1200x2133!";
@@ -321,19 +319,17 @@ class PhotographerController extends BaseController
         $photographerBgImg = "";
 
         if ($photographer->bg_img) {
-            $photographerBgImg = $photographer->bg_img . '?imageMogr2/auto-orient/thumbnail/!1200x1453r/gravity/Center/crop/1200x1453|imageslim';
+            $photographerBgImg = $photographer->bg_img . '?imageMogr2/auto-orient/thumbnail/!1200x1483r/gravity/Center/crop/1200x1483|imageslim';
         } else {
-            $photographerBgImg = "https://file.zuopin.cloud/FjeXtrkXjHpqKbEFLvt4ZeadsYZy?imageMogr2/thumbnail/!1200x1453r/crop/1200x1453|imageslim";
+            $photographerBgImg = "https://file.zuopin.cloud/FjeXtrkXjHpqKbEFLvt4ZeadsYZy?imageMogr2/thumbnail/!1200x1483r/crop/1200x1483|imageslim";
         }
 
         $bg = "https://file.zuopin.cloud/FuELuuJ-zIV2QxzmDZrSCPesst51?imageMogr2/thumbnail/1200x2133!";
         $handle = array();
         $handle[] = $bg;
 
-        $handle[] = "|watermark/3/image/" . base64_urlSafeEncode("https://file.zuopin.cloud/FqRtRSleuVUJEN61BSRXvszMmzTH") . "/gravity/South/dx/0/dy/0/";
-        if ($photographer->bg_img) {
-            $handle[] = "image/" . base64_urlSafeEncode($photographerBgImg) . "/gravity/North/dx/0/dy/0/";
-        }
+        $handle[] = "|watermark/3/image/" . base64_urlSafeEncode($photographerBgImg) . "/gravity/North/dx/0/dy/0/";
+        $handle[] = "image/" . base64_urlSafeEncode("https://file.zuopin.cloud/FqRtRSleuVUJEN61BSRXvszMmzTH") . "/gravity/South/dx/0/dy/0/";
 
         $handle[] = "image/" . $xacodeImgage . "/gravity/SouthEast/dx/100/dy/325/";
         $handle[] = "text/" . \Qiniu\base64_urlSafeEncode("微信扫一扫 看全部作品") . "/fontsize/720/fill/" . base64_urlSafeEncode("#F7F7F7") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/140/dy/333/";
@@ -393,7 +389,6 @@ class PhotographerController extends BaseController
 
         return implode($handle);
     }
-
 
 
     /**
@@ -469,13 +464,12 @@ class PhotographerController extends BaseController
             return $this->response->error('模板不存在', 500);
         }
         $sence = "1/{$photographer_work_id}";
-        $xacode = User::createXacode($photographer->id , 'other',$sence);
+        $xacode = User::createXacode($photographer->id, 'other', $sence);
         if ($xacode) {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
                 $xacode . '|imageMogr2/thumbnail/250x250!'
             );
-        }
-        else {
+        } else {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
                 $domain . '/' . config(
                     'custom.qiniu.crop_work_source_image_bg'
@@ -548,7 +542,7 @@ class PhotographerController extends BaseController
 
     public function getTemplates()
     {
-        $data = Templates::orderBy('number' , 'asc')->pluck('number');
+        $data = Templates::orderBy('number', 'asc')->pluck('number');
         return $this->responseParseArray($data);
     }
 
@@ -596,7 +590,7 @@ class PhotographerController extends BaseController
                     'photographer_work_sources.sort',
                     'asc'
                 )->take(3)->get();
-            $photographer_work_sources=SystemServer::getPhotographerWorkSourcesThumb($photographer_work_sources);
+            $photographer_work_sources = SystemServer::getPhotographerWorkSourcesThumb($photographer_work_sources);
             $photographers[$k]['photographer_work_sources'] = $photographer_work_sources->toArray();
         }
         $photographers = SystemServer::parseRegionName($photographers);
