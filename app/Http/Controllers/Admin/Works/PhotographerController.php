@@ -6,12 +6,17 @@ use App\Http\Controllers\Admin\BaseController;
 use App\Http\Requests\Admin\PhotographerRequest;
 use App\Model\Admin\SystemArea;
 use App\Model\Admin\SystemConfig;
+use App\Model\Index\OperateRecord;
 use App\Model\Index\Photographer;
 use App\Model\Index\PhotographerRank;
+use App\Model\Index\PhotographerRankingLog;
 use App\Model\Index\PhotographerWork;
 use App\Model\Index\PhotographerWorkSource;
+use App\Model\Index\RandomPhotographer;
 use App\Model\Index\Star;
 use App\Model\Index\User;
+use App\Model\Index\ViewRecord;
+use App\Model\Index\Visitor;
 use App\Servers\ArrServer;
 use App\Servers\SystemServer;
 use Illuminate\Http\Request;
@@ -359,6 +364,11 @@ class PhotographerController extends BaseController
                 PhotographerWork::where('photographer_id', $id)->update(['status' => 400]);
                 User::where('photographer_id', $id)->update(['identity' => 0]);
                 Star::where('photographer_id', $id)->delete();
+                ViewRecord::where('photographer_id', $id)->delete();
+                Visitor::where('photographer_id', $id)->delete();
+                OperateRecord::where('photographer_id', $id)->delete();
+                PhotographerRankingLog::where('photographer_id', $id)->delete();
+                RandomPhotographer::where('photographer_id', $id)->delete();
                 \DB::commit();//提交事务
 
                 return $this->response('删除成功', 200);
@@ -370,6 +380,11 @@ class PhotographerController extends BaseController
                 PhotographerWork::whereIn('photographer_id', $ids)->update(['status' => 400]);
                 User::whereIn('photographer_id', $ids)->update(['identity' => 0]);
                 Star::whereIn('photographer_id', $ids)->delete();
+                ViewRecord::whereIn('photographer_id', $ids)->delete();
+                Visitor::whereIn('photographer_id', $ids)->delete();
+                OperateRecord::whereIn('photographer_id', $ids)->delete();
+                PhotographerRankingLog::whereIn('photographer_id', $ids)->delete();
+                RandomPhotographer::whereIn('photographer_id', $ids)->delete();
                 \DB::commit();//提交事务
 
                 return $this->response('批量删除成功', 200);

@@ -68,7 +68,8 @@ class DraftController extends UserGuardController
         $this->notVisitorIdentityVerify();
         \DB::beginTransaction();//开启事务
         try {
-            $photographer_work = User::photographer(null, $this->guard)->photographerWorks()->where(
+            $photographer=User::photographer(null, $this->guard);
+            $photographer_work = $photographer->photographerWorks()->where(
                 ['status' => 0]
             )->first();
             if (!$photographer_work) {
