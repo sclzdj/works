@@ -185,27 +185,28 @@ class StarController extends BaseController
         var_dump($qrst);
     }
 
-//    public function upload()
-//    {
+    public function upload2()
+    {
 //        $filename = 'xacodes/' . time() . mt_rand(10000, 99999) . '.png';
 //        $bgimg = Image::make('xacodes/bbg.jpg')->resize(383, 320);
 //        $bgimg->save($filename);
-//        $bucket = 'zuopin';
-//        $buckets = config('custom.qiniu.buckets');
-//        $domain = $buckets[$bucket]['domain'] ?? '';
-//        //用于签名的公钥和私钥
-//        $accessKey = config('custom.qiniu.accessKey');
-//        $secretKey = config('custom.qiniu.secretKey');
-//        // 初始化签权对象
-//        $auth = new Auth($accessKey, $secretKey);
-//        // 生成上传Token
-//        $upToken = $auth->uploadToken($bucket);
-//        // 构建 UploadManager 对象
-//        $uploadMgr = new UploadManager();
-//        list($ret, $err) = $uploadMgr->putFile($upToken, null, $filename);
-//
-//        dd($ret);
-//    }
+        $filename = "images/2921582462895_.pic.jpg";
+        $bucket = 'zuopin';
+        $buckets = config('custom.qiniu.buckets');
+        $domain = $buckets[$bucket]['domain'] ?? '';
+        //用于签名的公钥和私钥
+        $accessKey = config('custom.qiniu.accessKey');
+        $secretKey = config('custom.qiniu.secretKey');
+        // 初始化签权对象
+        $auth = new Auth($accessKey, $secretKey);
+        // 生成上传Token
+        $upToken = $auth->uploadToken($bucket);
+        // 构建 UploadManager 对象
+        $uploadMgr = new UploadManager();
+        list($ret, $err) = $uploadMgr->putFile($upToken, null, $filename);
+
+        dd($ret);
+    }
 
     public function test2(Request $request)
     {

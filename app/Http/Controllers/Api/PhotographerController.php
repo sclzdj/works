@@ -319,20 +319,21 @@ class PhotographerController extends BaseController
     {
 
         $photographerBgImg = "";
+
         if ($photographer->bg_img) {
-            $bg = $photographer->bg_img . '?imageMogr2/auto-orient/thumbnail/1200x/gravity/Center/crop/!1200x2133-0-0|imageslim';
+            $photographerBgImg = $photographer->bg_img . '?imageMogr2/auto-orient/thumbnail/!1200x1453r/gravity/Center/crop/1200x1453|imageslim';
         } else {
-            $bg = "https://file.zuopin.cloud/FuELuuJ-zIV2QxzmDZrSCPesst51?imageMogr2/thumbnail/1200x2133!";
+            $photographerBgImg = "https://file.zuopin.cloud/FjeXtrkXjHpqKbEFLvt4ZeadsYZy?imageMogr2/thumbnail/!1200x1453r/crop/1200x1453|imageslim";
         }
 
-        // $bg = "https://file.zuopin.cloud/FuELuuJ-zIV2QxzmDZrSCPesst51?imageMogr2/thumbnail/1200x2133!";
+        $bg = "https://file.zuopin.cloud/FuELuuJ-zIV2QxzmDZrSCPesst51?imageMogr2/thumbnail/1200x2133!";
         $handle = array();
         $handle[] = $bg;
 
         $handle[] = "|watermark/3/image/" . base64_urlSafeEncode("https://file.zuopin.cloud/FqRtRSleuVUJEN61BSRXvszMmzTH") . "/gravity/South/dx/0/dy/0/";
-//        if ($photographer->bg_img) {
-//            $handle[] = "image/" . base64_urlSafeEncode($photographer->bg_img) . "/gravity/North/dx/0/dy/0/";
-//        }
+        if ($photographer->bg_img) {
+            $handle[] = "image/" . base64_urlSafeEncode($photographerBgImg) . "/gravity/North/dx/0/dy/0/";
+        }
 
         $handle[] = "image/" . $xacodeImgage . "/gravity/SouthEast/dx/100/dy/325/";
         $handle[] = "text/" . \Qiniu\base64_urlSafeEncode("微信扫一扫 看全部作品") . "/fontsize/720/fill/" . base64_urlSafeEncode("#F7F7F7") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/140/dy/333/";
