@@ -194,7 +194,7 @@ class DraftController extends UserGuardController
             $photographer_work = ArrServer::inData($photographer_work->toArray(), PhotographerWork::allowFields());
             $photographer_work = ArrServer::toNullStrData(
                 $photographer_work,
-                ['project_amount', 'sheets_number', 'shooting_duration']
+                ['sheets_number', 'shooting_duration']
             );
             $photographer_work['tags'] = $photographer_work_tags;
             $photographer_work = SystemServer::parsePhotographerWorkCustomerIndustry($photographer_work);
@@ -309,7 +309,7 @@ class DraftController extends UserGuardController
             if ($other_photographer) {
                 \DB::rollback();//回滚事务
 
-                return $this->response->error('该手机号已被注册成为摄影师了', 500);
+                return $this->response->error('该手机号已经创建过云作品', 500);
             }
             if ($request->avatar) {
                 $photographer->avatar = (string)$request->avatar;
@@ -602,7 +602,7 @@ class DraftController extends UserGuardController
             $photographer_work = ArrServer::inData($photographer_work->toArray(), PhotographerWork::allowFields());
             $photographer_work = ArrServer::toNullStrData(
                 $photographer_work,
-                ['project_amount', 'sheets_number', 'shooting_duration']
+                ['sheets_number', 'shooting_duration']
             );
             $photographer_work['tags'] = $photographer_work_tags;
         } else {

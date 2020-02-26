@@ -319,6 +319,13 @@ class PhotographerController extends BaseController
         if (!$photographer) {
             return $this->response('参数无效', 403);
         }
+        //验证手机号的唯一性
+        $other_photographer = Photographer::where('id', '!=', $photographer->id)->where(
+            ['mobile' => $photographerRequest->mobile, 'status' => 200]
+        )->first();
+        if ($other_photographer) {
+            return $this->response('该手机号已经创建过云作品', 500);
+        }
         \DB::beginTransaction();//开启事务
         try {
             $data = $photographerRequest->all();

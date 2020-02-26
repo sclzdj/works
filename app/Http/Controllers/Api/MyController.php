@@ -236,9 +236,9 @@ class MyController extends UserGuardController
             return $this->response->error('摄影师不存在', 500);
         }
         $keywords = $request->keywords;
-        $whereRaw = '1';
-        if (!empty($keywords)) {
-            $whereRaw = "(photographer_works.customer_name like '%{$keywords}%' || photographer_work_customer_industries.name like '%{$keywords}%' || photographer_work_categories.name like '%{$keywords}%' || photographer_work_tags.name like '%{$keywords}%')";
+        if ($request->keywords!==null && $request->keywords!==''){
+            $whereRaw = "(photographer_works.customer_name like ? || photographer_work_customer_industries.name like ? || photographer_work_categories.name like ? || EXISTS (SELECT * from photographer_work_tags WHERE photographer_work_tags.photographer_work_id=photographer_works.id AND photographer_work_tags.name like ?))";
+            $whereRaw2 = ["%{$keywords}%", "%{$keywords}%", "%{$keywords}%", "%{$keywords}%"];
         }
         $photographer_works = $photographer->photographerWorks()->select('photographer_works.*')->join(
             'photographer_work_customer_industries',
@@ -251,17 +251,13 @@ class MyController extends UserGuardController
             '=',
             'photographer_work_categories.id'
         );
-        if (!empty($keywords)) {
-            $photographer_works = $photographer_works->join(
-                'photographer_work_tags',
-                'photographer_work_tags.photographer_work_id',
-                '=',
-                'photographer_works.id'
+        if ($request->keywords!==null && $request->keywords!=='') {
+            $photographer_works = $photographer_works->whereRaw(
+                $whereRaw,
+                $whereRaw2
             );
         }
-        $photographer_works = $photographer_works->where(['photographer_works.status' => 200])->whereRaw(
-            $whereRaw
-        )->orderBy(
+        $photographer_works = $photographer_works->where(['photographer_works.status' => 200])->orderBy(
             'photographer_works.roof',
             'desc'
         )->orderBy(
@@ -287,7 +283,7 @@ class MyController extends UserGuardController
         }
         $photographer_works['data'] = ArrServer::toNullStrData(
             $photographer_works['data'],
-            ['project_amount', 'sheets_number', 'shooting_duration']
+            ['sheets_number', 'shooting_duration']
         );
         $photographer_works['data'] = SystemServer::parsePhotographerWorkCover($photographer_works['data']);
         $photographer_works['data'] = SystemServer::parsePhotographerWorkCustomerIndustry($photographer_works['data']);
@@ -327,7 +323,7 @@ class MyController extends UserGuardController
         $photographer_work = ArrServer::inData($photographer_work->toArray(), PhotographerWork::allowFields());
         $photographer_work = ArrServer::toNullStrData(
             $photographer_work,
-            ['project_amount', 'sheets_number', 'shooting_duration']
+            ['sheets_number', 'shooting_duration']
         );
         $photographer_work = SystemServer::parsePhotographerWorkCover($photographer_work);
         $photographer_work = SystemServer::parsePhotographerWorkCustomerIndustry($photographer_work);
@@ -1067,7 +1063,7 @@ class MyController extends UserGuardController
                         'photographer_work_sources.sort',
                         'asc'
                     )->take(3)->get();
-                    $photographerWorkSources=SystemServer::getPhotographerWorkSourcesThumb($photographerWorkSources);
+                    $photographerWorkSources = SystemServer::getPhotographerWorkSourcesThumb($photographerWorkSources);
 
                     $photographers[$k]['photographer_work_sources'] = $photographerWorkSources->toArray();
                 }

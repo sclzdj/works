@@ -480,10 +480,10 @@ class VisitController extends UserGuardController
         $Visitor = Visitor::join('users', 'visitors.user_id', '=', 'users.id')->select($fields)->where(
             ['visitors.photographer_id' => $photographer->id]
         );
-        if (!empty($request->visitor_tag_id) && $request->visitor_tag_id > 0) {
+        if ($request->visitor_tag_id!==null && $request->visitor_tag_id >= 0) {
             $Visitor->where('visitors.visitor_tag_id', $request->visitor_tag_id);
         }
-        if (!empty($request->keywords)) {
+        if ($request->keywords!==null && $request->keywords!=='') {
             $Visitor->where('users.nickname', 'like', '%'.$request->keywords.'%');
         }
         $visitors = $Visitor->orderBy('visitors.last_operate_record_at', 'desc')->orderBy(
