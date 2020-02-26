@@ -324,6 +324,7 @@ class DraftController extends UserGuardController
             $photographer->photographer_rank_id = $request->photographer_rank_id;
             $photographer->wechat = $request->wechat;
             $photographer->mobile = $request->mobile;
+            $photographer->created_at=date('Y-m-d H:i:s');
             $photographer->status = 200;
             $photographer->save();
             if ($photographer->avatar) {

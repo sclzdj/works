@@ -77,10 +77,10 @@ class PhotographerController extends BaseController
         $orderBy = [
             'order_field' => $request['order_field'] !== null ?
                 $request['order_field'] :
-                'photographers.id',
+                'photographers.created_at',
             'order_type' => $request['order_type'] !== null ?
                 $request['order_type'] :
-                'asc',
+                'desc',
         ];
         $where = [];
 //        if ($filter['id'] !== '') {
