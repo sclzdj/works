@@ -28,7 +28,7 @@ class ViewSummary extends Command
      *
      * @var string
      */
-    protected $description = '浏览汇总';
+    protected $description = '报告生成通知';
 
     /**
      * Create a new command instance.
@@ -47,7 +47,7 @@ class ViewSummary extends Command
      */
     public function handle()
     {
-// ${name}，过去7天，你的云作品被${num1}人浏览了${num2}次。想更受欢迎吗？试试将水印照片和水印海报分享给更多人！
+        //${name}，你上周新增了${num3}个人脉，累计已达到${num4}个人脉。把水印海报和水印照片当诱饵，让人脉统统都到碗里来。
         set_time_limit(0);
         $photographers = $this->getPhotographerList();
         foreach ($photographers as $k => $photographer) {
@@ -61,8 +61,8 @@ class ViewSummary extends Command
                     'report_generate',
                     [
                         'name' => $photographer->name,
-                        'num1' => $photographer->visitor_week_count,
-                        'num2' => $photographer->record_week_count,
+                        'num3' => $photographer->visitor_week_count,
+                        'num4' => $photographer->visitor_count,
                     ]
                 );
             }
@@ -86,7 +86,7 @@ class ViewSummary extends Command
             Photographer::allowFields()
         );
         $fields = implode(',', $fields);
-        $sql = "SELECT {$fields},(SELECT count(*) FROM `visitors` WHERE `visitors`.`photographer_id`=`photographers`.`id` AND `created_at` >= '{$week_start}' AND `created_at` <= '{$week_end}') AS `visitor_week_count`,(SELECT count(*) FROM `operate_records` WHERE `operate_records`.`photographer_id`=`photographers`.`id` AND `created_at` >= '{$week_start}' AND `created_at` <= '{$week_end}') AS `record_week_count` FROM `photographers` LEFT JOIN `users` ON `photographers`.`id`=`users`.`photographer_id` WHERE `users`.`is_formal_photographer`=1 AND `photographers`.`mobile` is not null AND `photographers`.`mobile`!='' AND `photographers`.`status`=200 ORDER BY `visitor_week_count` DESC,`record_week_count` DESC,`photographers`.`created_at` ASC";
+        $sql = "SELECT {$fields},(SELECT count(*) FROM `visitors` WHERE `visitors`.`photographer_id`=`photographers`.`id` AND `created_at` >= '{$week_start}' AND `created_at` <= '{$week_end}') AS `visitor_week_count`,(SELECT count(*) FROM `visitors` WHERE `visitors`.`photographer_id`=`photographers`.`id`) AS `visitor_count` FROM `photographers` LEFT JOIN `users` ON `photographers`.`id`=`users`.`photographer_id` WHERE `users`.`is_formal_photographer`=1 AND `photographers`.`mobile` is not null AND `photographers`.`mobile`!='' AND `photographers`.`status`=200 ORDER BY `visitor_week_count` DESC,`visitor_count` DESC,`photographers`.`created_at` ASC";
         $photographers = \DB::select($sql, []);
 
         return $photographers;

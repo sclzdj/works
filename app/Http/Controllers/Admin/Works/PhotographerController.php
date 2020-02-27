@@ -367,9 +367,9 @@ class PhotographerController extends BaseController
         \DB::beginTransaction();//开启事务
         try {
             if ($id > 0) {
-                Photographer::where('id', $id)->update(['status' => 0,'is_formal_photographer'=>0]);
+                Photographer::where('id', $id)->update(['status' => 0]);
                 PhotographerWork::where('photographer_id', $id)->update(['status' => 400]);
-                User::where('photographer_id', $id)->update(['identity' => 0]);
+                User::where('photographer_id', $id)->update(['identity' => 0,'is_formal_photographer'=>0]);
                 Star::where('photographer_id', $id)->delete();
                 ViewRecord::where('photographer_id', $id)->delete();
                 Visitor::where('photographer_id', $id)->delete();
@@ -383,9 +383,9 @@ class PhotographerController extends BaseController
                 $ids = is_array($request->ids) ?
                     $request->ids :
                     explode(',', $request->ids);
-                Photographer::whereIn('id', $ids)->update(['status' => 0,'is_formal_photographer'=>0]);
+                Photographer::whereIn('id', $ids)->update(['status' => 0]);
                 PhotographerWork::whereIn('photographer_id', $ids)->update(['status' => 400]);
-                User::whereIn('photographer_id', $ids)->update(['identity' => 0]);
+                User::whereIn('photographer_id', $ids)->update(['identity' => 0,'is_formal_photographer'=>0]);
                 Star::whereIn('photographer_id', $ids)->delete();
                 ViewRecord::whereIn('photographer_id', $ids)->delete();
                 Visitor::whereIn('photographer_id', $ids)->delete();

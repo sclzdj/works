@@ -52,7 +52,7 @@ class PhotographerRanking extends Command
 //你已入选今天的云作品人脉排行榜！
 //比赛名称：云作品人脉排行榜
 //获得奖项：XX 名
-//备注：点击详情查看
+//备注：点击查看详情
         set_time_limit(0);
         $rankingList = PhotographerServer::visitorRankingList(50);
         $date = date('Y-m-d');
@@ -84,7 +84,7 @@ class PhotographerRanking extends Command
                                 'first' => $photographer->name.'，祝贺你！你已入选今天的云作品人脉排行榜！',
                                 'keyword1' => '云作品人脉排行榜',
                                 'keyword2' => ($k + 1).'名',
-                                'remark' => '点击详情查看',
+                                'remark' => '点击查看详情',
                             ],
                         ]
                     );

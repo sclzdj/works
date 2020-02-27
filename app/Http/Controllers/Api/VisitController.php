@@ -266,10 +266,10 @@ class VisitController extends UserGuardController
                                     'pagepath' => 'pages/cameraman/cameraman',//摄影师控制面板页
                                 ],
                                 'data' => [
-                                    'first' => $photographer->name.'，你的云作品开启任务已完成！快打开云作品小程序，看看你的前 3 个人脉吧。为了方便使用，建议苹果用户将云作品拽入我的小程序，建议安卓用户将云作品设为桌面图标。',
+                                    'first' => '快打开云作品，看看你的前3个人脉吧！',
                                     'keyword1' => '已开启',
-                                    'keyword2' => '专业作品集\加水印神器\人脉收割机',
-                                    'remark' => '更多技巧，请浏览使用帮助。',
+                                    'keyword2' => '云作品',
+                                    'remark' => '',
                                 ],
                             ]
                         );
@@ -334,18 +334,18 @@ class VisitController extends UserGuardController
             $miniprogram_pagepath = 'pages/visitorDetails/visitorDetails?id='.$visitor->id;//访客详情页
             if ($visit_send_message['is_remind'] == 0) {
                 if ($visit_send_message['num'] == 1) {
-                    $first_text = '想知道你的第一个人脉是谁嘛？嘿嘿，再来两个告诉你。';
+                    $first_text = '第一个人脉是谁？嘿嘿，再来两个告诉你！';
                     $keyword1_text = '神秘人物1';
                     $keyword3_text = '***********';
                     $miniprogram_pagepath = 'subPage/share/share';//注册成功分享页
                 } elseif ($visit_send_message['num'] == 2) {
-                    $first_text = '叮咚！又来了一个，距离开启云作品只差一个人啦。';
+                    $first_text = '叮咚！又来一个，距离开启只有一步之遥。';
                     $keyword1_text = '神秘人物2';
                     $keyword3_text = '***********';
                     $miniprogram_pagepath = 'subPage/share/share';//注册成功分享页
                 }
             } elseif ($visit_send_message['is_remind'] == 1) {
-                $first_text = $photographer->name.'，你关注的人脉有新动态，请及时查看。';
+                $first_text = '你特别关注的人脉有新动态！';
             }
             $app = app('wechat.official_account');
             $template_id = 'RlRlrXRWpeONZZvu-HT1xQ1EhTvDbucp6Z60AgcQdGs';
@@ -364,7 +364,7 @@ class VisitController extends UserGuardController
                         'keyword2' => $keyword2_text,
                         'keyword3' => $keyword3_text,
                         'keyword4' => date('Y/m/d H:i'),
-                        'remark' => '点击详情查看',
+                        'remark' => '点击查看详情',
                     ],
                 ]
             );

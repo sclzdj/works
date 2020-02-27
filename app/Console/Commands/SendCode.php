@@ -98,6 +98,7 @@ class SendCode extends Command
                             $TemplateCodes,
                             'register_code_generate',
                             [
+                                'name' => $userInfo->is_wx_authorize == 1 ? $userInfo->nickname : '亲',
                                 'code' => $data['code'],
                             ]
                         );

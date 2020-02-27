@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Notify;
 
 use App\Http\Controllers\Api\BaseController;
 
+use App\Model\Admin\SystemConfig;
 use App\Model\Index\CrowdFunding;
 use App\Model\Index\CrowdFundingLog;
 use App\Model\Index\CrowdFundingOrder;
@@ -48,7 +49,7 @@ class MiniProgramController extends BaseController
 
                 $queryTradeInfo = $miniProgram->order->queryByOutTradeNumber($message['out_trade_no']);
                 if ($queryTradeInfo['return_code'] != "SUCCESS") {
-                    Log::info('通信失败，请稍后再通知我' . $queryTradeInfo['return_msg']);
+                    Log::info('通信失败，请稍后再通知我'.$queryTradeInfo['return_msg']);
                 }
 
                 if ($queryTradeInfo['return_code'] == "SUCCESS" && $queryTradeInfo['trade_state'] == "SUCCESS") {
@@ -62,11 +63,11 @@ class MiniProgramController extends BaseController
                         $strs = "QWERTYUIOPASDFGHJKLZXCVBNM1234567890";
                         $invoteCode = new InvoteCode();
                         $invoteCode->code = substr(
-                            $orderInfo->user_id . $orderInfo->id . substr(
+                            $orderInfo->user_id.$orderInfo->id.substr(
                                 str_shuffle($strs),
                                 mt_rand(0, strlen($strs) - 11),
                                 3
-                            ) . mt_rand(0, 9999),
+                            ).mt_rand(0, 9999),
                             0,
                             6
                         );
@@ -81,7 +82,7 @@ class MiniProgramController extends BaseController
                             2 => 399,
                             3 => 599,
                         ];
-                        $key = "data_" . $typeArr[$orderInfo->type];
+                        $key = "data_".$typeArr[$orderInfo->type];
                         $crowdFunding = CrowdFunding::find(1);
                         $send_date = date('Y年m月d日', strtotime($crowdFunding->send_date));
                         // 增加具体数据
@@ -117,9 +118,10 @@ class MiniProgramController extends BaseController
                                         'pagepath' => '/subPage/crouwdPay/crouwdPay',
                                     ],
                                     'data' => [
-                                        'first' => $nickeName . '，感谢你对云作品团队的信任！我们将于' . $send_date . '，通过公众号向你推送云作品注册码。备注：云作品微信客服 JUSHEKEJI。',
+                                        'first' => '谢谢你对云作品团队的信任和支持！我们将于'.$send_date.'，通过云作品微信公众号向你推送创建码。',
                                         'keyword1' => '云作品众筹',
                                         'keyword2' => "成功",
+                                        'remark' => '云作品客服微信'.SystemConfig::getVal('customer_wechat','works'),
                                     ],
                                 ]
                             );
@@ -141,7 +143,7 @@ class MiniProgramController extends BaseController
                         if ($userInfo->purePhoneNumber != '') {
                             //发送短信
                             $third_type = config('custom.send_short_message.third_type');
-                            $TemplateCodes = config('custom.send_short_message.' . $third_type . '.TemplateCodes');
+                            $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
                             if ($third_type == 'ali') {
                                 AliSendShortMessageServer::quickSendSms(
                                     $userInfo->purePhoneNumber,

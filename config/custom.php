@@ -56,13 +56,13 @@ return [
                 'update_my_photographer_info' => ['TemplateCode' => 'SMS_177545627', 'SignName' => '云作品'],//修改摄影师信息场景
 
                 /*此为发送通知场景*/
-                'crowd_raising_result' => ['TemplateCode' => 'SMS_177540698', 'SignName' => '云作品'],//众筹结果通知
-                'register_code_generate' => ['TemplateCode' => 'SMS_177545667', 'SignName' => '云作品'],//注册码生成通知
-                'register_success' => ['TemplateCode' => 'SMS_177256158', 'SignName' => '云作品'],//注册成功通知
+                'crowd_raising_result' => ['TemplateCode' => 'SMS_184221063', 'SignName' => '云作品'],//众筹结果通知
+                'register_code_generate' => ['TemplateCode' => 'SMS_184221131', 'SignName' => '云作品'],//注册码生成通知
+                'register_success' => ['TemplateCode' => 'SMS_184206079', 'SignName' => '云作品'],//注册成功通知
                 'service_open' => ['TemplateCode' => 'SMS_177251207', 'SignName' => '云作品'],//服务开启通知
-                'visit_remind_1' => ['TemplateCode' => 'SMS_177251208', 'SignName' => '云作品'],//来访提醒1
-                'visit_remind_2' => ['TemplateCode' => 'SMS_177256160', 'SignName' => '云作品'],//来访提醒2
-                'report_generate' => ['TemplateCode' => 'SMS_177246307', 'SignName' => '云作品'],//报告生成通知
+                'visit_remind_1' => ['TemplateCode' => 'SMS_184216021', 'SignName' => '云作品'],//来访提醒1
+                'visit_remind_2' => ['TemplateCode' => 'SMS_184211107', 'SignName' => '云作品'],//来访提醒2
+                'report_generate' => ['TemplateCode' => 'SMS_184206091', 'SignName' => '云作品'],//报告生成通知
                 'silent_activation_1' => ['TemplateCode' => 'SMS_177256162', 'SignName' => '云作品'],//沉默激活提醒1
                 'silent_activation_2' => ['TemplateCode' => 'SMS_177256161', 'SignName' => '云作品'],//沉默激活提醒2
                 'silent_activation_3' => ['TemplateCode' => 'SMS_177241303', 'SignName' => '云作品'],//沉默激活提醒3

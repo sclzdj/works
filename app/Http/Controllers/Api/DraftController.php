@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Api\Auth\UserGuardController;
 use App\Http\Requests\Index\PhotographerRequest;
 use App\Model\Admin\SystemArea;
+use App\Model\Admin\SystemConfig;
 use App\Model\Index\Photographer;
 use App\Model\Index\PhotographerRank;
 use App\Model\Index\PhotographerWork;
@@ -388,7 +389,7 @@ class DraftController extends UserGuardController
                             'pagepath' => 'subPage/share/share',//注册成功分享页
                         ],
                         'data' => [
-                            'first' => $photographer->name.'，你已成功注册云作品！为了方便使用，建议苹果用户将云作品拽入我的小程序，建议安卓用户将云作品设为桌面图标。',
+                            'first' => '云作品已准备就绪，邀请3人扫码即可开启！',
                             'keyword1' => $photographer->name,
                             'keyword2' => SystemArea::where('id', $photographer->city)->value('short_name'),
                             'keyword3' => PhotographerRank::where('id', $photographer->photographer_rank_id)->value(
@@ -396,7 +397,7 @@ class DraftController extends UserGuardController
                                 ).'摄影师',
                             'keyword4' => $photographer->wechat,
                             'keyword5' => $photographer->mobile,
-                            'remark' => '更多技巧，请浏览使用帮助。',
+                            'remark' => '云作品客服微信'.SystemConfig::getVal('customer_wechat','works'),
                         ],
                     ]
                 );

@@ -288,7 +288,7 @@ class SystemConfigsTableSeeder extends Seeder
             [
                 'name' => 'customer_wechat',
                 'title' => '客服微信',
-                'value' => '',
+                'value' => 'JUSHEKEJI',
                 'type' => 'works',
                 'genre' => 'text',
                 'tips' => '云作品客服微信',
