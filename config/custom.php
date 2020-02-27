@@ -62,7 +62,7 @@ return [
                 'service_open' => ['TemplateCode' => 'SMS_184216014', 'SignName' => '云作品'],//服务开启通知
                 'visit_remind_1' => ['TemplateCode' => 'SMS_184216021', 'SignName' => '云作品'],//来访提醒1
                 'visit_remind_2' => ['TemplateCode' => 'SMS_184211107', 'SignName' => '云作品'],//来访提醒2
-                'report_generate' => ['TemplateCode' => 'SMS_184206091', 'SignName' => '云作品'],//报告生成通知
+                'report_generate' => ['TemplateCode' => 'SMS_184216603', 'SignName' => '云作品'],//报告生成通知
                 'silent_activation_1' => ['TemplateCode' => 'SMS_177256162', 'SignName' => '云作品'],//沉默激活提醒1
                 'silent_activation_2' => ['TemplateCode' => 'SMS_177256161', 'SignName' => '云作品'],//沉默激活提醒2
                 'silent_activation_3' => ['TemplateCode' => 'SMS_177241303', 'SignName' => '云作品'],//沉默激活提醒3
