@@ -513,7 +513,7 @@ class SystemServer
      */
     static public function getQiniuUnifiedThumb($url)
     {
-        $fop = 'imageMogr2/thumbnail/!600x600r/gravity/Center/crop/!600x600';
+        $fop = 'imageMogr2/auto-orient/thumbnail/!600x600r/gravity/Center/crop/!600x600';
 
         return $url.'?'.$fop;
     }

@@ -170,13 +170,13 @@ class TemplatesController extends BaseController
         $xacode = User::createXacode($photographer_id , 'other' , $sence);
         if ($xacode) {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
-                $xacode . '|imageMogr2/thumbnail/250x250!'
+                $xacode . '|imageMogr2/auto-orient/thumbnail/250x250!'
             );
         } else {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
                 $domain . '/' . config(
                     'custom.qiniu.crop_work_source_image_bg'
-                ) . '?imageMogr2/thumbnail/250x250!|roundPic/radius/!50p'
+                ) . '?imageMogr2/auto-orient/thumbnail/250x250!|roundPic/radius/!50p'
             );
         }
 
@@ -192,7 +192,7 @@ class TemplatesController extends BaseController
             '##title##' => '摄影作品',
         ];
 
-        $bg = $template->background . "?imageMogr2/thumbnail/1200x2133!";
+        $bg = $template->background . "?imageMogr2/auto-orient/thumbnail/1200x2133!";
         $handle = array();
         $handle[] = $bg;
         $writeBg = "https://file.zuopin.cloud/FjRG0YoL-6pTZ8lyjXbkoe4ZFddf";

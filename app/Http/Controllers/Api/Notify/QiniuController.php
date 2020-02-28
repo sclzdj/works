@@ -76,7 +76,7 @@ class QiniuController extends BaseController
         }
         if ($request_data['is_register_photographer'] == 0) {
             if ($photographerWorkSource->type == 'image') {
-                $fops = ["imageMogr2/thumbnail/1200x|imageMogr2/colorspace/srgb|imageslim"];
+                $fops = ["imageMogr2/auto-orient/thumbnail/1200x|imageMogr2/auto-orient/colorspace/srgb|imageslim"];
                 $qrst = SystemServer::qiniuPfop(
                     $bucket,
                     $request_data['key'],

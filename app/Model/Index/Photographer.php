@@ -97,23 +97,23 @@ class Photographer extends Model
         $domain = $buckets[$bucket]['domain'] ?? '';
         $url = $domain . '/' . config('custom.qiniu.crop_work_source_image_bg');
         $deals = [];
-        $deals[] = 'imageMogr2/crop/1200x2133';
+        $deals[] = 'imageMogr2/auto-orient/crop/1200x2133';
         if ($photographer->bg_img) {
             $photographer->bg_img = $photographer->bg_img . '?imageMogr2/auto-orient/thumbnail/1200x/gravity/Center/crop/!1200x600-0-0|imageslim';
         } else {
             $photographer->bg_img = config('app.url') . '/' . 'images/poster_bg.jpg';
         }
         if ($photographer->avatar) {
-            $photographer->avatar = $photographer->avatar . '?imageMogr2/thumbnail/300x300!|roundPic/radius/!50p|imageslim';
+            $photographer->avatar = $photographer->avatar . '?imageMogr2/auto-orient/thumbnail/300x300!|roundPic/radius/!50p|imageslim';
         } else {
             $photographer->avatar = $domain . '/' . config(
                     'custom.qiniu.avatar'
-                ) . '?imageMogr2/thumbnail/300x300!|roundPic/radius/!50p|imageslim';
+                ) . '?imageMogr2/auto-orient/thumbnail/300x300!|roundPic/radius/!50p|imageslim';
         }
         if ($user->xacode) {
-            $user->xacode = $user->xacode . '|imageMogr2/thumbnail/250x250!';
+            $user->xacode = $user->xacode . '|imageMogr2/auto-orient/thumbnail/250x250!';
         } else {
-            $user->xacode = $domain . '/' . config('custom.qiniu.crop_work_source_image_bg') . '?imageMogr2/crop/250x250';
+            $user->xacode = $domain . '/' . config('custom.qiniu.crop_work_source_image_bg') . '?imageMogr2/auto-orient/crop/250x250';
         }
         $photographer_city = (string)SystemArea::where('id', $photographer->city)->value('short_name');
         $photographer_rank = (string)PhotographerRank::where('id', $photographer->photographer_rank_id)->value('name');

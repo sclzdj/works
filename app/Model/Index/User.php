@@ -184,7 +184,7 @@ class User extends Authenticatable implements JWTSubject
 //                    ];
 //                }
 //            }
-//            $avatar = $photographer->avatar.'?imageMogr2/thumbnail/170x170!|roundPic/radius/!50p';
+//            $avatar = $photographer->avatar.'?imageMogr2/auto-orient/thumbnail/170x170!|roundPic/radius/!50p';
 //            $avatar_bg = config('app.url').'/xacodes/avatar_bg.png';
 //
 //            if ($shape == 'round') {
@@ -283,7 +283,7 @@ class User extends Authenticatable implements JWTSubject
                 if (!$photographer->avatar) {
                     $hyaline = $domain.'/'.$ret['key'];
                 }
-                $avatar = $photographer->avatar.'?imageMogr2/thumbnail/190x190!|roundPic/radius/!50p';
+                $avatar = $photographer->avatar.'?imageMogr2/auto-orient/thumbnail/190x190!|roundPic/radius/!50p';
                 $hyaline = $domain.'/'.$ret['key'].'?watermark/3/image/'.\Qiniu\base64_urlSafeEncode(
                         $avatar
                     ).'/dx/115/dy/115';
@@ -315,7 +315,7 @@ class User extends Authenticatable implements JWTSubject
                 if (!$photographer->avatar) {
                     $square = $domain.'/'.$ret['key'];
                 }
-                $avatar = $photographer->avatar.'?imageMogr2/thumbnail/190x190!|roundPic/radius/!50p';
+                $avatar = $photographer->avatar.'?imageMogr2/auto-orient/thumbnail/190x190!|roundPic/radius/!50p';
                 $square = $domain.'/'.$ret['key'].'?watermark/3/image/'.\Qiniu\base64_urlSafeEncode(
                         $avatar
                     ).'/dx/115/dy/115';

@@ -115,7 +115,7 @@ class PhotographerWork extends Model
         $domain = $buckets[$bucket]['domain'] ?? '';
         $url = $domain . '/' . config('custom.qiniu.crop_work_source_image_bg');
         $deals = [];
-        $deals[] = 'imageMogr2/crop/1200x2133';
+        $deals[] = 'imageMogr2/auto-orient/crop/1200x2133';
         $photographer_work_source = $photographer_work->photographerWorkSources()->where(
             ['status' => 200, 'type' => 'image']
         )->orderBy(
@@ -140,9 +140,9 @@ class PhotographerWork extends Model
         $scene="1/{$photographer_work_id}";
         $xacode = User::createXacode($photographer->id,'other',$scene);
         if ($xacode) {
-            $xacode = $xacode . '|imageMogr2/thumbnail/250x250!';
+            $xacode = $xacode . '|imageMogr2/auto-orient/thumbnail/250x250!';
         } else {
-            $xacode = $domain . '/' . config('custom.qiniu.crop_work_source_image_bg') . '?imageMogr2/crop/250x250';
+            $xacode = $domain . '/' . config('custom.qiniu.crop_work_source_image_bg') . '?imageMogr2/auto-orient/crop/250x250';
         }
         $watermark = 'watermark/3/image/' . \Qiniu\base64_urlSafeEncode($bg_img) . '/gravity/North/dx/0/dy/0';
         $watermark .= '/text/' . \Qiniu\base64_urlSafeEncode(
@@ -268,13 +268,13 @@ class PhotographerWork extends Model
             $xacode = User::createXacode($photographerWork->photographer_id , 'other' , $sence);
             if ($xacode) {
                 $water2_image = \Qiniu\base64_urlSafeEncode(
-                    $xacode . '|imageMogr2/thumbnail/185x185!'
+                    $xacode . '|imageMogr2/auto-orient/thumbnail/185x185!'
                 );
             } else {
                 $water2_image = \Qiniu\base64_urlSafeEncode(
                     $domain . '/' . config(
                         'custom.qiniu.crop_work_source_image_bg'
-                    ) . '?imageMogr2/thumbnail/210x210!|roundPic/radius/!50p'
+                    ) . '?imageMogr2/auto-orient/thumbnail/210x210!|roundPic/radius/!50p'
                 );
             }
 
@@ -348,13 +348,13 @@ class PhotographerWork extends Model
         $xacode = User::createXacode($photographerWork->photographer_id , 'other' , $sence);
         if ($xacode) {
             $water2_image = \Qiniu\base64_urlSafeEncode(
-                $xacode . '|imageMogr2/thumbnail/185x185!'
+                $xacode . '|imageMogr2/auto-orient/thumbnail/185x185!'
             );
         } else {
             $water2_image = \Qiniu\base64_urlSafeEncode(
                 $domain . '/' . config(
                     'custom.qiniu.crop_work_source_image_bg'
-                ) . '?imageMogr2/thumbnail/210x210!|roundPic/radius/!50p'
+                ) . '?imageMogr2/auto-orient/thumbnail/210x210!|roundPic/radius/!50p'
             );
         }
 

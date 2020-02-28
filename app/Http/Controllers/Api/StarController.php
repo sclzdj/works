@@ -301,14 +301,14 @@ class StarController extends BaseController
         $xacode = User::createXacode($photographerWork->photographer_id , 'other' , $sence);
         if ($xacode) {
             $water2_image = \Qiniu\base64_urlSafeEncode(
-                $xacode . '|imageMogr2/thumbnail/185x185!'
+                $xacode . '|imageMogr2/auto-orient/thumbnail/185x185!'
             );
 
         } else {
             $water2_image = \Qiniu\base64_urlSafeEncode(
                 $domain . '/' . config(
                     'custom.qiniu.crop_work_source_image_bg'
-                ) . '?imageMogr2/thumbnail/185x185!|roundPic/radius/!50p'
+                ) . '?imageMogr2/auto-orient/thumbnail/185x185!|roundPic/radius/!50p'
             );
         }
 
@@ -374,13 +374,13 @@ class StarController extends BaseController
 
         if ($xacode) {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
-                $xacode . '|imageMogr2/thumbnail/250x250!'
+                $xacode . '|imageMogr2/auto-orient/thumbnail/250x250!'
             );
         } else {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
                 $domain . '/' . config(
                     'custom.qiniu.crop_work_source_image_bg'
-                ) . '?imageMogr2/thumbnail/250x250!|roundPic/radius/!50p'
+                ) . '?imageMogr2/auto-orient/thumbnail/250x250!|roundPic/radius/!50p'
             );
         }
 
@@ -408,7 +408,7 @@ class StarController extends BaseController
 
     private function getPersonStyle1($xacodeImgage, $photographer, $photographer_city, $photographer_rank, $text)
     {
-        $bg = "https://file.zuopin.cloud/FuELuuJ-zIV2QxzmDZrSCPesst51?imageMogr2/thumbnail/1200x2133!";
+        $bg = "https://file.zuopin.cloud/FuELuuJ-zIV2QxzmDZrSCPesst51?imageMogr2/auto-orient/thumbnail/1200x2133!";
         $handle = array();
         $handle[] = $bg;
         $handle[] = "|watermark/3/image/" . base64_urlSafeEncode("https://file.zuopin.cloud/FqRtRSleuVUJEN61BSRXvszMmzTH") . "/gravity/South/dx/0/dy/0/";
@@ -445,7 +445,7 @@ class StarController extends BaseController
             $photographer->bg_img = $photographer->bg_img . '?imageMogr2/auto-orient/thumbnail/x1507/gravity/Center/crop/!1200x1507-0-0|imageslim';
         }
 
-        $bg = "https://file.zuopin.cloud/FuELuuJ-zIV2QxzmDZrSCPesst51?imageMogr2/thumbnail/1200x2187!";
+        $bg = "https://file.zuopin.cloud/FuELuuJ-zIV2QxzmDZrSCPesst51?imageMogr2/auto-orient/thumbnail/1200x2187!";
         $handle = array();
         $handle[] = $bg;
 
@@ -472,7 +472,7 @@ class StarController extends BaseController
 
     private function getPersonStyle3($xacodeImgage, $photographer, $photographer_city, $photographer_rank, $text)
     {
-        $bg = "https://file.zuopin.cloud/FuELuuJ-zIV2QxzmDZrSCPesst51?imageMogr2/thumbnail/1200x2133!";
+        $bg = "https://file.zuopin.cloud/FuELuuJ-zIV2QxzmDZrSCPesst51?imageMogr2/auto-orient/thumbnail/1200x2133!";
         $handle = array();
         $handle[] = $bg;
         $handle[] = "|watermark/3/image/" . base64_urlSafeEncode("https://file.zuopin.cloud/FqRtRSleuVUJEN61BSRXvszMmzTH") . "/gravity/South/dx/0/dy/0/";

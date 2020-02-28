@@ -248,13 +248,13 @@ class PhotographerController extends BaseController
         $xacode = User::createXacode($photographer_id, 'other', $sence);
         if ($xacode) {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
-                $xacode.'|imageMogr2/thumbnail/250x250!'
+                $xacode.'|imageMogr2/auto-orient/thumbnail/250x250!'
             );
         } else {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
                 $domain.'/'.config(
                     'custom.qiniu.crop_work_source_image_bg'
-                ).'?imageMogr2/thumbnail/250x250!|roundPic/radius/!50p'
+                ).'?imageMogr2/auto-orient/thumbnail/250x250!|roundPic/radius/!50p'
             );
         }
 
@@ -306,7 +306,7 @@ class PhotographerController extends BaseController
 
     private function getPersonStyle1($xacodeImgage, $photographer, $photographer_city, $photographer_rank, $text)
     {
-        $bg = "https://file.zuopin.cloud/FuELuuJ-zIV2QxzmDZrSCPesst51?imageMogr2/thumbnail/1200x2133!";
+        $bg = "https://file.zuopin.cloud/FuELuuJ-zIV2QxzmDZrSCPesst51?imageMogr2/auto-orient/thumbnail/1200x2133!";
         $handle = array();
         $handle[] = $bg;
         $handle[] = "|watermark/3/image/".base64_urlSafeEncode(
@@ -372,10 +372,10 @@ class PhotographerController extends BaseController
         if ($photographer->bg_img) {
             $photographerBgImg = $photographer->bg_img.'?imageMogr2/auto-orient/thumbnail/!1200x1483r/gravity/Center/crop/1200x1483|imageslim';
         } else {
-            $photographerBgImg = "https://file.zuopin.cloud/FjeXtrkXjHpqKbEFLvt4ZeadsYZy?imageMogr2/thumbnail/!1200x1483r/crop/1200x1483|imageslim";
+            $photographerBgImg = "https://file.zuopin.cloud/FjeXtrkXjHpqKbEFLvt4ZeadsYZy?imageMogr2/auto-orient/thumbnail/!1200x1483r/crop/1200x1483|imageslim";
         }
 
-        $bg = "https://file.zuopin.cloud/FuELuuJ-zIV2QxzmDZrSCPesst51?imageMogr2/thumbnail/1200x2133!";
+        $bg = "https://file.zuopin.cloud/FuELuuJ-zIV2QxzmDZrSCPesst51?imageMogr2/auto-orient/thumbnail/1200x2133!";
         $handle = array();
         $handle[] = $bg;
 
@@ -413,7 +413,7 @@ class PhotographerController extends BaseController
 
     private function getPersonStyle3($xacodeImgage, $photographer, $photographer_city, $photographer_rank, $text)
     {
-        $bg = "https://file.zuopin.cloud/FuELuuJ-zIV2QxzmDZrSCPesst51?imageMogr2/thumbnail/1200x2133!";
+        $bg = "https://file.zuopin.cloud/FuELuuJ-zIV2QxzmDZrSCPesst51?imageMogr2/auto-orient/thumbnail/1200x2133!";
         $handle = array();
         $handle[] = $bg;
         $handle[] = "|watermark/3/image/".base64_urlSafeEncode(
@@ -548,13 +548,13 @@ class PhotographerController extends BaseController
         $xacode = User::createXacode($photographer->id, 'other', $sence);
         if ($xacode) {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
-                $xacode.'|imageMogr2/thumbnail/250x250!'
+                $xacode.'|imageMogr2/auto-orient/thumbnail/250x250!'
             );
         } else {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
                 $domain.'/'.config(
                     'custom.qiniu.crop_work_source_image_bg'
-                ).'?imageMogr2/thumbnail/250x250!|roundPic/radius/!50p'
+                ).'?imageMogr2/auto-orient/thumbnail/250x250!|roundPic/radius/!50p'
             );
         }
 
@@ -580,7 +580,7 @@ class PhotographerController extends BaseController
         }
 
 
-        $bg = $template->background."?imageMogr2/thumbnail/1200x2133!";
+        $bg = $template->background."?imageMogr2/auto-orient/thumbnail/1200x2133!";
         $writeBg = "https://file.zuopin.cloud/FjRG0YoL-6pTZ8lyjXbkoe4ZFddf";
         $handle = array();
         $handle[] = $bg;

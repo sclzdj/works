@@ -346,7 +346,7 @@ class DraftController extends UserGuardController
             if ($photographerWorkSources) {
                 foreach ($photographerWorkSources as $photographerWorkSource) {
                     if ($photographerWorkSource->type == 'image') {
-                        $fops = ["imageMogr2/thumbnail/1200x|imageMogr2/colorspace/srgb|imageslim"];
+                        $fops = ["imageMogr2/auto-orient/thumbnail/1200x|imageMogr2/auto-orient/colorspace/srgb|imageslim"];
                         $bucket = 'zuopin';
                         $qrst = SystemServer::qiniuPfop(
                             $bucket,
@@ -552,7 +552,7 @@ class DraftController extends UserGuardController
                         }
                     }
                     if ($photographer_work_source->type == 'image') {
-                        $fops = ["imageMogr2/thumbnail/1200x|imageMogr2/colorspace/srgb|imageslim"];
+                        $fops = ["imageMogr2/auto-orient/thumbnail/1200x|imageMogr2/auto-orient/colorspace/srgb|imageslim"];
                         $bucket = 'zuopin';
                         $qrst = SystemServer::qiniuPfop(
                             $bucket,
