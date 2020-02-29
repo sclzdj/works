@@ -65,39 +65,38 @@ class PhotographerRanking extends Command
             $photographerRankingLog->photographer_id = $photographer->id;
             $photographerRankingLog->ranking = $k + 1;
             $photographerRankingLog->save();
-            if (!$photographerRankingLog0) {
-//            if (true) {
-                $user = User::where('photographer_id', $photographer->id)->first();
-                if ($user && $user->gh_openid != '') {
-                    $app = app('wechat.official_account');
-                    $template_id = 'PAObqNiE4rt9WfCJbQlBcBCxWHwmgFgI3Ey7Hnel6oc';
-                    $tmr = $app->template_message->send(
-                        [
-                            'touser' => $user->gh_openid,
-                            'template_id' => $template_id,
-                            'url' => config('app.url'),
-                            'miniprogram' => [
-                                'appid' => config('custom.wechat.mp.appid'),
-                                'pagepath' => 'subPage/ranking/ranking',//人脉排行榜页
-                            ],
-                            'data' => [
-                                'first' => $photographer->name.'，祝贺你！你已入选今天的云作品人脉排行榜！',
-                                'keyword1' => '云作品人脉排行榜',
-                                'keyword2' => ($k + 1).'名',
-                                'remark' => '点击查看详情',
-                            ],
-                        ]
-                    );
-                    if ($tmr['errcode'] != 0) {
-                        ErrLogServer::SendWxGhTemplateMessageCommand(
-                            $template_id,
-                            $user->gh_openid,
-                            $tmr['errmsg'],
-                            $tmr
-                        );
-                    }
-                }
-            }
+//            if (!$photographerRankingLog0) {
+//                $user = User::where('photographer_id', $photographer->id)->first();
+//                if ($user && $user->gh_openid != '') {
+//                    $app = app('wechat.official_account');
+//                    $template_id = 'PAObqNiE4rt9WfCJbQlBcBCxWHwmgFgI3Ey7Hnel6oc';
+//                    $tmr = $app->template_message->send(
+//                        [
+//                            'touser' => $user->gh_openid,
+//                            'template_id' => $template_id,
+//                            'url' => config('app.url'),
+//                            'miniprogram' => [
+//                                'appid' => config('custom.wechat.mp.appid'),
+//                                'pagepath' => 'subPage/ranking/ranking',//人脉排行榜页
+//                            ],
+//                            'data' => [
+//                                'first' => $photographer->name.'，祝贺你！你已入选今天的云作品人脉排行榜！',
+//                                'keyword1' => '云作品人脉排行榜',
+//                                'keyword2' => ($k + 1).'名',
+//                                'remark' => '点击查看详情',
+//                            ],
+//                        ]
+//                    );
+//                    if ($tmr['errcode'] != 0) {
+//                        ErrLogServer::SendWxGhTemplateMessageCommand(
+//                            $template_id,
+//                            $user->gh_openid,
+//                            $tmr['errmsg'],
+//                            $tmr
+//                        );
+//                    }
+//                }
+//            }
         }
     }
 
