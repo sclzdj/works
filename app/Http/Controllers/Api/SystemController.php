@@ -49,6 +49,24 @@ class SystemController extends BaseController
         if (!isset($TemplateCodes[$request->purpose])) {
             return $this->response->error($request->purpose.'用途未配置', 403);
         }
+        if ($request->purpose == 'photographer_register') {
+            //验证手机号的唯一性
+            $photographer = Photographer::where(
+                ['mobile' => $request->mobile, 'status' => 200]
+            )->first();
+            if ($photographer) {
+                return $this->response->error('该手机号已经创建过云作品', 500);
+            }
+        } elseif ($request->purpose == 'update_my_photographer_info') {
+            //验证手机号的唯一性
+            $user = auth($this->guards['user'])->user();
+            $photographer = Photographer::where('id', '!=', $user->photographer_id)->where(
+                ['mobile' => $request->mobile, 'status' => 200]
+            )->first();
+            if ($photographer) {
+                return $this->response->error('该手机号已经创建过云作品', 500);
+            }
+        }
         $code = mt_rand(100000, 999999);
         $sms_code = SmsCode::where(
             [

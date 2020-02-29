@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Model\Admin\SystemConfig;
 use App\Model\Index\CrowdFunding;
 use App\Model\Index\InvoteCode;
 use App\Model\Index\User;
@@ -67,19 +68,18 @@ class SendCode extends Command
                     $tmr = $app->template_message->send(
                         [
                             'touser' => $userInfo->gh_openid,
-                            'template_id' => 'D0A51QNL0-EI_fA65CJQQ4LKotXelLNoATCwtpvwFco',
+                            'template_id' => 'eQ4Aj2Sb7VvVF-0is1Pg7wO1QU43UcVkJ36wHlhCTFE',
                             'miniprogram' => [
                                 'appid' => config('wechat.payment.default.app_id'),
                                 'pagepath' => '/pages/web/web',
                             ],
                             'url' => config('app.url'),
                             'data' => [
-                                'first' => $userInfo->nickname . '你的云作品注册码已经生成，请点击详情开始注册。使用中，无论你有任何问题或建议，都可以通过使用帮助告诉我们，我们会重视你说的每一个字',
+                                'first' => '你的云作品创建码已经生成！点击此处，即可开始创建。',
                                 'keyword1' => $userInfo->nickname,
                                 'keyword2' => $userInfo->phoneNumber,
                                 'keyword3' => $data['code'],
-                                'keyword4' => date('Y-m-d'),
-                                'remark' => '注册码只能使用一次，在完成注册前，请勿将其外泄。',
+                                'remark' => '云作品客服微信'.SystemConfig::getVal('customer_wechat','works'),
                             ],
                         ]
                     );

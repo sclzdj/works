@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Request;
 
 class BaseController extends Controller
 {
+    protected $guards = ['user' => 'users'];
+
     public function __construct()
     {
         $microtime = explode(' ', microtime());

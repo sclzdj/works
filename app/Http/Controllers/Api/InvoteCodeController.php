@@ -152,7 +152,7 @@ class InvoteCodeController extends BaseController
      */
     public function used(Request $request)
     {
-        $info = auth('users')->user();
+        $info = auth($this->guards['user'])->user();
         if (empty($info)) {
             $this->data['msg'] = "账户不存在";
             return $this->responseParseArray($this->data);

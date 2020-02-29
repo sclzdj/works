@@ -8,11 +8,12 @@ use App\Model\Index\BaiduOauth;
 class UserGuardController extends BaseController
 {
 
-    protected $guard = 'users';
+    protected $guard;
 
     public function __construct()
     {
         parent::__construct();
+        $this->guard = $this->guards['user'];
         // 排除需要验证
         $this->middleware('jwt.auth:'.$this->guard, ['except' => ['login', 'mpLogin']]);
     }
