@@ -784,10 +784,10 @@ class MyController extends UserGuardController
                         $photographer_work_source->photographer_work_id = $photographer_work->id;
                         $photographer_work_source->key = $v['key'];
                         $photographer_work_source->url = $v['url'];
-                        $photographer_work_source->deal_key = $v['key'];
-                        $photographer_work_source->deal_url = $v['url'];
-                        $photographer_work_source->rich_key = $v['key'];
-                        $photographer_work_source->rich_url = $v['url'];
+//                        $photographer_work_source->deal_key = $v['key'];
+//                        $photographer_work_source->deal_url = $v['url'];
+//                        $photographer_work_source->rich_key = $v['key'];
+//                        $photographer_work_source->rich_url = $v['url'];
                         $photographer_work_source->type = $v['type'];
                         $photographer_work_source->origin = $v['origin'];
                         $photographer_work_source->sort = $v['sort'];
@@ -801,12 +801,12 @@ class MyController extends UserGuardController
                                     $photographer_work_source->size = $res['data']['size'];
                                     $photographer_work_source->width = $res['data']['width'];
                                     $photographer_work_source->height = $res['data']['height'];
-                                    $photographer_work_source->deal_size = $res['data']['size'];
-                                    $photographer_work_source->deal_width = $res['data']['width'];
-                                    $photographer_work_source->deal_height = $res['data']['height'];
-                                    $photographer_work_source->rich_size = $res['data']['size'];
-                                    $photographer_work_source->rich_width = $res['data']['width'];
-                                    $photographer_work_source->rich_height = $res['data']['height'];
+//                                    $photographer_work_source->deal_size = $res['data']['size'];
+//                                    $photographer_work_source->deal_width = $res['data']['width'];
+//                                    $photographer_work_source->deal_height = $res['data']['height'];
+//                                    $photographer_work_source->rich_size = $res['data']['size'];
+//                                    $photographer_work_source->rich_width = $res['data']['width'];
+//                                    $photographer_work_source->rich_height = $res['data']['height'];
                                     $photographer_work_source->save();
                                 } else {
                                     ErrLogServer::QiniuNotifyFop(
