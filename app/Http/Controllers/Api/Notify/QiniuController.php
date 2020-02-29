@@ -179,7 +179,8 @@ class QiniuController extends BaseController
                         } elseif ($photographerWorkSource->type == 'video') {
 
                         }
-                    } elseif ($request_data['step'] == 2) {
+                    }
+                    elseif ($request_data['step'] == 2) {
                         if ($photographerWorkSource->type == 'image') {
                             $sort = $request_data['sort'] ?? 0;
                             $key = $request_data['items'][$sort]['key'] ?? $request_data['items'][0]['key'];
@@ -214,7 +215,8 @@ class QiniuController extends BaseController
                         } elseif ($photographerWorkSource->type == 'video') {
 
                         }
-                    } elseif ($request_data['step'] == 3) {  // 其实就是原先1的功能，给编辑项目用
+                    }
+                    elseif ($request_data['step'] == 3) {  // 其实就是原先1的功能，给编辑项目用
 
                         $photographerWorkSource->deal_key = $request_data['items'][0]['key'];
                         $photographerWorkSource->deal_url = $domain . '/' . $request_data['items'][0]['key'];

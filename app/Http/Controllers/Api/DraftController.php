@@ -87,7 +87,8 @@ class DraftController extends UserGuardController
                     $photographer_work_source->sort = $k + 1;
                     $photographer_work_source->status = 200;
                     $photographer_work_source->save();
-                } else {
+                }
+                else {
                     $photographer_work_source = PhotographerWorkSource::create();
                     $photographer_work_source->photographer_work_id = $photographer_work->id;
                     $photographer_work_source->key = $v['key'];
@@ -133,7 +134,8 @@ class DraftController extends UserGuardController
                                 $res
                             );
                         }
-                    } elseif ($photographer_work_source->type == 'video') {
+                    }
+                    elseif ($photographer_work_source->type == 'video') {
                         $res = SystemServer::request('GET', $photographer_work_source->url.'?avinfo');
                         if ($res['code'] == 200) {
                             if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
@@ -160,6 +162,7 @@ class DraftController extends UserGuardController
                             );
                         }
                     }
+//
                 }
             }
             $photographer_work->photographerWorkSources()->where(['status' => 300])->update(['status' => 400]);
@@ -355,7 +358,7 @@ class DraftController extends UserGuardController
                             null,
                             config(
                                 'app.url'
-                            ).'/api/notify/qiniu/fop?photographer_work_source_id='.$photographerWorkSource->id.'&step=1',
+                            ).'/api/notify/qiniu/fop?photographer_work_source_id='.$photographerWorkSource->id.'&step=3',
                             true
                         );
                         if ($qrst['err']) {
@@ -478,7 +481,8 @@ class DraftController extends UserGuardController
                     $photographer_work_source->sort = $k + 1;
                     $photographer_work_source->status = 200;
                     $photographer_work_source->save();
-                } else {
+                }
+                else {
                     $photographer_work_source = PhotographerWorkSource::create();
                     $photographer_work_source->photographer_work_id = $photographer_work->id;
                     $photographer_work_source->key = $v['key'];
@@ -524,7 +528,8 @@ class DraftController extends UserGuardController
                                 $res
                             );
                         }
-                    } elseif ($photographer_work_source->type == 'video') {
+                    }
+                    elseif ($photographer_work_source->type == 'video') {
                         $res = SystemServer::request('GET', $photographer_work_source->url.'?avinfo');
                         if ($res['code'] == 200) {
                             if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
