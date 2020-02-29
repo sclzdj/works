@@ -189,6 +189,11 @@ class Photographer extends Model
         return $response;
     }
 
+    /**
+     * 生成小程序卡片分享图
+     * @param $photographer_id
+     * @return array
+     */
     public static function generateShare($photographer_id)
     {
         $buckets = config('custom.qiniu.buckets');
