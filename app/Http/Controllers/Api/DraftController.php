@@ -358,7 +358,7 @@ class DraftController extends UserGuardController
                             null,
                             config(
                                 'app.url'
-                            ).'/api/notify/qiniu/fop?photographer_work_source_id='.$photographerWorkSource->id.'&step=3',
+                            ).'/api/notify/qiniu/fop?photographer_work_source_id='.$photographerWorkSource->id.'&step=1',
                             true
                         );
                         if ($qrst['err']) {
@@ -666,15 +666,12 @@ class DraftController extends UserGuardController
 
             \DB::commit();//提交事务
 
-            $generateWaterMarkResult = PhotographerWork::generateWatermark($photographer_work->id);
-            if (!$generateWaterMarkResult['result']) {
-                \Log::debug('photographer_work'.$photographer_work->id);
-            }
-            $generateResult = PhotographerWork::generateShare($photographer_work->id);
-            if (!$generateResult['result']) {
-                \Log::debug('photographer_work'.$photographer_work->id);
-            }
-            Photographer::generateShare($photographer->id);
+            // 这俩分享图也不能放到这里
+//            $generateResult = PhotographerWork::generateShare($photographer_work->id);
+//            if (!$generateResult['result']) {
+//                \Log::debug('photographer_work'.$photographer_work->id);
+//            }
+//            Photographer::generateShare($photographer->id);
 
             return $this->responseParseArray(['photographer_work_id' => $photographer_work->id]);
         } catch (\Exception $e) {

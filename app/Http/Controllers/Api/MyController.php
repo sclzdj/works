@@ -859,7 +859,7 @@ class MyController extends UserGuardController
                                 null,
                                 config(
                                     'app.url'
-                                ).'/api/notify/qiniu/fop?photographer_work_source_id='.$photographer_work_source->id.'&step=3',
+                                ).'/api/notify/qiniu/fop?photographer_work_source_id='.$photographer_work_source->id.'&step=1',
                                 true
                             );
                             if ($qrst['err']) {
