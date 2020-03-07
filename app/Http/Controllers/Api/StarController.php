@@ -124,98 +124,103 @@ class StarController extends BaseController
 
     public function test(Request $request)
     {
-        $photographer_work_id = "188";
-        $bucket = 'zuopin';
-        $buckets = config('custom.qiniu.buckets');
-        $domain = $buckets[$bucket]['domain'] ?? '';
-        $photographerWork = PhotographerWork::find($photographer_work_id);
-        if (empty($photographerWork)) {
-            return ['result' => false, 'msg' => "作品集不存在"];
+        try {
+            (new PhotographerWorkSource())->generateWatermark(1);
+        } catch (\Exception $exception) {
+            dd($exception->getMessage());
         }
-
-        $photographer = Photographer::where(['id' => $photographerWork->photographer_id])->first();
-        if (!$photographer) {
-            return ['result' => false, 'msg' => "摄影师不存在"];
-        }
-
-        $photographerWorkSources = PhotographerWorkSource::where([
-            'photographer_work_id' => $photographer_work_id,
-            'status' => 200,
-        ])->get();
-
-        foreach ($photographerWorkSources as $sort => $photographerWorkSource) {
-
-            $water1_image = \Qiniu\base64_urlSafeEncode($photographerWorkSource->deal_url);
-            $sence = "1/{$photographerWork->id}";
-            $xacode = User::createXacode($photographerWork->photographer_id, 'other', $sence);
-            if ($xacode) {
-                $water2_image = \Qiniu\base64_urlSafeEncode(
-                    $xacode . '|imageMogr2/auto-orient/thumbnail/185x185!'
-                );
-            } else {
-                $water2_image = \Qiniu\base64_urlSafeEncode(
-                    $domain . '/' . config(
-                        'custom.qiniu.crop_work_source_image_bg'
-                    ) . '?imageMogr2/auto-orient/thumbnail/210x210!|roundPic/radius/!50p'
-                );
-            }
-
-            $hanlde = [];
-            $hanlde[] = "imageMogr2/auto-orient/crop/1200x" . ($photographerWorkSource->deal_height + 250);
-            $hanlde[] = "|watermark/3/image/{$water1_image}/gravity/North/dx/0/dy/0/";
-            $hanlde[] = "|watermark/3/image/" . base64_encode("https://file.zuopin.cloud/Fgz6Zf0EmsLVLvpCf73jBDaCPr9T") . "/gravity/South/dx/0/dy/0/";
-            $hanlde[] = "|watermark/3/image/{$water2_image}/gravity/SouthEast/dx/57/dy/47/";
-
-
-            $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode($photographerWork->customer_name) . "/fontsize/800/fill/" . base64_urlSafeEncode("#323232") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/71/dy/162/";
-            $fistX = 75;
-            // 根据字体来判断宽度 中文40 数字字母20
-            for ($i = 0; $i < mb_strlen($photographerWork->customer_name); $i++) {
-                $char = mb_substr($photographerWork->customer_name, $i, 1);
-                if (ord($char) > 126) {
-                    $fistX += 42;
-                } else {
-                    $fistX += 26;
-                }
-            }
-
-            $hanlde[] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode("https://file.zuopin.cloud/FlwzUiAItXVuajVB1_WNoteI-Fiw") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/" . $fistX . "/dy/170/";
-            $secondX = $fistX + 45;
-            $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer->name) . "/fontsize/800/fill/" . base64_urlSafeEncode("#C8C8C8") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/" . $secondX . "/dy/162/";
-
-            $count = PhotographerWorkSource::where('photographer_work_id', $photographerWorkSource->photographer_work_id)
-                ->where('status', 200)
-                ->count();
-            $text = $count - 1 <= 0 ? '微信扫一扫，看我的全部作品' : "微信扫一扫，看剩余" . ($count - 1) . "张作品";
-            $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode($text) . "/fontsize/609/fill/" . base64_urlSafeEncode("#F7F7F7") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/100/dy/78/";
-            $hanlde[] = "|imageslim";
-
-            $fops[] = implode($hanlde);
-            $qrst = SystemServer::qiniuPfop(
-                $bucket,
-                $photographerWorkSource->key,
-                $fops,
-                null,
-                config(
-                    'app.url'
-                ) . '/api/notify/qiniu/fop?photographer_work_source_id=' . $photographerWorkSource->id . '&step=2&width=1200&height=' . $photographerWorkSource->deal_height . '&sort=' . $sort,
-                true
-            );
-
-
-            Log::debug(var_export($qrst, 1));
-            if ($qrst['err']) {
-                return ErrLogServer::QiniuNotifyFop(
-                    2,
-                    '持久化请求失败',
-                    "",
-                    $photographerWorkSource,
-                    $qrst['err']
-                );
-            }
-        }
-
-        return ['result' => true, 'msg' => "作品集"];
+ //       $photographer_work_id = "188";
+//        $bucket = 'zuopin';
+//        $buckets = config('custom.qiniu.buckets');
+//        $domain = $buckets[$bucket]['domain'] ?? '';
+//        $photographerWork = PhotographerWork::find($photographer_work_id);
+//        if (empty($photographerWork)) {
+//            return ['result' => false, 'msg' => "作品集不存在"];
+//        }
+//
+//        $photographer = Photographer::where(['id' => $photographerWork->photographer_id])->first();
+//        if (!$photographer) {
+//            return ['result' => false, 'msg' => "摄影师不存在"];
+//        }
+//
+//        $photographerWorkSources = PhotographerWorkSource::where([
+//            'photographer_work_id' => $photographer_work_id,
+//            'status' => 200,
+//        ])->get();
+//
+//        foreach ($photographerWorkSources as $sort => $photographerWorkSource) {
+//
+//            $water1_image = \Qiniu\base64_urlSafeEncode($photographerWorkSource->deal_url);
+//            $sence = "1/{$photographerWork->id}";
+//            $xacode = User::createXacode($photographerWork->photographer_id, 'other', $sence);
+//            if ($xacode) {
+//                $water2_image = \Qiniu\base64_urlSafeEncode(
+//                    $xacode . '|imageMogr2/auto-orient/thumbnail/185x185!'
+//                );
+//            } else {
+//                $water2_image = \Qiniu\base64_urlSafeEncode(
+//                    $domain . '/' . config(
+//                        'custom.qiniu.crop_work_source_image_bg'
+//                    ) . '?imageMogr2/auto-orient/thumbnail/210x210!|roundPic/radius/!50p'
+//                );
+//            }
+//
+//            $hanlde = [];
+//            $hanlde[] = "imageMogr2/auto-orient/crop/1200x" . ($photographerWorkSource->deal_height + 250);
+//            $hanlde[] = "|watermark/3/image/{$water1_image}/gravity/North/dx/0/dy/0/";
+//            $hanlde[] = "|watermark/3/image/" . base64_encode("https://file.zuopin.cloud/Fgz6Zf0EmsLVLvpCf73jBDaCPr9T") . "/gravity/South/dx/0/dy/0/";
+//            $hanlde[] = "|watermark/3/image/{$water2_image}/gravity/SouthEast/dx/57/dy/47/";
+//
+//
+//            $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode($photographerWork->customer_name) . "/fontsize/800/fill/" . base64_urlSafeEncode("#323232") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/71/dy/162/";
+//            $fistX = 75;
+//            // 根据字体来判断宽度 中文40 数字字母20
+//            for ($i = 0; $i < mb_strlen($photographerWork->customer_name); $i++) {
+//                $char = mb_substr($photographerWork->customer_name, $i, 1);
+//                if (ord($char) > 126) {
+//                    $fistX += 42;
+//                } else {
+//                    $fistX += 26;
+//                }
+//            }
+//
+//            $hanlde[] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode("https://file.zuopin.cloud/FlwzUiAItXVuajVB1_WNoteI-Fiw") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/" . $fistX . "/dy/170/";
+//            $secondX = $fistX + 45;
+//            $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer->name) . "/fontsize/800/fill/" . base64_urlSafeEncode("#C8C8C8") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/" . $secondX . "/dy/162/";
+//
+//            $count = PhotographerWorkSource::where('photographer_work_id', $photographerWorkSource->photographer_work_id)
+//                ->where('status', 200)
+//                ->count();
+//            $text = $count - 1 <= 0 ? '微信扫一扫，看我的全部作品' : "微信扫一扫，看剩余" . ($count - 1) . "张作品";
+//            $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode($text) . "/fontsize/609/fill/" . base64_urlSafeEncode("#F7F7F7") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/100/dy/78/";
+//            $hanlde[] = "|imageslim";
+//
+//            $fops[] = implode($hanlde);
+//            $qrst = SystemServer::qiniuPfop(
+//                $bucket,
+//                $photographerWorkSource->key,
+//                $fops,
+//                null,
+//                config(
+//                    'app.url'
+//                ) . '/api/notify/qiniu/fop?photographer_work_source_id=' . $photographerWorkSource->id . '&step=2&width=1200&height=' . $photographerWorkSource->deal_height . '&sort=' . $sort,
+//                true
+//            );
+//
+//
+//            Log::debug(var_export($qrst, 1));
+//            if ($qrst['err']) {
+//                return ErrLogServer::QiniuNotifyFop(
+//                    2,
+//                    '持久化请求失败',
+//                    "",
+//                    $photographerWorkSource,
+//                    $qrst['err']
+//                );
+//            }
+//        }
+//
+//        return ['result' => true, 'msg' => "作品集"];
     }
 
     public function upload2()
