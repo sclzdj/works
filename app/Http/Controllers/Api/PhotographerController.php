@@ -158,7 +158,7 @@ class PhotographerController extends BaseController
      * 获取摄影师作品的上一个和下一个id
      * @param PhotographerRequest $request
      */
-    public function xacodeNext(Request $request)
+    public function xacodeNext(PhotographerRequest $request)
     {
         if ($request->photographer_id > 0) {
             $photographer = User::photographer($request->photographer_id);
@@ -181,7 +181,7 @@ class PhotographerController extends BaseController
         $next_photographerwork_id = 0;
         $previous_photographerwork_id = 0;
         foreach ($photographerWorks as $key => $item) {
-            if ($item == $request->current_photographerwork_id) {
+            if ($item == $request->current_photographer_work_id) {
                 $next_photographerwork_id = $photographerWorks[$key - 1] ?? 0;
                 $previous_photographerwork_id = $photographerWorks[$key + 1] ?? 0;
             }

@@ -67,6 +67,12 @@ class PhotographerRequest extends BaseRequest
                     'photographer_work_id' => 'required|integer',
                 ];
                 break;
+            case 'xacodeNext':
+                $rules = [
+                    'photographer_id' => 'integer',
+                    'current_photographer_work_id' => 'required|integer',
+                ];
+                break;
             case 'rankingList':
                 $rules = array_merge($rules, $this->predefined['limit']['rules']);
                 break;
@@ -167,6 +173,13 @@ class PhotographerRequest extends BaseRequest
                     'photographer_work_id.integer' => '摄影师作品集id必须为数字',
                 ];
                 break;
+            case 'xacodeNext':
+                $messages = [
+                    'photographer_id.integer' => '摄影师id必须为数字',
+                    'current_photographer_work_id.required' => '当前摄影师作品集id必须传递',
+                    'current_photographer_work_id.integer' => '当前师作品集id必须为数字',
+                ];
+                break;
             case 'rankingList':
                 $messages = array_merge($messages, $this->predefined['limit']['messages']);
                 break;
@@ -204,6 +217,7 @@ class PhotographerRequest extends BaseRequest
                 'GET|App\Http\Controllers\Api\PhotographerController@work',
                 'GET|App\Http\Controllers\Api\PhotographerController@workPoster',
             ],
+            'xacodeNext' => ['GET|App\Http\Controllers\Api\PhotographerController@xacodeNext'],
             'rankingList' => ['GET|App\Http\Controllers\Api\PhotographerController@rankingList'],
         ];
     }
