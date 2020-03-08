@@ -248,13 +248,14 @@ class QiniuController extends BaseController
                 }
 
             } elseif ($request_data['step'] == 3) {
-            } elseif ($request_data['step'] == 4) {  // 作品集分享图
-                $photographerWork->share_url = $request_data['items'][0]['key'];
-                $photographerWork->save();
-            } elseif ($request_data['step'] == 5) {  // 个人分享图
-                $photographer->share_url = $request_data['items'][0]['key'];
-                $photographer->save();
             }
+//            elseif ($request_data['step'] == 4) {  // 作品集分享图
+//                $photographerWork->share_url = $request_data['items'][0]['key'];
+//                $photographerWork->save();
+//            } elseif ($request_data['step'] == 5) {  // 个人分享图
+//                $photographer->share_url = $request_data['items'][0]['key'];
+//                $photographer->save();
+//            }
 
         } catch (\Exception $e) {
             return ErrLogServer::QiniuNotifyFop(

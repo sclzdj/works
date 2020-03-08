@@ -31,6 +31,7 @@ class PhotographerWorkSource extends Model
         'rich_size',
         'rich_width',
         'rich_height',
+        'is_newest_rich',
         'type',
         'origin',
         'status',
@@ -68,6 +69,7 @@ class PhotographerWorkSource extends Model
             'rich_size',
             'rich_width',
             'rich_height',
+            'is_newest_rich',
             'type',
             'origin',
             'created_at',
@@ -113,8 +115,7 @@ class PhotographerWorkSource extends Model
         $buckets = config('custom.qiniu.buckets');
         $domain = $buckets[$bucket]['domain'] ?? '';
         // 生成水印图
-        $sence = "1/{$photographerWork->id}";
-        $xacode = User::createXacode($photographerWork->photographer_id, 'other', $sence);
+        $xacode =PhotographerWork::xacode($photographerWork->id);
         if ($xacode) {
             $water2_image = \Qiniu\base64_urlSafeEncode(
                 $xacode . '|imageMogr2/auto-orient/thumbnail/185x185!'

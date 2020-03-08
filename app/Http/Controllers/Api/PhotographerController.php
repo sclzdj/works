@@ -48,6 +48,7 @@ class PhotographerController extends BaseController
         $photographer = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
         $photographer = SystemServer::parseRegionName($photographer);
         $photographer = SystemServer::parsePhotographerRank($photographer);
+        $photographer['xacode'] = Photographer::xacode($photographer['id'], false);
 
         return $this->responseParseArray($photographer);
     }
@@ -63,7 +64,7 @@ class PhotographerController extends BaseController
             return $this->response->error('摄影师不存在', 500);
         }
         $keywords = $request->keywords;
-        if ($request->keywords!==null && $request->keywords!=='') {
+        if ($request->keywords !== null && $request->keywords !== '') {
             $whereRaw = "(photographer_works.customer_name like ? || photographer_work_customer_industries.name like ? || photographer_work_categories.name like ? || EXISTS (SELECT * from photographer_work_tags WHERE photographer_work_tags.photographer_work_id=photographer_works.id AND photographer_work_tags.name like ?))";
             $whereRaw2 = ["%{$keywords}%", "%{$keywords}%", "%{$keywords}%", "%{$keywords}%"];
         }
@@ -78,7 +79,7 @@ class PhotographerController extends BaseController
             '=',
             'photographer_work_categories.id'
         );
-        if ($request->keywords!==null && $request->keywords!=='') {
+        if ($request->keywords !== null && $request->keywords !== '') {
             $photographer_works = $photographer_works->whereRaw(
                 $whereRaw,
                 $whereRaw2
@@ -135,6 +136,9 @@ class PhotographerController extends BaseController
         )->orderBy(
             'photographer_works.created_at',
             'desc'
+        )->orderBy(
+            'photographer_works.id',
+            'desc'
         )->get()->pluck('id')->toArray();
 
         $data = [];
@@ -147,9 +151,47 @@ class PhotographerController extends BaseController
             }
         }
 
+        return $this->response->array($data);
+    }
+
+    /**
+     * 获取摄影师作品的上一个和下一个id
+     * @param PhotographerRequest $request
+     */
+    public function xacodeNext(Request $request)
+    {
+        if ($request->photographer_id > 0) {
+            $photographer = User::photographer($request->photographer_id);
+        } else {
+            $photographer = User::photographer(null, $this->guards['user']);
+        }
+        if (!$photographer || $photographer->status != 200) {
+            return $this->response->error('摄影师不存在', 500);
+        }
+        $photographerWorks = $photographer->photographerWorks()->where(['photographer_works.status' => 200])->orderBy(
+            'photographer_works.roof',
+            'desc'
+        )->orderBy(
+            'photographer_works.created_at',
+            'desc'
+        )->orderBy(
+            'photographer_works.id',
+            'desc'
+        )->get()->pluck('id')->toArray();
+        $next_photographerwork_id = 0;
+        $previous_photographerwork_id = 0;
+        foreach ($photographerWorks as $key => $item) {
+            if ($item == $request->current_photographerwork_id) {
+                $next_photographerwork_id = $photographerWorks[$key - 1] ?? 0;
+                $previous_photographerwork_id = $photographerWorks[$key + 1] ?? 0;
+            }
+        }
+        $data = [
+            'next' => PhotographerWork::xacode($next_photographerwork_id, false),
+            'previous' => PhotographerWork::xacode($previous_photographerwork_id, false),
+        ];
 
         return $this->response->array($data);
-
     }
 
     /**
@@ -189,6 +231,7 @@ class PhotographerController extends BaseController
         $photographer_work['photographer'] = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
         $photographer_work['photographer'] = SystemServer::parseRegionName($photographer_work['photographer']);
         $photographer_work['photographer'] = SystemServer::parsePhotographerRank($photographer_work['photographer']);
+        $photographer_work['xacode'] = PhotographerWork::xacode($photographer_work['id'], false);
 
         return $this->response->array($photographer_work);
     }
@@ -244,8 +287,7 @@ class PhotographerController extends BaseController
         $buckets = config('custom.qiniu.buckets');
         $domain = $buckets[$bucket]['domain'] ?? '';
 
-        $sence = "0/{$photographer_id}";
-        $xacode = User::createXacode($photographer_id, 'other', $sence);
+        $xacode = Photographer::xacode($photographer_id);
         if ($xacode) {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
                 $xacode.'|imageMogr2/auto-orient/thumbnail/250x250!'
@@ -544,8 +586,7 @@ class PhotographerController extends BaseController
         if (empty($template)) {
             return $this->response->error('模板不存在', 500);
         }
-        $sence = "1/{$photographer_work_id}";
-        $xacode = User::createXacode($photographer->id, 'other', $sence);
+        $xacode = PhotographerWork::xacode($photographer_work_id);
         if ($xacode) {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
                 $xacode.'|imageMogr2/auto-orient/thumbnail/250x250!'

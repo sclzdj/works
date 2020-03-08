@@ -331,16 +331,7 @@ class PhotographerController extends BaseController
             $data = $photographerRequest->all();
             $data = ArrServer::null2strData($data);
             $user = User::where('photographer_id', $photographer->id)->first();
-            if (isset($data['avatar']) && $data['avatar'] != $photographer->avatar) {
-                $photographer->update($data);
-                $scene="0/{$photographer->id}";
-                $xacodes = User::createXacode($photographer->id,'other',$scene,'all');
-                $user->xacode = $xacodes['hyaline'];
-                $user->xacode_square = $xacodes['square'];
-                $user->save();
-            } else {
-                $photographer->update($data);
-            }
+            $photographer->update($data);
             $response = [
                 'url' => action('Admin\Works\PhotographerController@index'),
             ];
@@ -369,7 +360,7 @@ class PhotographerController extends BaseController
             if ($id > 0) {
                 Photographer::where('id', $id)->update(['status' => 0]);
                 PhotographerWork::where('photographer_id', $id)->update(['status' => 400]);
-                User::where('photographer_id', $id)->update(['identity' => 0,'is_formal_photographer'=>0]);
+                User::where('photographer_id', $id)->update(['identity' => 0, 'is_formal_photographer' => 0]);
                 Star::where('photographer_id', $id)->delete();
                 ViewRecord::where('photographer_id', $id)->delete();
                 Visitor::where('photographer_id', $id)->delete();
@@ -385,7 +376,7 @@ class PhotographerController extends BaseController
                     explode(',', $request->ids);
                 Photographer::whereIn('id', $ids)->update(['status' => 0]);
                 PhotographerWork::whereIn('photographer_id', $ids)->update(['status' => 400]);
-                User::whereIn('photographer_id', $ids)->update(['identity' => 0,'is_formal_photographer'=>0]);
+                User::whereIn('photographer_id', $ids)->update(['identity' => 0, 'is_formal_photographer' => 0]);
                 Star::whereIn('photographer_id', $ids)->delete();
                 ViewRecord::whereIn('photographer_id', $ids)->delete();
                 Visitor::whereIn('photographer_id', $ids)->delete();

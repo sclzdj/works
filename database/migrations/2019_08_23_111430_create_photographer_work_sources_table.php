@@ -32,6 +32,7 @@ class CreatePhotographerWorkSourcesTable extends Migration
             $table->unsignedBigInteger('rich_size')->default(0)->comment('丰富展示的资源大小B');
             $table->unsignedInteger('rich_width')->default(0)->comment('丰富展示的资源宽,px');
             $table->unsignedInteger('rich_height')->default(0)->comment('丰富展示的资源高,px');
+            $table->unsignedTinyInteger('is_newest_rich')->default(0)->comment('是否最新的丰富展示资源');
             $table->string('type')->default('')->comment('资源类型');
             $table->string('origin')->default('')->comment('资源来源');
             $table->unsignedInteger('sort')->default(0)->comment('排序');

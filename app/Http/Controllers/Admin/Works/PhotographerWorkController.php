@@ -16,6 +16,7 @@ use App\Model\Index\User;
 use App\Servers\ArrServer;
 use App\Servers\ErrLogServer;
 use App\Servers\SystemServer;
+use App\Servers\WechatServer;
 use Illuminate\Http\Request;
 
 class PhotographerWorkController extends BaseController
@@ -311,6 +312,16 @@ class PhotographerWorkController extends BaseController
             }
             $data['status'] = 200;
             $photographerWork = PhotographerWork::create($data);
+            $scene = '1/'.$photographerWork->id;
+            $xacode_res = WechatServer::generateXacodes($scene);
+            if ($xacode_res['code'] != 200) {
+                \DB::rollback();//回滚事务
+
+                return $this->response($xacode_res['msg'], $xacode_res['code']);
+            }
+            $photographerWork->xacode = $xacode_res['xacode'];
+            $photographerWork->xacode_hyaline = $xacode_res['xacode_hyaline'];
+            $photographerWork->save();
             PhotographerWorkTag::where(['photographer_work_id' => $photographerWork->id])->delete();
             if ($data['tags']) {
                 $data['tags'] = explode(',', $data['tags']);

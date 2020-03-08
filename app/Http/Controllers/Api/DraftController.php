@@ -17,6 +17,7 @@ use App\Servers\AliSendShortMessageServer;
 use App\Servers\ArrServer;
 use App\Servers\ErrLogServer;
 use App\Servers\SystemServer;
+use App\Servers\WechatServer;
 use Illuminate\Http\Request;
 use Qiniu\Auth;
 use Qiniu\Storage\BucketManager;
@@ -69,7 +70,7 @@ class DraftController extends UserGuardController
         $this->notVisitorIdentityVerify();
         \DB::beginTransaction();//开启事务
         try {
-            $photographer=User::photographer(null, $this->guard);
+            $photographer = User::photographer(null, $this->guard);
             $photographer_work = $photographer->photographerWorks()->where(
                 ['status' => 0]
             )->first();
@@ -87,8 +88,7 @@ class DraftController extends UserGuardController
                     $photographer_work_source->sort = $k + 1;
                     $photographer_work_source->status = 200;
                     $photographer_work_source->save();
-                }
-                else {
+                } else {
                     $photographer_work_source = PhotographerWorkSource::create();
                     $photographer_work_source->photographer_work_id = $photographer_work->id;
                     $photographer_work_source->key = $v['key'];
@@ -134,8 +134,7 @@ class DraftController extends UserGuardController
                                 $res
                             );
                         }
-                    }
-                    elseif ($photographer_work_source->type == 'video') {
+                    } elseif ($photographer_work_source->type == 'video') {
                         $res = SystemServer::request('GET', $photographer_work_source->url.'?avinfo');
                         if ($res['code'] == 200) {
                             if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
@@ -232,6 +231,25 @@ class DraftController extends UserGuardController
                 $photographer_work->photographer_id = $photographer->id;
                 $photographer_work->save();
             }
+            $scene = '1/'.$photographer_work->id;
+            if (!$photographer_work->xacode) {
+                $xacode_res = WechatServer::generateXacode($scene,false);
+                if ($xacode_res['code'] != 200) {
+                    \DB::rollback();//回滚事务
+
+                    return $this->response->error($xacode_res['msg'], $xacode_res['code']);
+                }
+                $photographer_work->xacode = $xacode_res['xacode'];
+            }
+            if (!$photographer_work->xacode_hyaline) {
+                $xacode_res = WechatServer::generateXacode($scene);
+                if ($xacode_res['code'] != 200) {
+                    \DB::rollback();//回滚事务
+
+                    return $this->response->error($xacode_res['msg'], $xacode_res['code']);
+                }
+                $photographer_work->xacode_hyaline = $xacode_res['xacode'];
+            }
             $photographer_work->customer_name = $request->customer_name;
             $photographer_work->photographer_work_customer_industry_id = $request->photographer_work_customer_industry_id;
             $photographer_work->project_amount = $request->project_amount;
@@ -252,11 +270,6 @@ class DraftController extends UserGuardController
                 }
             }
             \DB::commit();//提交事务
-            $generateResult = PhotographerWork::generateShare($photographer_work->id);
-            if (!$generateResult['result']) {
-                \Log::debug('photographer_work'.$photographer_work->id);
-            }
-            Photographer::generateShare($photographer->id);
 
             return $this->response->noContent();
         } catch (\Exception $e) {
@@ -328,15 +341,28 @@ class DraftController extends UserGuardController
             $photographer->photographer_rank_id = $request->photographer_rank_id;
             $photographer->wechat = $request->wechat;
             $photographer->mobile = $request->mobile;
-            $photographer->created_at=date('Y-m-d H:i:s');
+            $photographer->created_at = date('Y-m-d H:i:s');
             $photographer->status = 200;
-            $photographer->save();
-            if ($photographer->avatar) {
-                $scene = "0/{$photographer->id}";
-                $xacodes = User::createXacode($photographer->id, 'other', $scene, 'all');
-                $user->xacode = $xacodes['hyaline'];
-                $user->xacode_square = $xacodes['square'];
+            $scene = '0/'.$photographer->id;
+            if (!$photographer->xacode) {
+                $xacode_res = WechatServer::generateXacode($scene,false);
+                if ($xacode_res['code'] != 200) {
+                    \DB::rollback();//回滚事务
+
+                    return $this->response->error($xacode_res['msg'], $xacode_res['code']);
+                }
+                $photographer->xacode = $xacode_res['xacode'];
             }
+            if (!$photographer->xacode_hyaline) {
+                $xacode_res = WechatServer::generateXacode($scene);
+                if ($xacode_res['code'] != 200) {
+                    \DB::rollback();//回滚事务
+
+                    return $this->response->error($xacode_res['msg'], $xacode_res['code']);
+                }
+                $photographer->xacode_hyaline = $xacode_res['xacode'];
+            }
+            $photographer->save();
             $photographer_work = $photographer->photographerWorks()->where(['status' => 0])->first();
             if (!$photographer_work) {
                 \DB::rollback();//回滚事务
@@ -400,7 +426,7 @@ class DraftController extends UserGuardController
                                 ).'摄影师',
                             'keyword4' => $photographer->wechat,
                             'keyword5' => $photographer->mobile,
-                            'remark' => '云作品客服微信'.SystemConfig::getVal('customer_wechat','works'),
+                            'remark' => '云作品客服微信'.SystemConfig::getVal('customer_wechat', 'works'),
                         ],
                     ]
                 );
@@ -481,8 +507,7 @@ class DraftController extends UserGuardController
                     $photographer_work_source->sort = $k + 1;
                     $photographer_work_source->status = 200;
                     $photographer_work_source->save();
-                }
-                else {
+                } else {
                     $photographer_work_source = PhotographerWorkSource::create();
                     $photographer_work_source->photographer_work_id = $photographer_work->id;
                     $photographer_work_source->key = $v['key'];
@@ -528,8 +553,7 @@ class DraftController extends UserGuardController
                                 $res
                             );
                         }
-                    }
-                    elseif ($photographer_work_source->type == 'video') {
+                    } elseif ($photographer_work_source->type == 'video') {
                         $res = SystemServer::request('GET', $photographer_work_source->url.'?avinfo');
                         if ($res['code'] == 200) {
                             if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
@@ -642,6 +666,26 @@ class DraftController extends UserGuardController
             if (!$photographer_work) {
                 $photographer_work = PhotographerWork::create();
                 $photographer_work->photographer_id = $photographer->id;
+                $photographer_work->save();
+            }
+            $scene = '1/'.$photographer_work->id;
+            if (!$photographer_work->xacode) {
+                $xacode_res = WechatServer::generateXacode($scene,false);
+                if ($xacode_res['code'] != 200) {
+                    \DB::rollback();//回滚事务
+
+                    return $this->response->error($xacode_res['msg'], $xacode_res['code']);
+                }
+                $photographer_work->xacode = $xacode_res['xacode'];
+            }
+            if (!$photographer_work->xacode_hyaline) {
+                $xacode_res = WechatServer::generateXacode($scene);
+                if ($xacode_res['code'] != 200) {
+                    \DB::rollback();//回滚事务
+
+                    return $this->response->error($xacode_res['msg'], $xacode_res['code']);
+                }
+                $photographer_work->xacode_hyaline = $xacode_res['xacode'];
             }
             $photographer_work->customer_name = $request->customer_name;
             $photographer_work->photographer_work_customer_industry_id = $request->photographer_work_customer_industry_id;
@@ -663,15 +707,7 @@ class DraftController extends UserGuardController
                     $photographer_work_tag->save();
                 }
             }
-
             \DB::commit();//提交事务
-
-            // 这俩分享图也不能放到这里
-//            $generateResult = PhotographerWork::generateShare($photographer_work->id);
-//            if (!$generateResult['result']) {
-//                \Log::debug('photographer_work'.$photographer_work->id);
-//            }
-//            Photographer::generateShare($photographer->id);
 
             return $this->responseParseArray(['photographer_work_id' => $photographer_work->id]);
         } catch (\Exception $e) {

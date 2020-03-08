@@ -220,6 +220,7 @@ class MyController extends UserGuardController
         $photographer = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
         $photographer = SystemServer::parseRegionName($photographer);
         $photographer = SystemServer::parsePhotographerRank($photographer);
+        $photographer['xacode'] = Photographer::xacode($photographer['id'], false);
 
         return $this->responseParseArray($photographer);
     }
@@ -236,7 +237,7 @@ class MyController extends UserGuardController
             return $this->response->error('摄影师不存在', 500);
         }
         $keywords = $request->keywords;
-        if ($request->keywords!==null && $request->keywords!==''){
+        if ($request->keywords !== null && $request->keywords !== '') {
             $whereRaw = "(photographer_works.customer_name like ? || photographer_work_customer_industries.name like ? || photographer_work_categories.name like ? || EXISTS (SELECT * from photographer_work_tags WHERE photographer_work_tags.photographer_work_id=photographer_works.id AND photographer_work_tags.name like ?))";
             $whereRaw2 = ["%{$keywords}%", "%{$keywords}%", "%{$keywords}%", "%{$keywords}%"];
         }
@@ -251,7 +252,7 @@ class MyController extends UserGuardController
             '=',
             'photographer_work_categories.id'
         );
-        if ($request->keywords!==null && $request->keywords!=='') {
+        if ($request->keywords !== null && $request->keywords !== '') {
             $photographer_works = $photographer_works->whereRaw(
                 $whereRaw,
                 $whereRaw2
@@ -333,6 +334,7 @@ class MyController extends UserGuardController
         $photographer_work['photographer'] = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
         $photographer_work['photographer'] = SystemServer::parseRegionName($photographer_work['photographer']);
         $photographer_work['photographer'] = SystemServer::parsePhotographerRank($photographer_work['photographer']);
+        $photographer_work['xacode'] = PhotographerWork::xacode($photographer_work['id'], false);
 
         return $this->response->array($photographer_work);
     }
@@ -480,8 +482,6 @@ class MyController extends UserGuardController
             $photographer_work->status = 400;
             $photographer_work->save();
             \DB::commit();//提交事务
-            // 重新生成个人作品集图片
-            Photographer::generateShare($photographer->id);
 
             return $this->response->noContent();
         } catch (\Exception $e) {
@@ -491,6 +491,10 @@ class MyController extends UserGuardController
         }
     }
 
+    /**
+     * 作品集相关参数显影
+     * @param UserRequest $request
+     */
     public function photographerWorkHide(UserRequest $request)
     {
         $this->notPhotographerIdentityVerify();
@@ -524,8 +528,6 @@ class MyController extends UserGuardController
             return $this->response->error("没有更改成功", 500);
         }
 
-
-        PhotographerWork::generateShare($request->photographer_work_id);
 
         return $this->response->array(
             [
@@ -570,14 +572,8 @@ class MyController extends UserGuardController
             if (!$photographer || $photographer->status != 200) {
                 return $this->response->error('摄影师不存在', 500);
             }
-            if ($request->avatar) {
-                $user = auth($this->guard)->user();
-                $photographer->avatar = (string)$request->avatar;
-                $scene = "0/{$photographer->id}";
-                $xacodes = User::createXacode($photographer->id, 'other', $scene, 'all');
-                $user->xacode = $xacodes['hyaline'];
-                $user->xacode_square = $xacodes['square'];
-                $user->save();
+            if ($request->avatar !== null) {
+                $photographer->avatar = $request->avatar;
             }
             $photographer->name = $request->name;
             $photographer->gender = $request->gender ?? 0;
@@ -589,9 +585,6 @@ class MyController extends UserGuardController
             $photographer->mobile = $request->mobile;
             $photographer->save();
             \DB::commit();//提交事务
-
-            // 重新生成一下海报
-            Photographer::generateShare($photographer->id);
 
             return $this->response->noContent();
         } catch (\Exception $e) {
@@ -617,12 +610,6 @@ class MyController extends UserGuardController
             }
             $photographer->avatar = (string)$request->avatar;
             $photographer->save();
-            $user = auth($this->guard)->user();
-            $scene = "0/{$photographer->id}";
-            $xacodes = User::createXacode($photographer->id, 'other', $scene, 'all');
-            $user->xacode = $xacodes['hyaline'];
-            $user->xacode_square = $xacodes['square'];
-            $user->save();
             \DB::commit();//提交事务
 
             return $this->response->noContent();
@@ -962,14 +949,6 @@ class MyController extends UserGuardController
             }
             $photographer_work->photographerWorkSources()->where(['status' => 300])->update(['status' => 400]);
             \DB::commit();//提交事务
-//            $generateResult = PhotographerWork::generateShare($photographer_work->id);
-//            if (!$generateResult['result']) {
-//                \Log::debug('photographer_work'.$photographer_work->id);
-//            }
-//            $generateResult = Photographer::generateShare($photographer_work->photographer_id);
-//            if (!$generateResult['result']) {
-//                \Log::debug('photographer'.$photographer_work->photographer_id);
-//            }
 
             return $this->response->noContent();
         } catch (\Exception $e) {
