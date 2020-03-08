@@ -107,12 +107,14 @@ class QiniuController extends BaseController
     {
         $request_data = \Request::all();
         \Log::error(var_export($request_data, 1));
+        // 判断作品集资源是否存在
         $photographerWorkSource = PhotographerWorkSource::where(
             ['id' => $request_data['photographer_work_source_id']]
         )->first();
         if (!$photographerWorkSource) {
             return ErrLogServer::QiniuNotifyFop($request_data['step'], '作品集资源不存在：', $request_data);
         }
+        // 判断作品集是否存在
         $photographerWork = PhotographerWork::where(['id' => $photographerWorkSource->photographer_work_id])->first();
         if (!$photographerWork) {
             return ErrLogServer::QiniuNotifyFop(
@@ -122,6 +124,7 @@ class QiniuController extends BaseController
                 $photographerWorkSource
             );
         }
+        // 判断摄影师是否存在
         $photographer = Photographer::where(['id' => $photographerWork->photographer_id])->first();
         if (!$photographer) {
             return ErrLogServer::QiniuNotifyFop(
@@ -131,111 +134,19 @@ class QiniuController extends BaseController
                 $photographerWorkSource
             );
         }
+        // 判断作者是否存在
         $user = User::where(['photographer_id' => $photographerWork->photographer_id])->first();
         if (!$user) {
             return ErrLogServer::QiniuNotifyFop($request_data['step'], '用户不存在', $request_data, $photographerWorkSource);
         }
+        // 设置七牛信息
+        $bucket = 'zuopin';
+        $buckets = config('custom.qiniu.buckets');
+        $domain = $buckets[$bucket]['domain'] ?? '';
+
         try {
-            if ($request_data['code'] == 0) {
-                if (isset($request_data['items'][0]) && $request_data['items'][0]['code'] == 0) {
-                    $bucket = 'zuopin';
-                    $buckets = config('custom.qiniu.buckets');
-                    $domain = $buckets[$bucket]['domain'] ?? '';
-                    if ($request_data['step'] == 1) {
-                        $photographerWorkSource->deal_key = $request_data['items'][0]['key'];
-                        $photographerWorkSource->deal_url = $domain . '/' . $request_data['items'][0]['key'];
-                        $photographerWorkSource->rich_key = $request_data['items'][0]['key'];
-                        $photographerWorkSource->rich_url = $domain . '/' . $request_data['items'][0]['key'];
-                        $photographerWorkSource->save();
-                        if ($photographerWorkSource->type == 'image') {
-                            $response = SystemServer::request('GET', $photographerWorkSource->deal_url . '?imageInfo');
-                            if ($response['code'] == 200) {
-                                if (isset($response['data']['code']) && $response['data']['code'] != 200) {
-                                    return ErrLogServer::QiniuNotifyFop(
-                                        $request_data['step'],
-                                        '七牛请求图片信息接口失败',
-                                        $request_data,
-                                        $photographerWorkSource,
-                                        $response['data']
-                                    );
-                                } else {
-                                    $photographerWorkSource->deal_size = $response['data']['size'];
-                                    $photographerWorkSource->deal_width = $response['data']['width'];
-                                    $photographerWorkSource->deal_height = $response['data']['height'];
-                                    $photographerWorkSource->rich_size = $response['data']['size'];
-                                    $photographerWorkSource->rich_width = $response['data']['width'];
-                                    $photographerWorkSource->rich_height = $response['data']['height'];
-                                    $photographerWorkSource->save();
-
-                                    PhotographerWork::generateOneWaterMark($photographerWorkSource, $photographerWork, $photographer);
-                                }
-                            } else {
-                                return ErrLogServer::QiniuNotifyFop(
-                                    $request_data['step'],
-                                    '系统请求七牛图片信息接口时失败：' . $response['msg'],
-                                    $request_data,
-                                    $photographerWorkSource,
-                                    $response
-                                );
-                            }
-                        } elseif ($photographerWorkSource->type == 'video') {
-
-                        }
-                    }
-                    elseif ($request_data['step'] == 2) { // 这个是接受水印的处理
-                        if ($photographerWorkSource->type == 'image') {
-                            $sort = $request_data['sort'] ?? 0;
-                            $key = $request_data['items'][$sort]['key'] ?? $request_data['items'][0]['key'];
-                            $photographerWorkSource->rich_key = $key;
-                            $photographerWorkSource->rich_url = $domain . '/' . $key;
-                            $photographerWorkSource->save();
-                            $response = SystemServer::request('GET', $photographerWorkSource->rich_url . '?imageInfo');
-                            if ($response['code'] == 200) {
-                                if (isset($response['data']['code']) && $response['data']['code'] != 200) {
-                                    return ErrLogServer::QiniuNotifyFop(
-                                        $request_data['step'],
-                                        '七牛请求图片信息接口失败',
-                                        $request_data,
-                                        $photographerWorkSource,
-                                        $response['data']
-                                    );
-                                } else {
-                                    $photographerWorkSource->rich_size = $response['data']['size'];
-                                    $photographerWorkSource->rich_width = $response['data']['width'];
-                                    $photographerWorkSource->rich_height = $response['data']['height'];
-                                    $photographerWorkSource->save();
-                                }
-                            } else {
-                                return ErrLogServer::QiniuNotifyFop(
-                                    $request_data['step'],
-                                    '系统请求七牛图片信息接口时失败：' . $response['msg'],
-                                    $request_data,
-                                    $photographerWorkSource,
-                                    $response
-                                );
-                            }
-                        } elseif ($photographerWorkSource->type == 'video') {
-
-                        }
-                    }
-                    elseif ($request_data['step'] == 3) {  // 先处理处理1200的结果，在发送生成水印图
-
-                    } elseif ($request_data['step'] == 4) {  // 把持久化的图放到作品集
-                        $photographerWork->share_url = $request_data['items'][0]['key'];
-                        $photographerWork->save();
-                    } elseif ($request_data['step'] == 5) {  // 把持久化的图放到作品集
-                        $photographer->share_url = $request_data['items'][0]['key'];
-                        $photographer->save();
-                    }
-                } else {
-                    return ErrLogServer::QiniuNotifyFop(
-                        $request_data['step'],
-                        '七牛持久化接口通知第一条持久化报错或返回信息不存在',
-                        $request_data,
-                        $photographerWorkSource
-                    );
-                }
-            } else {
+            // 判断如果code 不等于0报错
+            if ($request_data['code'] != 0) {
                 return ErrLogServer::QiniuNotifyFop(
                     $request_data['step'],
                     '七牛持久化接口通知报错',
@@ -243,6 +154,108 @@ class QiniuController extends BaseController
                     $photographerWorkSource
                 );
             }
+            // 判断作品集第0个不存在报错，
+            if (!isset($request_data['items'][0]) ||
+                (isset($request_data['items'][0]) && $request_data['items'][0]['code'] != 0)
+            ) {
+                return ErrLogServer::QiniuNotifyFop(
+                    $request_data['step'],
+                    '七牛持久化接口通知第一条持久化报错或返回信息不存在',
+                    $request_data,
+                    $photographerWorkSource
+                );
+            }
+
+            if ($request_data['step'] == 1) {
+                $photographerWorkSource->deal_key = $request_data['items'][0]['key'];
+                $photographerWorkSource->deal_url = $domain . '/' . $request_data['items'][0]['key'];
+                $photographerWorkSource->rich_key = $request_data['items'][0]['key'];
+                $photographerWorkSource->rich_url = $domain . '/' . $request_data['items'][0]['key'];
+                $photographerWorkSource->save();
+                if ($photographerWorkSource->type == 'image') {
+                    $response = SystemServer::request('GET', $photographerWorkSource->deal_url . '?imageInfo');
+                    if ($response['code'] == 200) {
+                        if (isset($response['data']['code']) && $response['data']['code'] != 200) {
+                            return ErrLogServer::QiniuNotifyFop(
+                                $request_data['step'],
+                                '七牛请求图片信息接口失败',
+                                $request_data,
+                                $photographerWorkSource,
+                                $response['data']
+                            );
+                        } else {
+                            $photographerWorkSource->deal_size = $response['data']['size'];
+                            $photographerWorkSource->deal_width = $response['data']['width'];
+                            $photographerWorkSource->deal_height = $response['data']['height'];
+                            $photographerWorkSource->rich_size = $response['data']['size'];
+                            $photographerWorkSource->rich_width = $response['data']['width'];
+                            $photographerWorkSource->rich_height = $response['data']['height'];
+                            $photographerWorkSource->save();
+
+                            PhotographerWork::generateOneWaterMark($photographerWorkSource, $photographerWork, $photographer);
+                        }
+                    } else {
+                        return ErrLogServer::QiniuNotifyFop(
+                            $request_data['step'],
+                            '系统请求七牛图片信息接口时失败：' . $response['msg'],
+                            $request_data,
+                            $photographerWorkSource,
+                            $response
+                        );
+                    }
+                } elseif ($photographerWorkSource->type == 'video') {
+
+                }
+            }  // 先处理处理1200的结果，在发送生成水印图
+            elseif ($request_data['step'] == 2) { // 这个是接受水印的处理
+                switch ($photographerWorkSource->type) {
+                    case "image":
+                        $sort = $request_data['sort'] ?? 0;
+                        $key = $request_data['items'][$sort]['key'] ?? $request_data['items'][0]['key'];
+                        $photographerWorkSource->rich_key = $key;
+                        $photographerWorkSource->rich_url = $domain . '/' . $key;
+                        $photographerWorkSource->save();
+                        $response = SystemServer::request('GET', $photographerWorkSource->rich_url . '?imageInfo');
+                        if ($response['code'] != 200) {
+                            return ErrLogServer::QiniuNotifyFop(
+                                $request_data['step'],
+                                '系统请求七牛图片信息接口时失败：' . $response['msg'],
+                                $request_data,
+                                $photographerWorkSource,
+                                $response
+                            );
+                        }
+
+                        if (isset($response['data']['code']) && $response['data']['code'] != 200) {
+                            return ErrLogServer::QiniuNotifyFop(
+                                $request_data['step'],
+                                '七牛请求图片信息接口失败',
+                                $request_data,
+                                $photographerWorkSource,
+                                $response['data']
+                            );
+                        }
+
+                        $photographerWorkSource->rich_size = $response['data']['size'];
+                        $photographerWorkSource->rich_width = $response['data']['width'];
+                        $photographerWorkSource->rich_height = $response['data']['height'];
+                        $photographerWorkSource->save();
+
+                        break;
+                    case "video":
+                        break;
+                    default:
+                }
+
+            } elseif ($request_data['step'] == 3) {
+            } elseif ($request_data['step'] == 4) {  // 作品集分享图
+                $photographerWork->share_url = $request_data['items'][0]['key'];
+                $photographerWork->save();
+            } elseif ($request_data['step'] == 5) {  // 个人分享图
+                $photographer->share_url = $request_data['items'][0]['key'];
+                $photographer->save();
+            }
+
         } catch (\Exception $e) {
             return ErrLogServer::QiniuNotifyFop(
                 $request_data['step'],

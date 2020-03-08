@@ -240,6 +240,48 @@ class PhotographerWork extends Model
         return ['result' => true, 'msg' => "成功"];
     }
 
+    public static function generateDealImage($photographer_work_id)
+    {
+        $photographerWork = PhotographerWork::find($photographer_work_id);
+        if (empty($photographerWork)) {
+            throw new \LogicException("作品集不存在");
+        }
+
+        $photographer = Photographer::where(['id' => $photographerWork->photographer_id])->first();
+        if (!$photographer) {
+            throw new \LogicException("摄影师不存在");
+        }
+
+        $photographerWorkSources = PhotographerWorkSource::where([
+            'photographer_work_id' => $photographer_work_id,
+            'status' => 200,
+        ])->get();
+
+        foreach ($photographerWorkSources as $photographerWorkSource) {
+            $fops = ["imageMogr2/auto-orient/thumbnail/1200x|imageMogr2/auto-orient/colorspace/srgb|imageslim"];
+            $bucket = 'zuopin';
+            $qrst = SystemServer::qiniuPfop(
+                $bucket,
+                $photographerWorkSource->key,
+                $fops,
+                null,
+                config(
+                    'app.url'
+                ).'/api/notify/qiniu/fop?photographer_work_source_id='.$photographerWorkSource->id.'&step=1',
+                true
+            );
+            if ($qrst['err']) {
+                ErrLogServer::QiniuNotifyFop(
+                    0,
+                    '七牛持久化接口返回错误信息',
+                    "",
+                    $photographerWorkSource,
+                    $qrst['err']
+                );
+            }
+        }
+    }
+
     // 为作品集生成水印图
     public static function generateWatermark($photographer_work_id)
     {
@@ -283,8 +325,6 @@ class PhotographerWork extends Model
             $hanlde[] = "|watermark/3/image/{$water1_image}/gravity/North/dx/0/dy/0/";
             $hanlde[] = "|watermark/3/image/" . base64_encode("https://file.zuopin.cloud/Fgz6Zf0EmsLVLvpCf73jBDaCPr9T") . "/gravity/South/dx/0/dy/0/";
             $hanlde[] = "|watermark/3/image/{$water2_image}/gravity/SouthEast/dx/57/dy/47/";
-
-
             $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode($photographerWork->customer_name) . "/fontsize/800/fill/" . base64_urlSafeEncode("#323232") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/71/dy/162/";
             $fistX = 75;
             // 根据字体来判断宽度 中文40 数字字母20
@@ -301,10 +341,9 @@ class PhotographerWork extends Model
             $secondX = $fistX + 45;
             $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer->name) . "/fontsize/800/fill/" . base64_urlSafeEncode("#C8C8C8") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/" . $secondX . "/dy/162/";
 
-            $count = PhotographerWorkSource::where('photographer_work_id', $photographerWorkSource->photographer_work_id)
-                ->where('status', 200)
-                ->count();
+            $count = PhotographerWorkSource::where('photographer_work_id', $photographerWorkSource->photographer_work_id)->where('status', 200)->count();
             $text = $count - 1 <= 0 ? '微信扫一扫，看我的全部作品' : "微信扫一扫，看剩余" . ($count - 1) . "张作品";
+
             $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode($text) . "/fontsize/609/fill/" . base64_urlSafeEncode("#F7F7F7") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/100/dy/78/";
             $hanlde[] = "|imageslim";
 
@@ -320,9 +359,6 @@ class PhotographerWork extends Model
                 ) . '/api/notify/qiniu/fop?photographer_work_source_id=' . $photographerWorkSource->id . '&step=2&width=1200&height=' . $photographerWorkSource->deal_height . '&sort=' . $sort,
                 true
             );
-
-
-            Log::debug(var_export($qrst, 1));
             if ($qrst['err']) {
                 return ErrLogServer::QiniuNotifyFop(
                     2,
@@ -364,8 +400,6 @@ class PhotographerWork extends Model
         $hanlde[] = "|watermark/3/image/{$water1_image}/gravity/North/dx/0/dy/0/";
         $hanlde[] = "|watermark/3/image/" . base64_encode("https://file.zuopin.cloud/Fgz6Zf0EmsLVLvpCf73jBDaCPr9T") . "/gravity/South/dx/0/dy/0/";
         $hanlde[] = "|watermark/3/image/{$water2_image}/gravity/SouthEast/dx/57/dy/47/";
-
-
         $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode($photographerWork->customer_name) . "/fontsize/800/fill/" . base64_urlSafeEncode("#323232") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/71/dy/162/";
         $fistX = 75;
         // 根据字体来判断宽度 中文40 数字字母20
@@ -389,8 +423,6 @@ class PhotographerWork extends Model
         $hanlde[] = "|imageslim";
 
         $fops[] = implode($hanlde);
-
-        var_dump("去执行了", 1);
         $qrst = SystemServer::qiniuPfop(
             $bucket,
             $photographerWorkSource->key,
@@ -401,7 +433,6 @@ class PhotographerWork extends Model
             ) . '/api/notify/qiniu/fop?photographer_work_source_id=' . $photographerWorkSource->id . '&step=2&width=1200&height=' . $photographerWorkSource->deal_height . '&sort=0',
             true
         );
-
         if ($qrst['err']) {
             return ErrLogServer::QiniuNotifyFop(
                 2,
