@@ -121,7 +121,90 @@ class PhotographerController extends BaseController
     }
 
     /**
-     * 获取用户作品的上一个和下一个id
+     * 用户项目信息
+     * @param PhotographerRequest $request
+     */
+    public function work(PhotographerRequest $request)
+    {
+        $photographer_work = PhotographerWork::where(
+            ['status' => 200, 'id' => $request->photographer_work_id]
+        )->first();
+        if (!$photographer_work) {
+            return $this->response->error('用户项目不存在', 500);
+        }
+        $photographer = User::photographer($photographer_work->photographer_id);
+        if (!$photographer || $photographer->status != 200) {
+            return $this->response->error('用户不存在', 500);
+        }
+        $photographer_work_sources = $photographer_work->photographerWorkSources()->select(
+            PhotographerWorkSource::allowFields()
+        )->where('status', 200)->orderBy('sort', 'asc')->get();
+        $photographer_work_sources = SystemServer::getPhotographerWorkSourcesThumb($photographer_work_sources);
+        $photographer_work_sources = $photographer_work_sources->toArray();
+        $photographer_work_tags = $photographer_work->photographerWorkTags()->select(
+            PhotographerWorkTag::allowFields()
+        )->get()->toArray();
+        $photographer_work = ArrServer::inData($photographer_work->toArray(), PhotographerWork::allowFields());
+        $photographer_work = ArrServer::toNullStrData(
+            $photographer_work,
+            ['sheets_number', 'shooting_duration']
+        );
+        $photographer_work = SystemServer::parsePhotographerWorkCover($photographer_work);
+        $photographer_work = SystemServer::parsePhotographerWorkCustomerIndustry($photographer_work);
+        $photographer_work = SystemServer::parsePhotographerWorkCategory($photographer_work);
+        $photographer_work['sources'] = $photographer_work_sources;
+        $photographer_work['tags'] = $photographer_work_tags;
+        $photographer_work['photographer'] = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
+        $photographer_work['photographer'] = SystemServer::parseRegionName($photographer_work['photographer']);
+        $photographer_work['photographer'] = SystemServer::parsePhotographerRank($photographer_work['photographer']);
+        $photographer_work['xacode'] = PhotographerWork::xacode($photographer_work['id'], false);
+
+        return $this->response->array($photographer_work);
+    }
+
+    /**
+     * 用户项目资源信息
+     * @param PhotographerRequest $request
+     */
+    public function workSource(PhotographerRequest $request)
+    {
+        $photographer_work_source = PhotographerWorkSource::select(PhotographerWorkSource::allowFields())->where(
+            ['status' => 200, 'id' => $request->photographer_work_source_id]
+        )->first();
+        if (!$photographer_work_source) {
+            return $this->response->error('用户项目资源不存在', 500);
+        }
+        $photographer_work = PhotographerWork::select(PhotographerWork::allowFields())->where(
+            ['status' => 200, 'id' => $photographer_work_source->photographer_work_id]
+        )->first();
+        if (!$photographer_work) {
+            return $this->response->error('用户项目不存在', 500);
+        }
+        $photographer = User::photographer($photographer_work->photographer_id);
+        if (!$photographer || $photographer->status != 200) {
+            return $this->response->error('用户不存在', 500);
+        }
+        $photographer_work_tags = $photographer_work->photographerWorkTags()->select(
+            PhotographerWorkTag::allowFields()
+        )->get()->toArray();
+        $photographer_work = ArrServer::inData($photographer_work->toArray(), PhotographerWork::allowFields());
+        $photographer_work = ArrServer::toNullStrData(
+            $photographer_work,
+            ['sheets_number', 'shooting_duration']
+        );
+        $photographer_work = SystemServer::parsePhotographerWorkCover($photographer_work);
+        $photographer_work = SystemServer::parsePhotographerWorkCustomerIndustry($photographer_work);
+        $photographer_work = SystemServer::parsePhotographerWorkCategory($photographer_work);
+        $photographer_work['tags'] = $photographer_work_tags;
+        $photographer_work['photographer'] = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
+        $photographer_work['photographer'] = SystemServer::parseRegionName($photographer_work['photographer']);
+        $photographer_work['photographer'] = SystemServer::parsePhotographerRank($photographer_work['photographer']);
+        $photographer_work_source['work']=$photographer_work;
+        return $this->responseParseArray($photographer_work_source);
+    }
+
+    /**
+     * 获取用户项目的上一个和下一个id
      * @param PhotographerRequest $request
      */
     public function workNext(Request $request)
@@ -186,9 +269,9 @@ class PhotographerController extends BaseController
                 $previous_photographer_work_id = $photographerWorks[$key + 1] ?? 0;
             }
         }
-        if($next_photographer_work_id>0){
-            if($request->is_select_work){
-                $photographer_work=PhotographerWork::find($next_photographer_work_id);
+        if ($next_photographer_work_id > 0) {
+            if ($request->is_select_work) {
+                $photographer_work = PhotographerWork::find($next_photographer_work_id);
                 $photographer_work_sources = $photographer_work->photographerWorkSources()->select(
                     PhotographerWorkSource::allowFields()
                 )->where('status', 200)->orderBy('sort', 'asc')->get();
@@ -207,20 +290,25 @@ class PhotographerController extends BaseController
                 $photographer_work = SystemServer::parsePhotographerWorkCategory($photographer_work);
                 $photographer_work['sources'] = $photographer_work_sources;
                 $photographer_work['tags'] = $photographer_work_tags;
-                $photographer_work['photographer'] = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
+                $photographer_work['photographer'] = ArrServer::inData(
+                    $photographer->toArray(),
+                    Photographer::allowFields()
+                );
                 $photographer_work['photographer'] = SystemServer::parseRegionName($photographer_work['photographer']);
-                $photographer_work['photographer'] = SystemServer::parsePhotographerRank($photographer_work['photographer']);
-            }else{
-                $photographer_work=[];
+                $photographer_work['photographer'] = SystemServer::parsePhotographerRank(
+                    $photographer_work['photographer']
+                );
+            } else {
+                $photographer_work = [];
             }
             $photographer_work['xacode'] = PhotographerWork::xacode($next_photographer_work_id, false);
-            $next=$photographer_work;
-        }else{
-            $next=[];
+            $next = $photographer_work;
+        } else {
+            $next = [];
         }
-        if($previous_photographer_work_id>0){
-            if($request->is_select_work){
-                $photographer_work=PhotographerWork::find($previous_photographer_work_id);
+        if ($previous_photographer_work_id > 0) {
+            if ($request->is_select_work) {
+                $photographer_work = PhotographerWork::find($previous_photographer_work_id);
                 $photographer_work_sources = $photographer_work->photographerWorkSources()->select(
                     PhotographerWorkSource::allowFields()
                 )->where('status', 200)->orderBy('sort', 'asc')->get();
@@ -239,61 +327,24 @@ class PhotographerController extends BaseController
                 $photographer_work = SystemServer::parsePhotographerWorkCategory($photographer_work);
                 $photographer_work['sources'] = $photographer_work_sources;
                 $photographer_work['tags'] = $photographer_work_tags;
-                $photographer_work['photographer'] = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
+                $photographer_work['photographer'] = ArrServer::inData(
+                    $photographer->toArray(),
+                    Photographer::allowFields()
+                );
                 $photographer_work['photographer'] = SystemServer::parseRegionName($photographer_work['photographer']);
-                $photographer_work['photographer'] = SystemServer::parsePhotographerRank($photographer_work['photographer']);
-            }else{
-                $photographer_work=[];
+                $photographer_work['photographer'] = SystemServer::parsePhotographerRank(
+                    $photographer_work['photographer']
+                );
+            } else {
+                $photographer_work = [];
             }
             $photographer_work['xacode'] = PhotographerWork::xacode($previous_photographer_work_id, false);
-            $previous=$photographer_work;
-        }else{
-            $previous=[];
+            $previous = $photographer_work;
+        } else {
+            $previous = [];
         }
 
-        return $this->response->array(compact('next','previous'));
-    }
-
-    /**
-     * 用户项目信息
-     * @param PhotographerRequest $request
-     */
-    public function work(PhotographerRequest $request)
-    {
-        $photographer_work = PhotographerWork::where(
-            ['status' => 200, 'id' => $request->photographer_work_id]
-        )->first();
-        if (!$photographer_work) {
-            return $this->response->error('用户项目不存在', 500);
-        }
-        $photographer = User::photographer($photographer_work->photographer_id);
-        if (!$photographer || $photographer->status != 200) {
-            return $this->response->error('用户不存在', 500);
-        }
-        $photographer_work_sources = $photographer_work->photographerWorkSources()->select(
-            PhotographerWorkSource::allowFields()
-        )->where('status', 200)->orderBy('sort', 'asc')->get();
-        $photographer_work_sources = SystemServer::getPhotographerWorkSourcesThumb($photographer_work_sources);
-        $photographer_work_sources = $photographer_work_sources->toArray();
-        $photographer_work_tags = $photographer_work->photographerWorkTags()->select(
-            PhotographerWorkTag::allowFields()
-        )->get()->toArray();
-        $photographer_work = ArrServer::inData($photographer_work->toArray(), PhotographerWork::allowFields());
-        $photographer_work = ArrServer::toNullStrData(
-            $photographer_work,
-            ['sheets_number', 'shooting_duration']
-        );
-        $photographer_work = SystemServer::parsePhotographerWorkCover($photographer_work);
-        $photographer_work = SystemServer::parsePhotographerWorkCustomerIndustry($photographer_work);
-        $photographer_work = SystemServer::parsePhotographerWorkCategory($photographer_work);
-        $photographer_work['sources'] = $photographer_work_sources;
-        $photographer_work['tags'] = $photographer_work_tags;
-        $photographer_work['photographer'] = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
-        $photographer_work['photographer'] = SystemServer::parseRegionName($photographer_work['photographer']);
-        $photographer_work['photographer'] = SystemServer::parsePhotographerRank($photographer_work['photographer']);
-        $photographer_work['xacode'] = PhotographerWork::xacode($photographer_work['id'], false);
-
-        return $this->response->array($photographer_work);
+        return $this->response->array(compact('next', 'previous'));
     }
 
     /**
@@ -311,7 +362,6 @@ class PhotographerController extends BaseController
 
         return $this->responseParseArray(compact('url'));
     }
-
 
     /**
      * 新用户海报

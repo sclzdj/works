@@ -74,6 +74,11 @@ class PhotographerRequest extends BaseRequest
                     'is_select_work' => 'integer|in:0,1',
                 ];
                 break;
+            case 'photographerWorkSource':
+                $rules = [
+                    'photographer_work_source_id' => 'required|integer',
+                ];
+                break;
             case 'rankingList':
                 $rules = array_merge($rules, $this->predefined['limit']['rules']);
                 break;
@@ -183,6 +188,12 @@ class PhotographerRequest extends BaseRequest
                     'is_select_work.in' => '是否查出项目信息错误',
                 ];
                 break;
+            case 'photographerWorkSource':
+                $messages = [
+                    'photographer_work_source_id.required' => '作品id必须传递',
+                    'photographer_work_source_id.integer' => '作品id必须为数字',
+                ];
+                break;
             case 'rankingList':
                 $messages = array_merge($messages, $this->predefined['limit']['messages']);
                 break;
@@ -221,6 +232,7 @@ class PhotographerRequest extends BaseRequest
                 'GET|App\Http\Controllers\Api\PhotographerController@workPoster',
             ],
             'xacodeNext' => ['GET|App\Http\Controllers\Api\PhotographerController@xacodeNext'],
+            'photographerWorkSource' => ['GET|App\Http\Controllers\Api\PhotographerController@workSource'],
             'rankingList' => ['GET|App\Http\Controllers\Api\PhotographerController@rankingList'],
         ];
     }
