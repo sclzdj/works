@@ -52,8 +52,7 @@ class StarController extends BaseController
                 ->orderBy('sort', 'desc')
                 ->orderBy('id', 'desc')
                 ->pluck('photographer_id');
-        }
-        else {
+        } else {
             $page = ($page - 1) * $size;
             $photographer_ids = (new Star())
                 ->skip($page)
@@ -65,7 +64,9 @@ class StarController extends BaseController
 
         $this->data['data'] = array();
         foreach ($photographer_ids as $photographer_id) {
-            $photographer = Photographer::with(['photographerWorks' => function ($query) {$query->where('status', 200);}])
+            $photographer = Photographer::with(['photographerWorks' => function ($query) {
+                $query->where('status', 200);
+            }])
                 ->where('photographers.id', $photographer_id)
                 ->leftJoin('photographer_ranks', 'photographers.photographer_rank_id', '=', 'photographer_ranks.id')
                 ->select([
@@ -79,12 +80,12 @@ class StarController extends BaseController
         }
 
         foreach ($this->data['data'] as &$datum) {
-            $datum['province']  = SystemArea::select(['id','name','short_name'])->where('id', $datum['province'])->first();
-            $datum['city']  = SystemArea::select(['id','name','short_name'])->where('id', $datum['city'])->first();
-            $datum['area']  = SystemArea::select(['id','name','short_name'])->where('id', $datum['area'])->first();
+            $datum['province'] = SystemArea::select(['id', 'name', 'short_name'])->where('id', $datum['province'])->first();
+            $datum['city'] = SystemArea::select(['id', 'name', 'short_name'])->where('id', $datum['city'])->first();
+            $datum['area'] = SystemArea::select(['id', 'name', 'short_name'])->where('id', $datum['area'])->first();
             $fields = array_map(
                 function ($v) {
-                    return 'photographer_work_sources.'.$v;
+                    return 'photographer_work_sources.' . $v;
                 },
                 PhotographerWorkSource::allowFields()
             );
@@ -115,7 +116,7 @@ class StarController extends BaseController
                 'photographer_work_sources.sort',
                 'asc'
             )->take(3)->get();
-            $datum['cover']=SystemServer::getPhotographerWorkSourcesThumb($photographerWorkSources);
+            $datum['cover'] = SystemServer::getPhotographerWorkSourcesThumb($photographerWorkSources);
             unset($datum['photographerWorks']);
         }
         $this->data['result'] = true;
@@ -125,11 +126,15 @@ class StarController extends BaseController
     public function test(Request $request)
     {
         try {
-            (new PhotographerWorkSource())->generateWatermark(1);
+            // 生成水印
+            // (new PhotographerWorkSource())->generateWatermark(1);
+
+            $data = PhotographerWork::poster2(1, 1);
+            var_dump($data);
         } catch (\Exception $exception) {
             dd($exception->getMessage());
         }
- //       $photographer_work_id = "188";
+        //       $photographer_work_id = "188";
 //        $bucket = 'zuopin';
 //        $buckets = config('custom.qiniu.buckets');
 //        $domain = $buckets[$bucket]['domain'] ?? '';

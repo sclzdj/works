@@ -102,21 +102,21 @@ class PhotographerWork extends Model
                 return '';
             }
             if ($photographer->avatar) {
-                $avatar = $photographer->avatar.'?imageMogr2/auto-orient/thumbnail/190x190!|roundPic/radius/!50p';
+                $avatar = $photographer->avatar . '?imageMogr2/auto-orient/thumbnail/190x190!|roundPic/radius/!50p';
 
-                return $xacode.'?imageMogr2/auto-orient|watermark/3/image/'.\Qiniu\base64_urlSafeEncode(
+                return $xacode . '?imageMogr2/auto-orient|watermark/3/image/' . \Qiniu\base64_urlSafeEncode(
                         $avatar
-                    ).'/dx/115/dy/115';
+                    ) . '/dx/115/dy/115';
             } else {
                 $user = User::where('photographer_id', $photographerWork->photographer_id)->first();
                 if ($user && $user->avatarUrl) {
-                    $avatar = $user->avatar.'?imageMogr2/auto-orient/thumbnail/190x190!|roundPic/radius/!50p';
+                    $avatar = $user->avatar . '?imageMogr2/auto-orient/thumbnail/190x190!|roundPic/radius/!50p';
 
-                    return $xacode.'?imageMogr2/auto-orient|watermark/3/image/'.\Qiniu\base64_urlSafeEncode(
+                    return $xacode . '?imageMogr2/auto-orient|watermark/3/image/' . \Qiniu\base64_urlSafeEncode(
                             $avatar
-                        ).'/dx/115/dy/115';
+                        ) . '/dx/115/dy/115';
                 } else {
-                    return $xacode.'?imageMogr2/auto-orient';
+                    return $xacode . '?imageMogr2/auto-orient';
                 }
             }
         } else {
@@ -164,7 +164,7 @@ class PhotographerWork extends Model
         $bucket = 'zuopin';
         $buckets = config('custom.qiniu.buckets');
         $domain = $buckets[$bucket]['domain'] ?? '';
-        $url = $domain.'/'.config('custom.qiniu.crop_work_source_image_bg');
+        $url = $domain . '/' . config('custom.qiniu.crop_work_source_image_bg');
         $deals = [];
         $deals[] = 'imageMogr2/auto-orient/crop/1200x2133';
         $photographer_work_source = $photographer_work->photographerWorkSources()->where(
@@ -175,46 +175,46 @@ class PhotographerWork extends Model
         )->first();
         if ($photographer_work_source) {
             if ($photographer_work_source->deal_url) {
-                $bg_img = $photographer_work_source->deal_url.'?imageMogr2/auto-orient/thumbnail/1200x/gravity/Center/crop/!1200x800-0-0|imageslim';
+                $bg_img = $photographer_work_source->deal_url . '?imageMogr2/auto-orient/thumbnail/1200x/gravity/Center/crop/!1200x800-0-0|imageslim';
             } elseif ($photographer->bg_img) {
-                $bg_img = $photographer->bg_img.'?imageMogr2/auto-orient/thumbnail/1200x/gravity/Center/crop/!1200x800-0-0|imageslim';
+                $bg_img = $photographer->bg_img . '?imageMogr2/auto-orient/thumbnail/1200x/gravity/Center/crop/!1200x800-0-0|imageslim';
             } else {
-                $bg_img = config('app.url').'/'.'images/poster_bg.jpg';
+                $bg_img = config('app.url') . '/' . 'images/poster_bg.jpg';
             }
         } else {
             if ($photographer->bg_img) {
-                $bg_img = $photographer->bg_img.'?imageMogr2/auto-orient/thumbnail/1200x/gravity/Center/crop/!1200x800-0-0|imageslim';
+                $bg_img = $photographer->bg_img . '?imageMogr2/auto-orient/thumbnail/1200x/gravity/Center/crop/!1200x800-0-0|imageslim';
             } else {
-                $bg_img = config('app.url').'/'.'images/poster_bg.jpg';
+                $bg_img = config('app.url') . '/' . 'images/poster_bg.jpg';
             }
         }
         $xacode = PhotographerWork::xacode($photographer_work_id);
         if ($xacode) {
-            $xacode = $xacode.'|imageMogr2/auto-orient/thumbnail/250x250!';
+            $xacode = $xacode . '|imageMogr2/auto-orient/thumbnail/250x250!';
         } else {
-            $xacode = $domain.'/'.config(
+            $xacode = $domain . '/' . config(
                     'custom.qiniu.crop_work_source_image_bg'
-                ).'?imageMogr2/auto-orient/crop/250x250';
+                ) . '?imageMogr2/auto-orient/crop/250x250';
         }
-        $watermark = 'watermark/3/image/'.\Qiniu\base64_urlSafeEncode($bg_img).'/gravity/North/dx/0/dy/0';
-        $watermark .= '/text/'.\Qiniu\base64_urlSafeEncode(
-                '我是用户'.$photographer->name
-            ).'/fontsize/1500/fill/'.\Qiniu\base64_urlSafeEncode('#313131').'/gravity/North/dx/0/dy/950';
-        $watermark .= '/text/'.\Qiniu\base64_urlSafeEncode(
-                '我为'.$photographer_work->customer_name
-            ).'/fontsize/1500/fill/'.\Qiniu\base64_urlSafeEncode('#313131').'/gravity/North/dx/0/dy/1100';
-        $watermark .= '/text/'.\Qiniu\base64_urlSafeEncode(
+        $watermark = 'watermark/3/image/' . \Qiniu\base64_urlSafeEncode($bg_img) . '/gravity/North/dx/0/dy/0';
+        $watermark .= '/text/' . \Qiniu\base64_urlSafeEncode(
+                '我是用户' . $photographer->name
+            ) . '/fontsize/1500/fill/' . \Qiniu\base64_urlSafeEncode('#313131') . '/gravity/North/dx/0/dy/950';
+        $watermark .= '/text/' . \Qiniu\base64_urlSafeEncode(
+                '我为' . $photographer_work->customer_name
+            ) . '/fontsize/1500/fill/' . \Qiniu\base64_urlSafeEncode('#313131') . '/gravity/North/dx/0/dy/1100';
+        $watermark .= '/text/' . \Qiniu\base64_urlSafeEncode(
                 '拍了一组作品'
-            ).'/fontsize/1500/fill/'.\Qiniu\base64_urlSafeEncode('#313131').'/gravity/North/dx/0/dy/1250';
-        $watermark .= '/text/'.\Qiniu\base64_urlSafeEncode(
-                $photographer_work->project_amount.'元·'.$photographer_work->sheets_number.'张·'.$photographer_work->shooting_duration.'小时'
-            ).'/fontsize/800/fill/'.\Qiniu\base64_urlSafeEncode('#999999').'/gravity/North/dx/0/dy/1420';
-        $watermark .= '/image/'.\Qiniu\base64_urlSafeEncode($xacode).'/gravity/North/dx/0/dy/1630';
-        $watermark .= '/text/'.\Qiniu\base64_urlSafeEncode(
+            ) . '/fontsize/1500/fill/' . \Qiniu\base64_urlSafeEncode('#313131') . '/gravity/North/dx/0/dy/1250';
+        $watermark .= '/text/' . \Qiniu\base64_urlSafeEncode(
+                $photographer_work->project_amount . '元·' . $photographer_work->sheets_number . '张·' . $photographer_work->shooting_duration . '小时'
+            ) . '/fontsize/800/fill/' . \Qiniu\base64_urlSafeEncode('#999999') . '/gravity/North/dx/0/dy/1420';
+        $watermark .= '/image/' . \Qiniu\base64_urlSafeEncode($xacode) . '/gravity/North/dx/0/dy/1630';
+        $watermark .= '/text/' . \Qiniu\base64_urlSafeEncode(
                 '微信扫一扫 看完整作品'
-            ).'/fontsize/700/fill/'.\Qiniu\base64_urlSafeEncode('#4E4E4E').'/gravity/North/dx/0/dy/1950';
+            ) . '/fontsize/700/fill/' . \Qiniu\base64_urlSafeEncode('#4E4E4E') . '/gravity/North/dx/0/dy/1950';
         $deals[] = $watermark;
-        $url .= '?'.implode('|', $deals);
+        $url .= '?' . implode('|', $deals);
         $response['code'] = 200;
         $response['msg'] = 'ok';
         $response['url'] = $url;
@@ -223,22 +223,162 @@ class PhotographerWork extends Model
     }
 
     /**
-     * 根据项目id 生成作品分享图
-     * @param $photographer_work_id
+     * 项目海报
+     * @param $photographer_work_id 作品集id
+     * @param $template_id 使用template表中的number字段
      * @return array
      */
-    public static function generateShare($photographer_work_id)
+    public static function poster2($photographer_work_id, $template_id)
+    {
+        $photographer_work = PhotographerWork::where(
+            ['status' => 200, 'id' => $photographer_work_id]
+        )->first();
+        if (empty($photographer_work)) {
+            return "";
+        }
+
+        $photographer = User::photographer($photographer_work->photographer_id);
+        if (!$photographer || $photographer->status != 200) {
+            return "";
+        }
+
+        $user = User::where(['photographer_id' => $photographer->id])->first();
+        if (!$user) {
+            return "";
+        }
+        if ($user->identity != 1) {
+            return "";
+        }
+
+        $photographer_work_source = $photographer_work->photographerWorkSources()
+            ->where(
+                ['status' => 200, 'type' => 'image']
+            )
+            ->orderBy(
+                'sort',
+                'asc'
+            )
+            ->first();
+
+        $bucket = 'zuopin';
+        $buckets = config('custom.qiniu.buckets');
+        $domain = $buckets[$bucket]['domain'] ?? '';
+
+        $template = Templates::where('number', $template_id)->first();
+        if (empty($template)) {
+            return "";
+        }
+        $xacode = PhotographerWork::xacode($photographer_work_id);
+        if ($xacode) {
+            $xacodeImgage = \Qiniu\base64_urlSafeEncode(
+                $xacode . '|imageMogr2/auto-orient/thumbnail/250x250!'
+            );
+        } else {
+            $xacodeImgage = \Qiniu\base64_urlSafeEncode(
+                $domain . '/' . config(
+                    'custom.qiniu.crop_work_source_image_bg'
+                ) . '?imageMogr2/auto-orient/thumbnail/250x250!|roundPic/radius/!50p'
+            );
+        }
+
+        $photographer_rank = (string)PhotographerRank::where('id', $photographer->photographer_rank_id)->value('name');
+        $workName = $photographer_work->customer_name;
+        $name = "{$photographer->name} · 摄影作品";
+        $money = "{$photographer_work->project_amount}元 · {$photographer_work->sheets_number}张 · {$photographer_work->shooting_duration}小时";
+        $datas = [
+            '##money##' => "{$photographer_work->project_amount}",
+            '##number##' => "{$photographer_work->sheets_number}",
+            '##time##' => "{$photographer_work->shooting_duration}",
+            '##customer##' => $workName,
+            '##name##' => $photographer->name,
+            '##title##' => "{$photographer_rank}摄像师",
+        ];
+
+        if ($photographer_work_source->deal_height > 700) {  // 长图
+            $width = 1000;
+            $height = $photographer_work_source->deal_height;
+            $imgs = $domain . '/' . $photographer_work_source->deal_key . "?imageMogr2/auto-orient/thumbnail/{$width}x{$height}/gravity/Center/crop/1000x700|roundPic/radius/30";
+        } else { // 宽图
+            $imgs = $domain . '/' . $photographer_work_source->deal_key . "?imageMogr2/auto-orient/thumbnail/x600/gravity/Center/crop/!1000x700-0-0|roundPic/radius/30|imageslim";
+        }
+
+        $bg = $template->background . "?imageMogr2/auto-orient/thumbnail/1200x2133!";
+        $writeBg = "https://file.zuopin.cloud/FjRG0YoL-6pTZ8lyjXbkoe4ZFddf";
+        $handle = array();
+        $handle[] = $bg;
+        $handle[] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode($imgs) . "/gravity/South/dx/0/dy/500/";
+        $handle[] = "/image/" . \Qiniu\base64_urlSafeEncode($writeBg) . "/gravity/South/dx/0/dy/200/";
+        $handle[] = "/image/" . $xacodeImgage . "/gravity/SouthEast/dx/180/dy/275/";
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($workName) . "/fontstyle/" . base64_urlSafeEncode(
+                "Bold"
+            ) . "/fontsize/960/fill/" . base64_urlSafeEncode("#323232") . "/font/" . base64_urlSafeEncode(
+                "Microsoft YaHei"
+            ) . "/gravity/SouthWest/dx/180/dy/470/";
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($name) . "/fontsize/720/fill/" . base64_urlSafeEncode(
+                "#646464"
+            ) . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/180/dy/340/";
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($money) . "/fontsize/720/fill/" . base64_urlSafeEncode(
+                "#646464"
+            ) . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/180/dy/270/";
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode("微信扫一扫 看完整作品") . "/fontsize/600/fill/" . base64_urlSafeEncode(
+                "#FFFFFF"
+            ) . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/South/dx/0/dy/86/";
+
+        foreach ($datas as $key => $data) {
+            $template->text1 = str_replace($key, $data, $template->text1);
+            $template->text2 = str_replace($key, $data, $template->text2);
+            $template->text3 = str_replace($key, $data, $template->text3);
+            $template->text4 = str_replace($key, $data, $template->text4);
+        }
+
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($template->text1) . "/fontstyle/" . base64_urlSafeEncode(
+                "Bold"
+            ) . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/font/" . base64_urlSafeEncode(
+                "Microsoft YaHei"
+            ) . "/gravity/NorthWest/dx/100/dy/170/";
+        if ($template->text2) {
+            $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($template->text2) . "/fontstyle/" . base64_urlSafeEncode(
+                    "Bold"
+                ) . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/font/" . base64_urlSafeEncode(
+                    "Microsoft YaHei"
+                ) . "/gravity/NorthWest/dx/100/dy/320/";
+        }
+        if ($template->text3) {
+            $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($template->text3) . "/fontstyle/" . base64_urlSafeEncode(
+                    "Bold"
+                ) . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/font/" . base64_urlSafeEncode(
+                    "Microsoft YaHei"
+                ) . "/gravity/NorthWest/dx/100/dy/470/";
+        }
+        if ($template->text4) {
+            $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($template->text4) . "/fontstyle/" . base64_urlSafeEncode(
+                    "Bold"
+                ) . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/font/" . base64_urlSafeEncode(
+                    "Microsoft YaHei"
+                ) . "/gravity/NorthWest/dx/100/dy/620/";
+        }
+
+        $url = implode($handle);
+        return $url;
+    }
+
+    /**
+     * 根据项目id 生成作品分享图
+     * @param $photographer_work_id 作品集id
+     * @return string
+     */
+    public function generateShare($photographer_work_id)
     {
         $work = PhotographerWork::find($photographer_work_id);
         if (empty($work)) {
-            return ['result' => false, 'msg' => "项目不存在"];
+            return "";
         }
 
-        $sheets_number = $work->hide_sheets_number == 1 ? '保密' : $work->sheets_number.'张';
-        $project_number = $work->hide_project_amount == 1 ? '保密' : $work->project_amount.'元';
-        $shooting_duration = $work->hide_shooting_duration == 1 ? '保密' : $work->shooting_duration.'小时';
+        $sheets_number = $work->hide_sheets_number == 1 ? '保密' : $work->sheets_number . '张';
+        $project_number = $work->hide_project_amount == 1 ? '保密' : $work->project_amount . '元';
+        $shooting_duration = $work->hide_shooting_duration == 1 ? '保密' : $work->shooting_duration . '小时';
         $customer_name = $work->customer_name;
-        $buttonText = $project_number.'·'.$sheets_number.'·'.$shooting_duration;
+        $buttonText = $project_number . '·' . $sheets_number . '·' . $shooting_duration;
 
         $firstPhoto = PhotographerWorkSource::where(
             [
@@ -248,56 +388,35 @@ class PhotographerWork extends Model
         )->orderBy('created_at', 'asc')->first();
 
         if (empty($firstPhoto)) {
-            return ['result' => false, 'msg' => "资源不存在"];
+            return "";
         }
 
         // 拿到七牛url
         $buckets = config('custom.qiniu.buckets');
         $domain = $buckets['zuopin']['domain'] ?? '';
         // 背景图
-        $whiteBg = $domain.'/FtSr3gPOeI8CjSgh5fBkeHaIsJnm?imageMogr2/auto-orient/thumbnail/1200x960!';
+        $whiteBg = $domain . '/FtSr3gPOeI8CjSgh5fBkeHaIsJnm?imageMogr2/auto-orient/thumbnail/1200x960!';
         // 上面图
-        $sharePhoto = $firstPhoto->deal_url."?imageMogr2/auto-orient/gravity/Center/crop/1200x657|roundPic/radius/20";
+        $sharePhoto = $firstPhoto->deal_url . "?imageMogr2/auto-orient/gravity/Center/crop/1200x657|roundPic/radius/20";
 
         $handleUrl = array();
         $handleUrl[0] = $whiteBg;
-        $handleUrl[1] = "|watermark/3/image/".\Qiniu\base64_urlSafeEncode($sharePhoto)."/gravity/North/dx/0/dy/0";
-        $handleUrl[2] = "/text/".\Qiniu\base64_urlSafeEncode(
+        $handleUrl[1] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode($sharePhoto) . "/gravity/North/dx/0/dy/0";
+        $handleUrl[2] = "/text/" . \Qiniu\base64_urlSafeEncode(
                 $customer_name
-            )."/fontsize/1700/fill/".base64_urlSafeEncode("#323232")."/fontstyle/".base64_urlSafeEncode(
+            ) . "/fontsize/1700/fill/" . base64_urlSafeEncode("#323232") . "/fontstyle/" . base64_urlSafeEncode(
                 "Bold"
-            )."/font/".base64_urlSafeEncode("Microsoft YaHei")."/gravity/South/dx/0/dy/136";
-        $handleUrl[3] = "/text/".\Qiniu\base64_urlSafeEncode($buttonText)."/fontsize/1140/fill/".base64_urlSafeEncode(
+            ) . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/South/dx/0/dy/136";
+        $handleUrl[3] = "/text/" . \Qiniu\base64_urlSafeEncode($buttonText) . "/fontsize/1140/fill/" . base64_urlSafeEncode(
                 "#969696"
-            )."/font/".base64_urlSafeEncode("Microsoft YaHei")."/gravity/South/dx/0/dy/20";
+            ) . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/South/dx/0/dy/20";
 
         array_shift($handleUrl);
 
-        $fops = ["imageMogr2/auto-orient/thumbnail/1200x960!".implode("", $handleUrl)];
-        $bucket = 'zuopin';
-        $qrst = SystemServer::qiniuPfop(
-            $bucket,
-            "FtSr3gPOeI8CjSgh5fBkeHaIsJnm",
-            $fops,
-            null,
-            config(
-                'app.url'
-            ).'/api/notify/qiniu/fop?photographer_work_source_id='.$firstPhoto->id.'&step=4',
-            true
-        );
-        if ($qrst['err']) {
-            ErrLogServer::QiniuNotifyFop(
-                0,
-                '七牛持久化接口返回错误信息',
-                [],
-                $firstPhoto,
-                $qrst['err']
-            );
-        }
-
-        return ['result' => true, 'msg' => "成功"];
+        return "https://file.zuopin.cloud/FtSr3gPOeI8CjSgh5fBkeHaIsJnm?imageMogr2/auto-orient/thumbnail/1200x960!" . implode("", $handleUrl);
     }
 
+    // 废弃不在使用 最后需要删除
     public static function generateDealImage($photographer_work_id)
     {
         $photographerWork = PhotographerWork::find($photographer_work_id);
@@ -327,7 +446,7 @@ class PhotographerWork extends Model
                 null,
                 config(
                     'app.url'
-                ).'/api/notify/qiniu/fop?photographer_work_source_id='.$photographerWorkSource->id.'&step=1',
+                ) . '/api/notify/qiniu/fop?photographer_work_source_id=' . $photographerWorkSource->id . '&step=1',
                 true
             );
             if ($qrst['err']) {
@@ -342,7 +461,11 @@ class PhotographerWork extends Model
         }
     }
 
-    // 为项目生成水印图
+    /**
+     * 废弃不在使用 最后需要删除
+     * @param $photographer_id
+     * @return string
+     */
     public static function generateWatermark($photographer_work_id)
     {
         $bucket = 'zuopin';
@@ -371,28 +494,28 @@ class PhotographerWork extends Model
             $xacode = PhotographerWork::xacode($photographerWork->id);
             if ($xacode) {
                 $water2_image = \Qiniu\base64_urlSafeEncode(
-                    $xacode.'|imageMogr2/auto-orient/thumbnail/185x185!'
+                    $xacode . '|imageMogr2/auto-orient/thumbnail/185x185!'
                 );
             } else {
                 $water2_image = \Qiniu\base64_urlSafeEncode(
-                    $domain.'/'.config(
+                    $domain . '/' . config(
                         'custom.qiniu.crop_work_source_image_bg'
-                    ).'?imageMogr2/auto-orient/thumbnail/210x210!|roundPic/radius/!50p'
+                    ) . '?imageMogr2/auto-orient/thumbnail/210x210!|roundPic/radius/!50p'
                 );
             }
 
             $hanlde = [];
-            $hanlde[] = "imageMogr2/auto-orient/crop/1200x".($photographerWorkSource->deal_height + 250);
+            $hanlde[] = "imageMogr2/auto-orient/crop/1200x" . ($photographerWorkSource->deal_height + 250);
             $hanlde[] = "|watermark/3/image/{$water1_image}/gravity/North/dx/0/dy/0/";
-            $hanlde[] = "|watermark/3/image/".base64_encode(
+            $hanlde[] = "|watermark/3/image/" . base64_encode(
                     "https://file.zuopin.cloud/Fgz6Zf0EmsLVLvpCf73jBDaCPr9T"
-                )."/gravity/South/dx/0/dy/0/";
+                ) . "/gravity/South/dx/0/dy/0/";
             $hanlde[] = "|watermark/3/image/{$water2_image}/gravity/SouthEast/dx/57/dy/47/";
-            $hanlde[] = "text/".\Qiniu\base64_urlSafeEncode(
+            $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode(
                     $photographerWork->customer_name
-                )."/fontsize/800/fill/".base64_urlSafeEncode("#323232")."/fontstyle/".base64_urlSafeEncode(
+                ) . "/fontsize/800/fill/" . base64_urlSafeEncode("#323232") . "/fontstyle/" . base64_urlSafeEncode(
                     "Bold"
-                )."/font/".base64_urlSafeEncode("Microsoft YaHei")."/gravity/SouthWest/dx/71/dy/162/";
+                ) . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/71/dy/162/";
             $fistX = 75;
             // 根据字体来判断宽度 中文40 数字字母20
             for ($i = 0; $i < mb_strlen($photographerWork->customer_name); $i++) {
@@ -404,25 +527,25 @@ class PhotographerWork extends Model
                 }
             }
 
-            $hanlde[] = "|watermark/3/image/".\Qiniu\base64_urlSafeEncode(
+            $hanlde[] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode(
                     "https://file.zuopin.cloud/FlwzUiAItXVuajVB1_WNoteI-Fiw"
-                )."/font/".base64_urlSafeEncode("微软雅黑")."/gravity/SouthWest/dx/".$fistX."/dy/170/";
+                ) . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/" . $fistX . "/dy/170/";
             $secondX = $fistX + 45;
-            $hanlde[] = "text/".\Qiniu\base64_urlSafeEncode(
+            $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode(
                     $photographer->name
-                )."/fontsize/800/fill/".base64_urlSafeEncode("#C8C8C8")."/font/".base64_urlSafeEncode(
+                ) . "/fontsize/800/fill/" . base64_urlSafeEncode("#C8C8C8") . "/font/" . base64_urlSafeEncode(
                     "微软雅黑"
-                )."/gravity/SouthWest/dx/".$secondX."/dy/162/";
+                ) . "/gravity/SouthWest/dx/" . $secondX . "/dy/162/";
 
             $count = PhotographerWorkSource::where(
                 'photographer_work_id',
                 $photographerWorkSource->photographer_work_id
             )->where('status', 200)->count();
-            $text = $count - 1 <= 0 ? '微信扫一扫，看我的全部作品' : "微信扫一扫，看剩余".($count - 1)."张作品";
+            $text = $count - 1 <= 0 ? '微信扫一扫，看我的全部作品' : "微信扫一扫，看剩余" . ($count - 1) . "张作品";
 
-            $hanlde[] = "text/".\Qiniu\base64_urlSafeEncode($text)."/fontsize/609/fill/".base64_urlSafeEncode(
+            $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode($text) . "/fontsize/609/fill/" . base64_urlSafeEncode(
                     "#F7F7F7"
-                )."/font/".base64_urlSafeEncode("微软雅黑")."/gravity/SouthWest/dx/100/dy/78/";
+                ) . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/100/dy/78/";
             $hanlde[] = "|imageslim";
 
             $fops[] = implode($hanlde);
@@ -434,7 +557,7 @@ class PhotographerWork extends Model
                 null,
                 config(
                     'app.url'
-                ).'/api/notify/qiniu/fop?photographer_work_source_id='.$photographerWorkSource->id.'&step=2&width=1200&height='.$photographerWorkSource->deal_height.'&sort='.$sort,
+                ) . '/api/notify/qiniu/fop?photographer_work_source_id=' . $photographerWorkSource->id . '&step=2&width=1200&height=' . $photographerWorkSource->deal_height . '&sort=' . $sort,
                 true
             );
             if ($qrst['err']) {
@@ -452,6 +575,7 @@ class PhotographerWork extends Model
     }
 
     // 生成一张水印图根据项目资源信息
+    // 废弃不在使用 最后需要删除
     public static function generateOneWaterMark($photographerWorkSource, $photographerWork, $photographer)
     {
         $bucket = 'zuopin';
@@ -462,28 +586,28 @@ class PhotographerWork extends Model
         $xacode = PhotographerWork::xacode($photographerWork->id);
         if ($xacode) {
             $water2_image = \Qiniu\base64_urlSafeEncode(
-                $xacode.'|imageMogr2/auto-orient/thumbnail/185x185!'
+                $xacode . '|imageMogr2/auto-orient/thumbnail/185x185!'
             );
         } else {
             $water2_image = \Qiniu\base64_urlSafeEncode(
-                $domain.'/'.config(
+                $domain . '/' . config(
                     'custom.qiniu.crop_work_source_image_bg'
-                ).'?imageMogr2/auto-orient/thumbnail/210x210!|roundPic/radius/!50p'
+                ) . '?imageMogr2/auto-orient/thumbnail/210x210!|roundPic/radius/!50p'
             );
         }
 
         $hanlde = [];
-        $hanlde[] = "imageMogr2/auto-orient/crop/1200x".($photographerWorkSource->deal_height + 250);
+        $hanlde[] = "imageMogr2/auto-orient/crop/1200x" . ($photographerWorkSource->deal_height + 250);
         $hanlde[] = "|watermark/3/image/{$water1_image}/gravity/North/dx/0/dy/0/";
-        $hanlde[] = "|watermark/3/image/".base64_encode(
+        $hanlde[] = "|watermark/3/image/" . base64_encode(
                 "https://file.zuopin.cloud/Fgz6Zf0EmsLVLvpCf73jBDaCPr9T"
-            )."/gravity/South/dx/0/dy/0/";
+            ) . "/gravity/South/dx/0/dy/0/";
         $hanlde[] = "|watermark/3/image/{$water2_image}/gravity/SouthEast/dx/57/dy/47/";
-        $hanlde[] = "text/".\Qiniu\base64_urlSafeEncode(
+        $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode(
                 $photographerWork->customer_name
-            )."/fontsize/800/fill/".base64_urlSafeEncode("#323232")."/fontstyle/".base64_urlSafeEncode(
+            ) . "/fontsize/800/fill/" . base64_urlSafeEncode("#323232") . "/fontstyle/" . base64_urlSafeEncode(
                 "Bold"
-            )."/font/".base64_urlSafeEncode("Microsoft YaHei")."/gravity/SouthWest/dx/71/dy/162/";
+            ) . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/71/dy/162/";
         $fistX = 75;
         // 根据字体来判断宽度 中文40 数字字母20
         for ($i = 0; $i < mb_strlen($photographerWork->customer_name); $i++) {
@@ -495,23 +619,23 @@ class PhotographerWork extends Model
             }
         }
 
-        $hanlde[] = "|watermark/3/image/".\Qiniu\base64_urlSafeEncode(
+        $hanlde[] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode(
                 "https://file.zuopin.cloud/FlwzUiAItXVuajVB1_WNoteI-Fiw"
-            )."/font/".base64_urlSafeEncode("微软雅黑")."/gravity/SouthWest/dx/".$fistX."/dy/170/";
+            ) . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/" . $fistX . "/dy/170/";
         $secondX = $fistX + 45;
-        $hanlde[] = "text/".\Qiniu\base64_urlSafeEncode($photographer->name)."/fontsize/800/fill/".base64_urlSafeEncode(
+        $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer->name) . "/fontsize/800/fill/" . base64_urlSafeEncode(
                 "#C8C8C8"
-            )."/font/".base64_urlSafeEncode("微软雅黑")."/gravity/SouthWest/dx/".$secondX."/dy/162/";
+            ) . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/" . $secondX . "/dy/162/";
 
         $count = PhotographerWorkSource::where(
             'photographer_work_id',
             $photographerWorkSource->photographer_work_id
         )->where('status', 200)->count();
-        $text = $count - 1 <= 0 ? '微信扫一扫，看我的全部作品' : "微信扫一扫，看剩余".($count - 1)."张作品";
+        $text = $count - 1 <= 0 ? '微信扫一扫，看我的全部作品' : "微信扫一扫，看剩余" . ($count - 1) . "张作品";
 
-        $hanlde[] = "text/".\Qiniu\base64_urlSafeEncode($text)."/fontsize/609/fill/".base64_urlSafeEncode(
+        $hanlde[] = "text/" . \Qiniu\base64_urlSafeEncode($text) . "/fontsize/609/fill/" . base64_urlSafeEncode(
                 "#F7F7F7"
-            )."/font/".base64_urlSafeEncode("微软雅黑")."/gravity/SouthWest/dx/100/dy/78/";
+            ) . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/100/dy/78/";
         $hanlde[] = "|imageslim";
 
         $fops[] = implode($hanlde);
@@ -522,7 +646,7 @@ class PhotographerWork extends Model
             null,
             config(
                 'app.url'
-            ).'/api/notify/qiniu/fop?photographer_work_source_id='.$photographerWorkSource->id.'&step=2&width=1200&height='.$photographerWorkSource->deal_height.'&sort=0',
+            ) . '/api/notify/qiniu/fop?photographer_work_source_id=' . $photographerWorkSource->id . '&step=2&width=1200&height=' . $photographerWorkSource->deal_height . '&sort=0',
             true
         );
         if ($qrst['err']) {
