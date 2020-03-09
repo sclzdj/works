@@ -48,13 +48,13 @@ class UserGuardController extends BaseController
     }
 
     /**
-     * 非摄影师身份验证
+     * 非用户身份验证
      */
     protected function notPhotographerIdentityVerify()
     {
         $info = auth($this->guard)->user();
         if ($info->identity != 1) {
-            return $this->response->error('非摄影师身份', 403);
+            return $this->response->error('非用户身份', 403);
         }
     }
 

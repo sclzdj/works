@@ -7,14 +7,14 @@ namespace App\Servers;
 use App\Model\Index\Photographer;
 
 /**
- * 摄影师服务类
+ * 用户服务类
  * Class PhotographerServer
  * @package App\Servers
  */
 class PhotographerServer
 {
     /**
-     * 摄影师人脉排行榜
+     * 用户人脉排行榜
      * @param null $limit 条数
      * @param null $fields 字段
      * @return array

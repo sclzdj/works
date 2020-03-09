@@ -16,7 +16,7 @@ class CreatePhotographerWorkSourcesTable extends Migration
         Schema::create('photographer_work_sources', function (Blueprint $table) {
             $table->engine = 'innodb';
             $table->increments('id');
-            $table->unsignedInteger('photographer_work_id')->index()->default(0)->comment('摄影师作品集ID');
+            $table->unsignedInteger('photographer_work_id')->index()->default(0)->comment('用户项目ID');
             $table->string('key',1000)->index()->default('')->comment('初始资源key');
             $table->string('url',1000)->default('')->comment('初始资源地址');
             $table->unsignedBigInteger('size')->default(0)->comment('初始资源大小B');
@@ -39,7 +39,7 @@ class CreatePhotographerWorkSourcesTable extends Migration
             $table->unsignedSmallInteger('status')->default(0)->comment('状态【0:草稿;200:成功;300:覆盖;400:删除;500:失败】');
             $table->timestamps();
         });
-        DB::statement("ALTER TABLE `photographer_work_sources` COMMENT '前台：摄影师作品集资源'"); // 表注释
+        DB::statement("ALTER TABLE `photographer_work_sources` COMMENT '前台：用户项目资源'"); // 表注释
     }
 
     /**

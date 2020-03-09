@@ -84,10 +84,10 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::any('works/index/config', 'Works\IndexController@config');//
         Route::resource('works/helpNote', 'Works\HelpNoteController');//帮助管理
         Route::any('works/helpNoteSort', 'Works\HelpNoteController@sort');
-        Route::resource('works/photographer', 'Works\PhotographerController');//摄影师管理
+        Route::resource('works/photographer', 'Works\PhotographerController');//用户管理
         Route::get('works/photographerPoster', 'Works\PhotographerController@poster');
         Route::get('works/photographerGallery', 'Works\PhotographerController@gallery');
-        Route::resource('works/photographerWork', 'Works\PhotographerWorkController');//作品集管理
+        Route::resource('works/photographerWork', 'Works\PhotographerWorkController');//项目管理
         Route::get('works/photographerWorkPoster', 'Works\PhotographerWorkController@poster');
 
         // 众筹管理

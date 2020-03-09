@@ -10,7 +10,7 @@ use App\Servers\PhotographerServer;
 use Illuminate\Console\Command;
 
 /**
- * 摄影师排名通知
+ * 用户排名通知
  * Class VisitSummary
  * @package App\Console\Commands
  */
@@ -28,7 +28,7 @@ class PhotographerRanking extends Command
      *
      * @var string
      */
-    protected $description = '摄影师排名';
+    protected $description = '用户排名';
 
     /**
      * Create a new command instance.

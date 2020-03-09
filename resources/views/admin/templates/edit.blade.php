@@ -252,8 +252,8 @@
                                                 ##number##      成品张数<br/>
                                                 ##time##        拍摄时长<br/>
                                                 ##customer##    项目名称<br/>
-                                                ##name##        摄影师姓名<br/>
-                                                ##title##       摄影师头衔<br/>
+                                                ##name##        用户姓名<br/>
+                                                ##title##       用户头衔<br/>
                                                 </span>
                                             </div>
                                             <el-button>帮助</el-button>

@@ -37,12 +37,12 @@ class VisitController extends UserGuardController
             $user = auth($this->guard)->user();
             $photographer = Photographer::where(['id' => $request->photographer_id, 'status' => 200])->first();
             if (!$photographer) {
-                return $this->response->error('摄影师不存在', 500);
+                return $this->response->error('用户不存在', 500);
             }
             $photographer_user = User::where(['identity' => 1, 'photographer_id' => $request->photographer_id])->first(
             );
             if (!$photographer_user) {
-                return $this->response->error('摄影师信息错误', 500);
+                return $this->response->error('用户信息错误', 500);
             }
             $request->photographer_work_id = $request->photographer_work_id ?? 0;
             if ($request->photographer_work_id > 0) {
@@ -50,7 +50,7 @@ class VisitController extends UserGuardController
                     ['id' => $request->photographer_work_id, 'photographer_id' => $photographer->id, 'status' => 200]
                 )->first();
                 if (!$photographer_work) {
-                    return $this->response->error('摄影师作品集不存在', 500);
+                    return $this->response->error('用户项目不存在', 500);
                 }
             }
             if ($user->id == $photographer_user->id) {
@@ -115,12 +115,12 @@ class VisitController extends UserGuardController
             $user = auth($this->guard)->user();
             $photographer = Photographer::where(['id' => $request->photographer_id, 'status' => 200])->first();
             if (!$photographer) {
-                return $this->response->error('摄影师不存在', 500);
+                return $this->response->error('用户不存在', 500);
             }
             $photographer_user = User::where(['identity' => 1, 'photographer_id' => $request->photographer_id])->first(
             );
             if (!$photographer_user) {
-                return $this->response->error('摄影师信息错误', 500);
+                return $this->response->error('用户信息错误', 500);
             }
             $request->photographer_work_id = $request->photographer_work_id ?? 0;
             if ($request->photographer_work_id > 0) {
@@ -128,7 +128,7 @@ class VisitController extends UserGuardController
                     ['id' => $request->photographer_work_id, 'photographer_id' => $photographer->id, 'status' => 200]
                 )->first();
                 if (!$photographer_work) {
-                    return $this->response->error('摄影师作品集不存在', 500);
+                    return $this->response->error('用户项目不存在', 500);
                 }
             }
             if ($user->id == $photographer_user->id) {
@@ -176,12 +176,12 @@ class VisitController extends UserGuardController
             $user = auth($this->guard)->user();
             $photographer = Photographer::where(['id' => $request->photographer_id, 'status' => 200])->first();
             if (!$photographer) {
-                return $this->response->error('摄影师不存在', 500);
+                return $this->response->error('用户不存在', 500);
             }
             $photographer_user = User::where(['identity' => 1, 'photographer_id' => $request->photographer_id])->first(
             );
             if (!$photographer_user) {
-                return $this->response->error('摄影师信息错误', 500);
+                return $this->response->error('用户信息错误', 500);
             }
             $request->photographer_work_id = $request->photographer_work_id ?? 0;
             if ($request->photographer_work_id > 0) {
@@ -189,7 +189,7 @@ class VisitController extends UserGuardController
                     ['id' => $request->photographer_work_id, 'photographer_id' => $photographer->id, 'status' => 200]
                 )->first();
                 if (!$photographer_work) {
-                    return $this->response->error('摄影师作品集不存在', 500);
+                    return $this->response->error('用户项目不存在', 500);
                 }
             }
             if ($user->id == $photographer_user->id) {
@@ -263,7 +263,7 @@ class VisitController extends UserGuardController
                                 'url' => config('app.url'),
                                 'miniprogram' => [
                                     'appid' => config('custom.wechat.mp.appid'),
-                                    'pagepath' => 'pages/cameraman/cameraman',//摄影师控制面板页
+                                    'pagepath' => 'pages/cameraman/cameraman',//用户控制面板页
                                 ],
                                 'data' => [
                                     'first' => '快打开云作品，看看你的前3个人脉吧！',
@@ -298,7 +298,7 @@ class VisitController extends UserGuardController
             }
             $visitor = Visitor::create(['photographer_id' => $request->photographer_id, 'user_id' => $user->id]);
             if ($user->identity==1) {
-                $visitor->visitor_tag_id = 4;//如果访客也为摄影师标记为同行
+                $visitor->visitor_tag_id = 4;//如果访客也为用户标记为同行
             }
             if ($visitors_count + 1 < 3) {
                 $visit_send_message['is'] = true;//第一次发送模板消息，发模板消息
@@ -744,7 +744,7 @@ class VisitController extends UserGuardController
                 }
             }
         } elseif ($operateRecord->operate_type == 'copy_wx') {
-            $describe = '复制了微信号';
+            $describe = '复制了你的微信号';
         } elseif ($operateRecord->operate_type == 'view_project_amount') {
             $describe = '查看了「'.$photographer_work_customer_name.'」的项目金额';
         }

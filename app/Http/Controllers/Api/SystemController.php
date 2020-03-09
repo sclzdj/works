@@ -205,7 +205,7 @@ class SystemController extends BaseController
     }
 
     /**
-     * 获取摄影师作品集的所有分类列表
+     * 获取用户项目的所有分类列表
      * @return mixed
      */
     public function photographerWorkCategories()
@@ -225,7 +225,7 @@ class SystemController extends BaseController
     }
 
     /**
-     * 获取摄影师作品集的所有客户行业列表
+     * 获取用户项目的所有客户行业列表
      * @return mixed
      */
     public function PhotographerWorkCustomerIndustries()
@@ -245,7 +245,7 @@ class SystemController extends BaseController
     }
 
     /**
-     * 获取摄影师的所有头衔列表
+     * 获取用户的所有头衔列表
      * @return mixed
      */
     public function photographerRanks()

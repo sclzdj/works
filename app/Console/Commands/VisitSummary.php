@@ -103,7 +103,7 @@ class VisitSummary extends Command
     }
 
     /**
-     * 获取所有摄影师排行
+     * 获取所有用户排行
      * @return array
      */
     protected function getPhotographerList()

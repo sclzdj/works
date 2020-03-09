@@ -16,7 +16,7 @@ class CreateQiniuPfopRichSourceJobLogsTable extends Migration
         Schema::create('qiniu_pfop_rich_source_job_logs', function (Blueprint $table) {
             $table->engine = 'innodb';
             $table->increments('id');
-            $table->unsignedInteger('photographer_work_source_id')->index('job_source_id_index')->default(0)->comment('摄影师作品集ID');
+            $table->unsignedInteger('photographer_work_source_id')->index('job_source_id_index')->default(0)->comment('用户项目ID');
             $table->string('edit_node')->default('')->comment('修改节点');
             $table->timestamp('edit_at')->nullable()->comment('修改时间');
             $table->string('rich_key',1000)->index()->default('')->comment('丰富展示的资源key');

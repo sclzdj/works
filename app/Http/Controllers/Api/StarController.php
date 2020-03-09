@@ -135,12 +135,12 @@ class StarController extends BaseController
 //        $domain = $buckets[$bucket]['domain'] ?? '';
 //        $photographerWork = PhotographerWork::find($photographer_work_id);
 //        if (empty($photographerWork)) {
-//            return ['result' => false, 'msg' => "作品集不存在"];
+//            return ['result' => false, 'msg' => "项目不存在"];
 //        }
 //
 //        $photographer = Photographer::where(['id' => $photographerWork->photographer_id])->first();
 //        if (!$photographer) {
-//            return ['result' => false, 'msg' => "摄影师不存在"];
+//            return ['result' => false, 'msg' => "用户不存在"];
 //        }
 //
 //        $photographerWorkSources = PhotographerWorkSource::where([
@@ -219,7 +219,7 @@ class StarController extends BaseController
 //            }
 //        }
 //
-//        return ['result' => true, 'msg' => "作品集"];
+//        return ['result' => true, 'msg' => "项目"];
     }
 
     public function upload2()
@@ -258,7 +258,7 @@ class StarController extends BaseController
 
         $photographer = User::photographer($request->photographer_id);
         if (!$photographer || $photographer->status != 200) {
-            return $this->response->error('摄影师不存在', 500);
+            return $this->response->error('用户不存在', 500);
         }
         $workIds = PhotographerWork::where('photographer_id', $request->photographer_id)
             ->where('status', 200)->get()->pluck('id');
@@ -268,7 +268,7 @@ class StarController extends BaseController
             ->orderBy('created_at', 'desc')
             ->limit(6)
             ->get();
-        $buttonText = SystemArea::find($photographer->province)->name . ' · ' . PhotographerRank::find($photographer->photographer_rank_id)->name . '摄影师';
+        $buttonText = SystemArea::find($photographer->province)->name . ' · ' . PhotographerRank::find($photographer->photographer_rank_id)->name . '用户';
 
         $resourceId = 0;
         foreach ($resources as $key => $resource) {
@@ -386,18 +386,18 @@ class StarController extends BaseController
         $photographer = User::photographer($photographer_id);
         if (!$photographer || $photographer->status != 200) {
             $response['code'] = 500;
-            $response['msg'] = '摄影师不存在';
+            $response['msg'] = '用户不存在';
             return $response;
         }
         $user = User::where(['photographer_id' => $photographer_id])->first();
         if (!$user) {
             $response['code'] = 500;
-            $response['msg'] = '用户不存在';
+            $response['msg'] = '微信用户不存在';
             return $response;
         }
         if ($user->identity != 1) {
             $response['code'] = 500;
-            $response['msg'] = '用户不是摄影师';
+            $response['msg'] = '微信用户不是用户';
             return $response;
         }
 
@@ -449,7 +449,7 @@ class StarController extends BaseController
         $handle[] = "image/" . $xacodeImgage . "/gravity/SouthEast/dx/100/dy/325/";
         $handle[] = "text/" . \Qiniu\base64_urlSafeEncode("微信扫一扫 看全部作品") . "/fontsize/720/fill/" . base64_urlSafeEncode("#F7F7F7") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/141/dy/334/";
         $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer->name) . "/fontsize/1300/fill/" . base64_urlSafeEncode("#323232") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/98/dy/520/";
-        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer_city . ' · ' . $photographer_rank . '摄影师') . "/fontsize/720/fill/" . base64_urlSafeEncode("#646464") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/99/dy/450/";
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer_city . ' · ' . $photographer_rank . '用户') . "/fontsize/720/fill/" . base64_urlSafeEncode("#646464") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/99/dy/450/";
 
         // 最下面那行
         $footerFont = mb_substr(implode(' · ', $text), 0, 34);
@@ -459,7 +459,7 @@ class StarController extends BaseController
 
         $handle[] = "text/" . \Qiniu\base64_urlSafeEncode("Hi!") . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/101/dy/180/";
 
-        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode("我是摄影师") . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/101/dy/330/";
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode("我是用户") . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/101/dy/330/";
 
         $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer->name) . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/101/dy/480/";
 
@@ -491,7 +491,7 @@ class StarController extends BaseController
         $handle[] = "image/" . $xacodeImgage . "/gravity/SouthEast/dx/100/dy/325/";
         $handle[] = "text/" . \Qiniu\base64_urlSafeEncode("微信扫一扫 看全部作品") . "/fontsize/720/fill/" . base64_urlSafeEncode("#F7F7F7") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/140/dy/333/";
         $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer->name) . "/fontsize/1300/fill/" . base64_urlSafeEncode("#323232") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/100/dy/520/";
-        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer_city . ' · ' . $photographer_rank . '摄影师') . "/fontsize/720/fill/" . base64_urlSafeEncode("#646464") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/100/dy/450/";
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer_city . ' · ' . $photographer_rank . '用户') . "/fontsize/720/fill/" . base64_urlSafeEncode("#646464") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/100/dy/450/";
 
         // 最下面那行
         $footerFont = mb_substr(implode(' · ', $text), 0, 34);
@@ -513,7 +513,7 @@ class StarController extends BaseController
         $handle[] = "image/" . $xacodeImgage . "/gravity/SouthEast/dx/100/dy/325/";
         $handle[] = "text/" . \Qiniu\base64_urlSafeEncode("微信扫一扫 看全部作品") . "/fontsize/720/fill/" . base64_urlSafeEncode("#F7F7F7") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/140/dy/333/";
         $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer->name) . "/fontsize/1300/fill/" . base64_urlSafeEncode("#323232") . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/100/dy/520/";
-        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer_city . ' · ' . $photographer_rank . '摄影师') . "/fontsize/720/fill/" . base64_urlSafeEncode("#646464") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/100/dy/450/";
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer_city . ' · ' . $photographer_rank . '用户') . "/fontsize/720/fill/" . base64_urlSafeEncode("#646464") . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthWest/dx/100/dy/450/";
 
         // 最下面那行
         $footerFont = mb_substr(implode(' · ', $text), 0, 34);

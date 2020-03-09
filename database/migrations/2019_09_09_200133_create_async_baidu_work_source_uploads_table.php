@@ -18,7 +18,7 @@ class CreateAsyncBaiduWorkSourceUploadsTable extends Migration
             function (Blueprint $table) {
                 $table->engine = 'innodb';
                 $table->increments('id');
-                $table->unsignedInteger('photographer_work_source_id')->default(0)->comment('作品集资源ID');
+                $table->unsignedInteger('photographer_work_source_id')->default(0)->comment('项目资源ID');
                 $table->string('fs_id', 100)->default('')->comment('百度网盘文件id');
                 $table->unsignedTinyInteger('category')->default(0)->comment('分类【1:视频;3:图片】');
                 $table->unsignedBigInteger('size')->default(0)->comment('大小，单位B');

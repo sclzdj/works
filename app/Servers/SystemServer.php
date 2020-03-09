@@ -126,7 +126,7 @@ class SystemServer
     }
 
     /**
-     * 格式化作品集封面数据
+     * 格式化项目封面数据
      * @param $data 数据
      * @param $random 是否随机取一个资源，否则取第一张
      * @return array
@@ -168,7 +168,7 @@ class SystemServer
     }
 
     /**
-     * 格式化作品集客户行业数据
+     * 格式化项目客户行业数据
      * @param $data
      * @param bool $random
      * @return mixed
@@ -203,7 +203,7 @@ class SystemServer
     }
 
     /**
-     * 格式化作品集分类数据
+     * 格式化项目分类数据
      * @param $data
      * @param bool $random
      * @return mixed

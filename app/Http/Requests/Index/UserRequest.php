@@ -137,8 +137,8 @@ class UserRequest extends BaseRequest
                 break;
             case 'login':
                 $messages = [
-                    'username.required' => '用户名不能为空',
-                    'username.alpha_dash' => '用户名格式错误',
+                    'username.required' => '微信用户名不能为空',
+                    'username.alpha_dash' => '微信用户名格式错误',
                     'password.required' => '密码必须传递',
                 ];
                 break;
@@ -168,14 +168,14 @@ class UserRequest extends BaseRequest
                 break;
             case 'photographerWork':
                 $messages = [
-                    'photographer_work_id.required' => '摄影师作品集id必须传递',
-                    'photographer_work_id.integer' => '摄影师作品集id必须为数字',
+                    'photographer_work_id.required' => '用户项目id必须传递',
+                    'photographer_work_id.integer' => '用户项目id必须为数字',
                 ];
                 break;
             case 'setRoof':
                 $messages = [
-                    'photographer_work_id.required' => '摄影师作品集id必须传递',
-                    'photographer_work_id.integer' => '摄影师作品集id必须为数字',
+                    'photographer_work_id.required' => '用户项目id必须传递',
+                    'photographer_work_id.integer' => '用户项目id必须为数字',
                     'operate_type.required' => '操作方式必须传递',
                     'operate_type.integer' => '操作方式必须为数字',
                     'operate_type.in' => '操作方式错误',
@@ -183,8 +183,8 @@ class UserRequest extends BaseRequest
                 break;
             case 'savePhotographerWorkInfo':
                 $messages = [
-                    'photographer_work_id.required' => '摄影师作品集id必须传递',
-                    'photographer_work_id.integer' => '摄影师作品集id必须为数字',
+                    'photographer_work_id.required' => '用户项目id必须传递',
+                    'photographer_work_id.integer' => '用户项目id必须为数字',
                     'sources.array' => '资源必须是数组',
                     'sources.*.key.required' => '资源key不能为空',
                     'sources.*.url.required' => '资源url不能为空',
@@ -235,9 +235,9 @@ class UserRequest extends BaseRequest
                 $messages = [
                     'name.required' => 'PDF名称必须传递',
                     'name.max' => 'PDF名称长度最大为100',
-                    'photographer_work_ids.array' => 'PDF的作品集id必须是数组',
-                    'photographer_work_ids.*.required' => 'PDF的作品集id不能为空',
-                    'photographer_work_ids.*.integer' => 'PDF的作品集id必须为数字',
+                    'photographer_work_ids.array' => 'PDF的项目id必须是数组',
+                    'photographer_work_ids.*.required' => 'PDF的项目id不能为空',
+                    'photographer_work_ids.*.integer' => 'PDF的项目id必须为数字',
                 ];
                 break;
             case 'getDocPdfStatus':

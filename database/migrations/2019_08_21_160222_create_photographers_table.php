@@ -27,11 +27,11 @@ class CreatePhotographersTable extends Migration
             $table->string('wechat', 50)->default('')->comment('微信号');
             $table->string('mobile', 20)->unique()->nullable()->comment('手机号');
             $table->unsignedSmallInteger('status')->default(0)->comment('状态【0:草稿;200:成功;400:删除;500:失败】');
-            $table->string('xacode',1000)->default('')->comment('作品集小程序码');
-            $table->string('xacode_hyaline',1000)->default('')->comment('透明作品集小程码');
+            $table->string('xacode',1000)->default('')->comment('项目小程序码');
+            $table->string('xacode_hyaline',1000)->default('')->comment('透明项目小程码');
             $table->timestamps();
         });
-        DB::statement("ALTER TABLE `photographers` COMMENT '前台：摄影师'"); // 表注释
+        DB::statement("ALTER TABLE `photographers` COMMENT '前台：用户'"); // 表注释
     }
 
     /**

@@ -25,7 +25,7 @@ class InvoteCodeController extends Controller
      */
     public function index(Request $request)
     {
-        $wx_user = session('wechat.oauth_user.default'); // 拿到授权用户资料
+        $wx_user = session('wechat.oauth_user.default'); // 拿到授权微信用户资料
         $gh_openid = $wx_user->getId();
         $data['userId'] = $request->input('userId', "empty");
         $data['openId'] = $gh_openid;

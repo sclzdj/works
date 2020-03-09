@@ -21,7 +21,7 @@ class CreatePhotographerWorkCategoriesTable extends Migration
             $table->string('name', 100)->default('')->comment('名称');
             $table->unsignedInteger('sort')->default(0)->comment('排序');
         });
-        DB::statement("ALTER TABLE `photographer_work_categories` COMMENT '前台：摄影师作品集分类'"); // 表注释
+        DB::statement("ALTER TABLE `photographer_work_categories` COMMENT '前台：用户项目分类'"); // 表注释
     }
 
     /**

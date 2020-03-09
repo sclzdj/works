@@ -24,7 +24,7 @@ class CreatePhotographerWorkCustomerIndustriesTable extends Migration
                 $table->unsignedInteger('sort')->default(0)->comment('排序');
             }
         );
-        DB::statement("ALTER TABLE `photographer_work_customer_industries` COMMENT '前台：摄影师作品集客户行业'"); // 表注释
+        DB::statement("ALTER TABLE `photographer_work_customer_industries` COMMENT '前台：用户项目客户行业'"); // 表注释
     }
 
     /**

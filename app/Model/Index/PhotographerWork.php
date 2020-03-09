@@ -125,7 +125,7 @@ class PhotographerWork extends Model
     }
 
     /**
-     * 作品集海报
+     * 项目海报
      * @param $photographer_work_id
      * @return array
      */
@@ -137,14 +137,14 @@ class PhotographerWork extends Model
         )->first();
         if (!$photographer_work) {
             $response['code'] = 500;
-            $response['msg'] = '摄影师作品集不存在';
+            $response['msg'] = '用户项目不存在';
 
             return $response;
         }
         $photographer = User::photographer($photographer_work->photographer_id);
         if (!$photographer || $photographer->status != 200) {
             $response['code'] = 500;
-            $response['msg'] = '摄影师不存在';
+            $response['msg'] = '用户不存在';
 
             return $response;
         }
@@ -157,7 +157,7 @@ class PhotographerWork extends Model
         }
         if ($user->identity != 1) {
             $response['code'] = 500;
-            $response['msg'] = '用户不是摄影师';
+            $response['msg'] = '用户不是用户';
 
             return $response;
         }
@@ -198,7 +198,7 @@ class PhotographerWork extends Model
         }
         $watermark = 'watermark/3/image/'.\Qiniu\base64_urlSafeEncode($bg_img).'/gravity/North/dx/0/dy/0';
         $watermark .= '/text/'.\Qiniu\base64_urlSafeEncode(
-                '我是摄影师'.$photographer->name
+                '我是用户'.$photographer->name
             ).'/fontsize/1500/fill/'.\Qiniu\base64_urlSafeEncode('#313131').'/gravity/North/dx/0/dy/950';
         $watermark .= '/text/'.\Qiniu\base64_urlSafeEncode(
                 '我为'.$photographer_work->customer_name
@@ -223,7 +223,7 @@ class PhotographerWork extends Model
     }
 
     /**
-     * 根据作品集id 生成作品分享图
+     * 根据项目id 生成作品分享图
      * @param $photographer_work_id
      * @return array
      */
@@ -231,7 +231,7 @@ class PhotographerWork extends Model
     {
         $work = PhotographerWork::find($photographer_work_id);
         if (empty($work)) {
-            return ['result' => false, 'msg' => "作品集不存在"];
+            return ['result' => false, 'msg' => "项目不存在"];
         }
 
         $sheets_number = $work->hide_sheets_number == 1 ? '保密' : $work->sheets_number.'张';
@@ -302,12 +302,12 @@ class PhotographerWork extends Model
     {
         $photographerWork = PhotographerWork::find($photographer_work_id);
         if (empty($photographerWork)) {
-            throw new \LogicException("作品集不存在");
+            throw new \LogicException("项目不存在");
         }
 
         $photographer = Photographer::where(['id' => $photographerWork->photographer_id])->first();
         if (!$photographer) {
-            throw new \LogicException("摄影师不存在");
+            throw new \LogicException("用户不存在");
         }
 
         $photographerWorkSources = PhotographerWorkSource::where(
@@ -342,7 +342,7 @@ class PhotographerWork extends Model
         }
     }
 
-    // 为作品集生成水印图
+    // 为项目生成水印图
     public static function generateWatermark($photographer_work_id)
     {
         $bucket = 'zuopin';
@@ -350,12 +350,12 @@ class PhotographerWork extends Model
         $domain = $buckets[$bucket]['domain'] ?? '';
         $photographerWork = PhotographerWork::find($photographer_work_id);
         if (empty($photographerWork)) {
-            return ['result' => false, 'msg' => "作品集不存在"];
+            return ['result' => false, 'msg' => "项目不存在"];
         }
 
         $photographer = Photographer::where(['id' => $photographerWork->photographer_id])->first();
         if (!$photographer) {
-            return ['result' => false, 'msg' => "摄影师不存在"];
+            return ['result' => false, 'msg' => "用户不存在"];
         }
 
         $photographerWorkSources = PhotographerWorkSource::where(
@@ -448,10 +448,10 @@ class PhotographerWork extends Model
             }
         }
 
-        return ['result' => true, 'msg' => "作品集"];
+        return ['result' => true, 'msg' => "项目"];
     }
 
-    // 生成一张水印图根据作品集资源信息
+    // 生成一张水印图根据项目资源信息
     public static function generateOneWaterMark($photographerWorkSource, $photographerWork, $photographer)
     {
         $bucket = 'zuopin';

@@ -157,7 +157,7 @@ class BaiduController extends UserGuardController
             if (!$photographer_work) {
                 \DB::rollback();//回滚事务
 
-                return $this->response->error('作品集不存在', 500);
+                return $this->response->error('项目不存在', 500);
             }
             $access_token = $this->_getBaiduAccessToken();
             $url = "https://pan.baidu.com/rest/2.0/xpan/multimedia?method=filemetas";

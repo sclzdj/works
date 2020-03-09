@@ -86,10 +86,10 @@ class VisitRequest extends BaseRequest
                 $messages = [
                     'page_name.required' => '页面名称必须传递',
                     'page_name.in' => '页面名称错误',
-                    'photographer_id.required' => '摄影师id必须传递',
-                    'photographer_id.integer' => '摄影师id必须为数字',
-                    'photographer_work_id.required_if' => '作品集id必须传递',
-                    'photographer_work_id.integer' => '作品集id必须为数字',
+                    'photographer_id.required' => '用户id必须传递',
+                    'photographer_id.integer' => '用户id必须为数字',
+                    'photographer_work_id.required_if' => '项目id必须传递',
+                    'photographer_work_id.integer' => '项目id必须为数字',
                     'in_type.required' => '进入方式必须传递',
                     'in_type.in' => '进入方式错误',
                     'shared_user_id.integer' => '分享用户id必须为数字',
@@ -99,10 +99,10 @@ class VisitRequest extends BaseRequest
                 $messages = [
                     'page_name.required' => '页面名称必须传递',
                     'page_name.in' => '页面名称错误',
-                    'photographer_id.required' => '摄影师id必须传递',
-                    'photographer_id.integer' => '摄影师id必须为数字',
-                    'photographer_work_id.required_if' => '作品集id必须传递',
-                    'photographer_work_id.integer' => '作品集id必须为数字',
+                    'photographer_id.required' => '用户id必须传递',
+                    'photographer_id.integer' => '用户id必须为数字',
+                    'photographer_work_id.required_if' => '项目id必须传递',
+                    'photographer_work_id.integer' => '项目id必须为数字',
                     'share_type.required' => '分享方式必须传递',
                     'share_type.in' => '分享方式错误',
                 ];
@@ -113,10 +113,10 @@ class VisitRequest extends BaseRequest
                     'operate_type.in' => '操作类型错误',
                     'page_name.required' => '页面名称必须传递',
                     'page_name.in' => '页面名称错误',
-                    'photographer_id.required' => '摄影师id必须传递',
-                    'photographer_id.integer' => '摄影师id必须为数字',
-                    'photographer_work_id.required_if' => '作品集id必须传递',
-                    'photographer_work_id.integer' => '作品集id必须为数字',
+                    'photographer_id.required' => '用户id必须传递',
+                    'photographer_id.integer' => '用户id必须为数字',
+                    'photographer_work_id.required_if' => '项目id必须传递',
+                    'photographer_work_id.integer' => '项目id必须为数字',
                 ];
                 break;
             case 'setRemind':

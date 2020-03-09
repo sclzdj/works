@@ -88,7 +88,7 @@ class User extends Authenticatable implements JWTSubject
     }
 
     /**
-     * 关联的摄影师
+     * 关联的用户
      * @param null $photographer_id
      * @return mixed
      */
@@ -102,13 +102,13 @@ class User extends Authenticatable implements JWTSubject
     }
 
     /**
-     * 创建用户预设一些东西
+     * 创建微信用户预设一些东西
      */
     public static function presetCreate()
     {
-        //先预设一个摄影师
+        //先预设一个用户
         $photographer = Photographer::create();
-        //再预设一个作品集
+        //再预设一个项目
         $photographer_work = PhotographerWork::create();
         $photographer_work->photographer_id = $photographer->id;
         $photographer_work->save();

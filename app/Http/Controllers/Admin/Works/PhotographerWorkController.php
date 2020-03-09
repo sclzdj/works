@@ -229,10 +229,10 @@ class PhotographerWorkController extends BaseController
         if ($request->photographer_id > 0) {
             $photographer = Photographer::where(['id' => $request->photographer_id, 'status' => 200])->first();
             if (!$photographer) {
-                return abort('404', '摄影师不存在');
+                return abort('404', '用户不存在');
             }
         } else {
-            return abort('404', '摄影师id必须传递');
+            return abort('404', '用户id必须传递');
         }
         $photographerWorkCustomerIndustries = PhotographerWorkCustomerIndustry::select(
             PhotographerWorkCustomerIndustry::allowFields()
@@ -487,14 +487,14 @@ class PhotographerWorkController extends BaseController
                 ['id' => $id, 'status' => 200]
             )->first();
             if (!$photographerWork) {
-                return abort('404', '作品集不存在');
+                return abort('404', '项目不存在');
             }
         } else {
-            return abort('404', '作品集id必须传递');
+            return abort('404', '项目id必须传递');
         }
         $photographer = Photographer::where(['id' => $photographerWork->photographer_id, 'status' => 200])->first();
         if (!$photographer) {
-            return abort('404', '摄影师不存在');
+            return abort('404', '用户不存在');
         }
         $photographerWorkCustomerIndustries = PhotographerWorkCustomerIndustry::select(
             PhotographerWorkCustomerIndustry::allowFields()
@@ -772,7 +772,7 @@ class PhotographerWorkController extends BaseController
                 if (!$photographer_work) {
                     \DB::rollback();//回滚事务
 
-                    return $this->response('摄影师作品集不存在', 500);
+                    return $this->response('用户项目不存在', 500);
                 }
                 $count = PhotographerWork::where('id', '!=', $id)->where(
                     ['photographer_id' => $photographer_work->photographer_id, 'status' => 200]
@@ -780,7 +780,7 @@ class PhotographerWorkController extends BaseController
                 if ($count == 0) {
                     \DB::rollback();//回滚事务
 
-                    return $this->response('每个摄影师至少保留一个作品集', 500);
+                    return $this->response('每个用户至少保留一个项目', 500);
                 }
                 $photographer_work->status = 400;
                 $photographer_work->save();
@@ -805,7 +805,7 @@ class PhotographerWorkController extends BaseController
                     if ($count == 0) {
                         \DB::rollback();//回滚事务
 
-                        return $this->response('每个摄影师至少保留一个作品集', 500);
+                        return $this->response('每个用户至少保留一个项目', 500);
                     }
                     $photographer_work->status = 400;
                     $photographer_work->save();
@@ -822,7 +822,7 @@ class PhotographerWorkController extends BaseController
     }
 
     /**
-     * 作品集海报
+     * 项目海报
      * @param Request $request
      */
     public function poster(Request $request)

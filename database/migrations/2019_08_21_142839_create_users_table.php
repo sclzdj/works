@@ -18,7 +18,7 @@ class CreateUsersTable extends Migration
             $table->increments('id');
             $table->string('username')->unique()->default('')->comment('账号');
             $table->string('password')->default('')->comment('密码');
-            $table->string('phoneNumber', 50)->index()->default('')->comment('用户绑定的手机号（国外手机号会有区号）');
+            $table->string('phoneNumber', 50)->index()->default('')->comment('微信用户绑定的手机号（国外手机号会有区号）');
             $table->string('purePhoneNumber', 50)->index()->default('')->comment('没有区号的手机号');
             $table->string('countryCode', 50)->index()->default('')->comment('区号');
             $table->string('nickname')->default('')->comment('昵称');
@@ -31,16 +31,16 @@ class CreateUsersTable extends Migration
             $table->string('openid')->default('')->comment('微信小程序openid');
             $table->string('gh_openid')->default('')->comment('微信公众号openid');
             $table->string('session_key')->default('')->comment('小程序session_key');
-            $table->unsignedInteger('photographer_id')->unique()->nullable()->comment('摄影师ID');
-            $table->unsignedTinyInteger('identity')->default(0)->comment('身份【0:游客;1:摄影师】');
-            $table->unsignedTinyInteger('is_formal_photographer')->default(0)->comment('是否正式摄影师');
+            $table->unsignedInteger('photographer_id')->unique()->nullable()->comment('用户ID');
+            $table->unsignedTinyInteger('identity')->default(0)->comment('身份【0:游客;1:用户】');
+            $table->unsignedTinyInteger('is_formal_photographer')->default(0)->comment('是否正式用户');
             $table->unsignedTinyInteger('is_wx_authorize')->default(0)->comment('是否微信授权');
             $table->unsignedTinyInteger('is_wx_get_phone_number')->default(0)->comment('是否微信获取手机号');
             $table->rememberToken();
             $table->timestamps();
         }
         );
-        DB::statement("ALTER TABLE `users` COMMENT '前台：用户'"); // 表注释
+        DB::statement("ALTER TABLE `users` COMMENT '前台：微信用户'"); // 表注释
     }
 
     /**

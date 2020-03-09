@@ -41,11 +41,11 @@ class AsyncDocPdfMakeJob implements ShouldQueue
             return $this->errorHandle('用户未找到');
         }
         if ($user['identity'] != 1) {
-            return $this->errorHandle('该用户不是摄影师');
+            return $this->errorHandle('该用户不是用户');
         }
         $photographer = User::photographer($user->photographer_id);
         if (!$photographer) {
-            return $this->errorHandle('摄影师不存在');
+            return $this->errorHandle('用户不存在');
         }
         $doc_pdf = DocPdf::where(['id' => $asyncDocPdfMake->doc_pdf_id, 'status' => 0])->first();
         if (!$doc_pdf) {

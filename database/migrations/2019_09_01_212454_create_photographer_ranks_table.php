@@ -24,7 +24,7 @@ class CreatePhotographerRanksTable extends Migration
                 $table->unsignedInteger('sort')->default(0)->comment('排序');
             }
         );
-        DB::statement("ALTER TABLE `photographer_ranks` COMMENT '前台：摄影师头衔'"); // 表注释
+        DB::statement("ALTER TABLE `photographer_ranks` COMMENT '前台：用户头衔'"); // 表注释
     }
 
     /**

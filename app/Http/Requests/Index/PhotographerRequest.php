@@ -71,6 +71,7 @@ class PhotographerRequest extends BaseRequest
                 $rules = [
                     'photographer_id' => 'integer',
                     'current_photographer_work_id' => 'required|integer',
+                    'is_select_work' => 'integer|in:0,1',
                 ];
                 break;
             case 'rankingList':
@@ -132,52 +133,54 @@ class PhotographerRequest extends BaseRequest
                 break;
             case 'savePhotographerStore':
                 $messages = [
-                    'name.required' => '摄影师名称不能为空',
-                    'name.max' => '摄影师名称长度最大为10',
-                    'gender.integer' => '摄影师性别必须为数字',
-                    'gender.in' => '摄影师性别错误',
-                    'province.required' => '摄影师所在省份必须传递',
-                    'province.integer' => '摄影师所在省份必须为数字',
-                    'province.exists' => '摄影师所在省份不存在',
-                    'city.required' => '摄影师所在城市必须传递',
-                    'city.integer' => '摄影师所在城市必须为数字',
-                    'city.exists' => '摄影师所在城市不存在',
-                    'area.required' => '摄影师所在地方必须传递',
-                    'area.integer' => '摄影师所在地方必须为数字',
-                    'area.exists' => '摄影师所在地方不存在',
-                    'photographer_rank_id.required' => '摄影师头衔不能为空',
-                    'photographer_rank_id.exists' => '摄影师头衔不存在',
-                    'wechat.required' => '摄影师微信号不能为空',
-                    'wechat.max' => '摄影师微信号长度最大为50',
-                    'mobile.required' => '摄影师手机号不能为空',
-                    'mobile.regex' => '摄影师手机号格式错误',
+                    'name.required' => '用户名称不能为空',
+                    'name.max' => '用户名称长度最大为10',
+                    'gender.integer' => '用户性别必须为数字',
+                    'gender.in' => '用户性别错误',
+                    'province.required' => '用户所在省份必须传递',
+                    'province.integer' => '用户所在省份必须为数字',
+                    'province.exists' => '用户所在省份不存在',
+                    'city.required' => '用户所在城市必须传递',
+                    'city.integer' => '用户所在城市必须为数字',
+                    'city.exists' => '用户所在城市不存在',
+                    'area.required' => '用户所在地方必须传递',
+                    'area.integer' => '用户所在地方必须为数字',
+                    'area.exists' => '用户所在地方不存在',
+                    'photographer_rank_id.required' => '用户头衔不能为空',
+                    'photographer_rank_id.exists' => '用户头衔不存在',
+                    'wechat.required' => '用户微信号不能为空',
+                    'wechat.max' => '用户微信号长度最大为50',
+                    'mobile.required' => '用户手机号不能为空',
+                    'mobile.regex' => '用户手机号格式错误',
                     'sms_code.required' => '短信验证码不能为空',
                 ];
                 break;
             case 'photographerInfo':
                 $messages = [
-                    'photographer_id.required' => '摄影师id必须传递',
-                    'photographer_id.integer' => '摄影师id必须为数字',
+                    'photographer_id.required' => '用户id必须传递',
+                    'photographer_id.integer' => '用户id必须为数字',
                 ];
                 break;
             case 'photographerWorks':
                 $messages = [
-                    'photographer_id.required' => '摄影师id必须传递',
-                    'photographer_id.integer' => '摄影师id必须为数字',
+                    'photographer_id.required' => '用户id必须传递',
+                    'photographer_id.integer' => '用户id必须为数字',
                 ];
                 $messages = array_merge($messages, $this->predefined['paginate']['messages']);
                 break;
             case 'photographerWork':
                 $messages = [
-                    'photographer_work_id.required' => '摄影师作品集id必须传递',
-                    'photographer_work_id.integer' => '摄影师作品集id必须为数字',
+                    'photographer_work_id.required' => '用户项目id必须传递',
+                    'photographer_work_id.integer' => '用户项目id必须为数字',
                 ];
                 break;
             case 'xacodeNext':
                 $messages = [
-                    'photographer_id.integer' => '摄影师id必须为数字',
-                    'current_photographer_work_id.required' => '当前摄影师作品集id必须传递',
-                    'current_photographer_work_id.integer' => '当前师作品集id必须为数字',
+                    'photographer_id.integer' => '用户id必须为数字',
+                    'current_photographer_work_id.required' => '当前用户项目id必须传递',
+                    'current_photographer_work_id.integer' => '当前师项目id必须为数字',
+                    'is_select_work.integer' => '是否查出项目信息必须为数字',
+                    'is_select_work.in' => '是否查出项目信息错误',
                 ];
                 break;
             case 'rankingList':

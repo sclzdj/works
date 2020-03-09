@@ -16,7 +16,7 @@ class CreatePhotographerWorksTable extends Migration
         Schema::create('photographer_works', function (Blueprint $table) {
             $table->engine = 'innodb';
             $table->increments('id');
-            $table->unsignedInteger('photographer_id')->index()->default(0)->comment('摄影师ID');
+            $table->unsignedInteger('photographer_id')->index()->default(0)->comment('用户ID');
             $table->string('customer_name', 50)->index()->default('')->comment('客户姓名');
             $table->unsignedInteger('photographer_work_customer_industry_id')->default(0)->comment('客户行业id');
             $table->unsignedInteger('project_amount')->default(0)->comment('项目金额，元');
@@ -28,11 +28,11 @@ class CreatePhotographerWorksTable extends Migration
             $table->unsignedInteger('photographer_work_category_id')->default(0)->comment('作品分类id');
             $table->unsignedSmallInteger('roof')->default(0)->comment('置顶');
             $table->unsignedSmallInteger('status')->default(0)->comment('状态【0:草稿;200:成功;400:删除;500:失败】');
-            $table->string('xacode',1000)->default('')->comment('作品集小程序码');
-            $table->string('xacode_hyaline',1000)->default('')->comment('透明作品集小程码');
+            $table->string('xacode',1000)->default('')->comment('项目小程序码');
+            $table->string('xacode_hyaline',1000)->default('')->comment('透明项目小程码');
             $table->timestamps();
         });
-        DB::statement("ALTER TABLE `photographer_works` COMMENT '前台：摄影师作品集'"); // 表注释
+        DB::statement("ALTER TABLE `photographer_works` COMMENT '前台：用户项目'"); // 表注释
     }
 
     /**

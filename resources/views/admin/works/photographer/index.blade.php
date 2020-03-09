@@ -375,7 +375,7 @@
                                                 </td>
                                                 <td class=" ">
                                                     <div class="table-cell">
-                                                        {{$photographer['rank']->name}}摄影师
+                                                        {{$photographer['rank']->name}}用户
                                                     </div>
                                                 </td>
                                                 <td class=" ">

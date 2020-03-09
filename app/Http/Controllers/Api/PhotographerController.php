@@ -28,14 +28,14 @@ use function Qiniu\base64_urlSafeEncode;
 
 
 /**
- * 摄影师相关
+ * 用户相关
  * Class SystemController
  * @package App\Http\Controllers\Api
  */
 class PhotographerController extends BaseController
 {
     /**
-     * 摄影师信息
+     * 用户信息
      * @param PhotographerRequest $request
      * @return mixed|void
      */
@@ -43,7 +43,7 @@ class PhotographerController extends BaseController
     {
         $photographer = User::photographer($request->photographer_id);
         if (!$photographer || $photographer->status != 200) {
-            return $this->response->error('摄影师不存在', 500);
+            return $this->response->error('用户不存在', 500);
         }
         $photographer = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
         $photographer = SystemServer::parseRegionName($photographer);
@@ -54,14 +54,14 @@ class PhotographerController extends BaseController
     }
 
     /**
-     * 摄影师作品集列表
+     * 用户项目列表
      * @param PhotographerRequest $request
      */
     public function works(PhotographerRequest $request)
     {
         $photographer = User::photographer($request->photographer_id);
         if (!$photographer || $photographer->status != 200) {
-            return $this->response->error('摄影师不存在', 500);
+            return $this->response->error('用户不存在', 500);
         }
         $keywords = $request->keywords;
         if ($request->keywords !== null && $request->keywords !== '') {
@@ -121,14 +121,14 @@ class PhotographerController extends BaseController
     }
 
     /**
-     * 获取摄影师作品的上一个和下一个id
+     * 获取用户作品的上一个和下一个id
      * @param PhotographerRequest $request
      */
     public function workNext(Request $request)
     {
         $photographer = User::photographer($request->photographer_id);
         if (!$photographer || $photographer->status != 200) {
-            return $this->response->error('摄影师不存在', 500);
+            return $this->response->error('用户不存在', 500);
         }
         $photographerWorks = $photographer->photographerWorks()->where(['photographer_works.status' => 200])->orderBy(
             'photographer_works.roof',
@@ -155,7 +155,7 @@ class PhotographerController extends BaseController
     }
 
     /**
-     * 获取摄影师作品的上一个和下一个id
+     * 获取用户作品的上一个和下一个小程序码
      * @param PhotographerRequest $request
      */
     public function xacodeNext(PhotographerRequest $request)
@@ -166,7 +166,7 @@ class PhotographerController extends BaseController
             $photographer = User::photographer(null, $this->guards['user']);
         }
         if (!$photographer || $photographer->status != 200) {
-            return $this->response->error('摄影师不存在', 500);
+            return $this->response->error('用户不存在', 500);
         }
         $photographerWorks = $photographer->photographerWorks()->where(['photographer_works.status' => 200])->orderBy(
             'photographer_works.roof',
@@ -178,24 +178,84 @@ class PhotographerController extends BaseController
             'photographer_works.id',
             'desc'
         )->get()->pluck('id')->toArray();
-        $next_photographerwork_id = 0;
-        $previous_photographerwork_id = 0;
+        $next_photographer_work_id = 0;
+        $previous_photographer_work_id = 0;
         foreach ($photographerWorks as $key => $item) {
             if ($item == $request->current_photographer_work_id) {
-                $next_photographerwork_id = $photographerWorks[$key - 1] ?? 0;
-                $previous_photographerwork_id = $photographerWorks[$key + 1] ?? 0;
+                $next_photographer_work_id = $photographerWorks[$key - 1] ?? 0;
+                $previous_photographer_work_id = $photographerWorks[$key + 1] ?? 0;
             }
         }
-        $data = [
-            'next' => PhotographerWork::xacode($next_photographerwork_id, false),
-            'previous' => PhotographerWork::xacode($previous_photographerwork_id, false),
-        ];
+        if($next_photographer_work_id>0){
+            if($request->is_select_work){
+                $photographer_work=PhotographerWork::find($next_photographer_work_id);
+                $photographer_work_sources = $photographer_work->photographerWorkSources()->select(
+                    PhotographerWorkSource::allowFields()
+                )->where('status', 200)->orderBy('sort', 'asc')->get();
+                $photographer_work_sources = SystemServer::getPhotographerWorkSourcesThumb($photographer_work_sources);
+                $photographer_work_sources = $photographer_work_sources->toArray();
+                $photographer_work_tags = $photographer_work->photographerWorkTags()->select(
+                    PhotographerWorkTag::allowFields()
+                )->get()->toArray();
+                $photographer_work = ArrServer::inData($photographer_work->toArray(), PhotographerWork::allowFields());
+                $photographer_work = ArrServer::toNullStrData(
+                    $photographer_work,
+                    ['sheets_number', 'shooting_duration']
+                );
+                $photographer_work = SystemServer::parsePhotographerWorkCover($photographer_work);
+                $photographer_work = SystemServer::parsePhotographerWorkCustomerIndustry($photographer_work);
+                $photographer_work = SystemServer::parsePhotographerWorkCategory($photographer_work);
+                $photographer_work['sources'] = $photographer_work_sources;
+                $photographer_work['tags'] = $photographer_work_tags;
+                $photographer_work['photographer'] = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
+                $photographer_work['photographer'] = SystemServer::parseRegionName($photographer_work['photographer']);
+                $photographer_work['photographer'] = SystemServer::parsePhotographerRank($photographer_work['photographer']);
+            }else{
+                $photographer_work=[];
+            }
+            $photographer_work['xacode'] = PhotographerWork::xacode($next_photographer_work_id, false);
+            $next=$photographer_work;
+        }else{
+            $next=[];
+        }
+        if($previous_photographer_work_id>0){
+            if($request->is_select_work){
+                $photographer_work=PhotographerWork::find($previous_photographer_work_id);
+                $photographer_work_sources = $photographer_work->photographerWorkSources()->select(
+                    PhotographerWorkSource::allowFields()
+                )->where('status', 200)->orderBy('sort', 'asc')->get();
+                $photographer_work_sources = SystemServer::getPhotographerWorkSourcesThumb($photographer_work_sources);
+                $photographer_work_sources = $photographer_work_sources->toArray();
+                $photographer_work_tags = $photographer_work->photographerWorkTags()->select(
+                    PhotographerWorkTag::allowFields()
+                )->get()->toArray();
+                $photographer_work = ArrServer::inData($photographer_work->toArray(), PhotographerWork::allowFields());
+                $photographer_work = ArrServer::toNullStrData(
+                    $photographer_work,
+                    ['sheets_number', 'shooting_duration']
+                );
+                $photographer_work = SystemServer::parsePhotographerWorkCover($photographer_work);
+                $photographer_work = SystemServer::parsePhotographerWorkCustomerIndustry($photographer_work);
+                $photographer_work = SystemServer::parsePhotographerWorkCategory($photographer_work);
+                $photographer_work['sources'] = $photographer_work_sources;
+                $photographer_work['tags'] = $photographer_work_tags;
+                $photographer_work['photographer'] = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
+                $photographer_work['photographer'] = SystemServer::parseRegionName($photographer_work['photographer']);
+                $photographer_work['photographer'] = SystemServer::parsePhotographerRank($photographer_work['photographer']);
+            }else{
+                $photographer_work=[];
+            }
+            $photographer_work['xacode'] = PhotographerWork::xacode($previous_photographer_work_id, false);
+            $previous=$photographer_work;
+        }else{
+            $previous=[];
+        }
 
-        return $this->response->array($data);
+        return $this->response->array(compact('next','previous'));
     }
 
     /**
-     * 摄影师作品集信息
+     * 用户项目信息
      * @param PhotographerRequest $request
      */
     public function work(PhotographerRequest $request)
@@ -204,11 +264,11 @@ class PhotographerController extends BaseController
             ['status' => 200, 'id' => $request->photographer_work_id]
         )->first();
         if (!$photographer_work) {
-            return $this->response->error('摄影师作品集不存在', 500);
+            return $this->response->error('用户项目不存在', 500);
         }
         $photographer = User::photographer($photographer_work->photographer_id);
         if (!$photographer || $photographer->status != 200) {
-            return $this->response->error('摄影师不存在', 500);
+            return $this->response->error('用户不存在', 500);
         }
         $photographer_work_sources = $photographer_work->photographerWorkSources()->select(
             PhotographerWorkSource::allowFields()
@@ -237,7 +297,7 @@ class PhotographerController extends BaseController
     }
 
     /**
-     * 摄影师海报
+     * 用户海报
      * @param PhotographerRequest $request
      * @return mixed|void
      */
@@ -254,7 +314,7 @@ class PhotographerController extends BaseController
 
 
     /**
-     * 新摄影师海报
+     * 新用户海报
      * @param PhotographerRequest $request
      * @return mixed|void
      */
@@ -265,7 +325,7 @@ class PhotographerController extends BaseController
         $photographer = User::photographer($photographer_id);
         if (!$photographer || $photographer->status != 200) {
             $response['code'] = 500;
-            $response['msg'] = '摄影师不存在';
+            $response['msg'] = '用户不存在';
 
             return $response;
         }
@@ -278,7 +338,7 @@ class PhotographerController extends BaseController
         }
         if ($user->identity != 1) {
             $response['code'] = 500;
-            $response['msg'] = '用户不是摄影师';
+            $response['msg'] = '用户不是用户';
 
             return $response;
         }
@@ -364,7 +424,7 @@ class PhotographerController extends BaseController
                 "Bold"
             )."/font/".base64_urlSafeEncode("Microsoft YaHei")."/gravity/SouthWest/dx/98/dy/520/";
         $handle[] = "text/".\Qiniu\base64_urlSafeEncode(
-                $photographer_city.' · '.$photographer_rank.'摄影师'
+                $photographer_city.' · '.$photographer_rank.'用户'
             )."/fontsize/720/fill/".base64_urlSafeEncode("#646464")."/font/".base64_urlSafeEncode(
                 "微软雅黑"
             )."/gravity/SouthWest/dx/99/dy/450/";
@@ -381,7 +441,7 @@ class PhotographerController extends BaseController
             )."/fontstyle/".base64_urlSafeEncode("Bold")."/font/".base64_urlSafeEncode(
                 "Microsoft YaHei"
             )."/gravity/NorthWest/dx/101/dy/180/";
-        $handle[] = "text/".\Qiniu\base64_urlSafeEncode("我是摄影师")."/fontsize/2000/fill/".base64_urlSafeEncode(
+        $handle[] = "text/".\Qiniu\base64_urlSafeEncode("我是用户")."/fontsize/2000/fill/".base64_urlSafeEncode(
                 "#FFFFFF"
             )."/fontstyle/".base64_urlSafeEncode("Bold")."/font/".base64_urlSafeEncode(
                 "Microsoft YaHei"
@@ -436,7 +496,7 @@ class PhotographerController extends BaseController
                 "Bold"
             )."/font/".base64_urlSafeEncode("Microsoft YaHei")."/gravity/SouthWest/dx/100/dy/520/";
         $handle[] = "text/".\Qiniu\base64_urlSafeEncode(
-                $photographer_city.' · '.$photographer_rank.'摄影师'
+                $photographer_city.' · '.$photographer_rank.'用户'
             )."/fontsize/720/fill/".base64_urlSafeEncode("#646464")."/font/".base64_urlSafeEncode(
                 "微软雅黑"
             )."/gravity/SouthWest/dx/100/dy/450/";
@@ -471,7 +531,7 @@ class PhotographerController extends BaseController
                 "Bold"
             )."/font/".base64_urlSafeEncode("Microsoft YaHei")."/gravity/SouthWest/dx/100/dy/520/";
         $handle[] = "text/".\Qiniu\base64_urlSafeEncode(
-                $photographer_city.' · '.$photographer_rank.'摄影师'
+                $photographer_city.' · '.$photographer_rank.'用户'
             )."/fontsize/720/fill/".base64_urlSafeEncode("#646464")."/font/".base64_urlSafeEncode(
                 "微软雅黑"
             )."/gravity/SouthWest/dx/100/dy/450/";
@@ -513,7 +573,7 @@ class PhotographerController extends BaseController
 
 
     /**
-     * 摄影师作品集海报
+     * 用户项目海报
      * @param PhotographerRequest $request
      * @return mixed|void
      */
@@ -523,11 +583,11 @@ class PhotographerController extends BaseController
             ['status' => 200, 'id' => $request->photographer_work_id]
         )->first();
         if (!$photographer_work) {
-            return $this->response->error('摄影师作品集不存在', 500);
+            return $this->response->error('用户项目不存在', 500);
         }
         $photographer = User::photographer($photographer_work->photographer_id);
         if (!$photographer || $photographer->status != 200) {
-            return $this->response->error('摄影师不存在', 500);
+            return $this->response->error('用户不存在', 500);
         }
         $response = PhotographerWork::poster($request->photographer_work_id);
         if ($response['code'] != 200) {
@@ -547,11 +607,11 @@ class PhotographerController extends BaseController
         )->first();
         $photographer = User::photographer($photographer_work->photographer_id);
         if (!$photographer_work) {
-            return $this->response->error('摄影师作品集不存在', 500);
+            return $this->response->error('用户项目不存在', 500);
         }
         $photographer = User::photographer($photographer_work->photographer_id);
         if (!$photographer || $photographer->status != 200) {
-            return $this->response->error('摄影师不存在', 500);
+            return $this->response->error('用户不存在', 500);
         }
 
         $user = User::where(['photographer_id' => $photographer->id])->first();
@@ -563,7 +623,7 @@ class PhotographerController extends BaseController
         }
         if ($user->identity != 1) {
             $response['code'] = 500;
-            $response['msg'] = '用户不是摄影师';
+            $response['msg'] = '用户不是用户';
 
             return $response;
         }

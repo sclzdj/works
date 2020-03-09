@@ -18,12 +18,12 @@ class CreatePhotographerRankingLogsTable extends Migration
             function (Blueprint $table) {
                 $table->engine = 'innodb';
                 $table->increments('id');
-                $table->unsignedInteger('photographer_id')->index()->default(0)->comment('摄影师ID');
+                $table->unsignedInteger('photographer_id')->index()->default(0)->comment('用户ID');
                 $table->unsignedInteger('ranking')->default(0)->comment('排名');
                 $table->timestamps();
             }
         );
-        DB::statement("ALTER TABLE `photographer_ranking_logs` COMMENT '前台：摄影师排名记录'"); // 表注释
+        DB::statement("ALTER TABLE `photographer_ranking_logs` COMMENT '前台：用户排名记录'"); // 表注释
     }
 
     /**

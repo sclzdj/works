@@ -54,10 +54,10 @@ $api->version(
                 $api->get('PhotographerWorkCustomerIndustries', 'SystemController@PhotographerWorkCustomerIndustries');
                 $api->get('visitorTags', 'SystemController@visitorTags');
                 $api->get('configs', 'SystemController@configs');
-                //用户登录
+                //微信用户登录
                 $api->get('login', 'LoginController@mpLogin');
                 $api->post('login', 'LoginController@login');
-                //用户中心
+                //微信用户中心
                 $api->get('my/logout', 'MyController@logout');
                 $api->get('my/refresh', 'MyController@refresh');
                 $api->post('my/saveInfo', 'MyController@saveInfo');
@@ -83,10 +83,10 @@ $api->version(
                 $api->get('my/photographerStatistics', 'MyController@photographerStatistics');
                 $api->get('my/photographerShare' , 'MyController@photographerShare');
                 $api->get('my/photographerWorkShare' , 'MyController@photographerWorkShare');
-                // 摄影师作品 成片个数 拍摄时长 项目金额
+                // 用户作品 成片个数 拍摄时长 项目金额
                 $api->get('my/photographerWorkHide' , 'MyController@photographerWorkHide');
 
-                //摄影师注册
+                //用户注册
                 $api->get('draft/registerPhotographerWorkSource', 'DraftController@registerPhotographerWorkSource');
                 $api->post(
                     'draft/registerPhotographerWorkSource',
@@ -96,7 +96,7 @@ $api->version(
                 $api->post('draft/registerPhotographerWork', 'DraftController@registerPhotographerWorkStore');
                 $api->get('draft/registerPhotographer', 'DraftController@registerPhotographer');
                 $api->post('draft/registerPhotographer', 'DraftController@registerPhotographerStore');
-                //摄影师
+                //用户
                 $api->get('photographer/info', 'PhotographerController@info');
                 $api->get('photographer/works', 'PhotographerController@works');
                 $api->get('photographer/work', 'PhotographerController@work');

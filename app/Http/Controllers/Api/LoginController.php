@@ -43,7 +43,7 @@ class LoginController extends UserGuardController
                 $random = str_random(10);
                 $user->username = 'user_'.$random;
                 $user->password = bcrypt('works123456');
-                $user->nickname = '用户_'.$random;
+                $user->nickname = '微信用户_'.$random;
                 $user->remember_token = str_random(10);
                 $user->openid = $data['openid'];
                 $userPresetCreate = User::presetCreate();

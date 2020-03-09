@@ -15,7 +15,7 @@ class CreateBootstrapTable extends Migration
     {
         Schema::create('bootstraps', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('user_id')->default(0)->comment('摄影师ID');
+            $table->unsignedInteger('user_id')->default(0)->comment('用户ID');
             $table->unsignedInteger('home')->default(0)->comment('主页');
             $table->unsignedInteger('work')->default(0)->comment('作品');
             $table->unsignedInteger('user')->default(0)->comment('用户控制台');

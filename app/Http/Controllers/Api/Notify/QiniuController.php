@@ -37,7 +37,7 @@ class QiniuController extends BaseController
         )->first();
         if (!$photographerWorkSource) {
             return ErrLogServer::QiniuNotifyFetch(
-                '作品集资源不存在',
+                '项目资源不存在',
                 $request_data,
                 $asyncBaiduWorkSourceUpload
             );
@@ -107,29 +107,29 @@ class QiniuController extends BaseController
     {
         $request_data = \Request::all();
         \Log::error(var_export($request_data, 1));
-        // 判断作品集资源是否存在
+        // 判断项目资源是否存在
         $photographerWorkSource = PhotographerWorkSource::where(
             ['id' => $request_data['photographer_work_source_id']]
         )->first();
         if (!$photographerWorkSource) {
-            return ErrLogServer::QiniuNotifyFop($request_data['step'], '作品集资源不存在：', $request_data);
+            return ErrLogServer::QiniuNotifyFop($request_data['step'], '项目资源不存在：', $request_data);
         }
-        // 判断作品集是否存在
+        // 判断项目是否存在
         $photographerWork = PhotographerWork::where(['id' => $photographerWorkSource->photographer_work_id])->first();
         if (!$photographerWork) {
             return ErrLogServer::QiniuNotifyFop(
                 $request_data['step'],
-                '作品集不存在',
+                '项目不存在',
                 $request_data,
                 $photographerWorkSource
             );
         }
-        // 判断摄影师是否存在
+        // 判断用户是否存在
         $photographer = Photographer::where(['id' => $photographerWork->photographer_id])->first();
         if (!$photographer) {
             return ErrLogServer::QiniuNotifyFop(
                 $request_data['step'],
-                '摄影师不存在',
+                '用户不存在',
                 $request_data,
                 $photographerWorkSource
             );
@@ -154,7 +154,7 @@ class QiniuController extends BaseController
                     $photographerWorkSource
                 );
             }
-            // 判断作品集第0个不存在报错，
+            // 判断项目第0个不存在报错，
             if (!isset($request_data['items'][0]) ||
                 (isset($request_data['items'][0]) && $request_data['items'][0]['code'] != 0)
             ) {
@@ -249,7 +249,7 @@ class QiniuController extends BaseController
 
             } elseif ($request_data['step'] == 3) {
             }
-//            elseif ($request_data['step'] == 4) {  // 作品集分享图
+//            elseif ($request_data['step'] == 4) {  // 项目分享图
 //                $photographerWork->share_url = $request_data['items'][0]['key'];
 //                $photographerWork->save();
 //            } elseif ($request_data['step'] == 5) {  // 个人分享图

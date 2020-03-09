@@ -395,7 +395,7 @@ class PhotographerController extends BaseController
     }
 
     /**
-     * 摄影师海报
+     * 用户海报
      * @param Request $request
      */
     public function poster(Request $request)
@@ -410,7 +410,7 @@ class PhotographerController extends BaseController
     }
 
     /**
-     * 摄影师图库
+     * 用户图库
      * @param Request $request
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View|void
      */
@@ -418,7 +418,7 @@ class PhotographerController extends BaseController
     {
         $photographer = Photographer::where(['id' => $request->id, 'status' => 200])->first();
         if (!$photographer) {
-            return abort(404, '摄影师不存在');
+            return abort(404, '用户不存在');
         }
         $pageInfo = [
             'pageSize' => $request['pageSize'] !== null ?

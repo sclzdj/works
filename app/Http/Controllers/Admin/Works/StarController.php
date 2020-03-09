@@ -68,12 +68,12 @@ class StarController extends BaseController
         $result = false;
         $photographer_id = $request->input('form.status', 0);
         if (empty($photographer_id)) {
-            $msg = "摄影师不存在";
+            $msg = "用户不存在";
             return response()->json(compact('result', 'msg'));
         }
 
         if (Star::where(compact('photographer_id'))->first()) {
-            $msg = "摄影师已经存在";
+            $msg = "用户已经存在";
             return response()->json(compact('result', 'msg'));
         }
 
@@ -81,7 +81,7 @@ class StarController extends BaseController
             'photographer_id' => $photographer_id,
             'created_at' => date('Y-m-d H:i:s')
         ]);
-        $msg = "摄影师添加成功";
+        $msg = "用户添加成功";
         return response()->json(compact('result', 'msg'));
     }
 

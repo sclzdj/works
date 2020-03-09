@@ -30,7 +30,7 @@ use Qiniu\Storage\BucketManager;
 class DraftController extends UserGuardController
 {
     /**
-     * 查出摄影师注册作品集资源
+     * 查出用户注册项目资源
      * @return mixed|void
      */
     public function registerPhotographerWorkSource()
@@ -61,7 +61,7 @@ class DraftController extends UserGuardController
     }
 
     /**
-     * 保存摄影师注册作品集资源
+     * 保存用户注册项目资源
      * @param PhotographerRequest $request
      * @return \Dingo\Api\Http\Response|void
      */
@@ -176,7 +176,7 @@ class DraftController extends UserGuardController
     }
 
     /**
-     * 查出摄影师注册作品集信息
+     * 查出用户注册项目信息
      * @return mixed|void
      */
     public function registerPhotographerWork()
@@ -213,7 +213,7 @@ class DraftController extends UserGuardController
     }
 
     /**
-     * 保存摄影师注册作品集信息
+     * 保存用户注册项目信息
      * @param PhotographerRequest $request
      * @return \Dingo\Api\Http\Response|void
      */
@@ -280,7 +280,7 @@ class DraftController extends UserGuardController
     }
 
     /**
-     * 查出摄影师注册信息
+     * 查出用户注册信息
      * @return mixed|void
      */
     public function registerPhotographer()
@@ -296,7 +296,7 @@ class DraftController extends UserGuardController
     }
 
     /**
-     * 保存摄影师注册信息
+     * 保存用户注册信息
      * @param PhotographerRequest $request
      * @return \Dingo\Api\Http\Response|void
      */
@@ -367,7 +367,7 @@ class DraftController extends UserGuardController
             if (!$photographer_work) {
                 \DB::rollback();//回滚事务
 
-                return $this->response->error('作品集不存在', 500);
+                return $this->response->error('项目不存在', 500);
             }
             $photographerWorkSources = $photographer_work->photographerWorkSources()->where(
                 ['status' => 200]
@@ -423,7 +423,7 @@ class DraftController extends UserGuardController
                             'keyword2' => SystemArea::where('id', $photographer->city)->value('short_name'),
                             'keyword3' => PhotographerRank::where('id', $photographer->photographer_rank_id)->value(
                                     'name'
-                                ).'摄影师',
+                                ).'用户',
                             'keyword4' => $photographer->wechat,
                             'keyword5' => $photographer->mobile,
                             'remark' => '云作品客服微信'.SystemConfig::getVal('customer_wechat', 'works'),
@@ -457,7 +457,7 @@ class DraftController extends UserGuardController
     }
 
     /**
-     * 查出添加摄影师作品集资源
+     * 查出添加用户项目资源
      * @return mixed|void
      */
     public function addPhotographerWorkSource()
@@ -480,7 +480,7 @@ class DraftController extends UserGuardController
     }
 
     /**
-     * 保存添加摄影师作品集资源
+     * 保存添加用户项目资源
      * @param PhotographerRequest $request
      * @return \Dingo\Api\Http\Response|void
      */
@@ -608,7 +608,7 @@ class DraftController extends UserGuardController
             }
             $photographer_work->photographerWorkSources()->where(['status' => 300])->update(['status' => 400]);
             \DB::commit();//提交事务
-            // 初始化作品集分享图
+            // 初始化项目分享图
             return $this->response->noContent();
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
@@ -618,7 +618,7 @@ class DraftController extends UserGuardController
     }
 
     /**
-     * 查出添加摄影师作品集信息
+     * 查出添加用户项目信息
      * @return mixed|void
      */
     public function addPhotographerWork()
@@ -650,7 +650,7 @@ class DraftController extends UserGuardController
     }
 
     /**
-     * 保存添加摄影师作品集信息
+     * 保存添加用户项目信息
      * @param PhotographerRequest $request
      * @return \Dingo\Api\Http\Response|void
      */

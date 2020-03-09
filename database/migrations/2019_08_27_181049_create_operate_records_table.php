@@ -17,8 +17,8 @@ class CreateOperateRecordsTable extends Migration
             $table->engine = 'innodb';
             $table->increments('id');
             $table->unsignedInteger('user_id')->index()->default(0)->comment('用户ID');
-            $table->unsignedInteger('photographer_id')->index()->default(0)->comment('摄影师的ID');
-            $table->unsignedInteger('photographer_work_id')->default(0)->comment('摄影师作品集的ID');
+            $table->unsignedInteger('photographer_id')->index()->default(0)->comment('用户的ID');
+            $table->unsignedInteger('photographer_work_id')->default(0)->comment('用户项目的ID');
             $table->string('page_name',100)->default('')->comment('页面名称');
             $table->string('operate_type',100)->default('')->comment('操作类型');
             $table->string('in_type',100)->default('')->comment('进入方式');

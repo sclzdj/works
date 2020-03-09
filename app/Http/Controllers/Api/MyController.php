@@ -37,7 +37,7 @@ use Qiniu\Storage\BucketManager;
 class MyController extends UserGuardController
 {
     /**
-     * 用户信息保存
+     * 微信用户信息保存
      *
      * @param UserRequest $request
      *
@@ -113,7 +113,7 @@ class MyController extends UserGuardController
     }
 
     /**
-     * 用户信息保存
+     * 微信用户信息保存
      *
      * @param UserRequest $request
      *
@@ -188,7 +188,7 @@ class MyController extends UserGuardController
     }
 
     /**
-     * 用户身份
+     * 微信用户身份
      * @return mixed
      */
     public function identity()
@@ -206,7 +206,7 @@ class MyController extends UserGuardController
     }
 
     /**
-     * 我的摄影师信息
+     * 我的用户信息
      *
      * @return \Dingo\Api\Http\Response
      */
@@ -215,7 +215,7 @@ class MyController extends UserGuardController
         $this->notPhotographerIdentityVerify();
         $photographer = User::photographer(null, $this->guard);
         if (!$photographer || $photographer->status != 200) {
-            return $this->response->error('摄影师不存在', 500);
+            return $this->response->error('用户不存在', 500);
         }
         $photographer = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
         $photographer = SystemServer::parseRegionName($photographer);
@@ -226,7 +226,7 @@ class MyController extends UserGuardController
     }
 
     /**
-     * 我的摄影师作品集列表
+     * 我的用户项目列表
      * @param UserRequest $request
      */
     public function photographerWorks(UserRequest $request)
@@ -234,7 +234,7 @@ class MyController extends UserGuardController
         $this->notPhotographerIdentityVerify();
         $photographer = User::photographer(null, $this->guard);
         if (!$photographer || $photographer->status != 200) {
-            return $this->response->error('摄影师不存在', 500);
+            return $this->response->error('用户不存在', 500);
         }
         $keywords = $request->keywords;
         if ($request->keywords !== null && $request->keywords !== '') {
@@ -294,7 +294,7 @@ class MyController extends UserGuardController
     }
 
     /**
-     * 我的摄影师作品集详情
+     * 我的用户项目详情
      * @param UserRequest $request
      */
     public function photographerWork(UserRequest $request)
@@ -304,14 +304,14 @@ class MyController extends UserGuardController
             ['status' => 200, 'id' => $request->photographer_work_id]
         )->first();
         if (!$photographer_work) {
-            return $this->response->error('摄影师作品集不存在', 500);
+            return $this->response->error('用户项目不存在', 500);
         }
         $photographer = User::photographer(null, $this->guard);
         if (!$photographer || $photographer->status != 200) {
-            return $this->response->error('摄影师不存在', 500);
+            return $this->response->error('用户不存在', 500);
         }
         if ($photographer_work->photographer_id != $photographer->id) {
-            return $this->response->error('摄影师作品集不存在', 500);
+            return $this->response->error('用户项目不存在', 500);
         }
         $photographer_work_sources = $photographer_work->photographerWorkSources()->select(
             PhotographerWorkSource::allowFields()
@@ -340,7 +340,7 @@ class MyController extends UserGuardController
     }
 
     /**
-     * 我的摄影师作品资源列表
+     * 我的用户作品资源列表
      * @param UserRequest $request
      */
     public function photographerWorkSources(UserRequest $request)
@@ -348,7 +348,7 @@ class MyController extends UserGuardController
         $this->notPhotographerIdentityVerify();
         $photographer = User::photographer(null, $this->guard);
         if (!$photographer || $photographer->status != 200) {
-            return $this->response->error('摄影师不存在', 500);
+            return $this->response->error('用户不存在', 500);
         }
         $fields = array_map(
             function ($v) {
@@ -392,7 +392,7 @@ class MyController extends UserGuardController
     }
 
     /**
-     * 我的摄影师统计信息
+     * 我的用户统计信息
      * @param UserRequest $request
      * @return mixed|void
      */
@@ -403,7 +403,7 @@ class MyController extends UserGuardController
         $rankListLast = $request->rankListLast ?? 50;
         $photographer = User::photographer(null, $this->guard);
         if (!$photographer || $photographer->status != 200) {
-            return $this->response->error('摄影师不存在', 500);
+            return $this->response->error('用户不存在', 500);
         }
         // 获取一下上次的登录时间
         $user_growth_count = UserGrowths::getUserGrowthCount($this->guard);
@@ -458,7 +458,7 @@ class MyController extends UserGuardController
     }
 
     /**
-     * 删除我的摄影师作品集
+     * 删除我的用户项目
      * @param UserRequest $request
      */
     public function photographerWorkDelete(UserRequest $request)
@@ -468,14 +468,14 @@ class MyController extends UserGuardController
             ['status' => 200, 'id' => $request->photographer_work_id]
         )->first();
         if (!$photographer_work) {
-            return $this->response->error('摄影师作品集不存在', 500);
+            return $this->response->error('用户项目不存在', 500);
         }
         $photographer = User::photographer(null, $this->guard);
         if (!$photographer || $photographer->status != 200) {
-            return $this->response->error('摄影师不存在', 500);
+            return $this->response->error('用户不存在', 500);
         }
         if ($photographer_work->photographer_id != $photographer->id) {
-            return $this->response->error('摄影师作品集不存在', 500);
+            return $this->response->error('用户项目不存在', 500);
         }
         \DB::beginTransaction();//开启事务
         try {
@@ -492,7 +492,7 @@ class MyController extends UserGuardController
     }
 
     /**
-     * 作品集相关参数显影
+     * 项目相关参数显影
      * @param UserRequest $request
      */
     public function photographerWorkHide(UserRequest $request)
@@ -507,7 +507,7 @@ class MyController extends UserGuardController
             ]
         )->first();
         if (empty($photographer_work)) {
-            return $this->response->error('摄影师作品集不存在', 500);
+            return $this->response->error('用户项目不存在', 500);
         }
         $type = $request->input('type');
         $status = $request->input('status');
@@ -538,7 +538,7 @@ class MyController extends UserGuardController
     }
 
     /**
-     * 保存我的摄影师信息
+     * 保存我的用户信息
      * @param UserRequest $request
      * @return \Dingo\Api\Http\Response|void
      */
@@ -567,10 +567,10 @@ class MyController extends UserGuardController
             if ($other_photographer) {
                 \DB::rollback();//回滚事务
 
-                return $this->response->error('该手机号已被注册成为摄影师了', 500);
+                return $this->response->error('该手机号已经创建过云作品', 500);
             }
             if (!$photographer || $photographer->status != 200) {
-                return $this->response->error('摄影师不存在', 500);
+                return $this->response->error('用户不存在', 500);
             }
             if ($request->avatar !== null) {
                 $photographer->avatar = $request->avatar;
@@ -595,7 +595,7 @@ class MyController extends UserGuardController
     }
 
     /**
-     * 保存我的摄影师头像
+     * 保存我的用户头像
      * @param UserRequest $request
      * @return \Dingo\Api\Http\Response|void
      */
@@ -606,7 +606,7 @@ class MyController extends UserGuardController
         try {
             $photographer = User::photographer(null, $this->guard);
             if (!$photographer || $photographer->status != 200) {
-                return $this->response->error('摄影师不存在', 500);
+                return $this->response->error('用户不存在', 500);
             }
             $photographer->avatar = (string)$request->avatar;
             $photographer->save();
@@ -621,7 +621,7 @@ class MyController extends UserGuardController
     }
 
     /**
-     * 保存我的摄影师背景图片
+     * 保存我的用户背景图片
      * @param UserRequest $request
      * @return \Dingo\Api\Http\Response|void
      */
@@ -632,7 +632,7 @@ class MyController extends UserGuardController
         try {
             $photographer = User::photographer(null, $this->guard);
             if (!$photographer || $photographer->status != 200) {
-                return $this->response->error('摄影师不存在', 500);
+                return $this->response->error('用户不存在', 500);
             }
             $photographer->bg_img = (string)$request->bg_img;
             $photographer->save();
@@ -658,13 +658,13 @@ class MyController extends UserGuardController
         try {
             $photographer = User::photographer(null, $this->guard);
             if (!$photographer || $photographer->status != 200) {
-                return $this->response->error('摄影师不存在', 500);
+                return $this->response->error('用户不存在', 500);
             }
             $photographerWork = $photographer->photographerWorks()->where(
                 ['id' => $request->photographer_work_id, 'status' => 200]
             )->first();
             if (!$photographerWork) {
-                return $this->response->error('摄影师作品集不存在', 500);
+                return $this->response->error('用户项目不存在', 500);
             }
             $photographerWorks = $photographer->photographerWorks()->select(['id', 'roof'])->where(
                 ['status' => 200]
@@ -705,7 +705,7 @@ class MyController extends UserGuardController
     }
 
     /**
-     * 修改我的摄影师作品集
+     * 修改我的用户项目
      * @param UserRequest $request
      * @return \Dingo\Api\Http\Response|void
      */
@@ -735,7 +735,7 @@ class MyController extends UserGuardController
                 ['id' => $request->photographer_work_id, 'status' => 200]
             )->first();
             if (!$photographer_work) {
-                return $this->response->error('摄影师作品集不存在', 500);
+                return $this->response->error('用户项目不存在', 500);
             }
             $photographer_work->customer_name = $request->customer_name;
             $photographer_work->photographer_work_customer_industry_id = $request->photographer_work_customer_industry_id;
@@ -959,7 +959,7 @@ class MyController extends UserGuardController
     }
 
     /**
-     * 随机摄影师列表
+     * 随机用户列表
      * @return mixed|void
      */
     public function randomPhotographers()
@@ -1060,7 +1060,7 @@ class MyController extends UserGuardController
     }
 
     /**
-     * 获取我的浏览摄影师记录
+     * 获取我的浏览用户记录
      * @param UserRequest $request
      * @return mixed
      */
@@ -1256,7 +1256,7 @@ class MyController extends UserGuardController
     }
 
     /**
-     * 获取摄影师的分享图
+     * 获取用户的分享图
      * @return mixed|void
      */
     public function photographerShare(Request $request)
@@ -1280,7 +1280,7 @@ class MyController extends UserGuardController
     }
 
     /**
-     * 获取作品集的分享图
+     * 获取项目的分享图
      * @return mixed|void
      */
     public function photographerWorkShare(Request $request)
