@@ -55,6 +55,7 @@ class VisitRequest extends BaseRequest
             case 'visitors':
                 $rules = [
                     'visitor_tag_id' => 'integer',
+                    'is_remind'=>'integer|in:0,1',
                 ];
                 $rules = array_merge($rules, $this->predefined['paginate']['rules']);
                 break;
@@ -138,6 +139,8 @@ class VisitRequest extends BaseRequest
             case 'visitors':
                 $messages = [
                     'visitor_tag_id.integer' => '访客标签id必须为数字',
+                    'is_remind.integer' => '是否关注必须为数字',
+                    'is_remind.in' => '是否关注错误',
                 ];
                 $messages = array_merge($messages, $this->predefined['paginate']['messages']);
                 break;

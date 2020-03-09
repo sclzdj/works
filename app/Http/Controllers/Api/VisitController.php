@@ -297,7 +297,7 @@ class VisitController extends UserGuardController
                 }
             }
             $visitor = Visitor::create(['photographer_id' => $request->photographer_id, 'user_id' => $user->id]);
-            if ($user->identity==1) {
+            if ($user->identity == 1) {
                 $visitor->visitor_tag_id = 4;//如果访客也为用户标记为同行
             }
             if ($visitors_count + 1 < 3) {
@@ -480,10 +480,13 @@ class VisitController extends UserGuardController
         $Visitor = Visitor::join('users', 'visitors.user_id', '=', 'users.id')->select($fields)->where(
             ['visitors.photographer_id' => $photographer->id]
         );
-        if ($request->visitor_tag_id!==null && $request->visitor_tag_id >= 0) {
+        if ($request->is_remind !== null) {
+            $Visitor->where('visitors.is_remind', $request->is_remind);
+        }
+        if ($request->visitor_tag_id !== null && $request->visitor_tag_id >= 0) {
             $Visitor->where('visitors.visitor_tag_id', $request->visitor_tag_id);
         }
-        if ($request->keywords!==null && $request->keywords!=='') {
+        if ($request->keywords !== null && $request->keywords !== '') {
             $Visitor->where('users.nickname', 'like', '%'.$request->keywords.'%');
         }
         $visitors = $Visitor->orderBy('visitors.last_operate_record_at', 'desc')->orderBy(
@@ -521,6 +524,14 @@ class VisitController extends UserGuardController
             $visitors['data'][$k]['visitor_tag_type'] = $visitor_tag_type;
             $visitors['data'][$k]['user'] = User::select(User::allowFields())->where('id', $visitor['user_id'])->first(
             )->toArray();
+            $operateRecord = OperateRecord::where(
+                [
+                    'user_id' => $visitor['user_id'],
+                    'photographer_id' => $visitor['photographer_id'],
+                    'operate_type' => 'in',
+                ]
+            )->orderBy('created_at', 'asc')->orderBy("id", "asc")->first();
+            $visitors['data'][$k]['first_in_operate_record'] = $this->_generateFirstInOperateRecord($operateRecord);
         }
         $visitors['data'] = SystemServer::parseVisitorTag($visitors['data']);
 
@@ -596,17 +607,7 @@ class VisitController extends UserGuardController
                     'operate_type' => 'in',
                 ]
             )->orderBy('created_at', 'asc')->orderBy("id", "asc")->first();
-            if ($operateRecord) {
-                $visitor['first_in_operate_record'] = [
-                    'date' => date('Y/m/d', strtotime($operateRecord->created_at)),
-                    'describe' => $this->_makeDescribe($operateRecord->id),
-                ];
-            } else {
-                $visitor['first_in_operate_record'] = [
-                    'date' => '',
-                    'describe' => '',
-                ];
-            }
+            $visitor['first_in_operate_record'] = $this->_generateFirstInOperateRecord($operateRecord);
             \DB::commit();//提交事务
             $visitor = SystemServer::parseVisitorTag($visitor);
 
@@ -680,7 +681,7 @@ class VisitController extends UserGuardController
                     'describe' => $records[$_k]['describe'],
                 ];
             }
-            $view_records[$k]['date']=date('Y/m/d',strtotime($view_record['date']));
+            $view_records[$k]['date'] = date('Y/m/d', strtotime($view_record['date']));
             $view_records[$k]['view_records'] = $records;
         }
 
@@ -690,9 +691,10 @@ class VisitController extends UserGuardController
     /**
      * 生成访问记录描述
      * @param $operate_id
+     * @param $is_special 是否为特殊处理记录
      * @return string
      */
-    private function _makeDescribe($operate_id)
+    private function _makeDescribe($operate_id, $is_special = false)
     {
         $operateRecord = OperateRecord::where(['id' => $operate_id])->first();
         $visitor_nickname = (string)User::where('id', $operateRecord->user_id)->value('nickname');
@@ -717,7 +719,16 @@ class VisitController extends UserGuardController
                     $describe = '扫描「'.$photographer_work_customer_name.'」的小程序码进入';
                 }
             } elseif ($operateRecord->in_type == 'xacard_in') {
-                $describe = '通过'.$shared_user_nickname.'分享的小程序卡片进入';
+                $auth_id = auth($this->guard)->id();
+                if ($operateRecord->shared_user_id == $auth_id) {
+                    $describe = '通过我分享的小程序卡片进入';
+                } else {
+                    if ($is_special) {
+                        $describe = '通过XX分享的小程序卡片进入';
+                    } else {
+                        $describe = '通过'.$shared_user_nickname.'分享的小程序卡片进入';
+                    }
+                }
             } elseif ($operateRecord->in_type == 'ranking_list_in') {
                 $describe = '通过「人脉排行榜」进入';
             } elseif ($operateRecord->in_type == 'big_shot_used_in') {
@@ -750,5 +761,45 @@ class VisitController extends UserGuardController
         }
 
         return $describe;
+    }
+
+    /**
+     * 生成首次进入记录
+     * @param OperateRecord $operateRecord
+     */
+    public function _generateFirstInOperateRecord(OperateRecord $operateRecord)
+    {
+        if ($operateRecord) {
+            $auth_id = auth($this->guard)->id();
+            $first_in_operate_record = [
+                'in_type'=>$operateRecord->in_type,
+                'date' => date('Y/m/d', strtotime($operateRecord->created_at)),
+                'describe' => $this->_makeDescribe($operateRecord->id, true),
+            ];
+            if ($operateRecord->in_type == 'xacard_in') {
+                if ($auth_id == $operateRecord->shared_user_id) {
+                    $shared_user_is_me = 1;
+                } else {
+                    $shared_user_is_me = 0;
+                }
+                $first_in_operate_record['shared_user_is_me'] = $shared_user_is_me;
+                if(!$shared_user_is_me){
+                    $shared_visitor_id = (int)Visitor::where(
+                        ['user_id' => $operateRecord->shared_user_id, 'photographer_id' => $operateRecord->photographer_id]
+                    )->value('id');
+                    $shared_user = User::select(User::allowFields())->where('id', $operateRecord->shared_user_id)->first();
+                    $first_in_operate_record['shared_visitor_id'] = $shared_visitor_id;
+                    $first_in_operate_record['shared_user'] = $shared_user;
+                }
+            }
+        } else {
+            $first_in_operate_record = [
+                'in_type'=>'',
+                'date' => '',
+                'describe' => '',
+            ];
+        }
+
+        return $first_in_operate_record;
     }
 }
