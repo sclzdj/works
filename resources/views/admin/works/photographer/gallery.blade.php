@@ -30,27 +30,34 @@
                                         <div class="row" style="padding:10px 3%;">
                                             <div class="col-12">
                                                 <img class="image img-thumbnail"
-                                                     data-original="{{$photographerWorkSource->deal_url}}"
-                                                     src="{{$photographerWorkSource->deal_url}}"
-                                                     alt="{{$photographerWorkSource->deal_key}}"
+                                                     data-original="{{$photographerWorkSource->thumb_url?:asset('/static/admin/img/in-generation.png'.'?'.$SFV)}}"
+                                                     src="{{$photographerWorkSource->thumb_url?:asset('/static/admin/img/in-generation.png'.'?'.$SFV)}}"
+                                                     alt="{{$photographerWorkSource->id}}"
                                                      style="max-width: 200px;width: 200px;height:200px;border-bottom-left-radius: 0;border-bottom-right-radius: 0;border-bottom: none;">
                                             </div>
                                             <div class="col-12">
-                                                <a class="btn btn-default" href="{{$photographerWorkSource->url}}"
-                                                   download="{{$photographerWorkSource->key}}" target="_blank"
+                                                <img data-original="{{$photographerWorkSource->url}}"
+                                                     src="{{$photographerWorkSource->url}}"
+                                                     alt="{{$photographerWorkSource->key}}"
+                                                     style="display: none;">
+                                                <a class="btn btn-default" href="javascript:;" onclick="$(this).parent().find('img').click()"
                                                    style="width: 200px;border-top-left-radius: 0;border-top-right-radius: 0;border-bottom: none;">原图</a>
                                             </div>
                                             <div class="col-12">
-                                                <a class="btn btn-default"
-                                                   href="{{$photographerWorkSource->deal_url}}"
-                                                   download="{{$photographerWorkSource->deal_key}}" target="_blank"
-                                                   style="width: 200px;border-top-left-radius: 0;border-top-right-radius: 0;border-bottom: none;">处理图</a>
+                                                <img data-original="{{$photographerWorkSource->deal_url?:asset('/static/admin/img/in-generation.png'.'?'.$SFV)}}"
+                                                     src="{{$photographerWorkSource->deal_url?:asset('/static/admin/img/in-generation.png'.'?'.$SFV)}}"
+                                                     alt="{{$photographerWorkSource->deal_key}}"
+                                                     style="display: none;">
+                                                <a class="btn btn-default" href="javascript:;" onclick="$(this).parent().find('img').click()"
+                                                   style="width: 200px;border-top-left-radius: 0;border-top-right-radius: 0;border-bottom: none;">1200图</a>
                                             </div>
                                             <div class="col-12">
-                                                <a class="btn btn-default"
-                                                   href="{{$photographerWorkSource->rich_url}}"
-                                                   download="{{$photographerWorkSource->rich_key}}" target="_blank"
-                                                   style="width: 200px;border-top-left-radius: 0;border-top-right-radius: 0;">水印图</a>
+                                                <img data-original="{{$photographerWorkSource->rich_url?:asset('/static/admin/img/in-generation.png'.'?'.$SFV)}}"
+                                                     src="{{$photographerWorkSource->rich_url?:asset('/static/admin/img/in-generation.png'.'?'.$SFV)}}"
+                                                     alt="{{$photographerWorkSource->rich_key}}"
+                                                     style="display: none;">
+                                                <a class="btn btn-default" href="javascript:;" onclick="$(this).parent().find('img').click()"
+                                                   style="width: 200px;border-top-left-radius: 0;border-top-right-radius: 0;border-bottom: none;">水印图</a>
                                             </div>
                                         </div>
                                     </div>

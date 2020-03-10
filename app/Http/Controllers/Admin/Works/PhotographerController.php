@@ -400,13 +400,9 @@ class PhotographerController extends BaseController
      */
     public function poster(Request $request)
     {
-        $poster = Photographer::poster($request->id);
-        if ($poster['code'] == 200) {
-            header('Location:'.$poster['url']);
-            die;
-        } else {
-            return abort(500, $poster['msg']);
-        }
+        $posters = Photographer::poster2($request->id);
+
+        return $this->response('请求成功', 200, $posters['url'.$request->num]);
     }
 
     /**
@@ -463,6 +459,11 @@ class PhotographerController extends BaseController
         )->paginate(
             $pageInfo['pageSize']
         );
+        foreach ($photographerWorkSources as $k => $photographerWorkSource) {
+            $photographerWorkSources[$k]['thumb_url'] = SystemServer::getPhotographerWorkSourceThumb(
+                $photographerWorkSource
+            );
+        }
 
         return view(
             '/admin/works/photographer/gallery',

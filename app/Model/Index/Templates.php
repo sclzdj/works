@@ -42,7 +42,14 @@ class Templates extends Model
     public static function allowFields()
     {
         return [
-
+            'number',
+            'purpose',
+            'text1',
+            'text2',
+            'text3',
+            'text4',
+            'background',
+            'created_at',
         ];
     }
 

@@ -12,6 +12,7 @@ use App\Model\Index\PhotographerWorkCategory;
 use App\Model\Index\PhotographerWorkCustomerIndustry;
 use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\PhotographerWorkTag;
+use App\Model\Index\Templates;
 use App\Model\Index\User;
 use App\Servers\ArrServer;
 use App\Servers\ErrLogServer;
@@ -204,6 +205,7 @@ class PhotographerWorkController extends BaseController
                 ['pid' => $v['id'], 'level' => 2]
             )->orderBy('sort', 'asc')->get()->toArray();
         }
+        $templates = Templates::select(['id','number','purpose'])->orderBy('number', 'asc')->get();
 
         return view(
             '/admin/works/photographer_work/index',
@@ -214,7 +216,8 @@ class PhotographerWorkController extends BaseController
                 'filter',
                 'photographerWorkCustomerIndustries',
                 'photographerWorkCategories',
-                'photographer'
+                'photographer',
+                'templates'
             )
         );
     }
@@ -827,12 +830,8 @@ class PhotographerWorkController extends BaseController
      */
     public function poster(Request $request)
     {
-        $poster = PhotographerWork::poster($request->id);
-        if ($poster['code'] == 200) {
-            header('Location:'.$poster['url']);
-            die;
-        } else {
-            return abort(404, $poster['msg']);
-        }
+        $poster = PhotographerWork::poster2($request->id, $request->template_id);
+
+        return $this->response('请求成功', 200, $poster);
     }
 }
