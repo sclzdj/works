@@ -372,15 +372,11 @@
                                                                         dataType: 'JSON',
                                                                         data: {id:id,template_id:template_id},
                                                                         success: function (response) {
-                                                                            if(response.status_code==200){
-                                                                                if(response.data){
-                                                                                    $('#generate-poster-img').attr('data-original',response.data).prop('src',response.data).prop('alt',alt);
-                                                                                    $('#generate-poster-img').click();
-                                                                                }else{
-                                                                                    Dolphin.notify('生成海报失败', 'danger');
-                                                                                }
+                                                                            if(response.data){
+                                                                                $('#generate-poster-img').attr('data-original',response.data).prop('src',response.data).prop('alt',alt);
+                                                                                $('#generate-poster-img').click();
                                                                             }else{
-                                                                                Dolphin.notify(response.message, 'danger');
+                                                                                Dolphin.notify('生成海报失败', 'danger');
                                                                             }
                                                                         },
                                                                         error: function (xhr, status, error) {
