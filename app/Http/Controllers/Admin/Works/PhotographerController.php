@@ -430,6 +430,7 @@ class PhotographerController extends BaseController
             },
             PhotographerWorkSource::allowFields()
         );
+        $fields[]='photographer_works.customer_name';
         $photographerWorkSources = PhotographerWorkSource::select(
             $fields
         )->join(

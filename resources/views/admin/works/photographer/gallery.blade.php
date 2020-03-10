@@ -26,14 +26,17 @@
                         <div style="margin: 20px 2%;margin-top: 0;">
                             <div class="row">
                                 @foreach($photographerWorkSources as $photographerWorkSource)
-                                    <div class="card gallery-list" style="float: left;margin: 0 20px;">
-                                        <div class="row" style="padding:10px 3%;">
+                                    <div class="card gallery-list" style="float: left;margin: 5px 20px;">
+                                        <div class="row">
                                             <div class="col-12">
                                                 <img class="image img-thumbnail"
                                                      data-original="{{$photographerWorkSource->thumb_url?:asset('/static/admin/img/in-generation.png'.'?'.$SFV)}}"
                                                      src="{{$photographerWorkSource->thumb_url?:asset('/static/admin/img/in-generation.png'.'?'.$SFV)}}"
                                                      alt="{{$photographerWorkSource->id}}"
-                                                     style="max-width: 200px;width: 200px;height:200px;border-bottom-left-radius: 0;border-bottom-right-radius: 0;border-bottom: none;">
+                                                     style="max-width: 200px;height:200px;border-bottom-left-radius: 0;border-bottom-right-radius: 0;">
+                                                <div data-toggle="tooltip" data-original-title="{{$photographerWorkSource->customer_name}}" class="border text-center" style="font-size:12px;padding:0 5px;width: 200px;height:24px;line-height:24px;border-radius: 0;border-bottom: none;border-top: none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+                                                    {{$photographerWorkSource->customer_name}}
+                                                </div>
                                             </div>
                                             <div class="col-12">
                                                 <img data-original="{{$photographerWorkSource->url}}"
