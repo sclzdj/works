@@ -3,6 +3,7 @@
 @endphp
 @extends('admin.layouts.master')
 @section('pre_css')
+    <link rel="stylesheet" href="{{asset('/static/libs/viewer/viewer.min.css').'?'.$SFV}}">
     <link rel="stylesheet" href="{{asset('/static/libs/bootstrap3-editable/css/bootstrap-editable.css').'?'.$SFV}}">
     <link rel="stylesheet" href="{{asset('/static/libs/bootstrap-datepicker/bootstrap-datepicker3.min.css').'?'.$SFV}}">
 @endsection
@@ -336,12 +337,8 @@
 {{--                                                    </div>--}}
 {{--                                                </td>--}}
                                                 <td class=" ">
-                                                    <div class="table-cell">
+                                                    <div class="table-cell" style="overflow: visible;">
                                                         <div class="btn-group">
-                                                            @if(\App\Servers\PermissionServer::allowAction('Admin\Works\PhotographerWorkController@poster'))
-                                                                <a class="btn btn-xs btn-default"
-                                                                   href="{{action('Admin\Works\PhotographerWorkController@poster',['id'=>$photographerWork->id])}}" target="_blank">海报</a>
-                                                            @endif
                                                             @if(\App\Servers\PermissionServer::allowAction('Admin\Works\PhotographerWorkController@edit'))
                                                                 <a class="btn btn-xs btn-default"
                                                                    href="{{action('Admin\Works\PhotographerWorkController@edit',['id'=>$photographerWork->id])}}">修改</a>
@@ -353,6 +350,62 @@
                                                                    confirm="<div class='text-center'>确定要删除吗？</div>">删除</a>
                                                             @endif
                                                         </div>
+                                                        @if(\App\Servers\PermissionServer::allowAction('Admin\Works\PhotographerWorkController@poster'))
+                                                            <div class="btn-group">
+                                                                <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                    海报 <span class="caret"></span>
+                                                                </button>
+                                                                <ul class="dropdown-menu dropdown-menu-right gallery-list">
+                                                                    @foreach($templates as $template)
+                                                                        <li><a href="javascrip:;" onclick="generate_poster({{$photographerWork->id}},{{$template->number}},'{{$template->purpose}}')">{{$template->purpose}}</a></li>
+                                                                    @endforeach
+                                                                </ul>
+                                                            </div>
+                                                            <div class="card js-gallery" style="display: none;">
+                                                                <img class="image" alt="生成中" id="generate-poster-img" data-original="{{asset('/static/admin/img/in-generation.png'.'?'.$SFV)}}" src="{{asset('/static/admin/img/in-generation.png'.'?'.$SFV)}}">
+                                                            </div>
+                                                            <script>
+                                                                function generate_poster(id,template_id,alt){
+                                                                    $.ajax({
+                                                                        type: 'GET',
+                                                                        url: "{{action('Admin\Works\PhotographerWorkController@poster')}}",
+                                                                        dataType: 'JSON',
+                                                                        data: {id:id,template_id:template_id},
+                                                                        success: function (response) {
+                                                                            if(response.data){
+                                                                                $('#generate-poster-img').attr('data-original',response.data).prop('src',response.data).prop('alt',alt);
+                                                                                $('#generate-poster-img').click();
+                                                                            }else{
+                                                                                Dolphin.notify('生成海报失败', 'danger');
+                                                                            }
+                                                                        },
+                                                                        error: function (xhr, status, error) {
+                                                                            var response = JSON.parse(xhr.responseText);
+                                                                            if (xhr.status == 422) { //数据指定错误，错误码固定为422
+                                                                                var validate_notify = '';
+                                                                                $.each(response.errors, function (k, v) {
+                                                                                    var validate_tips = '';
+                                                                                    for (var i in v) {
+                                                                                        validate_tips += '<div class="col-md-11 col-md-offset-1 form-validate-msg form-option-line"><i class="fa fa-fw fa-warning text-warning"></i>' + v[i] + '</div>';
+                                                                                        validate_notify += '<li>' + v[i] + '</li>';
+                                                                                    }
+                                                                                    $('#create-' + k).append(validate_tips); // 页面表单项下方提示，错误验证信息
+                                                                                });
+                                                                                Dolphin.notify(validate_notify, 'danger'); //页面顶部浮窗提示，错误验证信息
+                                                                            } else if (xhr.status == 419) { // csrf错误，错误码固定为419
+                                                                                Dolphin.notify('请勿重复请求~', 'danger');
+                                                                            } else {
+                                                                                if (response.message) {
+                                                                                    Dolphin.notify(response.message, 'danger');
+                                                                                } else {
+                                                                                    Dolphin.notify('服务器错误~', 'danger');
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    });
+                                                                }
+                                                            </script>
+                                                        @endif
                                                     </div>
                                                 </td>
                                             </tr>
@@ -404,6 +457,7 @@
     </div>
 @endsection
 @section('javascript')
+    <script src="{{asset('/static/libs/viewer/viewer.min.js').'?'.$SFV}}"></script>
     <script src="{{asset('/static/libs/bootstrap3-editable/js/bootstrap-editable.js').'?'.$SFV}}"></script>
     <script src="{{asset('/static/admin/js/table-init.js').'?'.$SFV}}"></script>
     <script src="{{asset('/static/admin/js/table-submit.js').'?'.$SFV}}"></script>

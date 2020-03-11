@@ -26,31 +26,41 @@
                         <div style="margin: 20px 2%;margin-top: 0;">
                             <div class="row">
                                 @foreach($photographerWorkSources as $photographerWorkSource)
-                                    <div class="card gallery-list" style="float: left;margin: 0 20px;">
-                                        <div class="row" style="padding:10px 3%;">
+                                    <div class="card gallery-list" style="float: left;margin: 5px 20px;">
+                                        <div class="row">
                                             <div class="col-12">
                                                 <img class="image img-thumbnail"
-                                                     data-original="{{$photographerWorkSource->deal_url}}"
-                                                     src="{{$photographerWorkSource->deal_url}}"
-                                                     alt="{{$photographerWorkSource->deal_key}}"
-                                                     style="max-width: 200px;width: 200px;height:200px;border-bottom-left-radius: 0;border-bottom-right-radius: 0;border-bottom: none;">
+                                                     data-original="{{$photographerWorkSource->thumb_url?:asset('/static/admin/img/in-generation.png'.'?'.$SFV)}}"
+                                                     src="{{$photographerWorkSource->thumb_url?:asset('/static/admin/img/in-generation.png'.'?'.$SFV)}}"
+                                                     alt="{{$photographerWorkSource->id}}"
+                                                     style="max-width: 200px;height:200px;border-bottom-left-radius: 0;border-bottom-right-radius: 0;">
+                                                <div data-toggle="tooltip" data-original-title="项目名称：{{$photographerWorkSource->customer_name}}" class="border text-center" style="font-size:12px;padding:0 5px;width: 200px;height:24px;line-height:24px;border-radius: 0;border-bottom: none;border-top: none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+                                                    {{$photographerWorkSource->customer_name}}
+                                                </div>
                                             </div>
                                             <div class="col-12">
-                                                <a class="btn btn-default" href="{{$photographerWorkSource->url}}"
-                                                   download="{{$photographerWorkSource->key}}" target="_blank"
+                                                <img data-original="{{$photographerWorkSource->url}}"
+                                                     src="{{$photographerWorkSource->url}}"
+                                                     alt="{{$photographerWorkSource->key}}"
+                                                     style="display: none;">
+                                                <a class="btn btn-default" href="javascript:;" onclick="$(this).parent().find('img').click()"
                                                    style="width: 200px;border-top-left-radius: 0;border-top-right-radius: 0;border-bottom: none;">原图</a>
                                             </div>
                                             <div class="col-12">
-                                                <a class="btn btn-default"
-                                                   href="{{$photographerWorkSource->deal_url}}"
-                                                   download="{{$photographerWorkSource->deal_key}}" target="_blank"
-                                                   style="width: 200px;border-top-left-radius: 0;border-top-right-radius: 0;border-bottom: none;">处理图</a>
+                                                <img data-original="{{$photographerWorkSource->deal_url?:asset('/static/admin/img/in-generation.png'.'?'.$SFV)}}"
+                                                     src="{{$photographerWorkSource->deal_url?:asset('/static/admin/img/in-generation.png'.'?'.$SFV)}}"
+                                                     alt="{{$photographerWorkSource->deal_key}}"
+                                                     style="display: none;">
+                                                <a class="btn btn-default" href="javascript:;" onclick="$(this).parent().find('img').click()"
+                                                   style="width: 200px;border-top-left-radius: 0;border-top-right-radius: 0;border-bottom: none;">1200图</a>
                                             </div>
                                             <div class="col-12">
-                                                <a class="btn btn-default"
-                                                   href="{{$photographerWorkSource->rich_url}}"
-                                                   download="{{$photographerWorkSource->rich_key}}" target="_blank"
-                                                   style="width: 200px;border-top-left-radius: 0;border-top-right-radius: 0;">水印图</a>
+                                                <img data-original="{{$photographerWorkSource->rich_url?:asset('/static/admin/img/in-generation.png'.'?'.$SFV)}}"
+                                                     src="{{$photographerWorkSource->rich_url?:asset('/static/admin/img/in-generation.png'.'?'.$SFV)}}"
+                                                     alt="{{$photographerWorkSource->rich_key}}"
+                                                     style="display: none;">
+                                                <a class="btn btn-default" href="javascript:;" onclick="$(this).parent().find('img').click()"
+                                                   style="width: 200px;border-top-left-radius: 0;border-top-right-radius: 0;border-bottom: none;">水印图</a>
                                             </div>
                                         </div>
                                     </div>
