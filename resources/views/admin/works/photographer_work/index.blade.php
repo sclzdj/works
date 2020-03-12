@@ -154,14 +154,14 @@
                                         <colgroup>
                                             <col width="50">
 {{--                                            <col class="" width="100">--}}
-                                            <col class="">
-                                            <col class="">
-{{--                                            <col class="">--}}
-                                            <col class="">
-                                            <col class="">
-                                            <col class="">
-{{--                                            <col class="">--}}
-{{--                                            <col class="">--}}
+                                            <col class="" width="100">
+                                            <col class="" width="150">
+{{--                                            <col class="" width="100">--}}
+                                            <col class="" width="80">
+                                            <col class="" width="80">
+                                            <col class="" width="80">
+{{--                                            <col class="" width="100">--}}
+{{--                                            <col class="" width="100">--}}
 {{--                                            <col class="" width="160">--}}
                                             <col class="" width="140">
                                         </colgroup>
@@ -262,16 +262,16 @@
                                         id="builder-table-main">
                                         <colgroup>
                                             <col width="50">
-{{--                                            <col class="" width="100">--}}
-                                            <col class="">
-                                            <col class="">
-{{--                                            <col class="">--}}
-                                            <col class="">
-                                            <col class="">
-                                            <col class="">
-{{--                                            <col class="">--}}
-{{--                                            <col class="">--}}
-{{--                                            <col class="" width="160">--}}
+                                            {{--          <col class="" width="100">--}}
+                                            <col class="" width="100">
+                                            <col class="" width="150">
+                                            {{--          <col class="" width="100">--}}
+                                            <col class="" width="80">
+                                            <col class="" width="80">
+                                            <col class="" width="80">
+                                            {{--           <col class="" width="100">--}}
+                                            {{--           <col class="" width="100">--}}
+                                            {{--           <col class="" width="160">--}}
                                             <col class="" width="140">
                                         </colgroup>
                                         <tbody>

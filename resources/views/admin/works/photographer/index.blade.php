@@ -173,18 +173,18 @@
                                             style="width: 1571px;">
                                             <colgroup>
                                                 <col width="50">
-    {{--                                            <col class="" width="100">--}}
-                                                <col class="">
-                                                <col class="">
-                                                <col class="">
-                                                <col class="">
-                                                <col class="">
-                                                <col class="">
-                                                <col class="">
-    {{--                                            <col class="">--}}
-                                                <col class="">
-    {{--                                            <col class="" width="160">--}}
-                                                <col class="" width="180">
+                                                {{--<col class="" width="100">--}}
+                                                <col class="" width="100">
+                                                <col class="" width="100">
+                                                <col class="" width="60">
+                                                <col class="" width="50">
+                                                <col class="" width="115">
+                                                <col class="" width="95">
+                                                <col class="" width="115">
+                                                {{--<col class="" width="100">--}}
+                                                <col class="" width="80">
+                                                {{--<col class="" width="160">--}}
+                                                <col class="" width="140">
                                             </colgroup>
                                             <thead>
                                             <tr>
@@ -310,17 +310,17 @@
                                             <colgroup>
                                                 <col width="50">
     {{--                                            <col class="" width="100">--}}
-                                                <col class="">
-                                                <col class="">
-                                                <col class="">
-                                                <col class="">
-                                                <col class="">
-                                                <col class="">
-                                                <col class="">
-    {{--                                            <col class="">--}}
-                                                <col class="">
+                                                <col class="" width="100">
+                                                <col class="" width="100">
+                                                <col class="" width="60">
+                                                <col class="" width="50">
+                                                <col class="" width="115">
+                                                <col class="" width="95">
+                                                <col class="" width="115">
+    {{--                                            <col class="" width="100">--}}
+                                                <col class="" width="80">
     {{--                                            <col class="" width="160">--}}
-                                                <col class="" width="180">
+                                                <col class="" width="140">
                                             </colgroup>
                                             <tbody>
                                             @forelse ($photographers as $key=>$photographer)
