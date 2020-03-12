@@ -19,8 +19,10 @@ class CreateQiniuPfopRichSourceJobLogsTable extends Migration
             $table->unsignedInteger('photographer_work_source_id')->index('job_source_id_index')->default(0)->comment('用户项目ID');
             $table->string('edit_node')->default('')->comment('修改节点');
             $table->timestamp('edit_at')->nullable()->comment('修改时间');
+            $table->timestamp('run_at')->nullable()->comment('执行时间');
             $table->string('rich_key',1000)->index()->default('')->comment('丰富展示的资源key');
             $table->string('rich_url',1000)->default('')->comment('丰富展示的资源地址');
+            $table->timestamp('response_at')->nullable()->comment('返回时间');
             $table->text('qiniu_response')->nullable()->comment('第三方返回的json');
             $table->unsignedSmallInteger('status')->default(0)->comment('状态【0:等待中;1:执行中;200:成功;500:失败】');
             $table->timestamps();

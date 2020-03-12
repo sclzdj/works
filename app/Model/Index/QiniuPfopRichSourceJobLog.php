@@ -15,8 +15,10 @@ class QiniuPfopRichSourceJobLog extends Model
         'photographer_work_source_id',
         'edit_node',
         'edit_at',
+        'run_at',
         'rich_key',
         'rich_url',
+        'response_at',
         'qiniu_response',
         'status',
     ];
@@ -37,8 +39,10 @@ class QiniuPfopRichSourceJobLog extends Model
             'photographer_work_source_id',
             'edit_node',
             'edit_at',
+            'run_at',
             'rich_key',
             'rich_url',
+            'response_at',
             'qiniu_response',
             'status',
             'created_at'
