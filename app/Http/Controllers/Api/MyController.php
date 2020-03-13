@@ -841,8 +841,7 @@ class MyController extends UserGuardController
                                     $res
                                 );
                             }
-                        }
-                        elseif ($photographer_work_source->type == 'video') {
+                        } elseif ($photographer_work_source->type == 'video') {
                             $res = SystemServer::request('GET', $photographer_work_source->url.'?avinfo');
                             if ($res['code'] == 200) {
                                 if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
@@ -933,13 +932,12 @@ class MyController extends UserGuardController
                         } else {
                             $type = 'file';
                         }
-                        $is_register_photographer = (int)$request->is_register_photographer;
                         $res = SystemServer::qiniuFetchBaiduPan(
                             $type,
                             $file['dlink'].'&access_token='.$access_token,
                             config(
                                 'app.url'
-                            ).'/api/notify/qiniu/fetch?async_baidu_work_source_upload_id='.$asyncBaiduWorkSourceUpload->id.'&is_register_photographer='.$is_register_photographer
+                            ).'/api/notify/qiniu/fetch?async_baidu_work_source_upload_id='.$asyncBaiduWorkSourceUpload->id
                         );
                         if ($res['code'] != 200) {
                             ErrLogServer::QiniuNotifyFetch(
@@ -963,13 +961,19 @@ class MyController extends UserGuardController
                 'customer_name' => $photographer_work->customer_name,
                 'source_count' => $photographer_work->photographerWorkSources()->where(['status' => 200])->count(),
             ];
-            $photographerWorkSources=$photographer_work->photographerWorkSources()->where(['status' => 200])->orderBy('sort','asc')->get();
-            $editIsRunGenerateWatermark=PhotographerWorkSource::editIsRunGenerateWatermark($new_work_params,$old_work_params);
-            foreach ($photographerWorkSources as $photographerWorkSource){
-                if($editIsRunGenerateWatermark || $photographerWorkSource->is_new_source){
-                    PhotographerWorkSource::editRunGenerateWatermark($photographerWorkSource->id,'修改项目');
-                    if($photographerWorkSource->is_new_source){
-                        $photographerWorkSource->is_new_source=0;
+            $photographerWorkSources = $photographer_work->photographerWorkSources()->where(['status' => 200,'type'=>'image'])->orderBy(
+                'sort',
+                'asc'
+            )->get();
+            $editIsRunGenerateWatermark = PhotographerWorkSource::editIsRunGenerateWatermark(
+                $new_work_params,
+                $old_work_params
+            );
+            foreach ($photographerWorkSources as $photographerWorkSource) {
+                if ($editIsRunGenerateWatermark || $photographerWorkSource->is_new_source) {
+                    PhotographerWorkSource::editRunGenerateWatermark($photographerWorkSource->id, '修改项目');
+                    if ($photographerWorkSource->is_new_source) {
+                        $photographerWorkSource->is_new_source = 0;
                         $photographerWorkSource->save();
                     }
                 }

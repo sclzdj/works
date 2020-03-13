@@ -209,13 +209,12 @@ class BaiduController extends UserGuardController
                         } else {
                             $type = 'file';
                         }
-                        $is_register_photographer = (int)$request->is_register_photographer;
                         $res = SystemServer::qiniuFetchBaiduPan(
                             $type,
                             $file['dlink'].'&access_token='.$access_token,
                             config(
                                 'app.url'
-                            ).'/api/notify/qiniu/fetch?async_baidu_work_source_upload_id='.$asyncBaiduWorkSourceUpload->id.'&is_register_photographer='.$is_register_photographer
+                            ).'/api/notify/qiniu/fetch?async_baidu_work_source_upload_id='.$asyncBaiduWorkSourceUpload->id
                         );
                         if ($res['code'] != 200) {
                             ErrLogServer::QiniuNotifyFetch(

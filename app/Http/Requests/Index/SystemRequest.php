@@ -45,7 +45,6 @@ class SystemRequest extends BaseRequest
                 $rules = [
                     'photographer_work_id' => 'integer',
                     'fsids' => 'required|array|min:1|max:9',
-                    'is_register_photographer' => 'integer|in:0,1',
                 ];
                 break;
         }

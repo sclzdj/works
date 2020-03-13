@@ -53,16 +53,18 @@ class QiniuController extends BaseController
             $photographerWorkSource->size = $request_data['size'];
             $photographerWorkSource->width = $request_data['width'];
             $photographerWorkSource->height = $request_data['height'];
-//            $photographerWorkSource->deal_key = $request_data['key'];
-//            $photographerWorkSource->deal_url = $domain . '/' . $request_data['key'];
-//            $photographerWorkSource->deal_size = $request_data['size'];
-//            $photographerWorkSource->deal_width = $request_data['width'];
-//            $photographerWorkSource->deal_height = $request_data['height'];
-//            $photographerWorkSource->rich_key = $request_data['key'];
-//            $photographerWorkSource->rich_url = $domain . '/' . $request_data['key'];
-//            $photographerWorkSource->rich_size = $request_data['size'];
-//            $photographerWorkSource->rich_width = $request_data['width'];
-//            $photographerWorkSource->rich_height = $request_data['height'];
+            if ($photographerWorkSource != 'image') {
+                $photographerWorkSource->deal_key = $request_data['key'];
+                $photographerWorkSource->deal_url = $domain.'/'.$request_data['key'];
+                $photographerWorkSource->deal_size = $request_data['size'];
+                $photographerWorkSource->deal_width = $request_data['width'];
+                $photographerWorkSource->deal_height = $request_data['height'];
+                $photographerWorkSource->rich_key = $request_data['key'];
+                $photographerWorkSource->rich_url = $domain.'/'.$request_data['key'];
+                $photographerWorkSource->rich_size = $request_data['size'];
+                $photographerWorkSource->rich_width = $request_data['width'];
+                $photographerWorkSource->rich_height = $request_data['height'];
+            }
             $photographerWorkSource->save();
             $asyncBaiduWorkSourceUpload->status = 200;
             $asyncBaiduWorkSourceUpload->save();
@@ -74,28 +76,26 @@ class QiniuController extends BaseController
                 $photographerWorkSource
             );
         }
-        if ($request_data['is_register_photographer'] == 0) {
-            if ($photographerWorkSource->type == 'image') {
-                $fops = ["imageMogr2/auto-orient/thumbnail/1200x|imageMogr2/auto-orient/colorspace/srgb|imageslim"];
-                $qrst = SystemServer::qiniuPfop(
-                    $bucket,
-                    $request_data['key'],
-                    $fops,
-                    null,
-                    config(
-                        'app.url'
-                    ).'/api/notify/qiniu/fopDeal?photographer_work_source_id='.$photographerWorkSource->id,
-                    true
+        if ($photographerWorkSource->type == 'image') {
+            $fops = ["imageMogr2/auto-orient/thumbnail/1200x|imageMogr2/auto-orient/colorspace/srgb|imageslim"];
+            $qrst = SystemServer::qiniuPfop(
+                $bucket,
+                $request_data['key'],
+                $fops,
+                null,
+                config(
+                    'app.url'
+                ).'/api/notify/qiniu/fopDeal?photographer_work_source_id='.$photographerWorkSource->id,
+                true
+            );
+            if ($qrst['err']) {
+                return ErrLogServer::QiniuNotifyFop(
+                    '处理图片持久请求',
+                    '持久化请求失败',
+                    $request_data,
+                    $photographerWorkSource,
+                    $qrst['err']
                 );
-                if ($qrst['err']) {
-                    return ErrLogServer::QiniuNotifyFop(
-                        '处理图片持久请求',
-                        '持久化请求失败',
-                        $request_data,
-                        $photographerWorkSource,
-                        $qrst['err']
-                    );
-                }
             }
         }
     }

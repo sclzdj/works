@@ -638,7 +638,8 @@ class PhotographerWorkController extends BaseController
                     $photographer_work_source->sort = $k + 1;
                     $photographer_work_source->status = 200;
                     $photographer_work_source->save();
-                } else {
+                }
+                else {
                     $photographer_work_source = PhotographerWorkSource::create();
                     $photographer_work_source->photographer_work_id = $photographerWork->id;
                     $photographer_work_source->key = $v['key'];
@@ -744,7 +745,7 @@ class PhotographerWorkController extends BaseController
                 'customer_name' => $photographerWork->customer_name,
                 'source_count' => $photographerWork->photographerWorkSources()->where(['status' => 200])->count(),
             ];
-            $photographerWorkSources=$photographerWork->photographerWorkSources()->where(['status' => 200])->orderBy('sort','asc')->get();
+            $photographerWorkSources=$photographerWork->photographerWorkSources()->where(['status' => 200,'type'=>'image'])->orderBy('sort','asc')->get();
             $editIsRunGenerateWatermark=PhotographerWorkSource::editIsRunGenerateWatermark($new_work_params,$old_work_params);
             foreach ($photographerWorkSources as $photographerWorkSource){
                 if($editIsRunGenerateWatermark || $photographerWorkSource->is_new_source){

@@ -79,19 +79,19 @@ class ErrLogServer
             $log_filename,
             json_encode($error, JSON_UNESCAPED_UNICODE).PHP_EOL
         );
-//        if ($photographerWorkSource) {
-//            //错误处理机制
-//            $photographerWorkSources = PhotographerWorkSource::where(
-//                [
-//                    'photographer_work_id'=>$photographerWorkSource->photographer_work_id,
-//                    'type' => 'image',
-//                    'status' => 200,
-//                ]
-//            )->get();
-//            foreach ($photographerWorkSources as $source) {
-//                PhotographerWorkSource::editRunGenerateWatermark($source->id, '错误处理机制');
-//            }
-//        }
+        if ($photographerWorkSource) {
+            //错误处理机制
+            $photographerWorkSources = PhotographerWorkSource::where(
+                [
+                    'photographer_work_id'=>$photographerWorkSource->photographer_work_id,
+                    'type' => 'image',
+                    'status' => 200,
+                ]
+            )->orderBy('sort','asc')->get();
+            foreach ($photographerWorkSources as $source) {
+                PhotographerWorkSource::editRunGenerateWatermark($source->id, '错误处理机制');
+            }
+        }
 
         return $filePutContents;
     }
