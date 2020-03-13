@@ -36,6 +36,7 @@ class PhotographerWorkSource extends Model
         'origin',
         'status',
         'sort',
+        'is_new_source',
     ];
 
     /**
@@ -103,7 +104,12 @@ class PhotographerWorkSource extends Model
     {
         $photographerWorkSource = PhotographerWorkSource::where('id', $photographer_work_source_id)->first();
         if (!$photographerWorkSource) {
-            throw new \LogicException("PhotographerWorkSource不存在");
+            return ErrLogServer::QiniuNotifyFop(
+                '水印图片持久请求',
+                'PhotographerWorkSource不存在',
+                "",
+                $photographerWorkSource
+            );
         }
         $at = date('Y-m-d H:i:s');
         $qiniuPfopRichSourceJob = QiniuPfopRichSourceJob::create(
@@ -135,16 +141,15 @@ class PhotographerWorkSource extends Model
         $qiniuPfopRichSourceJob = QiniuPfopRichSourceJob::where(
             ['photographer_work_source_id' => $photographer_work_source_id]
         )->orderBy('created_at', 'desc')->orderBy('id', 'desc')->first();
-        if ($qiniuPfopRichSourceJob->status == 0) {
+        if ($qiniuPfopRichSourceJob && $qiniuPfopRichSourceJob->status == 0) {
             $qiniuPfopRichSourceJob->status = 1;
-            self::generateWatermark($photographer_work_source_id, $qiniuPfopRichSourceJob->id);
             $qiniuPfopRichSourceJob->save();
-            QiniuPfopRichSourceJobLog::where(['id', $qiniuPfopRichSourceJob->id])->update(
-                [
-                    'status' => 1,
-                    'run_at' => date('Y-m-d H:i:s'),
-                ]
+            $qiniuPfopRichSourceJobLog = QiniuPfopRichSourceJobLog::where(['id' => $qiniuPfopRichSourceJob->id])->first(
             );
+            $qiniuPfopRichSourceJobLog->status = 1;
+            $qiniuPfopRichSourceJobLog->run_at = date('Y-m-d H:i:s');
+            $qiniuPfopRichSourceJobLog->save();
+            self::generateWatermark($photographer_work_source_id, $qiniuPfopRichSourceJob->id);
         }
     }
 
@@ -156,9 +161,15 @@ class PhotographerWorkSource extends Model
      */
     static public function richNotify($photographer_work_source_id, $qiniu_pfop_rich_source_job_id, $qiniu_response)
     {
+        $step = '水印图片通知请求';
         $photographerWorkSource = PhotographerWorkSource::where('id', $photographer_work_source_id)->first();
         if (!$photographerWorkSource) {
-            throw new \LogicException("PhotographerWorkSource不存在");
+            return ErrLogServer::QiniuNotifyFop(
+                $step,
+                'PhotographerWorkSource不存在',
+                "",
+                $photographerWorkSource
+            );
         }
         $qiniuPfopRichSourceJob = QiniuPfopRichSourceJob::where(
             ['photographer_work_source_id' => $photographer_work_source_id]
@@ -166,13 +177,19 @@ class PhotographerWorkSource extends Model
         $qiniuPfopRichSourceJobLog = QiniuPfopRichSourceJobLog::where('id', $qiniuPfopRichSourceJob->id)->first();
         $at = date('Y-m-d H:i:s');
         $qiniuPfopRichSourceJobLog->response_at = $at;
-        $qiniuPfopRichSourceJobLog->qiniu_response = $qiniu_response;
+        $qiniuPfopRichSourceJobLog->qiniu_response = json_encode($qiniu_response, JSON_UNESCAPED_UNICODE);
         if ($qiniu_response['code'] != 0) {
             $qiniuPfopRichSourceJob->status = 500;
             $qiniuPfopRichSourceJobLog->status = 500;
             $qiniuPfopRichSourceJob->save();
             $qiniuPfopRichSourceJobLog->save();
-            throw new \LogicException("七牛持久化接口通知报错：".$qiniu_response['desc']);
+
+            return ErrLogServer::QiniuNotifyFop(
+                $step,
+                '七牛持久化接口通知报错',
+                $qiniu_response,
+                $photographerWorkSource
+            );
         }
         // 判断项目第0个不存在报错，
         if (!isset($qiniu_response['items'][0]) ||
@@ -182,7 +199,13 @@ class PhotographerWorkSource extends Model
             $qiniuPfopRichSourceJobLog->status = 500;
             $qiniuPfopRichSourceJob->save();
             $qiniuPfopRichSourceJobLog->save();
-            throw new \LogicException("七牛持久化接口通知第一条持久化报错或返回信息不存在：".$qiniu_response['items'][0]['desc']);
+
+            return ErrLogServer::QiniuNotifyFop(
+                $step,
+                '七牛持久化接口通知第一条持久化报错或返回信息不存在',
+                $qiniu_response,
+                $photographerWorkSource
+            );
         }
         $bucket = 'zuopin';
         $buckets = config('custom.qiniu.buckets');
@@ -193,6 +216,11 @@ class PhotographerWorkSource extends Model
         $qiniuPfopRichSourceJobLog->rich_url = $domain.'/'.$qiniu_response['items'][0]['key'];
         $qiniuPfopRichSourceJob->save();
         $qiniuPfopRichSourceJobLog->save();
+        QiniuPfopRichSourceJob::where('photographer_work_source_id', $photographer_work_source_id)->where(
+            'id',
+            '<',
+            $qiniuPfopRichSourceJob->id
+        )->whereIn('status', [200, 500])->delete();
         if ($qiniuPfopRichSourceJob->id == $qiniu_pfop_rich_source_job_id) {
             $photographerWorkSource->rich_key = $qiniu_response['items'][0]['key'];
             $photographerWorkSource->rich_url = $domain.'/'.$qiniu_response['items'][0]['key'];
@@ -201,12 +229,24 @@ class PhotographerWorkSource extends Model
             if ($response['code'] != 200) {
                 $photographerWorkSource->status = 500;
                 $photographerWorkSource->save();
-                throw new \LogicException('系统请求七牛图片信息接口时失败：'.$response['msg']);
+
+                return ErrLogServer::QiniuNotifyFop(
+                    '水印图片信息请求',
+                    '系统请求七牛图片信息接口时失败',
+                    $response,
+                    $photographerWorkSource
+                );
             }
-            if (isset($response['data']['error'])) {
+            if (isset($response['data']['error']) || (isset($response['data']['code']) && $response['data']['code'] != 200)) {
                 $photographerWorkSource->status = 500;
                 $photographerWorkSource->save();
-                throw new \LogicException('七牛请求图片信息接口失败：'.$response['data']['error']);
+
+                return ErrLogServer::QiniuNotifyFop(
+                    '水印图片信息请求',
+                    '七牛请求图片信息接口失败',
+                    $response['data'],
+                    $photographerWorkSource
+                );
             }
             $photographerWorkSource->rich_size = $response['data']['size'];
             $photographerWorkSource->rich_width = $response['data']['width'];
@@ -223,32 +263,37 @@ class PhotographerWorkSource extends Model
      */
     static public function generateWatermark($photographer_work_source_id, $qiniu_pfop_rich_source_job_id)
     {
+        $step = '水印图片持久请求';
         $photographerWorkSource = PhotographerWorkSource::where('id', $photographer_work_source_id)->first();
-        if (empty($photographerWorkSource)) {
-            throw new \LogicException("PhotographerWorkSource不存在");
+        if (!$photographerWorkSource) {
+            return ErrLogServer::QiniuNotifyFop(
+                $step,
+                'PhotographerWorkSource不存在'
+            );
         }
-
         $photographerWork = PhotographerWork::where(['id' => $photographerWorkSource->photographer_work_id])->first();
-        if (empty($photographerWork)) {
-            throw new \LogicException("photographerWork不存在");
+        if (!$photographerWork) {
+            return ErrLogServer::QiniuNotifyFop(
+                $step,
+                'photographerWork不存在',
+                [],
+                $photographerWorkSource
+            );
         }
-
         $photographer = Photographer::where(['id' => $photographerWork->photographer_id])->first();
         if (!$photographer) {
-            throw new \LogicException("photographer不存在");
+            return ErrLogServer::QiniuNotifyFop(
+                $step,
+                'photographer不存在',
+                [],
+                $photographerWorkSource
+            );
         }
-
-        $user = User::where(['photographer_id' => $photographerWork->photographer_id])->first();
-        if (!$user) {
-            throw new \LogicException("user不存在");
-        }
-        $srcKey = "";
         if (empty($photographerWorkSource->deal_key)) {
             $srcKey = config('custom.qiniu.crop_work_source_image_bg');
         } else {
             $srcKey = $photographerWorkSource->deal_key;
         }
-
         $bucket = 'zuopin';
         $buckets = config('custom.qiniu.buckets');
         $domain = $buckets[$bucket]['domain'] ?? '';
@@ -318,14 +363,14 @@ class PhotographerWorkSource extends Model
             null,
             config(
                 'app.url'
-            ).'/api/notify/qiniu/fop?photographer_work_source_id='.$photographerWorkSource->id.'&step=2&width=1200&height='.$photographerWorkSource->deal_height.'&sort=0',
+            ).'/api/notify/qiniu/fopRich?photographer_work_source_id='.$photographerWorkSource->id.'&job_id='.$qiniu_pfop_rich_source_job_id,
             true
         );
         if ($qrst['err']) {
             return ErrLogServer::QiniuNotifyFop(
-                2,
+                $step,
                 '持久化请求失败',
-                "",
+                [],
                 $photographerWorkSource,
                 $qrst['err']
             );

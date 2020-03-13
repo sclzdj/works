@@ -3,6 +3,7 @@
 namespace App\Servers;
 
 use App\Model\Index\AsyncBaiduWorkSourceUpload;
+use App\Model\Index\PhotographerWork;
 use App\Model\Index\PhotographerWorkSource;
 
 class ErrLogServer
@@ -74,11 +75,25 @@ class ErrLogServer
         $error['msg'] = $msg;
         $error['request'] = $request_data;
         $error['res'] = $res;
-
-        return SystemServer::filePutContents(
+        $filePutContents = SystemServer::filePutContents(
             $log_filename,
             json_encode($error, JSON_UNESCAPED_UNICODE).PHP_EOL
         );
+//        if ($photographerWorkSource) {
+//            //错误处理机制
+//            $photographerWorkSources = PhotographerWorkSource::where(
+//                [
+//                    'photographer_work_id'=>$photographerWorkSource->photographer_work_id,
+//                    'type' => 'image',
+//                    'status' => 200,
+//                ]
+//            )->get();
+//            foreach ($photographerWorkSources as $source) {
+//                PhotographerWorkSource::editRunGenerateWatermark($source->id, '错误处理机制');
+//            }
+//        }
+
+        return $filePutContents;
     }
 
     /**

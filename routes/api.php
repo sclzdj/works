@@ -139,9 +139,9 @@ $api->version(
                 //七牛
                 $api->get('qiniu/getParams', 'QiniuController@getParams');
                 //通知
-                $api->post('notify/qiniu/fop', 'Notify\QiniuController@fop');
                 $api->post('notify/qiniu/fetch', 'Notify\QiniuController@fetch');
-
+                $api->post('notify/qiniu/fopDeal', 'Notify\QiniuController@fopDeal');
+                $api->post('notify/qiniu/fopRich', 'Notify\QiniuController@fopRich');
                 // 邀请码
                 $api->post('invote/used', 'InvoteCodeController@used');
                 $api->post('invote/query', 'InvoteCodeController@query');

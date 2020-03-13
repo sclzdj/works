@@ -205,7 +205,7 @@ class PhotographerWorkController extends BaseController
                 ['pid' => $v['id'], 'level' => 2]
             )->orderBy('sort', 'asc')->get()->toArray();
         }
-        $templates = Templates::select(['id','number','purpose'])->orderBy('number', 'asc')->get();
+        $templates = Templates::select(['id', 'number', 'purpose'])->orderBy('number', 'asc')->get();
 
         return view(
             '/admin/works/photographer_work/index',
@@ -339,112 +339,102 @@ class PhotographerWorkController extends BaseController
                     }
                 }
             }
-            $photographerWork->photographerWorkSources()->where(['status' => 200])->update(['status' => 300]);
             foreach ($data['sources'] as $k => $v) {
-                $photographer_work_source = PhotographerWorkSource::where(
-                    ['photographer_work_id' => $photographerWork->id, 'status' => 300, 'key' => $v['key']]
-                )->first();
-                if ($photographer_work_source) {
-                    $photographer_work_source->sort = $k + 1;
-                    $photographer_work_source->status = 200;
-                    $photographer_work_source->save();
-                } else {
-                    $photographer_work_source = PhotographerWorkSource::create();
-                    $photographer_work_source->photographer_work_id = $photographerWork->id;
-                    $photographer_work_source->key = $v['key'];
-                    $photographer_work_source->url = $domain.'/'.$v['key'];
+                $photographer_work_source = PhotographerWorkSource::create();
+                $photographer_work_source->photographer_work_id = $photographerWork->id;
+                $photographer_work_source->key = $v['key'];
+                $photographer_work_source->url = $domain.'/'.$v['key'];
+                if ($v['type'] != 'image') {
                     $photographer_work_source->deal_key = $v['key'];
                     $photographer_work_source->deal_url = $domain.'/'.$v['key'];
                     $photographer_work_source->rich_key = $v['key'];
                     $photographer_work_source->rich_url = $domain.'/'.$v['key'];
-                    $photographer_work_source->type = $v['type'];
-                    $photographer_work_source->origin = 'system';
-                    $photographer_work_source->sort = $k + 1;
-                    $photographer_work_source->status = 200;
-                    $photographer_work_source->save();
-                    if ($photographer_work_source->type == 'image') {
-                        $res = SystemServer::request('GET', $photographer_work_source->url.'?imageInfo');
-                        if ($res['code'] == 200) {
-                            if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
-                                $photographer_work_source->size = $res['data']['size'];
-                                $photographer_work_source->width = $res['data']['width'];
-                                $photographer_work_source->height = $res['data']['height'];
-                                $photographer_work_source->deal_size = $res['data']['size'];
-                                $photographer_work_source->deal_width = $res['data']['width'];
-                                $photographer_work_source->deal_height = $res['data']['height'];
-                                $photographer_work_source->rich_size = $res['data']['size'];
-                                $photographer_work_source->rich_width = $res['data']['width'];
-                                $photographer_work_source->rich_height = $res['data']['height'];
-                                $photographer_work_source->save();
-                            } else {
+                }
+                $photographer_work_source->type = $v['type'];
+                $photographer_work_source->origin = 'system';
+                $photographer_work_source->sort = $k + 1;
+                $photographer_work_source->status = 200;
+                $photographer_work_source->save();
+                if ($photographer_work_source->type == 'image') {
+                    $res = SystemServer::request('GET', $photographer_work_source->url.'?imageInfo');
+                    if ($res['code'] == 200) {
+                        if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
+                            $photographer_work_source->size = $res['data']['size'];
+                            $photographer_work_source->width = $res['data']['width'];
+                            $photographer_work_source->height = $res['data']['height'];
+//                                $photographer_work_source->deal_size = $res['data']['size'];
+//                                $photographer_work_source->deal_width = $res['data']['width'];
+//                                $photographer_work_source->deal_height = $res['data']['height'];
+//                                $photographer_work_source->rich_size = $res['data']['size'];
+//                                $photographer_work_source->rich_width = $res['data']['width'];
+//                                $photographer_work_source->rich_height = $res['data']['height'];
+                            $photographer_work_source->save();
+                            $fops = ["imageMogr2/auto-orient/thumbnail/1200x|imageMogr2/auto-orient/colorspace/srgb|imageslim"];
+                            $bucket = 'zuopin';
+                            $qrst = SystemServer::qiniuPfop(
+                                $bucket,
+                                $photographer_work_source->key,
+                                $fops,
+                                null,
+                                config(
+                                    'app.url'
+                                ).'/api/notify/qiniu/fopDeal?photographer_work_source_id='.$photographer_work_source->id,
+                                true
+                            );
+                            if ($qrst['err']) {
                                 ErrLogServer::QiniuNotifyFop(
-                                    0,
-                                    '七牛图片信息接口返回错误信息',
+                                    '处理图片持久请求',
+                                    '七牛持久化接口返回错误信息',
                                     $photographerWorkRequest->all(),
                                     $photographer_work_source,
-                                    $res['data']
+                                    $qrst['err']
                                 );
                             }
+                            PhotographerWorkSource::editRunGenerateWatermark($photographer_work_source->id, '后台添加项目');
                         } else {
                             ErrLogServer::QiniuNotifyFop(
-                                0,
-                                '请求七牛图片信息接口报错：'.$res['msg'],
+                                '原始图片信息请求',
+                                '七牛图片信息接口返回错误信息',
                                 $photographerWorkRequest->all(),
                                 $photographer_work_source,
-                                $res
+                                $res['data']
                             );
                         }
-                    } elseif ($photographer_work_source->type == 'video') {
-                        $res = SystemServer::request('GET', $photographer_work_source->url.'?avinfo');
-                        if ($res['code'] == 200) {
-                            if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
-                                $photographer_work_source->size = $res['data']['format']['size'];
-                                $photographer_work_source->deal_size = $res['data']['format']['size'];
-                                $photographer_work_source->rich_size = $res['data']['format']['size'];
-                                $photographer_work_source->save();
-                            } else {
-                                ErrLogServer::QiniuNotifyFop(
-                                    0,
-                                    '七牛视频信息接口返回错误信息',
-                                    $photographerWorkRequest->all(),
-                                    $photographer_work_source,
-                                    $res['data']
-                                );
-                            }
-                        } else {
-                            ErrLogServer::QiniuNotifyFop(
-                                0,
-                                '请求七牛视频信息接口报错：'.$res['msg'],
-                                $photographerWorkRequest->all(),
-                                $photographer_work_source,
-                                $res
-                            );
-                        }
-                    }
-                    if ($photographer_work_source->type == 'image') {
-                        $fops = ["imageMogr2/auto-orient/thumbnail/1200x|imageMogr2/auto-orient/colorspace/srgb|imageslim"];
-                        $bucket = 'zuopin';
-                        $qrst = SystemServer::qiniuPfop(
-                            $bucket,
-                            $photographer_work_source->key,
-                            $fops,
-                            null,
-                            config(
-                                'app.url'
-                            ).'/api/notify/qiniu/fop?photographer_work_source_id='.$photographer_work_source->id.'&step=1',
-                            true
+                    } else {
+                        ErrLogServer::QiniuNotifyFop(
+                            '原始图片信息请求',
+                            '请求七牛图片信息接口报错：'.$res['msg'],
+                            $photographerWorkRequest->all(),
+                            $photographer_work_source,
+                            $res
                         );
-                        if ($qrst['err']) {
+                    }
+                } elseif ($photographer_work_source->type == 'video') {
+                    $res = SystemServer::request('GET', $photographer_work_source->url.'?avinfo');
+                    if ($res['code'] == 200) {
+                        if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
+                            $photographer_work_source->size = $res['data']['format']['size'];
+                            $photographer_work_source->deal_size = $res['data']['format']['size'];
+                            $photographer_work_source->rich_size = $res['data']['format']['size'];
+                            $photographer_work_source->save();
+                        } else {
                             ErrLogServer::QiniuNotifyFop(
-                                0,
-                                '七牛持久化接口返回错误信息',
+                                '原始视频信息请求',
+                                '七牛视频信息接口返回错误信息',
                                 $photographerWorkRequest->all(),
                                 $photographer_work_source,
-                                $qrst['err']
+                                $res['data']
                             );
                         }
+                    } else {
+                        ErrLogServer::QiniuNotifyFop(
+                            '原始视频信息请求',
+                            '请求七牛视频信息接口报错：'.$res['msg'],
+                            $photographerWorkRequest->all(),
+                            $photographer_work_source,
+                            $res
+                        );
                     }
-
                 }
             }
             $response = [
@@ -577,6 +567,10 @@ class PhotographerWorkController extends BaseController
         if (!$photographerWork) {
             return $this->response('参数无效', 403);
         }
+        $old_work_params = [
+            'customer_name' => $photographerWork->customer_name,
+            'source_count' => $photographerWork->photographerWorkSources()->where(['status' => 200])->count(),
+        ];
         $photographer = Photographer::where(
             ['id' => $photographerWork->photographer_id, 'status' => 200]
         )->first();
@@ -618,6 +612,9 @@ class PhotographerWorkController extends BaseController
                 unset($update['s']);
             }
             PhotographerWork::where(['id' => $photographerWork->id, 'status' => 200])->update($update);
+            $photographerWork = PhotographerWork::where(
+                ['id' => $id, 'status' => 200]
+            )->first();
             PhotographerWorkTag::where(['photographer_work_id' => $photographerWork->id])->delete();
             if ($data['tags']) {
                 $data['tags'] = explode(',', $data['tags']);
@@ -646,32 +643,57 @@ class PhotographerWorkController extends BaseController
                     $photographer_work_source->photographer_work_id = $photographerWork->id;
                     $photographer_work_source->key = $v['key'];
                     $photographer_work_source->url = $domain.'/'.$v['key'];
-                    $photographer_work_source->deal_key = $v['key'];
-                    $photographer_work_source->deal_url = $domain.'/'.$v['key'];
-                    $photographer_work_source->rich_key = $v['key'];
-                    $photographer_work_source->rich_url = $domain.'/'.$v['key'];
+                    if ($v['type'] != 'image') {
+                        $photographer_work_source->deal_key = $v['key'];
+                        $photographer_work_source->deal_url = $domain.'/'.$v['key'];
+                        $photographer_work_source->rich_key = $v['key'];
+                        $photographer_work_source->rich_url = $domain.'/'.$v['key'];
+                    }
                     $photographer_work_source->type = $v['type'];
                     $photographer_work_source->origin = 'system';
                     $photographer_work_source->sort = $k + 1;
                     $photographer_work_source->status = 200;
                     $photographer_work_source->save();
                     if ($photographer_work_source->type == 'image') {
+                        $photographer_work_source->is_new_source = 1;
+                        $photographer_work_source->save();
                         $res = SystemServer::request('GET', $photographer_work_source->url.'?imageInfo');
                         if ($res['code'] == 200) {
                             if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
                                 $photographer_work_source->size = $res['data']['size'];
                                 $photographer_work_source->width = $res['data']['width'];
                                 $photographer_work_source->height = $res['data']['height'];
-                                $photographer_work_source->deal_size = $res['data']['size'];
-                                $photographer_work_source->deal_width = $res['data']['width'];
-                                $photographer_work_source->deal_height = $res['data']['height'];
-                                $photographer_work_source->rich_size = $res['data']['size'];
-                                $photographer_work_source->rich_width = $res['data']['width'];
-                                $photographer_work_source->rich_height = $res['data']['height'];
+//                                $photographer_work_source->deal_size = $res['data']['size'];
+//                                $photographer_work_source->deal_width = $res['data']['width'];
+//                                $photographer_work_source->deal_height = $res['data']['height'];
+//                                $photographer_work_source->rich_size = $res['data']['size'];
+//                                $photographer_work_source->rich_width = $res['data']['width'];
+//                                $photographer_work_source->rich_height = $res['data']['height'];
                                 $photographer_work_source->save();
+                                $fops = ["imageMogr2/auto-orient/thumbnail/1200x|imageMogr2/auto-orient/colorspace/srgb|imageslim"];
+                                $bucket = 'zuopin';
+                                $qrst = SystemServer::qiniuPfop(
+                                    $bucket,
+                                    $photographer_work_source->key,
+                                    $fops,
+                                    null,
+                                    config(
+                                        'app.url'
+                                    ).'/api/notify/qiniu/fopDeal?photographer_work_source_id='.$photographer_work_source->id,
+                                    true
+                                );
+                                if ($qrst['err']) {
+                                    ErrLogServer::QiniuNotifyFop(
+                                        '处理图片持久请求',
+                                        '七牛持久化接口返回错误信息',
+                                        $photographerWorkRequest->all(),
+                                        $photographer_work_source,
+                                        $qrst['err']
+                                    );
+                                }
                             } else {
                                 ErrLogServer::QiniuNotifyFop(
-                                    0,
+                                    '原始图片信息请求',
                                     '七牛图片信息接口返回错误信息',
                                     $photographerWorkRequest->all(),
                                     $photographer_work_source,
@@ -680,14 +702,15 @@ class PhotographerWorkController extends BaseController
                             }
                         } else {
                             ErrLogServer::QiniuNotifyFop(
-                                0,
+                                '原始图片信息请求',
                                 '请求七牛图片信息接口报错：'.$res['msg'],
                                 $photographerWorkRequest->all(),
                                 $photographer_work_source,
                                 $res
                             );
                         }
-                    } elseif ($photographer_work_source->type == 'video') {
+                    }
+                    elseif ($photographer_work_source->type == 'video') {
                         $res = SystemServer::request('GET', $photographer_work_source->url.'?avinfo');
                         if ($res['code'] == 200) {
                             if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
@@ -697,7 +720,7 @@ class PhotographerWorkController extends BaseController
                                 $photographer_work_source->save();
                             } else {
                                 ErrLogServer::QiniuNotifyFop(
-                                    0,
+                                    '原始视频信息请求',
                                     '七牛视频信息接口返回错误信息',
                                     $photographerWorkRequest->all(),
                                     $photographer_work_source,
@@ -706,7 +729,7 @@ class PhotographerWorkController extends BaseController
                             }
                         } else {
                             ErrLogServer::QiniuNotifyFop(
-                                0,
+                                '原始视频信息请求',
                                 '请求七牛视频信息接口报错：'.$res['msg'],
                                 $photographerWorkRequest->all(),
                                 $photographer_work_source,
@@ -714,30 +737,22 @@ class PhotographerWorkController extends BaseController
                             );
                         }
                     }
-                    if ($photographer_work_source->type == 'image') {
-                        $fops = ["imageMogr2/auto-orient/thumbnail/1200x|imageMogr2/auto-orient/colorspace/srgb|imageslim"];
-                        $bucket = 'zuopin';
-                        $qrst = SystemServer::qiniuPfop(
-                            $bucket,
-                            $photographer_work_source->key,
-                            $fops,
-                            null,
-                            config(
-                                'app.url'
-                            ).'/api/notify/qiniu/fop?photographer_work_source_id='.$photographer_work_source->id.'&step=1',
-                            true
-                        );
-                        if ($qrst['err']) {
-                            ErrLogServer::QiniuNotifyFop(
-                                0,
-                                '七牛持久化接口返回错误信息',
-                                $photographerWorkRequest->all(),
-                                $photographer_work_source,
-                                $qrst['err']
-                            );
-                        }
+                }
+            }
+            $photographerWork->photographerWorkSources()->where(['status' => 300])->update(['status' => 400]);
+            $new_work_params = [
+                'customer_name' => $photographerWork->customer_name,
+                'source_count' => $photographerWork->photographerWorkSources()->where(['status' => 200])->count(),
+            ];
+            $photographerWorkSources=$photographerWork->photographerWorkSources()->where(['status' => 200])->orderBy('sort','asc')->get();
+            $editIsRunGenerateWatermark=PhotographerWorkSource::editIsRunGenerateWatermark($new_work_params,$old_work_params);
+            foreach ($photographerWorkSources as $photographerWorkSource){
+                if($editIsRunGenerateWatermark || $photographerWorkSource->is_new_source){
+                    PhotographerWorkSource::editRunGenerateWatermark($photographerWorkSource->id,'后台修改项目');
+                    if($photographerWorkSource->is_new_source){
+                        $photographerWorkSource->is_new_source=0;
+                        $photographerWorkSource->save();
                     }
-
                 }
             }
             $response = [
