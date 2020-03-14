@@ -127,10 +127,10 @@ class StarController extends BaseController
     {
         try {
             // 生成水印
-            // (new PhotographerWorkSource())->generateWatermark(1);
+           (new PhotographerWorkSource())->generateWatermark(94);
 
-            $data = PhotographerWork::poster2(1, 1);
-            var_dump($data);
+//            $data = P::poster2(1, 1);
+//            var_dump($data);
         } catch (\Exception $exception) {
             dd($exception->getMessage());
         }

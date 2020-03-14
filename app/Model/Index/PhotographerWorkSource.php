@@ -322,7 +322,7 @@ class PhotographerWorkSource extends Model
 
         $hanlde = [];
         // 对原图进行加高处理 增加水印框架图位置
-        $hanlde[] = "imageMogr2/auto-orient/crop/1200x".($photographerWorkSource->deal_height + 250);
+        $hanlde[] = "imageMogr2/auto-orient/thumbnail/1200x".($photographerWorkSource->deal_height + 250).'!';
         // 作品图
         if ($photographerWorkSource->deal_url) {
             $hanlde[] = "|watermark/3/image/".\Qiniu\base64_urlSafeEncode(
@@ -356,6 +356,7 @@ class PhotographerWorkSource extends Model
         $hanlde[] = "|imageslim";
 
         $fops[] = implode($hanlde);
+        \Log::info( var_export($fops,1));
         $qrst = SystemServer::qiniuPfop(
             $bucket,
             $srcKey,
