@@ -386,6 +386,28 @@ class MyController extends UserGuardController
             $request->pageSize
         );
         $photographerWorkSources = SystemServer::getPhotographerWorkSourcesThumb($photographerWorkSources);
+        foreach ($photographerWorkSources as $k => $photographerWorkSource) {
+            $photographer_work = PhotographerWork::where(
+                ['id' => $photographerWorkSource->photographer_work_id]
+            )->first();
+            if ($photographer_work) {
+                $photographer_work_tags = $photographer_work->photographerWorkTags()->select(
+                    PhotographerWorkTag::allowFields()
+                )->get()->toArray();
+                $photographer_work = ArrServer::inData($photographer_work->toArray(), PhotographerWork::allowFields());
+                $photographer_work = ArrServer::toNullStrData(
+                    $photographer_work,
+                    ['sheets_number', 'shooting_duration']
+                );
+                $photographer_work = SystemServer::parsePhotographerWorkCover($photographer_work);
+                $photographer_work = SystemServer::parsePhotographerWorkCustomerIndustry($photographer_work);
+                $photographer_work = SystemServer::parsePhotographerWorkCategory($photographer_work);
+                $photographer_work['tags'] = $photographer_work_tags;
+            } else {
+                $photographer_work = [];
+            }
+            $photographerWorkSources[$k]['work']=$photographer_work;
+        }
         $photographerWorkSources = SystemServer::parsePaginate($photographerWorkSources->toArray());
 
         return $this->response->array($photographerWorkSources);
@@ -961,7 +983,9 @@ class MyController extends UserGuardController
                 'customer_name' => $photographer_work->customer_name,
                 'source_count' => $photographer_work->photographerWorkSources()->where(['status' => 200])->count(),
             ];
-            $photographerWorkSources = $photographer_work->photographerWorkSources()->where(['status' => 200,'type'=>'image'])->orderBy(
+            $photographerWorkSources = $photographer_work->photographerWorkSources()->where(
+                ['status' => 200, 'type' => 'image']
+            )->orderBy(
                 'sort',
                 'asc'
             )->get();

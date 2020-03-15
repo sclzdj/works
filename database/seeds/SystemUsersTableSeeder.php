@@ -27,9 +27,7 @@ class SystemUsersTableSeeder extends Seeder
         $systemUser->status = 1;
         $systemUser->save();
         $node_ids = [
-            1,
-            3,
-            5,
+            47,
             48,
             49,
             50,
@@ -72,6 +70,7 @@ class SystemUsersTableSeeder extends Seeder
             87,
             88,
             89,
+            90,
         ];
         foreach ($node_ids as $node_id) {
             \DB::table('system_user_nodes')->insert(

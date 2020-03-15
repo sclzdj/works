@@ -82,11 +82,6 @@ class SystemNodesTableSeeder extends Seeder
                                 'action' => 'Admin\System\IndexController@config',
                             ],
                             [
-                                'name' => '修改密码',
-                                'icon' => 'fa fas fa-key',
-                                'action' => 'Admin\System\IndexController@updatePassword',
-                            ],
-                            [
                                 'name' => '资料设置',
                                 'icon' => 'fa fas fa-info-circle',
                                 'action' => 'Admin\System\IndexController@setInfo',
@@ -306,91 +301,12 @@ class SystemNodesTableSeeder extends Seeder
                 'icon' => 'fa fas fa-cloud',
                 'children' => [
                     [
-                        'name' => '配置中心',
-                        'icon' => 'fa fas fa-cogs',
-                        'children' => [
-                            [
-                                'name' => '客服信息',
-                                'icon' => 'fa fas fa-cog',
-                                'action' => 'Admin\Works\IndexController@config',
-                            ],
-                            [
-                                'name' => '众筹活动',
-                                'icon' => 'fa fas fa-dollar-sign',
-                                'action' => 'Admin\CrowdFunding\IndexController@index',
-                                'children' => [
-                                    [
-                                        'name' => '列表',
-                                        'action' => 'Admin\CrowdFunding\IndexController@lists',
-                                    ],
-                                    [
-                                        'name' => '更新',
-                                        'action' => 'Admin\CrowdFunding\IndexController@store',
-                                    ],
-                                ],
-                            ],
-                            [
-                                'name' => '邀请创建',
-                                'icon' => 'fa fab fa-cc-discover',
-                                'action' => 'Admin\InvoteCode\IndexController@index',
-                                'children' => [
-                                    [
-                                        'name' => '列表',
-                                        'action' => 'Admin\InvoteCode\IndexController@lists',
-                                    ],
-                                    [
-                                        'name' => '创建',
-                                        'action' => 'Admin\InvoteCode\IndexController@store',
-                                    ],
-                                    [
-                                        'name' => '更新',
-                                        'action' => 'Admin\InvoteCode\IndexController@update',
-                                    ],
-                                ],
-                            ],
-                            [
-                                'name' => '众筹记录',
-                                'icon' => 'fa fab fa-cc-discover',
-                                'action' => 'Admin\CrowdFundingLog\IndexController@index',
-                                'children' => [
-                                    [
-                                        'name' => '列表',
-                                        'action' => 'Admin\CrowdFundingLog\IndexController@lists',
-                                    ]
-                                ]
-                            ],
-                            [
-                                'name' => '使用帮助',
-                                'icon' => 'fa fas fa-question-circle',
-                                'action' => 'Admin\Works\HelpNoteController@index',
-                                'children' => [
-                                    [
-                                        'name' => '添加',
-                                        'action' => 'Admin\Works\HelpNoteController@create',
-                                    ],
-                                    [
-                                        'name' => '修改',
-                                        'action' => 'Admin\Works\HelpNoteController@edit',
-                                    ],
-                                    [
-                                        'name' => '排序',
-                                        'action' => 'Admin\Works\HelpNoteController@sort',
-                                    ],
-                                    [
-                                        'name' => '删除',
-                                        'action' => 'Admin\Works\HelpNoteController@destroy',
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                    [
-                        'name' => '摄影中心',
-                        'icon' => 'fa fas fa-camera',
+                        'name' => '管理中心',
+                        'icon' => 'fa fas fa-sitemap',
                         'children' => [
                             [
                                 'name' => '全部用户',
-                                'icon' => 'fa fas fa-user-md',
+                                'icon' => 'fa fas fa-user',
                                 'action' => 'Admin\Works\PhotographerController@index',
                                 'children' => [
                                     [
@@ -416,31 +332,8 @@ class SystemNodesTableSeeder extends Seeder
                                 ],
                             ],
                             [
-                                'name' => '全部项目',
-                                'icon' => 'fa fas fa-camera-retro',
-                                'action' => 'Admin\Works\PhotographerWorkController@index',
-                                'children' => [
-                                    [
-                                        'name' => '添加',
-                                        'action' => 'Admin\Works\PhotographerWorkController@create',
-                                    ],
-                                    [
-                                        'name' => '修改',
-                                        'action' => 'Admin\Works\PhotographerWorkController@edit',
-                                    ],
-                                    [
-                                        'name' => '删除',
-                                        'action' => 'Admin\Works\PhotographerWorkController@destroy',
-                                    ],
-                                    [
-                                        'name' => '海报',
-                                        'action' => 'Admin\Works\PhotographerWorkController@poster',
-                                    ],
-                                ],
-                            ],
-                            [
                                 'name' => '大咖用户',
-                                'icon' => 'fa fas fa-user-md',
+                                'icon' => 'fa fas fa-user-secret',
                                 'action' => 'Admin\Works\StarController@index',
                                 'children' => [
                                     [
@@ -462,8 +355,37 @@ class SystemNodesTableSeeder extends Seeder
                                 ],
                             ],
                             [
-                                'name' => '海报模版管理',
-                                'icon' => 'fa fas fa-user-md',
+                                'name' => '全部项目',
+                                'icon' => 'fa fas fa-camera',
+                                'action' => 'Admin\Works\PhotographerWorkController@index',
+                                'children' => [
+                                    [
+                                        'name' => '添加',
+                                        'action' => 'Admin\Works\PhotographerWorkController@create',
+                                    ],
+                                    [
+                                        'name' => '修改',
+                                        'action' => 'Admin\Works\PhotographerWorkController@edit',
+                                    ],
+                                    [
+                                        'name' => '删除',
+                                        'action' => 'Admin\Works\PhotographerWorkController@destroy',
+                                    ],
+                                    [
+                                        'name' => '海报',
+                                        'action' => 'Admin\Works\PhotographerWorkController@poster',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    [
+                        'name' => '营销中心',
+                        'icon' => 'fa fa-credit-card',
+                        'children' => [
+                            [
+                                'name' => '海报管理',
+                                'icon' => 'fa far fa-file-image',
                                 'action' => 'Admin\Works\TemplatesController@index',
                                 'children' => [
                                     [
@@ -495,6 +417,90 @@ class SystemNodesTableSeeder extends Seeder
                                         'action' => 'Admin\Works\TemplatesController@update',
                                     ],
                                 ],
+                            ],
+                            [
+                                'name' => '邀请管理',
+                                'icon' => 'fa fas fa-user-plus',
+                                'action' => 'Admin\InvoteCode\IndexController@index',
+                                'children' => [
+                                    [
+                                        'name' => '列表',
+                                        'action' => 'Admin\InvoteCode\IndexController@lists',
+                                    ],
+                                    [
+                                        'name' => '创建',
+                                        'action' => 'Admin\InvoteCode\IndexController@store',
+                                    ],
+                                    [
+                                        'name' => '更新',
+                                        'action' => 'Admin\InvoteCode\IndexController@update',
+                                    ],
+                                ],
+                            ],
+                            [
+                                'name' => '众筹管理',
+                                'icon' => 'fas fa-dollar-sign',
+                                'action' => 'Admin\CrowdFunding\IndexController@index',
+                                'children' => [
+                                    [
+                                        'name' => '列表',
+                                        'action' => 'Admin\CrowdFunding\IndexController@lists',
+                                    ],
+                                    [
+                                        'name' => '更新',
+                                        'action' => 'Admin\CrowdFunding\IndexController@store',
+                                    ],
+                                ],
+                            ],
+                            [
+                                'name' => '众筹历史',
+                                'icon' => 'fa fas fa-calendar',
+                                'action' => 'Admin\CrowdFundingLog\IndexController@index',
+                                'children' => [
+                                    [
+                                        'name' => '列表',
+                                        'action' => 'Admin\CrowdFundingLog\IndexController@lists',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    [
+                        'name' => '设置中心',
+                        'icon' => 'fa fas fa-cogs',
+                        'children' => [
+                            [
+                                'name' => '客服信息',
+                                'icon' => 'fa fas fa-phone-square',
+                                'action' => 'Admin\Works\IndexController@config',
+                            ],
+                            [
+                                'name' => '使用帮助',
+                                'icon' => 'fa fas fa-question-circle',
+                                'action' => 'Admin\Works\HelpNoteController@index',
+                                'children' => [
+                                    [
+                                        'name' => '添加',
+                                        'action' => 'Admin\Works\HelpNoteController@create',
+                                    ],
+                                    [
+                                        'name' => '修改',
+                                        'action' => 'Admin\Works\HelpNoteController@edit',
+                                    ],
+                                    [
+                                        'name' => '排序',
+                                        'action' => 'Admin\Works\HelpNoteController@sort',
+                                    ],
+                                    [
+                                        'name' => '删除',
+                                        'action' => 'Admin\Works\HelpNoteController@destroy',
+                                    ],
+                                ],
+                            ],
+                            [
+                                'name' => '修改密码',
+                                'icon' => 'fa fas fa-key',
+                                'action' => 'Admin\System\IndexController@updatePassword',
                             ],
                         ],
                     ],

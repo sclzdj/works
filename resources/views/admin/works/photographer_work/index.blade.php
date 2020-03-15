@@ -24,7 +24,7 @@
                     @if($photographer['id']>0)
                         <h3 class="block-title">用户<span style="color: #f00000">{{$photographer['name']}}</span>的全部项目
                             <a href="{{action('Admin\Works\PhotographerWorkController@index')}}"
-                               style="font-size: 12px;">[全部用户]</a>
+                               style="font-size: 12px;">[全部用户项目]</a>
                         </h3>
                     @else
                         <h3 class="block-title">全部项目</h3>

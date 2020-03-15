@@ -86,7 +86,7 @@
                                     class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
-                    <h3 class="block-title">众筹记录</h3>
+                    <h3 class="block-title">众筹历史</h3>
                 </div>
                 <div class="tab-content" id="app">
                     <div class="tab-pane active">
