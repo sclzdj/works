@@ -83,6 +83,7 @@ class BaiduController extends UserGuardController
 
         return $this->responseParseArray($config);
     }
+
     /**
      * 获取用户信息
      * @param SystemRequest $request
@@ -98,6 +99,7 @@ class BaiduController extends UserGuardController
 
         return $this->response->array($response);
     }
+
     /**
      * 获取文件列表
      * @param SystemRequest $request
@@ -136,6 +138,7 @@ class BaiduController extends UserGuardController
      */
     public function qiniuFetchPan(SystemRequest $request)
     {
+        $qiniuFetchBaiduPans = [];
         \DB::beginTransaction();//开启事务
         try {
             $fsids = $request->fsids;
@@ -194,7 +197,7 @@ class BaiduController extends UserGuardController
                         }
                         $photographer_work_source->origin = 'baidu_disk';
                         $photographer_work_source->sort = $sorts[$file['fs_id']] ?? 0;
-                        $photographer_work_source->status=200;
+                        $photographer_work_source->status = 200;
                         $photographer_work_source->save();
                         $asyncBaiduWorkSourceUpload = AsyncBaiduWorkSourceUpload::create();
                         $asyncBaiduWorkSourceUpload->photographer_work_source_id = $photographer_work_source->id;
@@ -209,23 +212,31 @@ class BaiduController extends UserGuardController
                         } else {
                             $type = 'file';
                         }
-                        $res = SystemServer::qiniuFetchBaiduPan(
-                            $type,
-                            $file['dlink'].'&access_token='.$access_token,
-                            config(
-                                'app.url'
-                            ).'/api/notify/qiniu/fetch?async_baidu_work_source_upload_id='.$asyncBaiduWorkSourceUpload->id
-                        );
-                        if ($res['statusCode'] !=200) {
-                            ErrLogServer::QiniuNotifyFetch(
-                                '系统请求七牛异步远程抓取接口时失败：'.$res['error'],
-                                $res,
-                                $asyncBaiduWorkSourceUpload
-                            );
-                        }
+                        $qiniuFetchBaiduPans[] = [
+                            'type' => $type,
+                            'url' => $file['dlink'].'&access_token='.$access_token,
+                            'callbackurl' => config(
+                                    'app.url'
+                                ).'/api/notify/qiniu/fetch?async_baidu_work_source_upload_id='.$asyncBaiduWorkSourceUpload->id,
+                            'asyncBaiduWorkSourceUpload' => $asyncBaiduWorkSourceUpload,
+                        ];
                     }
                 }
                 \DB::commit();//提交事务
+                foreach ($qiniuFetchBaiduPans as $qiniuFetchBaiduPan) {
+                    $res = SystemServer::qiniuFetchBaiduPan(
+                        $qiniuFetchBaiduPan['type'],
+                        $qiniuFetchBaiduPan['url'],
+                        $qiniuFetchBaiduPan['callbackurl']
+                    );
+                    if ($res['statusCode'] != 200) {
+                        ErrLogServer::QiniuNotifyFetch(
+                            '系统请求七牛异步远程抓取接口时失败：'.$res['error'],
+                            $res,
+                            $qiniuFetchBaiduPan['asyncBaiduWorkSourceUpload']
+                        );
+                    }
+                }
 
                 return $this->response->noContent();
             } else {

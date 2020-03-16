@@ -437,14 +437,6 @@ class SystemServer
         $res = $client->post($apiUrl, json_encode($body), $headers);
 
         return json_decode(json_encode($res), true);
-
-//        return SystemServer::request(
-//            $method,
-//            $apiUrl,
-//            $body,
-//            true,
-//            $headers
-//        );
     }
 
     /**

@@ -285,6 +285,7 @@ class PhotographerWorkController extends BaseController
         if (!$photographer) {
             return $this->response('参数无效', 403);
         }
+        $editRunGenerateWatermarks = [];
         \DB::beginTransaction();//开启事务
         try {
             $data = $photographerWorkRequest->all();
@@ -390,7 +391,7 @@ class PhotographerWorkController extends BaseController
                                     $qrst['err']
                                 );
                             }
-                            PhotographerWorkSource::editRunGenerateWatermark($photographer_work_source->id, '后台添加项目');
+                            $editRunGenerateWatermarks[] = ['photographer_work_source_id' => $photographer_work_source->id];
                         } else {
                             ErrLogServer::QiniuNotifyFop(
                                 '原始图片信息请求',
@@ -444,6 +445,12 @@ class PhotographerWorkController extends BaseController
                 ),
             ];
             \DB::commit();//提交事务
+            foreach ($editRunGenerateWatermarks as $editRunGenerateWatermark) {
+                PhotographerWorkSource::editRunGenerateWatermark(
+                    $$editRunGenerateWatermark['photographer_work_source_id'],
+                    '后台添加项目'
+                );
+            }
 
             return $this->response('添加成功', 200, $response);
 
@@ -577,6 +584,7 @@ class PhotographerWorkController extends BaseController
         if (!$photographer) {
             return $this->response('参数无效', 403);
         }
+        $editRunGenerateWatermarks = [];
         \DB::beginTransaction();//开启事务
         try {
             $data = $photographerWorkRequest->all();
@@ -638,8 +646,7 @@ class PhotographerWorkController extends BaseController
                     $photographer_work_source->sort = $k + 1;
                     $photographer_work_source->status = 200;
                     $photographer_work_source->save();
-                }
-                else {
+                } else {
                     $photographer_work_source = PhotographerWorkSource::create();
                     $photographer_work_source->photographer_work_id = $photographerWork->id;
                     $photographer_work_source->key = $v['key'];
@@ -710,8 +717,7 @@ class PhotographerWorkController extends BaseController
                                 $res
                             );
                         }
-                    }
-                    elseif ($photographer_work_source->type == 'video') {
+                    } elseif ($photographer_work_source->type == 'video') {
                         $res = SystemServer::request('GET', $photographer_work_source->url.'?avinfo');
                         if ($res['code'] == 200) {
                             if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
@@ -745,13 +751,18 @@ class PhotographerWorkController extends BaseController
                 'customer_name' => $photographerWork->customer_name,
                 'source_count' => $photographerWork->photographerWorkSources()->where(['status' => 200])->count(),
             ];
-            $photographerWorkSources=$photographerWork->photographerWorkSources()->where(['status' => 200,'type'=>'image'])->orderBy('sort','asc')->get();
-            $editIsRunGenerateWatermark=PhotographerWorkSource::editIsRunGenerateWatermark($new_work_params,$old_work_params);
-            foreach ($photographerWorkSources as $photographerWorkSource){
-                if($editIsRunGenerateWatermark || $photographerWorkSource->is_new_source){
-                    PhotographerWorkSource::editRunGenerateWatermark($photographerWorkSource->id,'后台修改项目');
-                    if($photographerWorkSource->is_new_source){
-                        $photographerWorkSource->is_new_source=0;
+            $photographerWorkSources = $photographerWork->photographerWorkSources()->where(
+                ['status' => 200, 'type' => 'image']
+            )->orderBy('sort', 'asc')->get();
+            $editIsRunGenerateWatermark = PhotographerWorkSource::editIsRunGenerateWatermark(
+                $new_work_params,
+                $old_work_params
+            );
+            foreach ($photographerWorkSources as $photographerWorkSource) {
+                if ($editIsRunGenerateWatermark || $photographerWorkSource->is_new_source) {
+                    $editRunGenerateWatermarks[] = ['photographerWorkSource_id' => $photographerWorkSource->id];
+                    if ($photographerWorkSource->is_new_source) {
+                        $photographerWorkSource->is_new_source = 0;
                         $photographerWorkSource->save();
                     }
                 }
@@ -763,6 +774,12 @@ class PhotographerWorkController extends BaseController
                 ),
             ];
             \DB::commit();//提交事务
+            foreach ($editRunGenerateWatermarks as $editRunGenerateWatermark) {
+                PhotographerWorkSource::editRunGenerateWatermark(
+                    $editRunGenerateWatermark['photographerWorkSource_id'],
+                    '后台修改项目'
+                );
+            }
 
             return $this->response('修改成功', 200, $response);
 

@@ -327,6 +327,7 @@ class DraftController extends UserGuardController
     public function registerPhotographerStore(PhotographerRequest $request)
     {
         $this->notVisitorIdentityVerify();
+        $editRunGenerateWatermarks=[];
         \DB::beginTransaction();//开启事务
         try {
             //验证短信验证码
@@ -402,7 +403,7 @@ class DraftController extends UserGuardController
                 foreach ($photographerWorkSources as $photographerWorkSource) {
                     $photographerWorkSource->is_new_source = 0;
                     $photographerWorkSource->save();
-                    PhotographerWorkSource::editRunGenerateWatermark($photographerWorkSource->id, '用户注册');
+                    $editRunGenerateWatermarks[] = ['photographerWorkSource_id' => $photographerWorkSource->id];
                 }
             }
             $user->identity = 1;
@@ -451,6 +452,12 @@ class DraftController extends UserGuardController
                 }
             }
             \DB::commit();//提交事务
+            foreach ($editRunGenerateWatermarks as $editRunGenerateWatermark) {
+                PhotographerWorkSource::editRunGenerateWatermark(
+                    $editRunGenerateWatermark['photographerWorkSource_id'],
+                    '用户注册'
+                );
+            }
 
             return $this->response->noContent();
         } catch (\Exception $e) {
@@ -661,6 +668,7 @@ class DraftController extends UserGuardController
     public function addPhotographerWorkStore(PhotographerRequest $request)
     {
         $this->notPhotographerIdentityVerify();
+        $editRunGenerateWatermarks=[];
         \DB::beginTransaction();//开启事务
         try {
             $photographer = $this->_photographer(null, $this->guard);
@@ -710,7 +718,7 @@ class DraftController extends UserGuardController
                     if ($photographerWorkSource->type == 'image') {
                         $photographerWorkSource->is_new_source = 0;
                         $photographerWorkSource->save();
-                        PhotographerWorkSource::editRunGenerateWatermark($photographerWorkSource->id, '添加项目');
+                        $editRunGenerateWatermarks[] = ['photographerWorkSource_id' => $photographerWorkSource->id];
                     }
                 }
             }
@@ -724,6 +732,12 @@ class DraftController extends UserGuardController
                 }
             }
             \DB::commit();//提交事务
+            foreach ($editRunGenerateWatermarks as $editRunGenerateWatermark) {
+                PhotographerWorkSource::editRunGenerateWatermark(
+                    $editRunGenerateWatermark['photographerWorkSource_id'],
+                    '添加项目'
+                );
+            }
 
             return $this->responseParseArray(['photographer_work_id' => $photographer_work->id]);
         } catch (\Exception $e) {

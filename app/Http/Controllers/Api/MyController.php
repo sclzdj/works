@@ -406,7 +406,7 @@ class MyController extends UserGuardController
             } else {
                 $photographer_work = [];
             }
-            $photographerWorkSources[$k]['work']=$photographer_work;
+            $photographerWorkSources[$k]['work'] = $photographer_work;
         }
         $photographerWorkSources = SystemServer::parsePaginate($photographerWorkSources->toArray());
 
@@ -428,7 +428,7 @@ class MyController extends UserGuardController
             return $this->response->error('用户不存在', 500);
         }
         // 获取一下上次的登录时间
-        $user_growth_count = UserGrowths::getUserGrowthCount($user,$photographer);
+        $user_growth_count = UserGrowths::getUserGrowthCount($user, $photographer);
         $photographer_work_count = PhotographerWork::where(
             ['photographer_id' => $photographer->id, 'status' => 200]
         )->count();
@@ -749,6 +749,8 @@ class MyController extends UserGuardController
             return $this->response->error('资源和网盘文件总和至多为9个', 500);
         }
         $this->notPhotographerIdentityVerify();
+        $qiniuFetchBaiduPans = [];
+        $editRunGenerateWatermarks=[];
         \DB::beginTransaction();//开启事务
         try {
             $user_id = auth($this->guard)->id();
@@ -954,20 +956,14 @@ class MyController extends UserGuardController
                         } else {
                             $type = 'file';
                         }
-                        $res = SystemServer::qiniuFetchBaiduPan(
-                            $type,
-                            $file['dlink'].'&access_token='.$access_token,
-                            config(
-                                'app.url'
-                            ).'/api/notify/qiniu/fetch?async_baidu_work_source_upload_id='.$asyncBaiduWorkSourceUpload->id
-                        );
-                        if ($res['statusCode'] != 200) {
-                            ErrLogServer::QiniuNotifyFetch(
-                                '系统请求七牛异步远程抓取接口时失败：'.$res['error'],
-                                $res,
-                                $asyncBaiduWorkSourceUpload
-                            );
-                        }
+                        $qiniuFetchBaiduPans[] = [
+                            'type' => $type,
+                            'url' => $file['dlink'].'&access_token='.$access_token,
+                            'callbackurl' => config(
+                                    'app.url'
+                                ).'/api/notify/qiniu/fetch?async_baidu_work_source_upload_id='.$asyncBaiduWorkSourceUpload->id,
+                            'asyncBaiduWorkSourceUpload' => $asyncBaiduWorkSourceUpload,
+                        ];
                     }
                 }
             }
@@ -988,7 +984,7 @@ class MyController extends UserGuardController
             );
             foreach ($photographerWorkSources as $photographerWorkSource) {
                 if ($editIsRunGenerateWatermark || $photographerWorkSource->is_new_source) {
-                    PhotographerWorkSource::editRunGenerateWatermark($photographerWorkSource->id, '修改项目');
+                    $editRunGenerateWatermarks[] = ['photographerWorkSource_id' => $photographerWorkSource->id];
                     if ($photographerWorkSource->is_new_source) {
                         $photographerWorkSource->is_new_source = 0;
                         $photographerWorkSource->save();
@@ -996,6 +992,26 @@ class MyController extends UserGuardController
                 }
             }
             \DB::commit();//提交事务
+            foreach ($qiniuFetchBaiduPans as $qiniuFetchBaiduPan) {
+                $res = SystemServer::qiniuFetchBaiduPan(
+                    $qiniuFetchBaiduPan['type'],
+                    $qiniuFetchBaiduPan['url'],
+                    $qiniuFetchBaiduPan['callbackurl']
+                );
+                if ($res['statusCode'] != 200) {
+                    ErrLogServer::QiniuNotifyFetch(
+                        '系统请求七牛异步远程抓取接口时失败：'.$res['error'],
+                        $res,
+                        $qiniuFetchBaiduPan['asyncBaiduWorkSourceUpload']
+                    );
+                }
+            }
+            foreach ($editRunGenerateWatermarks as $editRunGenerateWatermark) {
+                PhotographerWorkSource::editRunGenerateWatermark(
+                    $editRunGenerateWatermark['photographerWorkSource_id'],
+                    '修改项目'
+                );
+            }
 
             return $this->response->noContent();
         } catch (\Exception $e) {
@@ -1342,7 +1358,7 @@ class MyController extends UserGuardController
         } else {
             return [
                 'result' => true,
-                'share_url' => $PhotographerWork->generateShare($photographer_work_id)
+                'share_url' => $PhotographerWork->generateShare($photographer_work_id),
             ];
         }
     }
