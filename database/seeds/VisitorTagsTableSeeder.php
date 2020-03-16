@@ -12,9 +12,7 @@ class VisitorTagsTableSeeder extends Seeder
     public function run()
     {
         $tags = [
-            '未知',
-            '老客',
-            '新客',
+            '客户',
             '同行',
             '亲友',
         ];

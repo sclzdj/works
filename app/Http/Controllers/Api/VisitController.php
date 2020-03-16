@@ -298,7 +298,7 @@ class VisitController extends UserGuardController
             }
             $visitor = Visitor::create(['photographer_id' => $request->photographer_id, 'user_id' => $user->id]);
             if ($user->identity == 1) {
-                $visitor->visitor_tag_id = 4;//如果访客也为用户标记为同行
+                $visitor->visitor_tag_id = 2;//如果访客也为用户标记为同行
             }
             if ($visitors_count + 1 < 3) {
                 $visit_send_message['is'] = true;//第一次发送模板消息，发模板消息
@@ -463,6 +463,48 @@ class VisitController extends UserGuardController
     }
 
     /**
+     * 访客筛选条目列表
+     * @return mixed
+     */
+    public function filterItems()
+    {
+        $this->notPhotographerIdentityVerify();
+        $photographer = User::photographer(null, $this->guard);
+        $filterItems = [];
+        $visitor = Visitor::where(
+            ['visitors.photographer_id' => $photographer->id, 'is_remind' => 1]
+        )->first();
+        if ($visitor) {
+            $filterItems[] = [
+                'id' => '-1',
+                'name' => '特别关注',
+            ];
+        }
+        $visitor = Visitor::where(
+            ['visitors.photographer_id' => $photographer->id, 'visitor_tag_id' => 0]
+        )->first();
+        if ($visitor) {
+            $filterItems[] = [
+                'id' => '0',
+                'name' => '未分组',
+            ];
+        }
+        $visitors = Visitor::select('visitor_tag_id')->distinct()->where(
+            [['visitors.photographer_id', '=', $photographer->id], ['visitor_tag_id', '!=', 0]]
+        )->get();
+        $visitor_tag_ids = ArrServer::ids($visitors, 'visitor_tag_id');
+        $tags = VisitorTag::select(['id', 'name'])->whereIn('id', $visitor_tag_ids)->orderBy(
+            'sort',
+            'asc'
+        )->get()->toArray();
+        if ($tags) {
+            $filterItems = array_merge($filterItems, $tags);
+        }
+
+        return $this->responseParseArray($filterItems);
+    }
+
+    /**
      * 访客列表
      * @param VisitRequest $request
      * @return mixed
@@ -470,6 +512,15 @@ class VisitController extends UserGuardController
     public function visitors(VisitRequest $request)
     {
         $this->notPhotographerIdentityVerify();
+        if ($request->filterItem_id !== null) {
+            if ($request->filterItem_id == -1) {
+                $request->visitor_tag_id = null;
+                $request->is_remind = 1;
+            } else {
+                $request->visitor_tag_id = $request->filterItem_id;
+                $request->is_remind = null;
+            }
+        }
         $photographer = User::photographer(null, $this->guard);
         $fields = array_map(
             function ($v) {
@@ -772,7 +823,7 @@ class VisitController extends UserGuardController
         if ($operateRecord) {
             $auth_id = auth($this->guard)->id();
             $first_in_operate_record = [
-                'in_type'=>$operateRecord->in_type,
+                'in_type' => $operateRecord->in_type,
                 'date' => date('Y/m/d', strtotime($operateRecord->created_at)),
                 'describe' => $this->_makeDescribe($operateRecord->id, true),
             ];
@@ -783,18 +834,24 @@ class VisitController extends UserGuardController
                     $shared_user_is_me = 0;
                 }
                 $first_in_operate_record['shared_user_is_me'] = $shared_user_is_me;
-                if(!$shared_user_is_me){
+                if (!$shared_user_is_me) {
                     $shared_visitor_id = (int)Visitor::where(
-                        ['user_id' => $operateRecord->shared_user_id, 'photographer_id' => $operateRecord->photographer_id]
+                        [
+                            'user_id' => $operateRecord->shared_user_id,
+                            'photographer_id' => $operateRecord->photographer_id,
+                        ]
                     )->value('id');
-                    $shared_user = User::select(User::allowFields())->where('id', $operateRecord->shared_user_id)->first();
+                    $shared_user = User::select(User::allowFields())->where(
+                        'id',
+                        $operateRecord->shared_user_id
+                    )->first();
                     $first_in_operate_record['shared_visitor_id'] = $shared_visitor_id;
                     $first_in_operate_record['shared_user'] = $shared_user;
                 }
             }
         } else {
             $first_in_operate_record = [
-                'in_type'=>'',
+                'in_type' => '',
                 'date' => '',
                 'describe' => '',
             ];

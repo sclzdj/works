@@ -119,6 +119,7 @@ $api->version(
                 $api->post('visit/remind', 'VisitController@setRemind');
                 $api->post('visit/tag', 'VisitController@setTag');
                 $api->get('visit/tags', 'VisitController@tags');
+                $api->get('visit/filterItems', 'VisitController@filterItems');
                 $api->get('visit/visitors', 'VisitController@visitors');
                 $api->get('visit/visitor', 'VisitController@visitor');
                 $api->get('visit/visitorRecords', 'VisitController@visitorRecords');
