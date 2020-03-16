@@ -141,16 +141,16 @@ class BaiduController extends UserGuardController
             $fsids = $request->fsids;
             $user_id = auth($this->guard)->id();
             if ($request->photographer_work_id) {
-                $photographer_work = User::photographer(null, $this->guard)->photographerWorks()->where(
+                $photographer_work = $this->_photographer(null, $this->guard)->photographerWorks()->where(
                     ['id' => $request->photographer_work_id, 'status' => '200']
                 )->first();
             } else {
-                $photographer_work = User::photographer(null, $this->guard)->photographerWorks()->where(
+                $photographer_work = $this->_photographer(null, $this->guard)->photographerWorks()->where(
                     ['status' => 0]
                 )->first();
                 if (!$photographer_work) {
                     $photographer_work = PhotographerWork::create();
-                    $photographer_work->photographer_id = User::photographer(null, $this->guard)->id;
+                    $photographer_work->photographer_id = $this->_photographer(null, $this->guard)->id;
                     $photographer_work->save();
                 }
             }

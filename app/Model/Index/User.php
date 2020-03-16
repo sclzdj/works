@@ -95,7 +95,11 @@ class User extends Authenticatable implements JWTSubject
     public static function photographer($photographer_id = null, $guard = null)
     {
         if (empty($photographer_id)) {
-            $photographer_id = auth($guard)->user()->photographer_id;
+            if(auth($guard)->check()){
+                $photographer_id = auth($guard)->user()->photographer_id;
+            }else{
+                return false;
+            }
         }
 
         return Photographer::find($photographer_id);

@@ -41,7 +41,7 @@ class PhotographerController extends BaseController
      */
     public function info(PhotographerRequest $request)
     {
-        $photographer = User::photographer($request->photographer_id);
+        $photographer = $this->_photographer($request->photographer_id);
         if (!$photographer || $photographer->status != 200) {
             return $this->response->error('用户不存在', 500);
         }
@@ -59,7 +59,7 @@ class PhotographerController extends BaseController
      */
     public function works(PhotographerRequest $request)
     {
-        $photographer = User::photographer($request->photographer_id);
+        $photographer = $this->_photographer($request->photographer_id);
         if (!$photographer || $photographer->status != 200) {
             return $this->response->error('用户不存在', 500);
         }
@@ -132,7 +132,7 @@ class PhotographerController extends BaseController
         if (!$photographer_work) {
             return $this->response->error('用户项目不存在', 500);
         }
-        $photographer = User::photographer($photographer_work->photographer_id);
+        $photographer = $this->_photographer($photographer_work->photographer_id);
         if (!$photographer || $photographer->status != 200) {
             return $this->response->error('用户不存在', 500);
         }
@@ -180,7 +180,7 @@ class PhotographerController extends BaseController
         if (!$photographer_work) {
             return $this->response->error('用户项目不存在', 500);
         }
-        $photographer = User::photographer($photographer_work->photographer_id);
+        $photographer = $this->_photographer($photographer_work->photographer_id);
         if (!$photographer || $photographer->status != 200) {
             return $this->response->error('用户不存在', 500);
         }
@@ -209,7 +209,7 @@ class PhotographerController extends BaseController
      */
     public function workNext(Request $request)
     {
-        $photographer = User::photographer($request->photographer_id);
+        $photographer = $this->_photographer($request->photographer_id);
         if (!$photographer || $photographer->status != 200) {
             return $this->response->error('用户不存在', 500);
         }
@@ -244,9 +244,9 @@ class PhotographerController extends BaseController
     public function xacodeNext(PhotographerRequest $request)
     {
         if ($request->photographer_id > 0) {
-            $photographer = User::photographer($request->photographer_id);
+            $photographer = $this->_photographer($request->photographer_id);
         } else {
-            $photographer = User::photographer(null, $this->guards['user']);
+            $photographer = $this->_photographer(null, $this->guards['user']);
         }
         if (!$photographer || $photographer->status != 200) {
             return $this->response->error('用户不存在', 500);
@@ -372,7 +372,7 @@ class PhotographerController extends BaseController
     {
         $photographer_id = $request->input('photographer_id');
         $response = [];
-        $photographer = User::photographer($photographer_id);
+        $photographer = $this->_photographer($photographer_id);
         if (!$photographer || $photographer->status != 200) {
             $response['code'] = 500;
             $response['msg'] = '用户不存在';
@@ -635,7 +635,7 @@ class PhotographerController extends BaseController
         if (!$photographer_work) {
             return $this->response->error('用户项目不存在', 500);
         }
-        $photographer = User::photographer($photographer_work->photographer_id);
+        $photographer = $this->_photographer($photographer_work->photographer_id);
         if (!$photographer || $photographer->status != 200) {
             return $this->response->error('用户不存在', 500);
         }
@@ -655,11 +655,11 @@ class PhotographerController extends BaseController
         $photographer_work = PhotographerWork::where(
             ['status' => 200, 'id' => $photographer_work_id]
         )->first();
-        $photographer = User::photographer($photographer_work->photographer_id);
+        $photographer = $this->_photographer($photographer_work->photographer_id);
         if (!$photographer_work) {
             return $this->response->error('用户项目不存在', 500);
         }
-        $photographer = User::photographer($photographer_work->photographer_id);
+        $photographer = $this->_photographer($photographer_work->photographer_id);
         if (!$photographer || $photographer->status != 200) {
             return $this->response->error('用户不存在', 500);
         }

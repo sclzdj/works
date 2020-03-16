@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Model\Index\User;
 use App\Servers\SystemServer;
 use Dingo\Api\Routing\Helpers;
 use Illuminate\Support\Facades\Request;
@@ -82,6 +83,24 @@ class BaseController extends Controller
             return $this->response->error($response['msg'], $response['code']);
         } else {
             return $response['data'];
+        }
+    }
+
+    /**
+     * 关联的用户
+     * @param null $photographer_id
+     * @param null $guard
+     * @return mixed|void
+     */
+    protected function _photographer($photographer_id = null, $guard = null)
+    {
+        $photographer = User::photographer($photographer_id, $guard);
+        if ($photographer === false) {
+            return $this->response->errorUnauthorized();
+        } elseif (!$photographer) {
+            return $this->response->error('用户未找到', 500);
+        } else {
+            return $photographer;
         }
     }
 }
