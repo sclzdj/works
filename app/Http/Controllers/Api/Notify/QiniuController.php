@@ -61,7 +61,7 @@ class QiniuController extends BaseController
             $photographerWorkSource->size = $request_data['size'];
             $photographerWorkSource->width = $request_data['width'];
             $photographerWorkSource->height = $request_data['height'];
-            if ($photographerWorkSource != 'image') {
+            if ($photographerWorkSource->type != 'image') {
                 $photographerWorkSource->deal_key = $request_data['key'];
                 $photographerWorkSource->deal_url = $domain.'/'.$request_data['key'];
                 $photographerWorkSource->deal_size = $request_data['size'];
