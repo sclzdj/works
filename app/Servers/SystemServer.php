@@ -13,6 +13,7 @@ use App\Model\Index\VisitorTag;
 use Intervention\Image\Facades\Image;
 use Qiniu\Auth;
 use Qiniu\Config;
+use Qiniu\Http\Client;
 use Qiniu\Processing\PersistentFop;
 use Qiniu\Storage\BucketManager;
 use Qiniu\Storage\UploadManager;
@@ -431,15 +432,19 @@ class SystemServer
             json_encode($body),
             $headers["Content-Type"]
         );
-        $headers = array_merge($headers, $authorization);
+        $headers = array_merge(['Authorization' => $authorization['Authorization']], $headers);
+        $client = new Client();
+        $res = $client->post($apiUrl, json_encode($body), $headers);
 
-        return SystemServer::request(
-            $method,
-            $apiUrl,
-            $body,
-            true,
-            $headers
-        );
+        return json_decode(json_encode($res), true);
+
+//        return SystemServer::request(
+//            $method,
+//            $apiUrl,
+//            $body,
+//            true,
+//            $headers
+//        );
     }
 
     /**
@@ -527,9 +532,9 @@ class SystemServer
     {
         if ($photographerWorkSource) {
             if ($photographerWorkSource->url && $photographerWorkSource->deal_url) {
-                if($photographerWorkSource->type != 'image'){
+                if ($photographerWorkSource->type != 'image') {
                     return $photographerWorkSource->url;
-                }else{
+                } else {
                     if ($photographerWorkSource->url == $photographerWorkSource->deal_url) {
                         return $photographerWorkSource->url;
                     } else {

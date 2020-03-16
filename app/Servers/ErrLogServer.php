@@ -38,6 +38,19 @@ class ErrLogServer
         $error['asyncBaiduWorkSourceUpload_id'] = $asyncBaiduWorkSourceUpload_id;
         $error['msg'] = $msg;
         $error['response'] = $request_data;
+        if ($photographerWorkSource) {
+            //错误处理机制
+            $photographerWorkSources = PhotographerWorkSource::where(
+                [
+                    'photographer_work_id'=>$photographerWorkSource->photographer_work_id,
+                    'type' => 'image',
+                    'status' => 200,
+                ]
+            )->orderBy('sort','asc')->get();
+            foreach ($photographerWorkSources as $source) {
+                PhotographerWorkSource::editRunGenerateWatermark($source->id, '错误处理机制');
+            }
+        }
 
         return SystemServer::filePutContents(
             $log_filename,

@@ -43,9 +43,9 @@ class QiniuController extends BaseController
             );
         }
         try {
-            if($request_data['code']!=0){
+            if (isset($request_data['code']) && $request_data['code'] != 0) {
                 return ErrLogServer::QiniuNotifyFetch(
-                    '七牛异步抓取通知结果报错：'.$request_data['code'].$request_data['err'],
+                    '七牛异步抓取通知结果报错：'.$request_data['code'].($request_data['err'] ?? ''),
                     $request_data,
                     $asyncBaiduWorkSourceUpload,
                     $photographerWorkSource

@@ -961,17 +961,10 @@ class MyController extends UserGuardController
                                 'app.url'
                             ).'/api/notify/qiniu/fetch?async_baidu_work_source_upload_id='.$asyncBaiduWorkSourceUpload->id
                         );
-                        if ($res['code'] != 200) {
+                        if ($res['statusCode'] != 200) {
                             ErrLogServer::QiniuNotifyFetch(
-                                '系统请求七牛异步远程抓取接口时失败：'.$res['msg'],
+                                '系统请求七牛异步远程抓取接口时失败：'.$res['error'],
                                 $res,
-                                $asyncBaiduWorkSourceUpload
-                            );
-                        }
-                        if (isset($res['data']['code']) && $res['data']['code'] != 200) {
-                            ErrLogServer::QiniuNotifyFetch(
-                                '七牛异步远程抓取请求失败',
-                                $res['data'],
                                 $asyncBaiduWorkSourceUpload
                             );
                         }
