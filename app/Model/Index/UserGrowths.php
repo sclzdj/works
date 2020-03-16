@@ -48,9 +48,8 @@ class UserGrowths extends Model
      * 获取上次的登录时间
      * @return string time
      */
-    public static function getLastLoginTime($guard)
+    public static function getLastLoginTime($user)
     {
-        $user = auth($guard)->user();
         $loginInfo = self::where('user_id', $user->id)->first();
         if (empty($loginInfo)) {
             $updateTime = date('Y-m-d H:i:s');
@@ -72,10 +71,9 @@ class UserGrowths extends Model
      * 获取上次登录时间增长了多少访客
      * @return int count
      */
-    public static function getUserGrowthCount($guard)
+    public static function getUserGrowthCount($user,$photographer)
     {
-        $photographer = User::photographer(null, $guard);
-        $last_login_time = self::getLastLoginTime($guard);
+        $last_login_time = self::getLastLoginTime($user);
         $count = Visitor::where('photographer_id', $photographer->id)
             ->whereBetween('created_at', [$last_login_time, date('Y-m-d H:i:s')])
         ->count();

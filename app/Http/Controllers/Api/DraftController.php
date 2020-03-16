@@ -38,7 +38,7 @@ class DraftController extends UserGuardController
         $this->notVisitorIdentityVerify();
         \DB::beginTransaction();//开启事务
         try {
-            $photographer = User::photographer(null, $this->guard);
+            $photographer = $this->_photographer(null, $this->guard);
             $photographer_work = $photographer->photographerWorks()->where(['status' => 0])->first();
             if (!$photographer_work) {
                 $photographer_work = PhotographerWork::create();
@@ -70,7 +70,7 @@ class DraftController extends UserGuardController
         $this->notVisitorIdentityVerify();
         \DB::beginTransaction();//开启事务
         try {
-            $photographer = User::photographer(null, $this->guard);
+            $photographer = $this->_photographer(null, $this->guard);
             $photographer_work = $photographer->photographerWorks()->where(
                 ['status' => 0]
             )->first();
@@ -208,7 +208,7 @@ class DraftController extends UserGuardController
         $this->notVisitorIdentityVerify();
         \DB::beginTransaction();//开启事务
         try {
-            $photographer = User::photographer(null, $this->guard);
+            $photographer = $this->_photographer(null, $this->guard);
             $photographer_work = $photographer->photographerWorks()->where(['status' => 0])->first();
             if (!$photographer_work) {
                 $photographer_work = PhotographerWork::create();
@@ -246,7 +246,7 @@ class DraftController extends UserGuardController
         $this->notVisitorIdentityVerify();
         \DB::beginTransaction();//开启事务
         try {
-            $photographer = User::photographer(null, $this->guard);
+            $photographer = $this->_photographer(null, $this->guard);
             $photographer_work = $photographer->photographerWorks()->where(
                 ['status' => 0]
             )->first();
@@ -310,7 +310,7 @@ class DraftController extends UserGuardController
     public function registerPhotographer()
     {
         $this->notVisitorIdentityVerify();
-        $photographer = User::photographer(null, $this->guard);
+        $photographer = $this->_photographer(null, $this->guard);
         $photographer = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
         $photographer = SystemServer::parseRegionName($photographer);
         $photographer = SystemServer::parsePhotographerRank($photographer);
@@ -342,7 +342,7 @@ class DraftController extends UserGuardController
                 return $this->response->error($verify_result['message'], 500);
             }
             $user = auth($this->guard)->user();
-            $photographer = User::photographer(null, $this->guard);
+            $photographer = $this->_photographer(null, $this->guard);
             //验证手机号的唯一性
             $other_photographer = Photographer::where('id', '!=', $photographer->id)->where(
                 ['mobile' => $request->mobile, 'status' => 200]
@@ -467,7 +467,7 @@ class DraftController extends UserGuardController
     public function addPhotographerWorkSource()
     {
         $this->notPhotographerIdentityVerify();
-        $photographer_work = User::photographer(null, $this->guard)->photographerWorks()->where(['status' => 0])->first(
+        $photographer_work = $this->_photographer(null, $this->guard)->photographerWorks()->where(['status' => 0])->first(
         );
         if ($photographer_work) {
             $photographer_work_sources = $photographer_work->photographerWorkSources()->select(
@@ -492,7 +492,7 @@ class DraftController extends UserGuardController
         $this->notPhotographerIdentityVerify();
         \DB::beginTransaction();//开启事务
         try {
-            $photographer = User::photographer(null, $this->guard);
+            $photographer = $this->_photographer(null, $this->guard);
             $photographer_work = $photographer->photographerWorks()->where(
                 ['status' => 0]
             )->first();
@@ -628,7 +628,7 @@ class DraftController extends UserGuardController
     public function addPhotographerWork()
     {
         $this->notPhotographerIdentityVerify();
-        $photographer_work = User::photographer(null, $this->guard)->photographerWorks()->where(['status' => 0])->first(
+        $photographer_work = $this->_photographer(null, $this->guard)->photographerWorks()->where(['status' => 0])->first(
         );
         if ($photographer_work) {
             $photographer_work_tags = $photographer_work->photographerWorkTags()->select(
@@ -663,7 +663,7 @@ class DraftController extends UserGuardController
         $this->notPhotographerIdentityVerify();
         \DB::beginTransaction();//开启事务
         try {
-            $photographer = User::photographer(null, $this->guard);
+            $photographer = $this->_photographer(null, $this->guard);
             $photographer_work = $photographer->photographerWorks()->where(
                 ['status' => 0]
             )->first();

@@ -213,7 +213,7 @@ class MyController extends UserGuardController
     public function photographerInfo()
     {
         $this->notPhotographerIdentityVerify();
-        $photographer = User::photographer(null, $this->guard);
+        $photographer = $this->_photographer(null, $this->guard);
         if (!$photographer || $photographer->status != 200) {
             return $this->response->error('用户不存在', 500);
         }
@@ -232,7 +232,7 @@ class MyController extends UserGuardController
     public function photographerWorks(UserRequest $request)
     {
         $this->notPhotographerIdentityVerify();
-        $photographer = User::photographer(null, $this->guard);
+        $photographer = $this->_photographer(null, $this->guard);
         if (!$photographer || $photographer->status != 200) {
             return $this->response->error('用户不存在', 500);
         }
@@ -306,7 +306,7 @@ class MyController extends UserGuardController
         if (!$photographer_work) {
             return $this->response->error('用户项目不存在', 500);
         }
-        $photographer = User::photographer(null, $this->guard);
+        $photographer = $this->_photographer(null, $this->guard);
         if (!$photographer || $photographer->status != 200) {
             return $this->response->error('用户不存在', 500);
         }
@@ -346,7 +346,7 @@ class MyController extends UserGuardController
     public function photographerWorkSources(UserRequest $request)
     {
         $this->notPhotographerIdentityVerify();
-        $photographer = User::photographer(null, $this->guard);
+        $photographer = $this->_photographer(null, $this->guard);
         if (!$photographer || $photographer->status != 200) {
             return $this->response->error('用户不存在', 500);
         }
@@ -420,15 +420,15 @@ class MyController extends UserGuardController
      */
     public function photographerStatistics(UserRequest $request)
     {
-
         $this->notPhotographerIdentityVerify();
+        $user = auth($this->guard)->user();
         $rankListLast = $request->rankListLast ?? 50;
-        $photographer = User::photographer(null, $this->guard);
+        $photographer = $this->_photographer(null, $this->guard);
         if (!$photographer || $photographer->status != 200) {
             return $this->response->error('用户不存在', 500);
         }
         // 获取一下上次的登录时间
-        $user_growth_count = UserGrowths::getUserGrowthCount($this->guard);
+        $user_growth_count = UserGrowths::getUserGrowthCount($user,$photographer);
         $photographer_work_count = PhotographerWork::where(
             ['photographer_id' => $photographer->id, 'status' => 200]
         )->count();
@@ -492,7 +492,7 @@ class MyController extends UserGuardController
         if (!$photographer_work) {
             return $this->response->error('用户项目不存在', 500);
         }
-        $photographer = User::photographer(null, $this->guard);
+        $photographer = $this->_photographer(null, $this->guard);
         if (!$photographer || $photographer->status != 200) {
             return $this->response->error('用户不存在', 500);
         }
@@ -520,7 +520,7 @@ class MyController extends UserGuardController
     public function photographerWorkHide(UserRequest $request)
     {
         $this->notPhotographerIdentityVerify();
-        $photographer = User::photographer(null, $this->guard);
+        $photographer = $this->_photographer(null, $this->guard);
         $photographer_work = PhotographerWork::where(
             [
                 'status' => 200,
@@ -581,7 +581,7 @@ class MyController extends UserGuardController
 
                 return $this->response->error($verify_result['message'], 500);
             }
-            $photographer = User::photographer(null, $this->guard);
+            $photographer = $this->_photographer(null, $this->guard);
             //验证手机号的唯一性
             $other_photographer = Photographer::where('id', '!=', $photographer->id)->where(
                 ['mobile' => $request->mobile, 'status' => 200]
@@ -626,7 +626,7 @@ class MyController extends UserGuardController
         $this->notPhotographerIdentityVerify();
         \DB::beginTransaction();//开启事务
         try {
-            $photographer = User::photographer(null, $this->guard);
+            $photographer = $this->_photographer(null, $this->guard);
             if (!$photographer || $photographer->status != 200) {
                 return $this->response->error('用户不存在', 500);
             }
@@ -652,7 +652,7 @@ class MyController extends UserGuardController
         $this->notPhotographerIdentityVerify();
         \DB::beginTransaction();//开启事务
         try {
-            $photographer = User::photographer(null, $this->guard);
+            $photographer = $this->_photographer(null, $this->guard);
             if (!$photographer || $photographer->status != 200) {
                 return $this->response->error('用户不存在', 500);
             }
@@ -678,7 +678,7 @@ class MyController extends UserGuardController
         $this->notPhotographerIdentityVerify();
         \DB::beginTransaction();//开启事务
         try {
-            $photographer = User::photographer(null, $this->guard);
+            $photographer = $this->_photographer(null, $this->guard);
             if (!$photographer || $photographer->status != 200) {
                 return $this->response->error('用户不存在', 500);
             }
@@ -752,7 +752,7 @@ class MyController extends UserGuardController
         \DB::beginTransaction();//开启事务
         try {
             $user_id = auth($this->guard)->id();
-            $photographer = User::photographer(null, $this->guard);
+            $photographer = $this->_photographer(null, $this->guard);
             $photographer_work = $photographer->photographerWorks()->where(
                 ['id' => $request->photographer_work_id, 'status' => 200]
             )->first();
@@ -1189,7 +1189,7 @@ class MyController extends UserGuardController
     public function saveDocPdf(UserRequest $request)
     {
         $this->notPhotographerIdentityVerify();
-        $photographer = User::photographer(null, $this->guard);
+        $photographer = $this->_photographer(null, $this->guard);
         \DB::beginTransaction();//开启事务
         try {
             $doc_pdf = DocPdf::create();
@@ -1227,7 +1227,7 @@ class MyController extends UserGuardController
     public function docPdfs(UserRequest $request)
     {
         $this->notPhotographerIdentityVerify();
-        $photographer = User::photographer(null, $this->guard);
+        $photographer = $this->_photographer(null, $this->guard);
         $doc_pdfs = DocPdf::select(DocPdf::allowFields())->where('photographer_id', $photographer->id)->whereIn(
             'status',
             [0, 200]
@@ -1261,7 +1261,7 @@ class MyController extends UserGuardController
     public function getDocPdfStatus(UserRequest $request)
     {
         $this->notPhotographerIdentityVerify();
-        $photographer = User::photographer(null, $this->guard);
+        $photographer = $this->_photographer(null, $this->guard);
         $doc_pdf = DocPdf::select(DocPdf::allowFields())->where(
             ['photographer_id' => $photographer->id, 'doc_pdf_id' => $request->doc_pdf_id]
         )->first();
@@ -1280,7 +1280,7 @@ class MyController extends UserGuardController
     public function docPdfDelete(UserRequest $request)
     {
         $this->notPhotographerIdentityVerify();
-        $photographer = User::photographer(null, $this->guard);
+        $photographer = $this->_photographer(null, $this->guard);
         $doc_pdf = DocPdf::select(DocPdf::allowFields())->where(
             ['photographer_id' => $photographer->id, 'doc_pdf_id' => $request->doc_pdf_id]
         )->first();

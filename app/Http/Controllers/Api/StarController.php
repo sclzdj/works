@@ -261,7 +261,7 @@ class StarController extends BaseController
         $blackBg = $domain . '/FtXkbly4Qu-tEeiBiolLj-FFPXeo?imageMogr2/auto-orient/thumbnail/383x320!';
         $blackBgs = array_fill(0, 6, $blackBg);
 
-        $photographer = User::photographer($request->photographer_id);
+        $photographer = $this->_photographer($request->photographer_id);
         if (!$photographer || $photographer->status != 200) {
             return $this->response->error('用户不存在', 500);
         }
@@ -388,7 +388,7 @@ class StarController extends BaseController
     {
         $photographer_id = $request->input('photographer_id');
         $response = [];
-        $photographer = User::photographer($photographer_id);
+        $photographer = $this->_photographer($photographer_id);
         if (!$photographer || $photographer->status != 200) {
             $response['code'] = 500;
             $response['msg'] = '用户不存在';

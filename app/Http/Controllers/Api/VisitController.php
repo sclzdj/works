@@ -413,7 +413,7 @@ class VisitController extends UserGuardController
         $this->notPhotographerIdentityVerify();
         \DB::beginTransaction();//开启事务
         try {
-            $photographer = User::photographer(null, $this->guard);
+            $photographer = $this->_photographer(null, $this->guard);
             $visitor = Visitor::where(
                 ['id' => $request->visitor_id, 'photographer_id' => $photographer->id]
             )->first();
@@ -443,7 +443,7 @@ class VisitController extends UserGuardController
         $this->notPhotographerIdentityVerify();
         \DB::beginTransaction();//开启事务
         try {
-            $photographer = User::photographer(null, $this->guard);
+            $photographer = $this->_photographer(null, $this->guard);
             $visitor = Visitor::where(
                 ['id' => $request->visitor_id, 'photographer_id' => $photographer->id]
             )->first();
@@ -469,7 +469,7 @@ class VisitController extends UserGuardController
     public function filterItems()
     {
         $this->notPhotographerIdentityVerify();
-        $photographer = User::photographer(null, $this->guard);
+        $photographer = $this->_photographer(null, $this->guard);
         $filterItems = [];
         $visitor = Visitor::where(
             ['visitors.photographer_id' => $photographer->id, 'is_remind' => 1]
@@ -521,7 +521,7 @@ class VisitController extends UserGuardController
                 $request->is_remind = null;
             }
         }
-        $photographer = User::photographer(null, $this->guard);
+        $photographer = $this->_photographer(null, $this->guard);
         $fields = array_map(
             function ($v) {
                 return 'visitors.'.$v;
@@ -596,7 +596,7 @@ class VisitController extends UserGuardController
     public function unreadCount()
     {
         $this->notPhotographerIdentityVerify();
-        $photographer = User::photographer(null, $this->guard);
+        $photographer = $this->_photographer(null, $this->guard);
         $all_unread_count = OperateRecord::where(['photographer_id' => $photographer->id, 'is_read' => 0])->where(
             'operate_type',
             '!=',
@@ -613,7 +613,7 @@ class VisitController extends UserGuardController
     public function tags()
     {
         $this->notPhotographerIdentityVerify();
-        $photographer = User::photographer(null, $this->guard);
+        $photographer = $this->_photographer(null, $this->guard);
         $visitors = Visitor::select('visitor_tag_id')->distinct()->where(
             [['visitors.photographer_id', '=', $photographer->id], ['visitor_tag_id', '!=', 0]]
         )->get();
@@ -636,7 +636,7 @@ class VisitController extends UserGuardController
         $this->notPhotographerIdentityVerify();
         \DB::beginTransaction();//开启事务
         try {
-            $photographer = User::photographer(null, $this->guard);
+            $photographer = $this->_photographer(null, $this->guard);
             $visitor = Visitor::select(Visitor::allowFields())->where(
                 ['id' => $request->visitor_id, 'photographer_id' => $photographer->id]
             )->first();
@@ -679,7 +679,7 @@ class VisitController extends UserGuardController
     {
         $this->notPhotographerIdentityVerify();
         $user = auth($this->guard)->user();
-        $photographer = User::photographer(null, $this->guard);
+        $photographer = $this->_photographer(null, $this->guard);
         $visitor = Visitor::select(Visitor::allowFields())->where(
             ['id' => $request->visitor_id, 'photographer_id' => $photographer->id]
         )->first();
