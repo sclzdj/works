@@ -1317,12 +1317,11 @@ class MyController extends UserGuardController
                 'share_url' => '',
             ];
         }
-        $buckets = config('custom.qiniu.buckets');
-        $domain = $buckets['zuopin']['domain'] ?? '';
+        $Photographer = new Photographer();
 
         return [
             'result' => true,
-            'share_url' => $domain.'/'.$photographer->share_url,
+            'share_url' => $Photographer->generateShare($photographer_id),
         ];
     }
 
@@ -1333,9 +1332,8 @@ class MyController extends UserGuardController
     public function photographerWorkShare(Request $request)
     {
         $photographer_work_id = $request->input('photographer_work_id', 0);
-        $PhotographerWork = PhotographerWork::where('id', $photographer_work_id)->first();
+        $PhotographerWork = new PhotographerWork();
         $buckets = config('custom.qiniu.buckets');
-        $domain = $buckets['zuopin']['domain'] ?? '';
         if (empty($PhotographerWork)) {
             return [
                 'result' => false,
@@ -1344,7 +1342,7 @@ class MyController extends UserGuardController
         } else {
             return [
                 'result' => true,
-                'share_url' => $domain.'/'.$PhotographerWork->share_url,
+                'share_url' => $PhotographerWork->generateShare($photographer_work_id)
             ];
         }
     }
