@@ -289,7 +289,15 @@ class PhotographerWorkSource extends Model
                 $photographerWorkSource
             );
         }
+
+   //     if (empty($photographerWorkSource->deal_key)) {
+            $srcKey = config('custom.qiniu.crop_work_source_image_bg');
+//        } else {
+//            $srcKey = $photographerWorkSource->deal_key;
+//        }
+
         $srcKey = config('custom.qiniu.crop_work_source_image_bg');
+
         $bucket = 'zuopin';
         $buckets = config('custom.qiniu.buckets');
         $domain = $buckets[$bucket]['domain'] ?? '';
