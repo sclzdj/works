@@ -68,6 +68,7 @@ class DraftController extends UserGuardController
     public function registerPhotographerWorkSourceStore(PhotographerRequest $request)
     {
         $this->notVisitorIdentityVerify();
+        $asynchronous_task = [];
         \DB::beginTransaction();//开启事务
         try {
             $photographer = $this->_photographer(null, $this->guard);
@@ -122,42 +123,40 @@ class DraftController extends UserGuardController
                                 $photographer_work_source->save();
                                 $fops = ["imageMogr2/auto-orient/thumbnail/1200x|imageMogr2/auto-orient/colorspace/srgb|imageslim"];
                                 $bucket = 'zuopin';
-                                $qrst = SystemServer::qiniuPfop(
-                                    $bucket,
-                                    $photographer_work_source->key,
-                                    $fops,
-                                    null,
-                                    config(
-                                        'app.url'
-                                    ).'/api/notify/qiniu/fopDeal?photographer_work_source_id='.$photographer_work_source->id,
-                                    true
-                                );
-                                if ($qrst['err']) {
-                                    ErrLogServer::QiniuNotifyFop(
-                                        '处理图片持久请求',
-                                        '七牛持久化接口返回错误信息',
-                                        $request->all(),
-                                        $photographer_work_source,
-                                        $qrst['err']
-                                    );
-                                }
+                                $asynchronous_task[] = [
+                                    'task_type' => 'qiniuPfop',
+                                    'bucket' => $bucket,
+                                    'key' => $photographer_work_source->key,
+                                    'fops' => $fops,
+                                    'pipeline' => null,
+                                    'notifyUrl' => config(
+                                            'app.url'
+                                        ).'/api/notify/qiniu/fopDeal?photographer_work_source_id='.$photographer_work_source->id,
+                                    'useHTTPS' => true,
+                                    'error_step' => '处理图片持久请求',
+                                    'error_msg' => '七牛持久化接口返回错误信息',
+                                    'error_request_data' => $request->all(),
+                                    'error_photographerWorkSource' => $photographer_work_source,
+                                ];
                             } else {
-                                ErrLogServer::QiniuNotifyFop(
-                                    '原始图片信息请求',
-                                    '七牛图片信息接口返回错误信息',
-                                    $request->all(),
-                                    $photographer_work_source,
-                                    $res['data']
-                                );
+                                $asynchronous_task[] = [
+                                    'task_type' => 'error_qiniuNotifyFop',
+                                    'step' => '原始图片信息请求',
+                                    'msg' => '七牛图片信息接口返回错误信息',
+                                    'request_data' => $request->all(),
+                                    'photographerWorkSource' => $photographer_work_source,
+                                    'res' => $res['data'],
+                                ];
                             }
                         } else {
-                            ErrLogServer::QiniuNotifyFop(
-                                '原始图片信息请求',
-                                '请求七牛图片信息接口报错：'.$res['msg'],
-                                $request->all(),
-                                $photographer_work_source,
-                                $res
-                            );
+                            $asynchronous_task[] = [
+                                'task_type' => 'error_qiniuNotifyFop',
+                                'step' => '原始图片信息请求',
+                                'msg' => '请求七牛图片信息接口报错：'.$res['msg'],
+                                'request_data' => $request->all(),
+                                'photographerWorkSource' => $photographer_work_source,
+                                'res' => $res,
+                            ];
                         }
                     } elseif ($photographer_work_source->type == 'video') {
                         $res = SystemServer::request('GET', $photographer_work_source->url.'?avinfo');
@@ -168,28 +167,64 @@ class DraftController extends UserGuardController
                                 $photographer_work_source->rich_size = $res['data']['format']['size'];
                                 $photographer_work_source->save();
                             } else {
-                                ErrLogServer::QiniuNotifyFop(
-                                    '原始视频信息请求',
-                                    '七牛视频信息接口返回错误信息',
-                                    $request->all(),
-                                    $photographer_work_source,
-                                    $res['data']
-                                );
+                                $asynchronous_task[] = [
+                                    'task_type' => 'error_qiniuNotifyFop',
+                                    'step' => '原始视频信息请求',
+                                    'msg' => '七牛视频信息接口返回错误信息',
+                                    'request_data' => $request->all(),
+                                    'photographerWorkSource' => $photographer_work_source,
+                                    'res' => $res['data'],
+                                ];
                             }
                         } else {
-                            ErrLogServer::QiniuNotifyFop(
-                                '原始视频信息请求',
-                                '请求七牛视频信息接口报错：'.$res['msg'],
-                                $request->all(),
-                                $photographer_work_source,
-                                $res
-                            );
+                            $asynchronous_task[] = [
+                                'task_type' => 'error_qiniuNotifyFop',
+                                'step' => '原始视频信息请求',
+                                'msg' => '请求七牛视频信息接口报错：'.$res['msg'],
+                                'request_data' => $request->all(),
+                                'photographerWorkSource' => $photographer_work_source,
+                                'res' => $res,
+                            ];
                         }
                     }
                 }
             }
             $photographer_work->photographerWorkSources()->where(['status' => 300])->update(['status' => 400]);
             \DB::commit();//提交事务
+            foreach ($asynchronous_task as $task) {
+                if ($task['task_type'] == 'qiniuPfop') {
+                    $qrst = SystemServer::qiniuPfop(
+                        $task['bucket'],
+                        $task['key'],
+                        $task['fops'],
+                        $task['pipeline'],
+                        $task['notifyUrl'],
+                        $task['useHTTPS']
+                    );
+                    if ($qrst['err']) {
+                        ErrLogServer::qiniuNotifyFop(
+                            $task['error_step'],
+                            $task['error_msg'],
+                            $task['error_request_data'],
+                            $task['error_photographerWorkSource'],
+                            $qrst['err']
+                        );
+                    }
+                } elseif ($task['task_type'] == 'editRunGenerateWatermark') {
+                    PhotographerWorkSource::editRunGenerateWatermark(
+                        $task['photographer_work_source_id'],
+                        $task['edit_node']
+                    );
+                } elseif ($task['task_type'] == 'error_qiniuNotifyFop') {
+                    ErrLogServer::qiniuNotifyFop(
+                        $task['step'],
+                        $task['msg'],
+                        $task['request_data'],
+                        $task['photographerWorkSource'],
+                        $task['res']
+                    );
+                }
+            }
 
             return $this->response->noContent();
         } catch (\Exception $e) {
@@ -327,7 +362,7 @@ class DraftController extends UserGuardController
     public function registerPhotographerStore(PhotographerRequest $request)
     {
         $this->notVisitorIdentityVerify();
-        $editRunGenerateWatermarks=[];
+        $asynchronous_task = [];
         \DB::beginTransaction();//开启事务
         try {
             //验证短信验证码
@@ -403,7 +438,11 @@ class DraftController extends UserGuardController
                 foreach ($photographerWorkSources as $photographerWorkSource) {
                     $photographerWorkSource->is_new_source = 0;
                     $photographerWorkSource->save();
-                    $editRunGenerateWatermarks[] = ['photographerWorkSource_id' => $photographerWorkSource->id];
+                    $asynchronous_task[] = [
+                        'task_type' => 'editRunGenerateWatermark',
+                        'photographer_work_source_id' => $photographerWorkSource->id,
+                        'edit_node' => '用户注册',
+                    ];
                 }
             }
             $user->identity = 1;
@@ -452,11 +491,21 @@ class DraftController extends UserGuardController
                 }
             }
             \DB::commit();//提交事务
-            foreach ($editRunGenerateWatermarks as $editRunGenerateWatermark) {
-                PhotographerWorkSource::editRunGenerateWatermark(
-                    $editRunGenerateWatermark['photographerWorkSource_id'],
-                    '用户注册'
-                );
+            foreach ($asynchronous_task as $task) {
+                if ($task['task_type'] == 'editRunGenerateWatermark') {
+                    PhotographerWorkSource::editRunGenerateWatermark(
+                        $task['photographer_work_source_id'],
+                        $task['edit_node']
+                    );
+                } elseif ($task['task_type'] == 'error_qiniuNotifyFop') {
+                    ErrLogServer::qiniuNotifyFop(
+                        $task['step'],
+                        $task['msg'],
+                        $task['request_data'],
+                        $task['photographerWorkSource'],
+                        $task['res']
+                    );
+                }
             }
 
             return $this->response->noContent();
@@ -474,8 +523,9 @@ class DraftController extends UserGuardController
     public function addPhotographerWorkSource()
     {
         $this->notPhotographerIdentityVerify();
-        $photographer_work = $this->_photographer(null, $this->guard)->photographerWorks()->where(['status' => 0])->first(
-        );
+        $photographer_work = $this->_photographer(null, $this->guard)->photographerWorks()->where(
+            ['status' => 0]
+        )->first();
         if ($photographer_work) {
             $photographer_work_sources = $photographer_work->photographerWorkSources()->select(
                 PhotographerWorkSource::allowFields()
@@ -497,6 +547,7 @@ class DraftController extends UserGuardController
     public function addPhotographerWorkSourceStore(PhotographerRequest $request)
     {
         $this->notPhotographerIdentityVerify();
+        $asynchronous_task = [];
         \DB::beginTransaction();//开启事务
         try {
             $photographer = $this->_photographer(null, $this->guard);
@@ -551,42 +602,40 @@ class DraftController extends UserGuardController
                                 $photographer_work_source->save();
                                 $fops = ["imageMogr2/auto-orient/thumbnail/1200x|imageMogr2/auto-orient/colorspace/srgb|imageslim"];
                                 $bucket = 'zuopin';
-                                $qrst = SystemServer::qiniuPfop(
-                                    $bucket,
-                                    $photographer_work_source->key,
-                                    $fops,
-                                    null,
-                                    config(
-                                        'app.url'
-                                    ).'/api/notify/qiniu/fopDeal?photographer_work_source_id='.$photographer_work_source->id,
-                                    true
-                                );
-                                if ($qrst['err']) {
-                                    ErrLogServer::QiniuNotifyFop(
-                                        '处理图片持久请求',
-                                        '七牛持久化接口返回错误信息',
-                                        $request->all(),
-                                        $photographer_work_source,
-                                        $qrst['err']
-                                    );
-                                }
+                                $asynchronous_task[] = [
+                                    'task_type' => 'qiniuPfop',
+                                    'bucket' => $bucket,
+                                    'key' => $photographer_work_source->key,
+                                    'fops' => $fops,
+                                    'pipeline' => null,
+                                    'notifyUrl' => config(
+                                            'app.url'
+                                        ).'/api/notify/qiniu/fopDeal?photographer_work_source_id='.$photographer_work_source->id,
+                                    'useHTTPS' => true,
+                                    'error_step' => '处理图片持久请求',
+                                    'error_msg' => '七牛持久化接口返回错误信息',
+                                    'error_request_data' => $request->all(),
+                                    'error_photographerWorkSource' => $photographer_work_source,
+                                ];
                             } else {
-                                ErrLogServer::QiniuNotifyFop(
-                                    '原始图片信息请求',
-                                    '七牛图片信息接口返回错误信息',
-                                    $request->all(),
-                                    $photographer_work_source,
-                                    $res['data']
-                                );
+                                $asynchronous_task[] = [
+                                    'task_type' => 'error_qiniuNotifyFop',
+                                    'step' => '原始图片信息请求',
+                                    'msg' => '七牛图片信息接口返回错误信息',
+                                    'request_data' => $request->all(),
+                                    'photographerWorkSource' => $photographer_work_source,
+                                    'res' => $res['data'],
+                                ];
                             }
                         } else {
-                            ErrLogServer::QiniuNotifyFop(
-                                '原始图片信息请求',
-                                '请求七牛图片信息接口报错：'.$res['msg'],
-                                $request->all(),
-                                $photographer_work_source,
-                                $res
-                            );
+                            $asynchronous_task[] = [
+                                'task_type' => 'error_qiniuNotifyFop',
+                                'step' => '原始图片信息请求',
+                                'msg' => '请求七牛图片信息接口报错：'.$res['msg'],
+                                'request_data' => $request->all(),
+                                'photographerWorkSource' => $photographer_work_source,
+                                'res' => $res,
+                            ];
                         }
                     } elseif ($photographer_work_source->type == 'video') {
                         $res = SystemServer::request('GET', $photographer_work_source->url.'?avinfo');
@@ -597,29 +646,65 @@ class DraftController extends UserGuardController
                                 $photographer_work_source->rich_size = $res['data']['format']['size'];
                                 $photographer_work_source->save();
                             } else {
-                                ErrLogServer::QiniuNotifyFop(
-                                    '原始视频信息请求',
-                                    '七牛视频信息接口返回错误信息',
-                                    $request->all(),
-                                    $photographer_work_source,
-                                    $res['data']
-                                );
+                                $asynchronous_task[] = [
+                                    'task_type' => 'error_qiniuNotifyFop',
+                                    'step' => '原始视频信息请求',
+                                    'msg' => '七牛视频信息接口返回错误信息',
+                                    'request_data' => $request->all(),
+                                    'photographerWorkSource' => $photographer_work_source,
+                                    'res' => $res['data'],
+                                ];
                             }
                         } else {
-                            ErrLogServer::QiniuNotifyFop(
-                                '原始视频信息请求',
-                                '请求七牛视频信息接口报错：'.$res['msg'],
-                                $request->all(),
-                                $photographer_work_source,
-                                $res
-                            );
+                            $asynchronous_task[] = [
+                                'task_type' => 'error_qiniuNotifyFop',
+                                'step' => '原始视频信息请求',
+                                'msg' => '请求七牛视频信息接口报错：'.$res['msg'],
+                                'request_data' => $request->all(),
+                                'photographerWorkSource' => $photographer_work_source,
+                                'res' => $res,
+                            ];
                         }
                     }
                 }
             }
             $photographer_work->photographerWorkSources()->where(['status' => 300])->update(['status' => 400]);
             \DB::commit();//提交事务
-            // 初始化项目分享图
+            foreach ($asynchronous_task as $task) {
+                if ($task['task_type'] == 'qiniuPfop') {
+                    $qrst = SystemServer::qiniuPfop(
+                        $task['bucket'],
+                        $task['key'],
+                        $task['fops'],
+                        $task['pipeline'],
+                        $task['notifyUrl'],
+                        $task['useHTTPS']
+                    );
+                    if ($qrst['err']) {
+                        ErrLogServer::qiniuNotifyFop(
+                            $task['error_step'],
+                            $task['error_msg'],
+                            $task['error_request_data'],
+                            $task['error_photographerWorkSource'],
+                            $qrst['err']
+                        );
+                    }
+                } elseif ($task['task_type'] == 'editRunGenerateWatermark') {
+                    PhotographerWorkSource::editRunGenerateWatermark(
+                        $task['photographer_work_source_id'],
+                        $task['edit_node']
+                    );
+                } elseif ($task['task_type'] == 'error_qiniuNotifyFop') {
+                    ErrLogServer::qiniuNotifyFop(
+                        $task['step'],
+                        $task['msg'],
+                        $task['request_data'],
+                        $task['photographerWorkSource'],
+                        $task['res']
+                    );
+                }
+            }
+
             return $this->response->noContent();
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
@@ -635,8 +720,9 @@ class DraftController extends UserGuardController
     public function addPhotographerWork()
     {
         $this->notPhotographerIdentityVerify();
-        $photographer_work = $this->_photographer(null, $this->guard)->photographerWorks()->where(['status' => 0])->first(
-        );
+        $photographer_work = $this->_photographer(null, $this->guard)->photographerWorks()->where(
+            ['status' => 0]
+        )->first();
         if ($photographer_work) {
             $photographer_work_tags = $photographer_work->photographerWorkTags()->select(
                 PhotographerWorkTag::allowFields()
@@ -668,7 +754,7 @@ class DraftController extends UserGuardController
     public function addPhotographerWorkStore(PhotographerRequest $request)
     {
         $this->notPhotographerIdentityVerify();
-        $editRunGenerateWatermarks=[];
+        $asynchronous_task = [];
         \DB::beginTransaction();//开启事务
         try {
             $photographer = $this->_photographer(null, $this->guard);
@@ -718,7 +804,11 @@ class DraftController extends UserGuardController
                     if ($photographerWorkSource->type == 'image') {
                         $photographerWorkSource->is_new_source = 0;
                         $photographerWorkSource->save();
-                        $editRunGenerateWatermarks[] = ['photographerWorkSource_id' => $photographerWorkSource->id];
+                        $asynchronous_task[] = [
+                            'task_type' => 'editRunGenerateWatermark',
+                            'photographer_work_source_id' => $photographerWorkSource->id,
+                            'edit_node' => '添加项目',
+                        ];
                     }
                 }
             }
@@ -732,11 +822,21 @@ class DraftController extends UserGuardController
                 }
             }
             \DB::commit();//提交事务
-            foreach ($editRunGenerateWatermarks as $editRunGenerateWatermark) {
-                PhotographerWorkSource::editRunGenerateWatermark(
-                    $editRunGenerateWatermark['photographerWorkSource_id'],
-                    '添加项目'
-                );
+            foreach ($asynchronous_task as $task) {
+                if ($task['task_type'] == 'editRunGenerateWatermark') {
+                    PhotographerWorkSource::editRunGenerateWatermark(
+                        $task['photographer_work_source_id'],
+                        $task['edit_node']
+                    );
+                } elseif ($task['task_type'] == 'error_qiniuNotifyFop') {
+                    ErrLogServer::qiniuNotifyFop(
+                        $task['step'],
+                        $task['msg'],
+                        $task['request_data'],
+                        $task['photographerWorkSource'],
+                        $task['res']
+                    );
+                }
             }
 
             return $this->responseParseArray(['photographer_work_id' => $photographer_work->id]);

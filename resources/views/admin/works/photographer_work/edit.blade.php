@@ -228,8 +228,9 @@
                                     </label>
                                     <div class="col-md-6 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="sources[]" value="{{$photographerWorkSources[0]}}" readonly
-                                               placeholder="请上传图片或视频">
-                                        <input type="file" class="qiniu-file-upload hide" value-type="key">
+                                               placeholder="请上传图片">
+                                       <input type="file" class="qiniu-file-upload hide" value-type="key"
+                                               mime-type='["image/png", "image/jpeg"]'>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
                                         <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频</div>
@@ -241,8 +242,9 @@
                                     </label>
                                     <div class="col-md-5 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="sources[]" value="{{$photographerWorkSources[1]}}" readonly
-                                               placeholder="请上传图片或视频">
-                                        <input type="file" class="qiniu-file-upload hide" value-type="key">
+                                               placeholder="请上传图片">
+                                       <input type="file" class="qiniu-file-upload hide" value-type="key"
+                                               mime-type='["image/png", "image/jpeg"]'>
                                     </div>
                                     <div class="col-md-1 form-option-line">
                                         <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
@@ -257,8 +259,9 @@
                                     </label>
                                     <div class="col-md-5 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="sources[]" value="{{$photographerWorkSources[2]}}" readonly
-                                               placeholder="请上传图片或视频">
-                                        <input type="file" class="qiniu-file-upload hide" value-type="key">
+                                               placeholder="请上传图片">
+                                       <input type="file" class="qiniu-file-upload hide" value-type="key"
+                                               mime-type='["image/png", "image/jpeg"]'>
                                     </div>
                                     <div class="col-md-1 form-option-line">
                                         <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
@@ -273,8 +276,9 @@
                                     </label>
                                     <div class="col-md-5 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="sources[]" value="{{$photographerWorkSources[3]}}" readonly
-                                               placeholder="请上传图片或视频">
-                                        <input type="file" class="qiniu-file-upload hide" value-type="key">
+                                               placeholder="请上传图片">
+                                       <input type="file" class="qiniu-file-upload hide" value-type="key"
+                                               mime-type='["image/png", "image/jpeg"]'>
                                     </div>
                                     <div class="col-md-1 form-option-line">
                                         <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
@@ -289,8 +293,9 @@
                                     </label>
                                     <div class="col-md-5 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="sources[]" value="{{$photographerWorkSources[4]}}" readonly
-                                               placeholder="请上传图片或视频">
-                                        <input type="file" class="qiniu-file-upload hide" value-type="key">
+                                               placeholder="请上传图片">
+                                       <input type="file" class="qiniu-file-upload hide" value-type="key"
+                                               mime-type='["image/png", "image/jpeg"]'>
                                     </div>
                                     <div class="col-md-1 form-option-line">
                                         <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
@@ -305,8 +310,9 @@
                                     </label>
                                     <div class="col-md-5 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="sources[]" value="{{$photographerWorkSources[5]}}" readonly
-                                               placeholder="请上传图片或视频">
-                                        <input type="file" class="qiniu-file-upload hide" value-type="key">
+                                               placeholder="请上传图片">
+                                       <input type="file" class="qiniu-file-upload hide" value-type="key"
+                                               mime-type='["image/png", "image/jpeg"]'>
                                     </div>
                                     <div class="col-md-1 form-option-line">
                                         <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
@@ -321,8 +327,9 @@
                                     </label>
                                     <div class="col-md-5 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="sources[]" value="{{$photographerWorkSources[6]}}" readonly
-                                               placeholder="请上传图片或视频">
-                                        <input type="file" class="qiniu-file-upload hide" value-type="key">
+                                               placeholder="请上传图片">
+                                       <input type="file" class="qiniu-file-upload hide" value-type="key"
+                                               mime-type='["image/png", "image/jpeg"]'>
                                     </div>
                                     <div class="col-md-1 form-option-line">
                                         <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
@@ -337,8 +344,9 @@
                                     </label>
                                     <div class="col-md-5 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="sources[]" value="{{$photographerWorkSources[7]}}" readonly
-                                               placeholder="请上传图片或视频">
-                                        <input type="file" class="qiniu-file-upload hide" value-type="key">
+                                               placeholder="请上传图片">
+                                       <input type="file" class="qiniu-file-upload hide" value-type="key"
+                                               mime-type='["image/png", "image/jpeg"]'>
                                     </div>
                                     <div class="col-md-1 form-option-line">
                                         <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
@@ -353,8 +361,9 @@
                                     </label>
                                     <div class="col-md-5 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="sources[]" value="{{$photographerWorkSources[8]}}" readonly
-                                               placeholder="请上传图片或视频">
-                                        <input type="file" class="qiniu-file-upload hide" value-type="key">
+                                               placeholder="请上传图片">
+                                       <input type="file" class="qiniu-file-upload hide" value-type="key"
+                                               mime-type='["image/png", "image/jpeg"]'>
                                     </div>
                                     <div class="col-md-1 form-option-line">
                                         <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>

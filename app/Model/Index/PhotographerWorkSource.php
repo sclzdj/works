@@ -104,7 +104,7 @@ class PhotographerWorkSource extends Model
     {
         $photographerWorkSource = PhotographerWorkSource::where('id', $photographer_work_source_id)->first();
         if (!$photographerWorkSource) {
-            return ErrLogServer::QiniuNotifyFop(
+            return ErrLogServer::qiniuNotifyFop(
                 '水印图片持久请求',
                 'PhotographerWorkSource不存在',
                 "",
@@ -164,7 +164,7 @@ class PhotographerWorkSource extends Model
         $step = '水印图片通知请求';
         $photographerWorkSource = PhotographerWorkSource::where('id', $photographer_work_source_id)->first();
         if (!$photographerWorkSource) {
-            return ErrLogServer::QiniuNotifyFop(
+            return ErrLogServer::qiniuNotifyFop(
                 $step,
                 'PhotographerWorkSource不存在',
                 "",
@@ -184,7 +184,7 @@ class PhotographerWorkSource extends Model
             $qiniuPfopRichSourceJob->save();
             $qiniuPfopRichSourceJobLog->save();
 
-            return ErrLogServer::QiniuNotifyFop(
+            return ErrLogServer::qiniuNotifyFop(
                 $step,
                 '七牛持久化接口通知报错',
                 $qiniu_response,
@@ -200,7 +200,7 @@ class PhotographerWorkSource extends Model
             $qiniuPfopRichSourceJob->save();
             $qiniuPfopRichSourceJobLog->save();
 
-            return ErrLogServer::QiniuNotifyFop(
+            return ErrLogServer::qiniuNotifyFop(
                 $step,
                 '七牛持久化接口通知第一条持久化报错或返回信息不存在',
                 $qiniu_response,
@@ -230,7 +230,7 @@ class PhotographerWorkSource extends Model
                 $photographerWorkSource->status = 500;
                 $photographerWorkSource->save();
 
-                return ErrLogServer::QiniuNotifyFop(
+                return ErrLogServer::qiniuNotifyFop(
                     '水印图片信息请求',
                     '系统请求七牛图片信息接口时失败',
                     $response,
@@ -241,7 +241,7 @@ class PhotographerWorkSource extends Model
                 $photographerWorkSource->status = 500;
                 $photographerWorkSource->save();
 
-                return ErrLogServer::QiniuNotifyFop(
+                return ErrLogServer::qiniuNotifyFop(
                     '水印图片信息请求',
                     '七牛请求图片信息接口失败',
                     $response['data'],
@@ -266,14 +266,14 @@ class PhotographerWorkSource extends Model
         $step = '水印图片持久请求';
         $photographerWorkSource = PhotographerWorkSource::where('id', $photographer_work_source_id)->first();
         if (!$photographerWorkSource) {
-            return ErrLogServer::QiniuNotifyFop(
+            return ErrLogServer::qiniuNotifyFop(
                 $step,
                 'PhotographerWorkSource不存在'
             );
         }
         $photographerWork = PhotographerWork::where(['id' => $photographerWorkSource->photographer_work_id])->first();
         if (!$photographerWork) {
-            return ErrLogServer::QiniuNotifyFop(
+            return ErrLogServer::qiniuNotifyFop(
                 $step,
                 'photographerWork不存在',
                 [],
@@ -282,7 +282,7 @@ class PhotographerWorkSource extends Model
         }
         $photographer = Photographer::where(['id' => $photographerWork->photographer_id])->first();
         if (!$photographer) {
-            return ErrLogServer::QiniuNotifyFop(
+            return ErrLogServer::qiniuNotifyFop(
                 $step,
                 'photographer不存在',
                 [],
@@ -371,7 +371,7 @@ class PhotographerWorkSource extends Model
             true
         );
         if ($qrst['err']) {
-            return ErrLogServer::QiniuNotifyFop(
+            return ErrLogServer::qiniuNotifyFop(
                 $step,
                 '持久化请求失败',
                 [],

@@ -214,7 +214,7 @@ class StarController extends BaseController
 //
 //            Log::debug(var_export($qrst, 1));
 //            if ($qrst['err']) {
-//                return ErrLogServer::QiniuNotifyFop(
+//                return ErrLogServer::qiniuNotifyFop(
 //                    2,
 //                    '持久化请求失败',
 //                    "",

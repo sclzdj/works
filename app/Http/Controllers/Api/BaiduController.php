@@ -138,7 +138,7 @@ class BaiduController extends UserGuardController
      */
     public function qiniuFetchPan(SystemRequest $request)
     {
-        $qiniuFetchBaiduPans = [];
+        $asynchronous_task = [];
         \DB::beginTransaction();//开启事务
         try {
             $fsids = $request->fsids;
@@ -212,7 +212,8 @@ class BaiduController extends UserGuardController
                         } else {
                             $type = 'file';
                         }
-                        $qiniuFetchBaiduPans[] = [
+                        $asynchronous_task[] = [
+                            'task_type' => 'qiniuFetchBaiduPan',
                             'type' => $type,
                             'url' => $file['dlink'].'&access_token='.$access_token,
                             'callbackurl' => config(
@@ -223,17 +224,32 @@ class BaiduController extends UserGuardController
                     }
                 }
                 \DB::commit();//提交事务
-                foreach ($qiniuFetchBaiduPans as $qiniuFetchBaiduPan) {
-                    $res = SystemServer::qiniuFetchBaiduPan(
-                        $qiniuFetchBaiduPan['type'],
-                        $qiniuFetchBaiduPan['url'],
-                        $qiniuFetchBaiduPan['callbackurl']
-                    );
-                    if ($res['statusCode'] != 200) {
-                        ErrLogServer::QiniuNotifyFetch(
-                            '系统请求七牛异步远程抓取接口时失败：'.$res['error'],
-                            $res,
-                            $qiniuFetchBaiduPan['asyncBaiduWorkSourceUpload']
+                foreach ($asynchronous_task as $task) {
+                    if ($task['task_type'] == 'qiniuFetchBaiduPan') {
+                        $res = SystemServer::qiniuFetchBaiduPan(
+                            $task['type'],
+                            $task['url'],
+                            $task['callbackurl']
+                        );
+                        if ($res['statusCode'] != 200) {
+                            ErrLogServer::qiniuNotifyFetch(
+                                '系统请求七牛异步远程抓取接口时失败：'.$res['error'],
+                                $res,
+                                $task['asyncBaiduWorkSourceUpload']
+                            );
+                        }
+                    } elseif ($task['task_type'] == 'editRunGenerateWatermark') {
+                        PhotographerWorkSource::editRunGenerateWatermark(
+                            $task['photographer_work_source_id'],
+                            $task['edit_node']
+                        );
+                    } elseif ($task['task_type'] == 'error_qiniuNotifyFop') {
+                        ErrLogServer::qiniuNotifyFop(
+                            $task['step'],
+                            $task['msg'],
+                            $task['request_data'],
+                            $task['photographerWorkSource'],
+                            $task['res']
                         );
                     }
                 }

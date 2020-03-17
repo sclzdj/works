@@ -30,13 +30,13 @@ class QiniuController extends BaseController
             ['id' => $request_data['async_baidu_work_source_upload_id']]
         )->first();
         if (!$asyncBaiduWorkSourceUpload) {
-            return ErrLogServer::QiniuNotifyFetch('AsyncBaiduWorkSourceUpload记录不存在', $request_data);
+            return ErrLogServer::qiniuNotifyFetch('AsyncBaiduWorkSourceUpload记录不存在', $request_data);
         }
         $photographerWorkSource = PhotographerWorkSource::where(
             ['id' => $asyncBaiduWorkSourceUpload->photographer_work_source_id]
         )->first();
         if (!$photographerWorkSource) {
-            return ErrLogServer::QiniuNotifyFetch(
+            return ErrLogServer::qiniuNotifyFetch(
                 '项目资源不存在',
                 $request_data,
                 $asyncBaiduWorkSourceUpload
@@ -44,7 +44,7 @@ class QiniuController extends BaseController
         }
         try {
             if (isset($request_data['code']) && $request_data['code'] != 0) {
-                return ErrLogServer::QiniuNotifyFetch(
+                return ErrLogServer::qiniuNotifyFetch(
                     '七牛异步抓取通知结果报错：'.$request_data['code'].($request_data['err'] ?? ''),
                     $request_data,
                     $asyncBaiduWorkSourceUpload,
@@ -77,7 +77,7 @@ class QiniuController extends BaseController
             $asyncBaiduWorkSourceUpload->status = 200;
             $asyncBaiduWorkSourceUpload->save();
         } catch (\Exception $e) {
-            return ErrLogServer::QiniuNotifyFetch(
+            return ErrLogServer::qiniuNotifyFetch(
                 (string)$e->getMessage(),
                 $request_data,
                 $asyncBaiduWorkSourceUpload,
@@ -97,7 +97,7 @@ class QiniuController extends BaseController
                 true
             );
             if ($qrst['err']) {
-                return ErrLogServer::QiniuNotifyFop(
+                return ErrLogServer::qiniuNotifyFop(
                     '处理图片持久请求',
                     '持久化请求失败',
                     $request_data,
@@ -120,7 +120,7 @@ class QiniuController extends BaseController
             ['id' => $request_data['photographer_work_source_id']]
         )->first();
         if (!$photographerWorkSource) {
-            return ErrLogServer::QiniuNotifyFop(
+            return ErrLogServer::qiniuNotifyFop(
                 $step,
                 '项目资源不存在：',
                 $request_data
@@ -141,7 +141,7 @@ class QiniuController extends BaseController
         try {
             // 判断如果code 不等于0报错
             if ($request_data['code'] != 0) {
-                return ErrLogServer::QiniuNotifyFop(
+                return ErrLogServer::qiniuNotifyFop(
                     $step,
                     '七牛持久化接口通知报错',
                     $request_data,
@@ -152,7 +152,7 @@ class QiniuController extends BaseController
             if (!isset($request_data['items'][0]) ||
                 (isset($request_data['items'][0]) && $request_data['items'][0]['code'] != 0)
             ) {
-                return ErrLogServer::QiniuNotifyFop(
+                return ErrLogServer::qiniuNotifyFop(
                     $step,
                     '七牛持久化接口通知第一条持久化报错或返回信息不存在',
                     $request_data,
@@ -168,7 +168,7 @@ class QiniuController extends BaseController
                 $response = SystemServer::request('GET', $photographerWorkSource->deal_url.'?imageInfo');
                 if ($response['code'] == 200) {
                     if (isset($response['data']['error']) || (isset($response['data']['code']) && $response['data']['code'] != 200)) {
-                        return ErrLogServer::QiniuNotifyFop(
+                        return ErrLogServer::qiniuNotifyFop(
                             '处理图片信息请求',
                             '七牛请求图片信息接口失败',
                             $request_data,
@@ -186,7 +186,7 @@ class QiniuController extends BaseController
                         PhotographerWorkSource::dealNotifyRunGenerateWatermark($photographerWorkSource->id);
                     }
                 } else {
-                    return ErrLogServer::QiniuNotifyFop(
+                    return ErrLogServer::qiniuNotifyFop(
                         '处理图片信息请求',
                         '系统请求七牛图片信息接口时失败：'.$response['msg'],
                         $request_data,
@@ -198,7 +198,7 @@ class QiniuController extends BaseController
 
             }
         } catch (\Exception $e) {
-            return ErrLogServer::QiniuNotifyFop(
+            return ErrLogServer::qiniuNotifyFop(
                 $step,
                 $e->getMessage(),
                 $request_data,
@@ -220,7 +220,7 @@ class QiniuController extends BaseController
             ['id' => $request_data['photographer_work_source_id']]
         )->first();
         if (!$photographerWorkSource) {
-            return ErrLogServer::QiniuNotifyFop(
+            return ErrLogServer::qiniuNotifyFop(
                 $step,
                 '项目资源不存在',
                 $request_data
@@ -241,7 +241,7 @@ class QiniuController extends BaseController
         try {
             // 判断如果code 不等于0报错
             if ($request_data['code'] != 0) {
-                return ErrLogServer::QiniuNotifyFop(
+                return ErrLogServer::qiniuNotifyFop(
                     $step,
                     '七牛持久化接口通知报错',
                     $request_data,
@@ -252,7 +252,7 @@ class QiniuController extends BaseController
             if (!isset($request_data['items'][0]) ||
                 (isset($request_data['items'][0]) && $request_data['items'][0]['code'] != 0)
             ) {
-                return ErrLogServer::QiniuNotifyFop(
+                return ErrLogServer::qiniuNotifyFop(
                     $step,
                     '七牛持久化接口通知第一条持久化报错或返回信息不存在',
                     $request_data,
@@ -272,7 +272,7 @@ class QiniuController extends BaseController
                 default:
             }
         } catch (\Exception $e) {
-            return ErrLogServer::QiniuNotifyFop(
+            return ErrLogServer::qiniuNotifyFop(
                 $step,
                 $e->getMessage(),
                 $request_data,

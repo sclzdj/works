@@ -218,11 +218,14 @@
                                     </label>
                                     <div class="col-md-6 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="sources[]" readonly
-                                               placeholder="请上传图片或视频">
-                                        <input type="file" class="qiniu-file-upload hide" value-type="key">
+                                               placeholder="请上传图片">
+                                        <input type="file" class="qiniu-file-upload hide" value-type="key"
+                                               mime-type='["image/png", "image/jpeg"]'>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频</div>
+                                        <div class="help-block help-block-line">
+                                            只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[1]">
@@ -231,14 +234,18 @@
                                     </label>
                                     <div class="col-md-5 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="sources[]" readonly
-                                               placeholder="请上传图片或视频">
-                                        <input type="file" class="qiniu-file-upload hide" value-type="key">
+                                               placeholder="请上传图片">
+                                        <input type="file" class="qiniu-file-upload hide" value-type="key"
+                                               mime-type='["image/png", "image/jpeg"]'>
                                     </div>
                                     <div class="col-md-1 form-option-line">
-                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
+                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空
+                                        </button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频</div>
+                                        <div class="help-block help-block-line">
+                                            只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[2]">
@@ -247,14 +254,18 @@
                                     </label>
                                     <div class="col-md-5 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="sources[]" readonly
-                                               placeholder="请上传图片或视频">
-                                        <input type="file" class="qiniu-file-upload hide" value-type="key">
+                                               placeholder="请上传图片">
+                                        <input type="file" class="qiniu-file-upload hide" value-type="key"
+                                               mime-type='["image/png", "image/jpeg"]'>
                                     </div>
                                     <div class="col-md-1 form-option-line">
-                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
+                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空
+                                        </button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频</div>
+                                        <div class="help-block help-block-line">
+                                            只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[3]">
@@ -263,14 +274,18 @@
                                     </label>
                                     <div class="col-md-5 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="sources[]" readonly
-                                               placeholder="请上传图片或视频">
-                                        <input type="file" class="qiniu-file-upload hide" value-type="key">
+                                               placeholder="请上传图片">
+                                        <input type="file" class="qiniu-file-upload hide" value-type="key"
+                                               mime-type='["image/png", "image/jpeg"]'>
                                     </div>
                                     <div class="col-md-1 form-option-line">
-                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
+                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空
+                                        </button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频</div>
+                                        <div class="help-block help-block-line">
+                                            只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[4]">
@@ -279,14 +294,18 @@
                                     </label>
                                     <div class="col-md-5 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="sources[]" readonly
-                                               placeholder="请上传图片或视频">
-                                        <input type="file" class="qiniu-file-upload hide" value-type="key">
+                                               placeholder="请上传图片">
+                                        <input type="file" class="qiniu-file-upload hide" value-type="key"
+                                               mime-type='["image/png", "image/jpeg"]'>
                                     </div>
                                     <div class="col-md-1 form-option-line">
-                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
+                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空
+                                        </button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频</div>
+                                        <div class="help-block help-block-line">
+                                            只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[5]">
@@ -295,14 +314,18 @@
                                     </label>
                                     <div class="col-md-5 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="sources[]" readonly
-                                               placeholder="请上传图片或视频">
-                                        <input type="file" class="qiniu-file-upload hide" value-type="key">
+                                               placeholder="请上传图片">
+                                        <input type="file" class="qiniu-file-upload hide" value-type="key"
+                                               mime-type='["image/png", "image/jpeg"]'>
                                     </div>
                                     <div class="col-md-1 form-option-line">
-                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
+                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空
+                                        </button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频</div>
+                                        <div class="help-block help-block-line">
+                                            只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[6]">
@@ -311,15 +334,18 @@
                                     </label>
                                     <div class="col-md-5 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="sources[]" readonly
-                                               placeholder="请上传图片或视频">
-                                        <input type="file" class="qiniu-file-upload hide" value-type="key">
+                                               placeholder="请上传图片">
+                                        <input type="file" class="qiniu-file-upload hide" value-type="key"
+                                               mime-type='["image/png", "image/jpeg"]'>
                                     </div>
                                     <div class="col-md-1 form-option-line">
                                         <button type="button" class="btn btn-default qiniu-file-upload-clear">清空
                                         </button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频</div>
+                                        <div class="help-block help-block-line">
+                                            只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[7]">
@@ -328,14 +354,18 @@
                                     </label>
                                     <div class="col-md-5 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="sources[]" readonly
-                                               placeholder="请上传图片或视频">
-                                        <input type="file" class="qiniu-file-upload hide" value-type="key">
+                                               placeholder="请上传图片">
+                                        <input type="file" class="qiniu-file-upload hide" value-type="key"
+                                               mime-type='["image/png", "image/jpeg"]'>
                                     </div>
                                     <div class="col-md-1 form-option-line">
-                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
+                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空
+                                        </button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频</div>
+                                        <div class="help-block help-block-line">
+                                            只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-sources[8]">
@@ -344,14 +374,18 @@
                                     </label>
                                     <div class="col-md-5 form-option-line">
                                         <input class="form-control qiniu-file-upload-trigger" name="sources[]" readonly
-                                               placeholder="请上传图片或视频">
-                                        <input type="file" class="qiniu-file-upload hide" value-type="key">
+                                               placeholder="请上传图片">
+                                        <input type="file" class="qiniu-file-upload hide" value-type="key"
+                                               mime-type='["image/png", "image/jpeg"]'>
                                     </div>
                                     <div class="col-md-1 form-option-line">
-                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空</button>
+                                        <button type="button" class="btn btn-default qiniu-file-upload-clear">清空
+                                        </button>
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">
-                                        <div class="help-block help-block-line">只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频</div>
+                                        <div class="help-block help-block-line">
+                                            只能上传图片(mime类型必须为image/png、image/jpeg，否则海报和水印生成会报错)或视频
+                                        </div>
                                     </div>
                                 </div>
 

@@ -15,7 +15,7 @@ class ErrLogServer
      * @param AsyncBaiduWorkSourceUpload|null $asyncBaiduWorkSourceUpload
      * @param PhotographerWorkSource|null $photographerWorkSource
      */
-    static public function QiniuNotifyFetch(
+    static public function qiniuNotifyFetch(
         $msg,
         $request_data,
         AsyncBaiduWorkSourceUpload $asyncBaiduWorkSourceUpload = null,
@@ -66,7 +66,7 @@ class ErrLogServer
      * @param PhotographerWorkSource|null $photographerWorkSource
      * @param $res 返回数据
      */
-    static public function QiniuNotifyFop(
+    static public function qiniuNotifyFop(
         $step,
         $msg,
         $request_data = [],
