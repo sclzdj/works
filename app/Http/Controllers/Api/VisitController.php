@@ -480,15 +480,6 @@ class VisitController extends UserGuardController
                 'name' => '特别关注',
             ];
         }
-        $visitor = Visitor::where(
-            ['visitors.photographer_id' => $photographer->id, 'visitor_tag_id' => 0]
-        )->first();
-        if ($visitor) {
-            $filterItems[] = [
-                'id' => '0',
-                'name' => '未分组',
-            ];
-        }
         $visitors = Visitor::select('visitor_tag_id')->distinct()->where(
             [['visitors.photographer_id', '=', $photographer->id], ['visitor_tag_id', '!=', 0]]
         )->get();
@@ -499,6 +490,15 @@ class VisitController extends UserGuardController
         )->get()->toArray();
         if ($tags) {
             $filterItems = array_merge($filterItems, $tags);
+            $visitor = Visitor::where(
+                ['visitors.photographer_id' => $photographer->id, 'visitor_tag_id' => 0]
+            )->first();
+            if ($visitor) {
+                $filterItems[] = [
+                    'id' => '0',
+                    'name' => '未分组',
+                ];
+            }
         }
 
         return $this->responseParseArray($filterItems);
