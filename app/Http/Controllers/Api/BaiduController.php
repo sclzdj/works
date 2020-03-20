@@ -262,15 +262,6 @@ class BaiduController extends UserGuardController
             }
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
-            $error = [
-                'msg' => $e->getMessage(),
-                'fsids' => $fsids,
-                'log_time' => date('Y-m-d H:i:s'),
-            ];
-            SystemServer::filePutContents(
-                './logs/qiniu_fetch_baiduPan/error/user_id_'.$user_id.'.log',
-                json_encode($error).PHP_EOL
-            );
 
             return $this->response->error($e->getMessage(), 500);
         }

@@ -18,6 +18,8 @@ use Qiniu\Processing\PersistentFop;
 use Qiniu\Storage\BucketManager;
 use Qiniu\Storage\UploadManager;
 use function GuzzleHttp\Psr7\build_query;
+use function Qiniu\base64_urlSafeDecode;
+use function Qiniu\base64_urlSafeEncode;
 
 class SystemServer
 {
@@ -340,9 +342,14 @@ class SystemServer
         $curl = curl_init();
         //设置curl选项
         curl_setopt($curl, CURLOPT_URL, $url);//请求url
-        $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ?
-            $_SERVER['HTTP_USER_AGENT'] :
-            'works';//配置代理信息
+        if (isset($headers['User-Agent']) && $headers['User-Agent'] !== '') {
+            $user_agent = $headers['User-Agent'];
+            unset($headers['User-Agent']);
+        } else {
+            $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ?
+                $_SERVER['HTTP_USER_AGENT'] :
+                'zuopin.cloud';//配置代理信息
+        }
         curl_setopt($curl, CURLOPT_USERAGENT, $user_agent);//请求代理信息
         curl_setopt($curl, CURLOPT_AUTOREFERER, true);//referer头，请求来源
         curl_setopt($curl, CURLOPT_TIMEOUT, 60);//设置请求时间
@@ -405,7 +412,8 @@ class SystemServer
         $config->useHTTPS = true;
         $ak = $auth->getAccessKey();
         $apiHost = $config->getApiHost($ak, $bucket);
-        $body = compact('url', 'bucket');
+        $body['url'] = config('app.url').'/api/baiduDlink?dlink='.base64_urlSafeEncode($url);
+        $body['bucket'] = $bucket;
         if ($key) {
             $body['key'] = $key;
         }

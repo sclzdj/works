@@ -25,6 +25,7 @@ use App\Model\Index\VisitorTag;
 use App\Servers\AliSendShortMessageServer;
 use App\Servers\ErrLogServer;
 use App\Servers\SystemServer;
+use function Qiniu\base64_urlSafeDecode;
 
 /**
  * 系统通用
@@ -302,5 +303,16 @@ class SystemController extends BaseController
         $configs = SystemConfig::select(['title', 'name', 'value'])->where(['type' => 'works'])->get();
 
         return $this->responseParseArray($configs);
+    }
+
+    /**
+     * 百度网盘dlink转发
+     * @param SystemRequest $request
+     */
+    public function baiduDlink(SystemRequest $request)
+    {
+        $dlink = base64_urlSafeDecode($request->dlink);
+
+        return redirect($dlink, 302, ['User-Agent' => 'www.zuopin.cloud']);
     }
 }

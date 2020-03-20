@@ -54,6 +54,7 @@ $api->version(
                 $api->get('PhotographerWorkCustomerIndustries', 'SystemController@PhotographerWorkCustomerIndustries');
                 $api->get('visitorTags', 'SystemController@visitorTags');
                 $api->get('configs', 'SystemController@configs');
+                $api->get('baiduDlink', 'SystemController@baiduDlink');
                 //微信用户登录
                 $api->get('login', 'LoginController@mpLogin');
                 $api->post('login', 'LoginController@login');

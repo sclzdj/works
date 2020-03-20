@@ -47,6 +47,11 @@ class SystemRequest extends BaseRequest
                     'fsids' => 'required|array|min:1|max:9',
                 ];
                 break;
+            case 'baiduDlink':
+                $rules = [
+                    'dlink' => 'required',
+                ];
+                break;
         }
 
         return $rules;
@@ -104,6 +109,14 @@ class SystemRequest extends BaseRequest
                     'is_register_photographer.in' => 'is_register_photographer错误',
                 ];
                 break;
+            case 'baiduDlink':
+                $rules = [
+                    'dlink' => 'required',
+                ];
+                $messages = [
+                    'dlink.required' => '网盘文件dlink不能为空',
+                ];
+                break;
         }
 
         return $messages;
@@ -123,6 +136,7 @@ class SystemRequest extends BaseRequest
             'getAreas' => ['GET|App\Http\Controllers\Api\SystemController@getAreas'],
             'baiduOauthStore' => ['POST|App\Http\Controllers\Api\SystemController@baiduOauthStore'],
             'qiniuFetchBaiduPan' => ['POST|App\Http\Controllers\Api\BaiduController@qiniuFetchPan'],
+            'baiduDlink' => ['GET|App\Http\Controllers\Api\SystemController@baiduDlink'],
         ];
     }
 }
