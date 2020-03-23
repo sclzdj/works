@@ -199,7 +199,8 @@ class PhotographerController extends BaseController
         $photographer_work['photographer'] = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
         $photographer_work['photographer'] = SystemServer::parseRegionName($photographer_work['photographer']);
         $photographer_work['photographer'] = SystemServer::parsePhotographerRank($photographer_work['photographer']);
-        $photographer_work_source['work']=$photographer_work;
+        $photographer_work_source['work'] = $photographer_work;
+
         return $this->responseParseArray($photographer_work_source);
     }
 
@@ -796,7 +797,7 @@ class PhotographerController extends BaseController
         $url = implode($handle);
         $purpose = $template->purpose;
 
-        return $this->responseParseArray(compact('url' , 'purpose'));
+        return $this->responseParseArray(compact('url', 'purpose'));
     }
 
     public function getTemplates()
@@ -815,7 +816,7 @@ class PhotographerController extends BaseController
     {
         $limit = $request->limit ?? 50;
         $photographers = PhotographerServer::visitorRankingList($limit);
-        $_fields = array_map(
+        $fields = array_map(
             function ($v) {
                 return 'photographer_work_sources.'.$v;
             },
@@ -823,18 +824,54 @@ class PhotographerController extends BaseController
         );
         foreach ($photographers as $k => $p) {
             $photographers[$k] = json_decode(json_encode($p), true);
-
-            $photographer_work_sources = PhotographerWorkSource::join(
-                'photographer_works',
-                'photographer_work_sources.photographer_work_id',
-                '=',
-                'photographer_works.id'
-            )->select($_fields)
-                ->where(
+            $work_limit = (int)$request->work_limit;
+            if ($work_limit > 0) {
+                $photographerWorks = PhotographerWork::select(PhotographerWork::allowFields())->where(
                     [
-                        'photographer_works.status' => 200,
-                        'photographer_work_sources.status' => 200,
+                        'photographer_id' => $p->id,
+                        'status' => 200,
+                    ]
+                )->orderBy('roof', 'desc')->orderBy(
+                    'created_at',
+                    'desc'
+                )->orderBy('id', 'desc')->take(
+                    $work_limit
+                )->get();
+                $all_tags = [];
+                foreach ($photographerWorks as $_k => $photographerWork) {
+                    $photographerWorkTags = $photographerWork->photographerWorkTags()->select(
+                        PhotographerWorkTag::allowFields()
+                    )->get()->toArray();
+                    $all_tags[] = $photographerWorkTags;
+                }
+                $photographerWorks = $photographerWorks->toArray();
+                $photographerWorks = ArrServer::toNullStrData(
+                    $photographerWorks,
+                    ['sheets_number', 'shooting_duration']
+                );
+                $photographerWorks = ArrServer::inData($photographerWorks, PhotographerWork::allowFields());
+                foreach ($photographerWorks as $_k => $v) {
+                    $photographerWorks[$_k]['tags'] = $all_tags[$_k];
+                }
+                $photographerWorks = SystemServer::parsePhotographerWorkCover($photographerWorks);
+                $photographerWorks = SystemServer::parsePhotographerWorkCustomerIndustry($photographerWorks);
+                $photographerWorks = SystemServer::parsePhotographerWorkCategory($photographerWorks);
+                $photographers[$k]['works'] = $photographerWorks;
+            }
+            $source_limit = (int)$request->source_limit;
+            if ($source_limit > 0) {
+                $photographerWorkSources = PhotographerWorkSource::select(
+                    $fields
+                )->join(
+                    'photographer_works',
+                    'photographer_work_sources.photographer_work_id',
+                    '=',
+                    'photographer_works.id'
+                )->where(
+                    [
                         'photographer_works.photographer_id' => $p->id,
+                        'photographer_work_sources.status' => 200,
+                        'photographer_works.status' => 200,
                         'photographer_work_sources.type' => 'image',
                     ]
                 )->orderBy(
@@ -849,9 +886,10 @@ class PhotographerController extends BaseController
                 )->orderBy(
                     'photographer_work_sources.sort',
                     'asc'
-                )->take(3)->get();
-            $photographer_work_sources = SystemServer::getPhotographerWorkSourcesThumb($photographer_work_sources);
-            $photographers[$k]['photographer_work_sources'] = $photographer_work_sources->toArray();
+                )->take($source_limit)->get();
+                $photographerWorkSources = SystemServer::getPhotographerWorkSourcesThumb($photographerWorkSources);
+                $photographers[$k]['sources'] = $photographerWorkSources->toArray();
+            }
         }
         $photographers = SystemServer::parseRegionName($photographers);
         $photographers = SystemServer::parsePhotographerRank($photographers);

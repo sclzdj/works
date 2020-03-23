@@ -88,6 +88,8 @@ class UserRequest extends BaseRequest
                 break;
             case 'viewRecords':
                 $rules = array_merge($rules, $this->predefined['paginate']['rules']);
+                $rules['work_limit']='integer';
+                $rules['source_limit']='integer';
                 break;
             case 'photographerStatistics':
                 $rules = [
@@ -224,6 +226,8 @@ class UserRequest extends BaseRequest
                 break;
             case 'viewRecords':
                 $messages = array_merge($messages, $this->predefined['paginate']['messages']);
+                $messages['work_limit.integer'] = '项目数量必须传整数';
+                $messages['source_limit.integer'] = '作品数量必须传整数';
                 break;
             case 'photographerStatistics':
                 $messages = [

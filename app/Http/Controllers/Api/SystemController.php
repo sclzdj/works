@@ -26,6 +26,7 @@ use App\Servers\AliSendShortMessageServer;
 use App\Servers\ErrLogServer;
 use App\Servers\SystemServer;
 use function Qiniu\base64_urlSafeDecode;
+use function Qiniu\base64_urlSafeEncode;
 
 /**
  * 系统通用
@@ -150,7 +151,7 @@ class SystemController extends BaseController
      * 获取所有省份
      * @return mixed
      */
-    public function getProvinces()
+    public function getProvinces(SystemRequest $request)
     {
         $system_areas = SystemArea::select(SystemArea::allowFields())->where(['pid' => 0, 'level' => 1])->orderBy(
             'sort',
@@ -311,8 +312,20 @@ class SystemController extends BaseController
      */
     public function baiduDlink(SystemRequest $request)
     {
+//        dd(base64_urlSafeEncode('https://d.pcs.baidu.com/file/97b1a3ec7fa30ea0c6ed0846b307bd0d?fid=3358187462-250528-292893351675862&rt=pr&sign=FDtAERV-DCb740ccc5511e5e8fedcff06b081203-Pi7HapdSswQmnjEoRMONIZP1bSY%3D&expires=8h&chkbd=0&chkv=2&dp-logid=188724189701184574&dp-callid=0&dstime=1584758919&r=468150683&access_token=123.31f684c2b9470dbfdb735c2ed780b43e.YlnyJRCrqDhR_rkOw_W3jPAbPHusUAOSdBRgOjx.XJM33Q'));
         $dlink = base64_urlSafeDecode($request->dlink);
 
-        return redirect($dlink, 302, ['User-Agent' => 'www.zuopin.cloud']);
+//        SystemServer::filePutContents('logs/124141.log',json_encode(['dlink'=>$dlink]));
+//        $filename = 'logs/'.mt_rand(10000, 99999999);
+//        SystemServer::getCurl(
+//            $dlink,
+//            true,
+//            ['User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36'],
+//            $filename
+//        );
+
+//        return redirect(config('app.url').'/'.$filename);
+
+        return redirect($dlink);
     }
 }

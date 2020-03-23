@@ -81,6 +81,8 @@ class PhotographerRequest extends BaseRequest
                 break;
             case 'rankingList':
                 $rules = array_merge($rules, $this->predefined['limit']['rules']);
+                $rules['work_limit']='integer';
+                $rules['source_limit']='integer';
                 break;
         }
 
@@ -196,6 +198,8 @@ class PhotographerRequest extends BaseRequest
                 break;
             case 'rankingList':
                 $messages = array_merge($messages, $this->predefined['limit']['messages']);
+                $messages['work_limit.integer'] = '项目数量必须传整数';
+                $messages['source_limit.integer'] = '作品数量必须传整数';
                 break;
         }
 

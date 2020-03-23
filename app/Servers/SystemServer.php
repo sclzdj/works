@@ -348,7 +348,7 @@ class SystemServer
         } else {
             $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ?
                 $_SERVER['HTTP_USER_AGENT'] :
-                'zuopin.cloud';//配置代理信息
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36';//配置代理信息
         }
         curl_setopt($curl, CURLOPT_USERAGENT, $user_agent);//请求代理信息
         curl_setopt($curl, CURLOPT_AUTOREFERER, true);//referer头，请求来源
@@ -360,19 +360,14 @@ class SystemServer
             }
             curl_setopt($curl, CURLOPT_HTTPHEADER, $http_headers);
         }
-        curl_setopt(
-            $curl,
-            CURLOPT_FOLLOWLOCATION,
-            true
-        );//允许请求的链接跳转，可以抓取重定向的链接内容
+        //允许请求的链接跳转，可以抓取重定向的链接内容
+        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
         //SSL相关
         if ($ssl) {
-            curl_setopt(
-                $curl,
-                CURLOPT_SSL_VERIFYPEER,
-                false
-            );//禁用后curl将终止从服务端进行验证
-            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);//检查服务器SSL证书中是否存在一个。。
+            //禁用后curl将终止从服务端进行验证
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+            //检查服务器SSL证书中是否存在一个。
+            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
         }
         //post请求相关
         if ($type == 'post' || $type == 'POST') {
@@ -386,13 +381,66 @@ class SystemServer
         //发出请求
         $response = curl_exec($curl);
         $code = curl_errno($curl);
+        curl_close($curl);
         if ($code !== 0) {
             return ['code' => 500, 'msg' => 'curl request error：'.curl_error($curl)];
         } else {
-            $data = is_null(json_decode($response, true)) ? $response : json_decode($response, true);
+            $response_arr = json_decode($response, true);
+            $data = is_null($response_arr) ? $response : $response_arr;
 
             return ['code' => 200, 'msg' => 'ok', 'data' => $data];
         }
+    }
+
+    /**
+     * @param $url
+     * @param bool $ssl
+     * @param array $headers
+     * @return bool|string
+     */
+    static public function getCurl($url, $ssl = true, $headers = [],$filename)
+    {
+        $fp = fopen($filename,'wb');
+        //curl完成
+        $curl = curl_init();
+        //设置curl选项
+        curl_setopt($curl, CURLOPT_URL, $url);//请求url
+        if (isset($headers['User-Agent']) && $headers['User-Agent'] !== '') {
+            $user_agent = $headers['User-Agent'];
+            unset($headers['User-Agent']);
+        } else {
+            $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ?
+                $_SERVER['HTTP_USER_AGENT'] :
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36';//配置代理信息
+        }
+        curl_setopt($curl, CURLOPT_USERAGENT, $user_agent);//请求代理信息
+        curl_setopt($curl, CURLOPT_AUTOREFERER, true);//referer头，请求来源
+        curl_setopt($curl, CURLOPT_TIMEOUT, 600000000);//设置请求时间
+        if ($headers) {
+            $http_headers = [];
+            foreach ($headers as $k => $v) {
+                $http_headers[] = $k.':'.(is_array($v) ? json_encode($v) : $v);
+            }
+            curl_setopt($curl, CURLOPT_HTTPHEADER, $http_headers);
+        }
+        //允许请求的链接跳转，可以抓取重定向的链接内容
+        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+        //SSL相关
+        if ($ssl) {
+            //禁用后curl将终止从服务端进行验证
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+            //检查服务器SSL证书中是否存在一个。
+            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
+        }
+        //处理响应结果
+        curl_setopt($curl,CURLOPT_FILE,$fp);
+        curl_setopt($curl, CURLOPT_HEADER, false);//是否处理响应头
+//        curl_setopt($curl, CURLOPT_RETURNTRANSFER, false);//curl_exec()是否返回响应结果
+
+        //发出请求
+        curl_exec($curl);
+        curl_close($curl);
+        fclose($fp);
     }
 
     /**
@@ -412,7 +460,8 @@ class SystemServer
         $config->useHTTPS = true;
         $ak = $auth->getAccessKey();
         $apiHost = $config->getApiHost($ak, $bucket);
-        $body['url'] = config('app.url').'/api/baiduDlink?dlink='.base64_urlSafeEncode($url);
+//        $body['url'] = config('app.url').'/api/baiduDlink?dlink='.base64_urlSafeEncode($url);
+        $body['url'] = $url;
         $body['bucket'] = $bucket;
         if ($key) {
             $body['key'] = $key;
