@@ -381,12 +381,15 @@ class SystemServer
         //发出请求
         $response = curl_exec($curl);
         $code = curl_errno($curl);
-        curl_close($curl);
         if ($code !== 0) {
-            return ['code' => 500, 'msg' => 'curl request error：'.curl_error($curl)];
+            $curl_error = curl_error($curl);
+            curl_close($curl);
+
+            return ['code' => 500, 'msg' => 'curl request error：'.$curl_error];
         } else {
             $response_arr = json_decode($response, true);
             $data = is_null($response_arr) ? $response : $response_arr;
+            curl_close($curl);
 
             return ['code' => 200, 'msg' => 'ok', 'data' => $data];
         }
@@ -398,9 +401,9 @@ class SystemServer
      * @param array $headers
      * @return bool|string
      */
-    static public function getCurl($url, $ssl = true, $headers = [],$filename)
+    static public function getCurl($url, $ssl = true, $headers = [], $filename)
     {
-        $fp = fopen($filename,'wb');
+        $fp = fopen($filename, 'wb');
         //curl完成
         $curl = curl_init();
         //设置curl选项
@@ -433,7 +436,7 @@ class SystemServer
             curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
         }
         //处理响应结果
-        curl_setopt($curl,CURLOPT_FILE,$fp);
+        curl_setopt($curl, CURLOPT_FILE, $fp);
         curl_setopt($curl, CURLOPT_HEADER, false);//是否处理响应头
 //        curl_setopt($curl, CURLOPT_RETURNTRANSFER, false);//curl_exec()是否返回响应结果
 
