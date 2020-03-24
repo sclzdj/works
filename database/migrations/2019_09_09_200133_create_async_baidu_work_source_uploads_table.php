@@ -22,6 +22,7 @@ class CreateAsyncBaiduWorkSourceUploadsTable extends Migration
                 $table->string('fs_id', 100)->default('')->comment('百度网盘文件id');
                 $table->unsignedTinyInteger('category')->default(0)->comment('分类【1:视频;3:图片】');
                 $table->unsignedBigInteger('size')->default(0)->comment('大小，单位B');
+                $table->string('qiniu_fetch_id',255)->default('')->comment('七牛抓取id');
                 $table->unsignedSmallInteger('status')->default(0)->comment('状态【0:等待中;200:成功;400:删除;500:失败】');
                 $table->timestamps();
                 $table->index('photographer_work_source_id','photographer_work_source_id_index');

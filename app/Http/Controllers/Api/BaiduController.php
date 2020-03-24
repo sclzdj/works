@@ -214,6 +214,7 @@ class BaiduController extends UserGuardController
                         }
                         $asynchronous_task[] = [
                             'task_type' => 'qiniuFetchBaiduPan',
+                            'asyncBaiduWorkSourceUpload_id' => $asyncBaiduWorkSourceUpload->id,
                             'type' => $type,
                             'url' => $file['dlink'].'&access_token='.$access_token,
                             'callbackurl' => config(
@@ -226,17 +227,23 @@ class BaiduController extends UserGuardController
                 \DB::commit();//提交事务
                 foreach ($asynchronous_task as $task) {
                     if ($task['task_type'] == 'qiniuFetchBaiduPan') {
-                        $res = SystemServer::qiniuFetchBaiduPan(
+                        $qiniuFetchBaiduPan = SystemServer::qiniuFetchBaiduPan(
+                            $task['asyncBaiduWorkSourceUpload_id'],
                             $task['type'],
                             $task['url'],
                             $task['callbackurl']
                         );
-                        if ($res['statusCode'] != 200) {
+                        if ($qiniuFetchBaiduPan['res']['statusCode'] != 200) {
                             ErrLogServer::qiniuNotifyFetch(
-                                '系统请求七牛异步远程抓取接口时失败：'.$res['error'],
-                                $res,
+                                '系统请求七牛异步远程抓取接口时失败：'.$qiniuFetchBaiduPan['res']['error'],
+                                $qiniuFetchBaiduPan['res'],
                                 $task['asyncBaiduWorkSourceUpload']
                             );
+                        } else {
+                            $qiniuFetchBaiduPan['res']['body'] = json_decode($qiniuFetchBaiduPan['res']['body'], true);
+                            AsyncBaiduWorkSourceUpload::where(
+                                ['id' => $qiniuFetchBaiduPan['asyncBaiduWorkSourceUpload_id']]
+                            )->update(['qiniu_fetch_id' => $qiniuFetchBaiduPan['res']['body']['id']]);
                         }
                     } elseif ($task['task_type'] == 'editRunGenerateWatermark') {
                         PhotographerWorkSource::editRunGenerateWatermark(

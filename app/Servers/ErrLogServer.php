@@ -25,8 +25,10 @@ class ErrLogServer
             $asyncBaiduWorkSourceUpload->status = 500;
             $asyncBaiduWorkSourceUpload->save();
             $asyncBaiduWorkSourceUpload_id = $asyncBaiduWorkSourceUpload->id;
+            $qiniu_fetch_id = $asyncBaiduWorkSourceUpload->qiniu_fetch_id;
         } else {
             $asyncBaiduWorkSourceUpload_id = 0;
+            $qiniu_fetch_id = '';
         }
         if ($photographerWorkSource) {
             $photographerWorkSource->status = 500;
@@ -36,17 +38,18 @@ class ErrLogServer
         $error = [];
         $error['log_time'] = date('i:s');
         $error['asyncBaiduWorkSourceUpload_id'] = $asyncBaiduWorkSourceUpload_id;
+        $error['qiniu_fetch_id'] = $qiniu_fetch_id;
         $error['msg'] = $msg;
         $error['response'] = $request_data;
         if ($photographerWorkSource) {
             //错误处理机制
             $photographerWorkSources = PhotographerWorkSource::where(
                 [
-                    'photographer_work_id'=>$photographerWorkSource->photographer_work_id,
+                    'photographer_work_id' => $photographerWorkSource->photographer_work_id,
                     'type' => 'image',
                     'status' => 200,
                 ]
-            )->orderBy('sort','asc')->get();
+            )->orderBy('sort', 'asc')->get();
             foreach ($photographerWorkSources as $source) {
                 PhotographerWorkSource::editRunGenerateWatermark($source->id, '错误处理机制');
             }
@@ -96,11 +99,11 @@ class ErrLogServer
             //错误处理机制
             $photographerWorkSources = PhotographerWorkSource::where(
                 [
-                    'photographer_work_id'=>$photographerWorkSource->photographer_work_id,
+                    'photographer_work_id' => $photographerWorkSource->photographer_work_id,
                     'type' => 'image',
                     'status' => 200,
                 ]
-            )->orderBy('sort','asc')->get();
+            )->orderBy('sort', 'asc')->get();
             foreach ($photographerWorkSources as $source) {
                 PhotographerWorkSource::editRunGenerateWatermark($source->id, '错误处理机制');
             }

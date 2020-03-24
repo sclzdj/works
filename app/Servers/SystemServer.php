@@ -448,12 +448,13 @@ class SystemServer
 
     /**
      * 百度网盘直接上传到七牛
+     * @param $asyncBaiduWorkSourceUpload_id
      * @param $type
      * @param $url
      * @param null $callbackurl
      * @param null $key
      */
-    static public function qiniuFetchBaiduPan($type, $url, $callbackurl = null, $key = null)
+    static public function qiniuFetchBaiduPan($asyncBaiduWorkSourceUpload_id,$type, $url, $callbackurl = null, $key = null)
     {
         $accessKey = config('custom.qiniu.accessKey');
         $secretKey = config('custom.qiniu.secretKey');
@@ -495,8 +496,11 @@ class SystemServer
         $headers = array_merge(['Authorization' => $authorization['Authorization']], $headers);
         $client = new Client();
         $res = $client->post($apiUrl, json_encode($body), $headers);
-
-        return json_decode(json_encode($res), true);
+        $return=[
+            'asyncBaiduWorkSourceUpload_id'=>$asyncBaiduWorkSourceUpload_id,
+            'res'=>json_decode(json_encode($res), true)
+        ];
+        return $return;
     }
 
     /**
