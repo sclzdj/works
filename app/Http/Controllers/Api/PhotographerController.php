@@ -796,8 +796,9 @@ class PhotographerController extends BaseController
 
         $url = implode($handle);
         $purpose = $template->purpose;
+        $projectName = $workName;
 
-        return $this->responseParseArray(compact('url', 'purpose'));
+        return $this->responseParseArray(compact('url', 'purpose' , 'projectName'));
     }
 
     public function getTemplates()
