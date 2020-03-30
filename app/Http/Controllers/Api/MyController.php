@@ -220,7 +220,7 @@ class MyController extends UserGuardController
         $photographer = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
         $photographer = SystemServer::parseRegionName($photographer);
         $photographer = SystemServer::parsePhotographerRank($photographer);
-        $photographer['xacode'] = Photographer::xacode($photographer['id'], false);
+        $photographer['xacode'] = Photographer::getXacode($photographer['id'], false);
 
         return $this->responseParseArray($photographer);
     }
@@ -334,7 +334,7 @@ class MyController extends UserGuardController
         $photographer_work['photographer'] = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
         $photographer_work['photographer'] = SystemServer::parseRegionName($photographer_work['photographer']);
         $photographer_work['photographer'] = SystemServer::parsePhotographerRank($photographer_work['photographer']);
-        $photographer_work['xacode'] = PhotographerWork::xacode($photographer_work['id'], false);
+        $photographer_work['xacode'] = PhotographerWork::getXacode($photographer_work['id'], false);
 
         return $this->response->array($photographer_work);
     }

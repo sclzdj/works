@@ -387,9 +387,9 @@ class SystemServer
 
             return ['code' => 500, 'msg' => 'curl request error：'.$curl_error];
         } else {
+            curl_close($curl);
             $response_arr = json_decode($response, true);
             $data = is_null($response_arr) ? $response : $response_arr;
-            curl_close($curl);
 
             return ['code' => 200, 'msg' => 'ok', 'data' => $data];
         }

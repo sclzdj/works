@@ -167,7 +167,7 @@ class QiniuController extends BaseController
             if ($photographerWorkSource->type == 'image') {
                 $response = SystemServer::request('GET', $photographerWorkSource->deal_url.'?imageInfo');
                 if ($response['code'] == 200) {
-                    if (isset($response['data']['error']) || (isset($response['data']['code']) && $response['data']['code'] != 200)) {
+                    if (isset($response['data']['error']) || (isset($response['data']['code']) && $response['data']['code'] != 0)) {
                         return ErrLogServer::qiniuNotifyFop(
                             '处理图片信息请求',
                             '七牛请求图片信息接口失败',

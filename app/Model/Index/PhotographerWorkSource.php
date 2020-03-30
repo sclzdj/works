@@ -237,7 +237,7 @@ class PhotographerWorkSource extends Model
                     $photographerWorkSource
                 );
             }
-            if (isset($response['data']['error']) || (isset($response['data']['code']) && $response['data']['code'] != 200)) {
+            if (isset($response['data']['error']) || (isset($response['data']['code']) && $response['data']['code'] != 0)) {
                 $photographerWorkSource->status = 500;
                 $photographerWorkSource->save();
 
@@ -247,6 +247,9 @@ class PhotographerWorkSource extends Model
                     $response['data'],
                     $photographerWorkSource
                 );
+            }
+            if(!isset($response['data']['size'])){
+                SystemServer::filePutContents('logs/cesi/'.time().'.log',json_encode($response));
             }
             $photographerWorkSource->rich_size = $response['data']['size'];
             $photographerWorkSource->rich_width = $response['data']['width'];
@@ -290,8 +293,8 @@ class PhotographerWorkSource extends Model
             );
         }
 
-   //     if (empty($photographerWorkSource->deal_key)) {
-            $srcKey = config('custom.qiniu.crop_work_source_image_bg');
+        //     if (empty($photographerWorkSource->deal_key)) {
+        $srcKey = config('custom.qiniu.crop_work_source_image_bg');
 //        } else {
 //            $srcKey = $photographerWorkSource->deal_key;
 //        }
@@ -302,7 +305,7 @@ class PhotographerWorkSource extends Model
         $buckets = config('custom.qiniu.buckets');
         $domain = $buckets[$bucket]['domain'] ?? '';
         // 生成水印图
-        $xacode = PhotographerWork::xacode($photographerWork->id);
+        $xacode = PhotographerWork::getXacode($photographerWork->id);
         if ($xacode) {
             $water2_image = \Qiniu\base64_urlSafeEncode(
                 $xacode.'|imageMogr2/auto-orient/thumbnail/185x185!'

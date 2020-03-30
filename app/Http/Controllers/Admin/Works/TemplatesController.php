@@ -166,7 +166,7 @@ class TemplatesController extends BaseController
                 'msg' => '模板生成失败'
             ];
         }
-        $xacode = Photographer::xacode($photographer_id);
+        $xacode = Photographer::getXacode($photographer_id);
         if ($xacode) {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
                 $xacode . '|imageMogr2/auto-orient/thumbnail/250x250!'

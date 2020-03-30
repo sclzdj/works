@@ -85,7 +85,7 @@ class PhotographerWork extends Model
      * @param bool $is_hyaline 是否透明
      * @return string
      */
-    public static function xacode($photographer_work_id, $is_hyaline = true)
+    public static function getXacode($photographer_work_id, $is_hyaline = true)
     {
         $photographerWork = self::find($photographer_work_id);
         if (!$photographerWork) {
@@ -188,7 +188,7 @@ class PhotographerWork extends Model
                 $bg_img = config('app.url') . '/' . 'images/poster_bg.jpg';
             }
         }
-        $xacode = PhotographerWork::xacode($photographer_work_id);
+        $xacode = PhotographerWork::getXacode($photographer_work_id);
         if ($xacode) {
             $xacode = $xacode . '|imageMogr2/auto-orient/thumbnail/250x250!';
         } else {
@@ -268,7 +268,7 @@ class PhotographerWork extends Model
         if (empty($template)) {
             return "";
         }
-        $xacode = PhotographerWork::xacode($photographer_work_id);
+        $xacode = PhotographerWork::getXacode($photographer_work_id);
         if ($xacode) {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
                 $xacode . '|imageMogr2/auto-orient/thumbnail/250x250!'

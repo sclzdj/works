@@ -75,7 +75,7 @@ class Photographer extends Model
      * @param bool $is_hyaline 是否透明
      * @return string
      */
-    public static function xacode($photographer_id, $is_hyaline = true)
+    public static function getXacode($photographer_id, $is_hyaline = true)
     {
         $photographer = self::find($photographer_id);
         if (!$photographer) {
@@ -156,7 +156,7 @@ class Photographer extends Model
                     'custom.qiniu.avatar'
                 ) . '?imageMogr2/auto-orient/thumbnail/300x300!|roundPic/radius/!50p|imageslim';
         }
-        $xacode = Photographer::xacode($photographer->id);
+        $xacode = Photographer::getXacode($photographer->id);
         if ($xacode) {
             $xacode = $xacode . '|imageMogr2/auto-orient/thumbnail/250x250!';
         } else {
@@ -262,7 +262,7 @@ class Photographer extends Model
         $buckets = config('custom.qiniu.buckets');
         $domain = $buckets[$bucket]['domain'] ?? '';
 
-        $xacode = Photographer::xacode($photographer_id);
+        $xacode = Photographer::getXacode($photographer_id);
         if ($xacode) {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
                 $xacode . '|imageMogr2/auto-orient/thumbnail/250x250!'
