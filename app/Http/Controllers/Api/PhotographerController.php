@@ -723,6 +723,14 @@ class PhotographerController extends BaseController
             '##title##' => "{$photographer_rank}摄像师",
         ];
 
+        if (empty($photographer_work_source->deal_key)) {
+            return $this->responseParseArray([
+                'url' => '',
+                'purpose' => $template->purpose,
+                'projectName' => $workName,
+            ]);
+        }
+
         if ($photographer_work_source->deal_height > 700) {  // 长图
             $width = 1000;
             $height = $photographer_work_source->deal_height;
@@ -796,8 +804,9 @@ class PhotographerController extends BaseController
 
         $url = implode($handle);
         $purpose = $template->purpose;
+        $projectName = $workName;
 
-        return $this->responseParseArray(compact('url', 'purpose'));
+        return $this->responseParseArray(compact('url', 'purpose' , 'projectName'));
     }
 
     public function getTemplates()
