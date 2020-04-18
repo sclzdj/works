@@ -176,6 +176,9 @@ class QiniuController extends BaseController
                             $response['data']
                         );
                     } else {
+                        if(!isset($response['data']['size'])){
+                            SystemServer::filePutContents('logs/cesi/'.time().'.log',json_encode($response));
+                        }
                         $photographerWorkSource->deal_size = $response['data']['size'];
                         $photographerWorkSource->deal_width = $response['data']['width'];
                         $photographerWorkSource->deal_height = $response['data']['height'];
