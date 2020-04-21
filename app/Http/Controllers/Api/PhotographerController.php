@@ -702,7 +702,8 @@ class PhotographerController extends BaseController
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
                 $xacode.'|imageMogr2/auto-orient/thumbnail/250x250!'
             );
-        } else {
+        }
+        else {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
                 $domain.'/'.config(
                     'custom.qiniu.crop_work_source_image_bg'
