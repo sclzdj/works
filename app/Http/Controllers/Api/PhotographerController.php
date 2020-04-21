@@ -48,7 +48,7 @@ class PhotographerController extends BaseController
         $photographer = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
         $photographer = SystemServer::parseRegionName($photographer);
         $photographer = SystemServer::parsePhotographerRank($photographer);
-        $photographer['xacode'] = Photographer::xacode($photographer['id'], false);
+        $photographer['xacode'] = Photographer::getXacode($photographer['id'], false);
 
         return $this->responseParseArray($photographer);
     }
@@ -157,7 +157,7 @@ class PhotographerController extends BaseController
         $photographer_work['photographer'] = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
         $photographer_work['photographer'] = SystemServer::parseRegionName($photographer_work['photographer']);
         $photographer_work['photographer'] = SystemServer::parsePhotographerRank($photographer_work['photographer']);
-        $photographer_work['xacode'] = PhotographerWork::xacode($photographer_work['id'], false);
+        $photographer_work['xacode'] = PhotographerWork::getXacode($photographer_work['id'], false);
 
         return $this->response->array($photographer_work);
     }
@@ -302,7 +302,7 @@ class PhotographerController extends BaseController
             } else {
                 $photographer_work = [];
             }
-            $photographer_work['xacode'] = PhotographerWork::xacode($next_photographer_work_id, false);
+            $photographer_work['xacode'] = PhotographerWork::getXacode($next_photographer_work_id, false);
             $next = $photographer_work;
         } else {
             $next = [];
@@ -339,7 +339,7 @@ class PhotographerController extends BaseController
             } else {
                 $photographer_work = [];
             }
-            $photographer_work['xacode'] = PhotographerWork::xacode($previous_photographer_work_id, false);
+            $photographer_work['xacode'] = PhotographerWork::getXacode($previous_photographer_work_id, false);
             $previous = $photographer_work;
         } else {
             $previous = [];
@@ -398,7 +398,7 @@ class PhotographerController extends BaseController
         $buckets = config('custom.qiniu.buckets');
         $domain = $buckets[$bucket]['domain'] ?? '';
 
-        $xacode = Photographer::xacode($photographer_id);
+        $xacode = Photographer::getXacode($photographer_id);
         if ($xacode) {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
                 $xacode.'|imageMogr2/auto-orient/thumbnail/250x250!'
@@ -697,7 +697,7 @@ class PhotographerController extends BaseController
         if (empty($template)) {
             return $this->response->error('模板不存在', 500);
         }
-        $xacode = PhotographerWork::xacode($photographer_work_id);
+        $xacode = PhotographerWork::getXacode($photographer_work_id);
         if ($xacode) {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
                 $xacode.'|imageMogr2/auto-orient/thumbnail/250x250!'
@@ -723,6 +723,14 @@ class PhotographerController extends BaseController
             '##name##' => $photographer->name,
             '##title##' => "{$photographer_rank}摄像师",
         ];
+
+        if (empty($photographer_work_source->deal_key)) {
+            return $this->responseParseArray([
+                'url' => '',
+                'purpose' => $template->purpose,
+                'projectName' => $workName,
+            ]);
+        }
 
         if ($photographer_work_source->deal_height > 700) {  // 长图
             $width = 1000;

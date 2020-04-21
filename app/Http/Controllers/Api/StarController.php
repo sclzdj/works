@@ -208,7 +208,7 @@ class StarController extends BaseController
 //        foreach ($photographerWorkSources as $sort => $photographerWorkSource) {
 //
 //            $water1_image = \Qiniu\base64_urlSafeEncode($photographerWorkSource->deal_url);
-//            $xacode = PhotographerWork::xacode($photographerWork->id);
+//            $xacode = PhotographerWork::getXacode($photographerWork->id);
 //            if ($xacode) {
 //                $water2_image = \Qiniu\base64_urlSafeEncode(
 //                    $xacode . '|imageMogr2/auto-orient/thumbnail/185x185!'
@@ -399,7 +399,7 @@ class StarController extends BaseController
         $photographer = Photographer::where(['id' => $photographerWork->photographer_id])->first();
 
         $water1_image = \Qiniu\base64_urlSafeEncode($photographerWorkSource->deal_url);
-        $xacode = PhotographerWork::xacode($photographerWork->id);
+        $xacode = PhotographerWork::getXacode($photographerWork->id);
         if ($xacode) {
             $water2_image = \Qiniu\base64_urlSafeEncode(
                 $xacode.'|imageMogr2/auto-orient/thumbnail/185x185!'
@@ -490,7 +490,7 @@ class StarController extends BaseController
         $buckets = config('custom.qiniu.buckets');
         $domain = $buckets[$bucket]['domain'] ?? '';
 
-        $xacode = Photographer::xacode($photographer_id);
+        $xacode = Photographer::getXacode($photographer_id);
         if ($xacode) {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
                 $xacode.'|imageMogr2/auto-orient/thumbnail/250x250!'
