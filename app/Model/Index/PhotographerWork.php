@@ -407,13 +407,13 @@ class PhotographerWork extends Model
         $handleUrl[1] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode($bg) . "/gravity/North/dx/0/dy/0";
         $handleUrl[2] = "/text/" . \Qiniu\base64_urlSafeEncode(
                 $customer_name
-            ) . "/fontsize/1998/fill/" . base64_urlSafeEncode("#FEFEFE") . "/fontstyle/" . base64_urlSafeEncode(
+            ) . "/fontsize/1997/fill/" . base64_urlSafeEncode("#FEFEFE") . "/fontstyle/" . base64_urlSafeEncode(
                 "Bold"
-            ) . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/50/dy/79";
+            ) . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/50/dy/70";
 
         $handleUrl[3] = "/text/" . \Qiniu\base64_urlSafeEncode(
                 "点击看项目金额"
-            ) . "/fontsize/1399/fill/" . base64_urlSafeEncode("#FEFEFE") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/50/dy/222";
+            ) . "/fontsize/1399/fill/" . base64_urlSafeEncode("#FEFEFE") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/50/dy/200";
 //        $handleUrl[3] = "/text/" . \Qiniu\base64_urlSafeEncode($buttonText) . "/fontsize/1140/fill/" . base64_urlSafeEncode(
 //                "#969696"
 //            ) . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/South/dx/0/dy/20";
