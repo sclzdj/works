@@ -496,83 +496,103 @@ class Photographer extends Model
         $buckets = config('custom.qiniu.buckets');
         $domain = $buckets['zuopin']['domain'] ?? '';
         // 白背景图
-        $whiteBg = $domain . '/FtSr3gPOeI8CjSgh5fBkeHaIsJnm?imageMogr2/auto-orient/thumbnail/1200x960!';
+        $whiteBg = $domain . '/FtSr3gPOeI8CjSgh5fBkeHaIsJnm?imageMogr2/auto-orient/thumbnail/600x480!';
         // 黑背景图
         $blackBgs = [];
-        $blackBg = $domain . '/FtXkbly4Qu-tEeiBiolLj-FFPXeo?imageMogr2/auto-orient/thumbnail/383x320!';
-        $blackBgs = array_fill(0, 6, $blackBg);
 
         $photographer = User::photographer($photographer_id);
         if (!$photographer || $photographer->status != 200) {
             return "";
         }
-        $workIds = PhotographerWork::where('photographer_id', $photographer_id)
-            ->where('status', 200)->get()->pluck('id');
-        $resources = PhotographerWorkSource::where(['status' => 200])
-            ->where('type', 'image')
-            ->whereIn('photographer_work_id', $workIds)
-            ->orderBy('created_at', 'desc')
-            ->limit(6)
-            ->get();
+
+        $workIds = $photographer->photographerWorks()
+            ->where('status', 200)->orderBy(
+                'roof',
+                'desc'
+            )->orderBy(
+                'created_at',
+                'desc'
+            )->orderBy(
+                'id',
+                'desc'
+            )->limit(3)->pluck('id');
+
+        $resources = [];
+
+        foreach ($workIds as $workId) {
+            $resource = PhotographerWorkSource::where(['status' => 200])
+                ->where('type', 'image')
+                ->where('photographer_work_id', $workId)
+                ->orderBy(
+                    'sort',
+                    'asc'
+                )
+                ->first();
+            $resources[] = $resource;
+        }
 
         if (empty($resources)) {
             return "";
         }
 
-        $buttonText = SystemArea::find($photographer->province)->name . ' · ' . PhotographerRank::find(
-                $photographer->photographer_rank_id
-            )->name . '用户';
-
-        $resourceId = 0;
-        foreach ($resources as $key => $resource) {
-            if (empty($resource->deal_width) || empty($resource->deal_height)) {
-                $response = SystemServer::request('GET', $resource->deal_url . '?imageInfo');
-                if (isset($response['code']) && $response['code'] == 200) {
-                    $resource->deal_width = $response['data']['width'];
-                    $resource->deal_height = $response['data']['height'];
-                } else {
-                    $response = SystemServer::request('GET', $resource->url . '?imageInfo');
-                    if (isset($response['code']) && $response['code'] == 200) {
-                        $resource->deal_width = 1200;
-                        $resource->deal_height = $response['data']['height'];
-                    } else {
-                        \Log::debug($response['msg']);
-                    }
-                }
-            }
-            $resourceId = $resource->id;
-            if ($resource->deal_width < $resource->deal_height) {  // 长图
-                $width = 380;
-                $height = $resource->deal_height;
-                $imgs = $domain . '/' . $resource->deal_key . "?imageMogr2/auto-orient/thumbnail/{$width}x{$height}/gravity/Center/crop/382x320";
-            } else { // 宽图
-                $width = $resource->deal_width;
-                $height = $resource->deal_height;
-                $imgs = $domain . '/' . $resource->deal_key . "?imageMogr2/auto-orient/thumbnail/{$width}x{$height}/gravity/Center/crop/382x320";
-            }
-            $blackBgs[$key] = $imgs;
+        if (isset($resources[0])) {
+            $blackBgs[0] = $resources[0]->deal_url . '?imageMogr2/auto-orient/thumbnail/!385x410r/gravity/Center/crop/385x410|roundPic/radius/25';
+        } else {
+            $blackBgs[0] = "https://file.zuopin.cloud/Fu2bJVMdZriF1vS1_f4mSvxGyXdk?imageMogr2/auto-orient/thumbnail/!385x410r";
         }
+
+        if (isset($resources[1])) {
+            $blackBgs[1] = $resources[1]->deal_url . '?imageMogr2/auto-orient/thumbnail/!195x195r/gravity/Center/crop/195x195|roundPic/radius/25';
+        } else {
+            $blackBgs[1] = "https://file.zuopin.cloud/Fu2bJVMdZriF1vS1_f4mSvxGyXdk?imageMogr2/auto-orient/thumbnail/!195x195r";
+        }
+
+        if (isset($resources[2])) {
+            $blackBgs[2] = $resources[2]->deal_url . '?imageMogr2/auto-orient/thumbnail/!195x195r/gravity/Center/crop/195x195|roundPic/radius/25';
+        } else {
+            $blackBgs[2] = "https://file.zuopin.cloud/Fu2bJVMdZriF1vS1_f4mSvxGyXdk?imageMogr2/auto-orient/thumbnail/!195x195r";
+        }
+
+        $projectSum = PhotographerWork::where(['status' => 200])
+            ->where('photographer_id', $photographer_id)
+            ->count();
+
+        $startPoint = $this->calcWaterText($photographer->name);
 
         $handleUrl = array();
         $handleUrl[] = $whiteBg;
         $handleUrl[] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode($blackBgs[0]) . "/gravity/NorthWest/dx/0/dy/0";
-        $handleUrl[] = "/image/" . \Qiniu\base64_urlSafeEncode($blackBgs[1]) . "/gravity/NorthWest/dx/409/dy/0";
-        $handleUrl[] = "/image/" . \Qiniu\base64_urlSafeEncode($blackBgs[2]) . "/gravity/NorthWest/dx/817/dy/0";
-        $handleUrl[] = "/image/" . \Qiniu\base64_urlSafeEncode($blackBgs[3]) . "/gravity/NorthWest/dx/0/dy/340";
-        $handleUrl[] = "/image/" . \Qiniu\base64_urlSafeEncode($blackBgs[4]) . "/gravity/NorthWest/dx/409/dy/340";
-        $handleUrl[] = "/image/" . \Qiniu\base64_urlSafeEncode($blackBgs[5]) . "/gravity/NorthWest/dx/817/dy/340";
+        $handleUrl[] = "/image/" . \Qiniu\base64_urlSafeEncode($blackBgs[1]) . "/gravity/NorthWest/dx/405/dy/0";
+        $handleUrl[] = "/image/" . \Qiniu\base64_urlSafeEncode($blackBgs[2]) . "/gravity/NorthWest/dx/405/dy/215";
         $handleUrl[] = "/text/" . \Qiniu\base64_urlSafeEncode(
                 $photographer->name
-            ) . "/fontsize/1700/fill/" . base64_urlSafeEncode("#323232") . "/fontstyle/" . base64_urlSafeEncode(
-                "Bold"
-            ) . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/North/dx/0/dy/743";
-        $handleUrl[] = "/text/" . \Qiniu\base64_urlSafeEncode($buttonText) . "/fontsize/1000/fill/" . base64_urlSafeEncode(
-                "#969696"
-            ) . "/gravity/North/dx/0/dy/886";
+            ) . "/fontsize/700/fill/" . base64_urlSafeEncode("#969696") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthEast/dx/6/dy/0";
 
-        array_shift($handleUrl);
+        $handleUrl[] = "/3/image/" . \Qiniu\base64_urlSafeEncode(
+                "https://file.zuopin.cloud/FvHauIYQj3IAF-2t4Q6KSDBNXO58"
+            ) . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthEast/dx/" . $startPoint . "/dy/10";
 
-        return "https://file.zuopin.cloud/FtSr3gPOeI8CjSgh5fBkeHaIsJnm?imageMogr2/auto-orient/thumbnail/1200x960!" . implode("", $handleUrl);
+        $handleUrl[] = "/text/" . \Qiniu\base64_urlSafeEncode(
+                $projectSum . '个项目'
+            ) . "/fontsize/700/fill/" . base64_urlSafeEncode("#969696") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthEast/dx/" . ($startPoint + 30) . "/dy/0";
+
+
+        return implode("", $handleUrl);
+    }
+
+    private function calcWaterText($customer_name)
+    {
+        $fistX = 0;
+        for ($i = 0; $i < mb_strlen($customer_name); $i++) {
+            $char = mb_substr($customer_name, $i, 1);
+            if (ord($char) > 126) {
+                $fistX += 40;
+            } else {
+                $fistX += 20;
+            }
+        }
+
+        return $fistX;
     }
 
 
