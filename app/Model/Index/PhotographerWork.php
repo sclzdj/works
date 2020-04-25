@@ -395,25 +395,33 @@ class PhotographerWork extends Model
         $buckets = config('custom.qiniu.buckets');
         $domain = $buckets['zuopin']['domain'] ?? '';
         // 背景图
-        $whiteBg = $domain . '/FtSr3gPOeI8CjSgh5fBkeHaIsJnm?imageMogr2/auto-orient/thumbnail/1200x960!';
-        // 上面图
-        $sharePhoto = $firstPhoto->deal_url . "?imageMogr2/auto-orient/gravity/Center/crop/1200x657|roundPic/radius/20";
+        //    $whiteBg = $domain . '/FtSr3gPOeI8CjSgh5fBkeHaIsJnm?imageMogr2/auto-orient/thumbnail/1199x959!';
 
+        //     $whiteBg = $firstPhoto->deal_url .'?imageMogr2/auto-orient/thumbnail/1199x959!';
+
+        // 上面图
+        $sharePhoto = $firstPhoto->deal_url . "?imageMogr2/auto-orient/gravity/Center/crop/1199x959|roundPic/radius/50";
+        $bg = $domain . "/FuF4NBlMvQOgHAtbvGWaH5qelepM?imageMogr2/auto-orient/thumbnail/1199x579!";
         $handleUrl = array();
-        $handleUrl[0] = $whiteBg;
-        $handleUrl[1] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode($sharePhoto) . "/gravity/North/dx/0/dy/0";
+        $handleUrl[0] = $sharePhoto;
+        $handleUrl[1] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode($bg) . "/gravity/North/dx/0/dy/0";
         $handleUrl[2] = "/text/" . \Qiniu\base64_urlSafeEncode(
                 $customer_name
-            ) . "/fontsize/1700/fill/" . base64_urlSafeEncode("#323232") . "/fontstyle/" . base64_urlSafeEncode(
+            ) . "/fontsize/1997/fill/" . base64_urlSafeEncode("#FEFEFE") . "/fontstyle/" . base64_urlSafeEncode(
                 "Bold"
-            ) . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/South/dx/0/dy/136";
-        $handleUrl[3] = "/text/" . \Qiniu\base64_urlSafeEncode($buttonText) . "/fontsize/1140/fill/" . base64_urlSafeEncode(
-                "#969696"
-            ) . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/South/dx/0/dy/20";
+            ) . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/50/dy/70";
 
-        array_shift($handleUrl);
+        $handleUrl[3] = "/text/" . \Qiniu\base64_urlSafeEncode(
+                "点击看项目金额"
+            ) . "/fontsize/1399/fill/" . base64_urlSafeEncode("#FEFEFE") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/50/dy/200";
+//        $handleUrl[3] = "/text/" . \Qiniu\base64_urlSafeEncode($buttonText) . "/fontsize/1140/fill/" . base64_urlSafeEncode(
+//                "#969696"
+//            ) . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/South/dx/0/dy/20";
 
-        return "https://file.zuopin.cloud/FtSr3gPOeI8CjSgh5fBkeHaIsJnm?imageMogr2/auto-orient/thumbnail/1200x960!" . implode("", $handleUrl);
+        //array_shift($handleUrl);
+
+        //return "https://file.zuopin.cloud/FtSr3gPOeI8CjSgh5fBkeHaIsJnm?imageMogr2/auto-orient/thumbnail/1200x960!" . implode("", $handleUrl);
+        return implode("", $handleUrl);
     }
 
 }
