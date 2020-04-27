@@ -276,7 +276,7 @@ class StarController extends BaseController
 //        $bgimg = Image::make('xacodes/bbg.jpg')->resize(383, 320);
 //        $bgimg->save($filename);
 
-        $filename = "images/aa.png";
+        $filename = "images/8041587958812_.pic_hd.jpg";
 
         $bucket = 'zuopin';
         $buckets = config('custom.qiniu.buckets');
