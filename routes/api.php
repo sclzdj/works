@@ -109,6 +109,9 @@ $api->version(
                 $api->get('photographer/workPoster', 'PhotographerController@workPoster');
                 $api->get('photographer/workPoster2', 'PhotographerController@workPoster2');
                 $api->get('photographer/workPoster3', 'PhotographerController@workPoster3');
+                $api->get('photographer/workResourcePoster', 'PhotographerController@workResourcePoster');
+
+
                 $api->get('templates/list', 'PhotographerController@getTemplates');
                 $api->get('photographer/rankingList', 'PhotographerController@rankingList');
                 //游客
