@@ -950,7 +950,7 @@ class PhotographerController extends BaseController
         $handle = array();
         $handle[] = $bg;
         // 蒙层
-        $handle[] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode('https://file.zuopin.cloud/FlUtqPeo8wfMtZdKzZuOjpcrbtKP') .
+        $handle[] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode('https://file.zuopin.cloud/FlUtqPeo8wfMtZdKzZuOjpcrbtKP?imageMogr2/auto-orient/thumbnail/1200x2133!') .
             "/gravity/NorthWest/dx/0/dy/0/";
         // 左边白图
         $handle[] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode('https://file.zuopin.cloud/Fo0nlMq-8Gp8_VPbnt8CjXychYxO') .
