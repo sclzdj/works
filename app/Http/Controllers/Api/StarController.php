@@ -171,6 +171,9 @@ class StarController extends BaseController
             unset($datum['photographerWorks']);
         }
         $this->data['result'] = true;
+        $this->data['total'] = (new Star())->count();
+        $this->data['last_page'] =  $page <= 0 ? 0 : ceil($this->data['total'] / $size);
+
 
         return $this->responseParseArray($this->data);
     }
