@@ -329,7 +329,7 @@ class PhotographerWorkSource extends Model
 
         $hanlde = [];
         // 对原图进行加高处理 增加水印框架图位置
-        $hanlde[] = "imageMogr2/auto-orient/thumbnail/1200x".($photographerWorkSource->deal_height + 250).'!';
+        $hanlde[] = "imageMogr2/auto-orient/thumbnail/1200x".($photographerWorkSource->deal_height + 230).'!';
         // 作品图
         if ($photographerWorkSource->deal_url) {
             $hanlde[] = "|watermark/3/image/".\Qiniu\base64_urlSafeEncode(
@@ -338,7 +338,7 @@ class PhotographerWorkSource extends Model
         }
         // 水印底部框架图
         $hanlde[] = "|watermark/3/image/".base64_encode(
-                "https://file.zuopin.cloud/Fgz6Zf0EmsLVLvpCf73jBDaCPr9T"
+                "https://file.zuopin.cloud/Fte_WqPqt7fBcyIsr2Lf_69VVhzK"
             )."/gravity/South/dx/0/dy/0/";
         // 水印小程序
         $hanlde[] = "|watermark/3/image/{$water2_image}/gravity/SouthEast/dx/57/dy/47/";

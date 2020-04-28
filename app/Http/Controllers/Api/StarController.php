@@ -190,8 +190,8 @@ class StarController extends BaseController
     }
     public function test(Request $request)
     {
-         $this->upload2();
-         die();
+//         $this->upload2();
+//         die();
         $photographer_work_source_id = 1;
         $step = '水印图片持久请求';
         $photographerWorkSource = PhotographerWorkSource::where('id', $photographer_work_source_id)->first();
@@ -230,7 +230,7 @@ class StarController extends BaseController
         $hanlde = [];
         $hanlde[] = 'https://file.zuopin.cloud/work_source_image_bg.jpg?';
         // 对原图进行加高处理 增加水印框架图位置
-        $hanlde[] = "imageMogr2/auto-orient/thumbnail/1200x".($photographerWorkSource->deal_height + 250).'!';
+        $hanlde[] = "imageMogr2/auto-orient/thumbnail/1200x".($photographerWorkSource->deal_height + 230).'!';
         // 作品图
         if ($photographerWorkSource->deal_url) {
             $hanlde[] = "|watermark/3/image/".\Qiniu\base64_urlSafeEncode(
@@ -239,7 +239,7 @@ class StarController extends BaseController
         }
         // 水印底部框架图
         $hanlde[] = "|watermark/3/image/".base64_encode(
-                "https://file.zuopin.cloud/Fgz6Zf0EmsLVLvpCf73jBDaCPr9T"
+                "https://file.zuopin.cloud/Fte_WqPqt7fBcyIsr2Lf_69VVhzK"
             )."/gravity/South/dx/0/dy/0/";
         // 水印小程序
         $hanlde[] = "|watermark/3/image/{$water2_image}/gravity/SouthEast/dx/57/dy/47/";
@@ -276,7 +276,7 @@ class StarController extends BaseController
 //        $bgimg = Image::make('xacodes/bbg.jpg')->resize(383, 320);
 //        $bgimg->save($filename);
 
-        $filename = "images/8041587958812_.pic_hd.jpg";
+        $filename = "images/弹窗@3x.png";
 
         $bucket = 'zuopin';
         $buckets = config('custom.qiniu.buckets');
