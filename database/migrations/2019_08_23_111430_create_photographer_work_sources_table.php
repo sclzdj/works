@@ -22,6 +22,8 @@ class CreatePhotographerWorkSourcesTable extends Migration
             $table->unsignedBigInteger('size')->default(0)->comment('初始资源大小B');
             $table->unsignedInteger('width')->default(0)->comment('初始资源宽,px');
             $table->unsignedInteger('height')->default(0)->comment('初始资源高,px');
+            $table->string('image_ave',100)->default('')->comment('图片平均色调');
+            $table->text('exif')->comment('exif信息');
             $table->string('deal_key',1000)->index()->default('')->comment('处理后的资源key');
             $table->string('deal_url',1000)->default('')->comment('处理后的资源地址');
             $table->unsignedBigInteger('deal_size')->default(0)->comment('处理后的资源大小B');
