@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use function Qiniu\base64_urlSafeEncode;
 
-class PhotographerWork extends Model
+class  PhotographerWork extends Model
 {
     /**
      * The attributes that are mass assignable.

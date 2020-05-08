@@ -85,6 +85,34 @@ class QiniuController extends BaseController
             );
         }
         if ($photographerWorkSource->type == 'image') {
+            /*平均色调*/
+            $res_ave = SystemServer::request('GET', $photographerWorkSource->url.'?imageAve');
+            if ($res_ave['code'] == 200) {
+                if (!isset($res_ave['data']['error']) || (isset($res_ave['data']['code']) && $res_ave['data']['code'] == 200)) {
+                    if (isset($res_ave['data']['RGB'])) {
+                        $photographerWorkSource->image_ave = $res_ave['data']['RGB'];
+                        $photographerWorkSource->save();
+                    }
+                }
+            }
+            /*平均色调 END*/
+            /*exif*/
+            PhotographerWorkSource::where('id', $photographerWorkSource->id)->update(
+                [
+                    'exif' => json_encode([]),
+                ]
+            );
+            $res_exif = SystemServer::request('GET', $photographerWorkSource->url.'?exif');
+            if ($res_exif['code'] == 200) {
+                if (!isset($res_exif['data']['error']) || (isset($res_exif['data']['code']) && $res_exif['data']['code'] == 200)) {
+                    PhotographerWorkSource::where('id', $photographerWorkSource->id)->update(
+                        [
+                            'exif' => json_encode($res_exif['data']),
+                        ]
+                    );
+                }
+            }
+            /*exif END*/
             $fops = ["imageMogr2/auto-orient/thumbnail/1200x|imageMogr2/auto-orient/colorspace/srgb|imageslim"];
             $qrst = SystemServer::qiniuPfop(
                 $bucket,
@@ -176,8 +204,8 @@ class QiniuController extends BaseController
                             $response['data']
                         );
                     } else {
-                        if(!isset($response['data']['size'])){
-                            SystemServer::filePutContents('logs/cesi/'.time().'.log',json_encode($response));
+                        if (!isset($response['data']['size'])) {
+                            SystemServer::filePutContents('logs/cesi/'.time().'.log', json_encode($response));
                         }
                         $photographerWorkSource->deal_size = $response['data']['size'];
                         $photographerWorkSource->deal_width = $response['data']['width'];
@@ -186,6 +214,19 @@ class QiniuController extends BaseController
                         $photographerWorkSource->rich_width = $response['data']['width'];
                         $photographerWorkSource->rich_height = $response['data']['height'];
                         $photographerWorkSource->save();
+                        if ($photographerWorkSource->image_ave === '') {
+                            /*平均色调*/
+                            $res_ave = SystemServer::request('GET', $photographerWorkSource->url.'?imageAve');
+                            if ($res_ave['code'] == 200) {
+                                if (!isset($res_ave['data']['error']) || (isset($res_ave['data']['code']) && $res_ave['data']['code'] == 200)) {
+                                    if (isset($res_ave['data']['RGB'])) {
+                                        $photographerWorkSource->image_ave = $res_ave['data']['RGB'];
+                                        $photographerWorkSource->save();
+                                    }
+                                }
+                            }
+                            /*平均色调 END*/
+                        }
                         PhotographerWorkSource::dealNotifyRunGenerateWatermark($photographerWorkSource->id);
                     }
                 } else {

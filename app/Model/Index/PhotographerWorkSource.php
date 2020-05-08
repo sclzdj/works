@@ -21,6 +21,8 @@ class PhotographerWorkSource extends Model
         'size',
         'width',
         'height',
+        'image_ave',
+        'exif',
         'deal_key',
         'deal_url',
         'deal_size',
@@ -44,9 +46,9 @@ class PhotographerWorkSource extends Model
      *
      * @var array
      */
-    protected $hidden = [];
-
-
+    protected $hidden = [
+        'exif',
+    ];
 
 
     /**
@@ -63,6 +65,7 @@ class PhotographerWorkSource extends Model
             'size',
             'width',
             'height',
+            'image_ave',
             'deal_key',
             'deal_url',
             'deal_size',
@@ -251,13 +254,26 @@ class PhotographerWorkSource extends Model
                     $photographerWorkSource
                 );
             }
-            if(!isset($response['data']['size'])){
-                SystemServer::filePutContents('logs/cesi/'.time().'.log',json_encode($response));
+            if (!isset($response['data']['size'])) {
+                SystemServer::filePutContents('logs/cesi/'.time().'.log', json_encode($response));
             }
             $photographerWorkSource->rich_size = $response['data']['size'];
             $photographerWorkSource->rich_width = $response['data']['width'];
             $photographerWorkSource->rich_height = $response['data']['height'];
             $photographerWorkSource->save();
+            if ($photographerWorkSource->image_ave === '') {
+                /*平均色调*/
+                $res_ave = SystemServer::request('GET', $photographerWorkSource->url.'?imageAve');
+                if ($res_ave['code'] == 200) {
+                    if (!isset($res_ave['data']['error']) || (isset($res_ave['data']['code']) && $res_ave['data']['code'] == 200)) {
+                        if (isset($res_ave['data']['RGB'])) {
+                            $photographerWorkSource->image_ave = $res_ave['data']['RGB'];
+                            $photographerWorkSource->save();
+                        }
+                    }
+                }
+                /*平均色调 END*/
+            }
         }
     }
 

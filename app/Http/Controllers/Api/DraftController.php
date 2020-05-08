@@ -121,6 +121,34 @@ class DraftController extends UserGuardController
 //                                $photographer_work_source->rich_width = $res['data']['width'];
 //                                $photographer_work_source->rich_height = $res['data']['height'];
                                 $photographer_work_source->save();
+                                /*平均色调*/
+                                $res_ave = SystemServer::request('GET', $photographer_work_source->url.'?imageAve');
+                                if ($res_ave['code'] == 200) {
+                                    if (!isset($res_ave['data']['error']) || (isset($res_ave['data']['code']) && $res_ave['data']['code'] == 200)) {
+                                        if (isset($res_ave['data']['RGB'])) {
+                                            $photographer_work_source->image_ave = $res_ave['data']['RGB'];
+                                            $photographer_work_source->save();
+                                        }
+                                    }
+                                }
+                                /*平均色调 END*/
+                                /*exif*/
+                                PhotographerWorkSource::where('id', $photographer_work_source->id)->update(
+                                    [
+                                        'exif' => json_encode([]),
+                                    ]
+                                );
+                                $res_exif = SystemServer::request('GET', $photographer_work_source->url.'?exif');
+                                if ($res_exif['code'] == 200) {
+                                    if (!isset($res_exif['data']['error']) || (isset($res_exif['data']['code']) && $res_exif['data']['code'] == 200)) {
+                                        PhotographerWorkSource::where('id', $photographer_work_source->id)->update(
+                                            [
+                                                'exif' => json_encode($res_exif['data']),
+                                            ]
+                                        );
+                                    }
+                                }
+                                /*exif END*/
                                 $fops = ["imageMogr2/auto-orient/thumbnail/1200x|imageMogr2/auto-orient/colorspace/srgb|imageslim"];
                                 $bucket = 'zuopin';
                                 $asynchronous_task[] = [
@@ -600,6 +628,34 @@ class DraftController extends UserGuardController
 //                                $photographer_work_source->rich_width = $res['data']['width'];
 //                                $photographer_work_source->rich_height = $res['data']['height'];
                                 $photographer_work_source->save();
+                                /*平均色调*/
+                                $res_ave = SystemServer::request('GET', $photographer_work_source->url.'?imageAve');
+                                if ($res_ave['code'] == 200) {
+                                    if (!isset($res_ave['data']['error']) || (isset($res_ave['data']['code']) && $res_ave['data']['code'] == 200)) {
+                                        if (isset($res_ave['data']['RGB'])) {
+                                            $photographer_work_source->image_ave = $res_ave['data']['RGB'];
+                                            $photographer_work_source->save();
+                                        }
+                                    }
+                                }
+                                /*平均色调 END*/
+                                /*exif*/
+                                PhotographerWorkSource::where('id', $photographer_work_source->id)->update(
+                                    [
+                                        'exif' => json_encode([]),
+                                    ]
+                                );
+                                $res_exif = SystemServer::request('GET', $photographer_work_source->url.'?exif');
+                                if ($res_exif['code'] == 200) {
+                                    if (!isset($res_exif['data']['error']) || (isset($res_exif['data']['code']) && $res_exif['data']['code'] == 200)) {
+                                        PhotographerWorkSource::where('id', $photographer_work_source->id)->update(
+                                            [
+                                                'exif' => json_encode($res_exif['data']),
+                                            ]
+                                        );
+                                    }
+                                }
+                                /*exif END*/
                                 $fops = ["imageMogr2/auto-orient/thumbnail/1200x|imageMogr2/auto-orient/colorspace/srgb|imageslim"];
                                 $bucket = 'zuopin';
                                 $asynchronous_task[] = [
