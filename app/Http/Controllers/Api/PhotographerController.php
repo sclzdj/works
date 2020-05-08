@@ -15,6 +15,7 @@ use App\Model\Index\OperateRecord;
 use App\Model\Index\Photographer;
 use App\Model\Index\PhotographerRank;
 use App\Model\Index\PhotographerWork;
+use App\Model\Index\PhotographerWorkCategory;
 use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\PhotographerWorkTag;
 use App\Model\Index\Templates;
@@ -759,6 +760,7 @@ class PhotographerController extends BaseController
         }
 
         $photographer_rank = (string)PhotographerRank::where('id', $photographer->photographer_rank_id)->value('name');
+        $photographer_work_category = PhotographerWorkCategory::where('id' , $photographer_work->photographer_work_category_id)->first();
         $workName = $photographer_work->customer_name;
         $name = "{$photographer->name}";
         $datas = [
@@ -767,7 +769,7 @@ class PhotographerController extends BaseController
             '##time##' => "{$photographer_work->shooting_duration}",
             '##customer##' => $workName,
             '##name##' => $photographer->name,
-            '##title##' => "{$photographer_rank}摄像师",
+            '##title##' => "{$photographer_work_category->name}摄像师",
         ];
 
         if (empty($photographer_work_source->deal_key)) {
@@ -944,6 +946,7 @@ class PhotographerController extends BaseController
         }
 
         $photographer_rank = (string)PhotographerRank::where('id', $photographer->photographer_rank_id)->value('name');
+        $photographer_work_category = PhotographerWorkCategory::where('id' , $photographer_work->photographer_work_category_id)->first();
         $workName = $photographer_work->customer_name;
         $name = "{$photographer->name}";
         $datas = [
@@ -952,7 +955,7 @@ class PhotographerController extends BaseController
             '##time##' => "{$photographer_work->shooting_duration}",
             '##customer##' => $workName,
             '##name##' => $photographer->name,
-            '##title##' => "{$photographer_rank}摄像师",
+            '##title##' => "{$photographer_work_category->name}摄像师",
         ];
 
         if (empty($photographer_work_source->deal_key)) {
@@ -1112,6 +1115,7 @@ class PhotographerController extends BaseController
         }
 
         $photographer_rank = (string)PhotographerRank::where('id', $photographer->photographer_rank_id)->value('name');
+        $photographer_work_category = PhotographerWorkCategory::where('id' , $photographer_work->photographer_work_category_id)->first();
         $workName = $photographer_work->customer_name;
         $name = "{$photographer->name}";
         $datas = [
@@ -1120,7 +1124,7 @@ class PhotographerController extends BaseController
             '##time##' => "{$photographer_work->shooting_duration}",
             '##customer##' => $workName,
             '##name##' => $photographer->name,
-            '##title##' => "{$photographer_rank}摄像师",
+            '##title##' => "{$photographer_work_category->name}摄像师",
         ];
 
         if (empty($PhotographerWorkSource->deal_key)) {
