@@ -557,7 +557,7 @@ class StarController extends BaseController
                 "Bold"
             )."/font/".base64_urlSafeEncode("Microsoft YaHei")."/gravity/SouthWest/dx/98/dy/520/";
         $handle[] = "text/".\Qiniu\base64_urlSafeEncode(
-                $photographer_city.' · '.$photographer_rank.'用户'
+                $photographer_city.' · '.$photographer_rank.'摄影师'
             )."/fontsize/720/fill/".base64_urlSafeEncode("#646464")."/font/".base64_urlSafeEncode(
                 "微软雅黑"
             )."/gravity/SouthWest/dx/99/dy/450/";
@@ -576,7 +576,7 @@ class StarController extends BaseController
                 "Microsoft YaHei"
             )."/gravity/NorthWest/dx/101/dy/180/";
 
-        $handle[] = "text/".\Qiniu\base64_urlSafeEncode("我是用户")."/fontsize/2000/fill/".base64_urlSafeEncode(
+        $handle[] = "text/".\Qiniu\base64_urlSafeEncode("我是摄影师")."/fontsize/2000/fill/".base64_urlSafeEncode(
                 "#FFFFFF"
             )."/fontstyle/".base64_urlSafeEncode("Bold")."/font/".base64_urlSafeEncode(
                 "Microsoft YaHei"
@@ -633,7 +633,7 @@ class StarController extends BaseController
                 "Bold"
             )."/font/".base64_urlSafeEncode("Microsoft YaHei")."/gravity/SouthWest/dx/100/dy/520/";
         $handle[] = "text/".\Qiniu\base64_urlSafeEncode(
-                $photographer_city.' · '.$photographer_rank.'用户'
+                $photographer_city.' · '.$photographer_rank.'摄影师'
             )."/fontsize/720/fill/".base64_urlSafeEncode("#646464")."/font/".base64_urlSafeEncode(
                 "微软雅黑"
             )."/gravity/SouthWest/dx/100/dy/450/";
@@ -669,7 +669,7 @@ class StarController extends BaseController
                 "Bold"
             )."/font/".base64_urlSafeEncode("Microsoft YaHei")."/gravity/SouthWest/dx/100/dy/520/";
         $handle[] = "text/".\Qiniu\base64_urlSafeEncode(
-                $photographer_city.' · '.$photographer_rank.'用户'
+                $photographer_city.' · '.$photographer_rank.'摄影师'
             )."/fontsize/720/fill/".base64_urlSafeEncode("#646464")."/font/".base64_urlSafeEncode(
                 "微软雅黑"
             )."/gravity/SouthWest/dx/100/dy/450/";

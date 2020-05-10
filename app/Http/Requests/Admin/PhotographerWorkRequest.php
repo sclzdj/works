@@ -48,7 +48,7 @@ class PhotographerWorkRequest extends FormRequest
             $rules = [
                 'customer_name' => 'required|max:50',
                 'photographer_work_customer_industry_id' => 'required|exists:photographer_work_customer_industries,id',
-                'project_amount' => 'required|integer|min:1',
+                'project_amount' => 'required|integer|min:0',
                 'hide_project_amount' => 'required|in:0,1',
                 'sheets_number' => 'required|integer|min:1',
                 'hide_sheets_number' => 'required|in:0,1',

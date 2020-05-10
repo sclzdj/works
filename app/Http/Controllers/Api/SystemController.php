@@ -62,6 +62,9 @@ class SystemController extends BaseController
         } elseif ($request->purpose == 'update_my_photographer_info') {
             //验证手机号的唯一性
             $user = auth($this->guards['user'])->user();
+            if(!$user){
+                return $this->response->error('微信用户不存在', 500);
+            }
             $photographer = Photographer::where('id', '!=', $user->photographer_id)->where(
                 ['mobile' => $request->mobile, 'status' => 200]
             )->first();

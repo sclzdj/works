@@ -88,8 +88,8 @@ class UserRequest extends BaseRequest
                 break;
             case 'viewRecords':
                 $rules = array_merge($rules, $this->predefined['paginate']['rules']);
-                $rules['work_limit']='integer';
-                $rules['source_limit']='integer';
+                $rules['work_limit'] = 'integer';
+                $rules['source_limit'] = 'integer';
                 break;
             case 'photographerStatistics':
                 $rules = [
@@ -272,7 +272,10 @@ class UserRequest extends BaseRequest
             'saveMobile' => ['POST|App\Http\Controllers\Api\MyController@saveMobile'],
             'photographerWorks' => ['GET|App\Http\Controllers\Api\MyController@photographerWorks'],
             'photographerWorkHide' => ['GET|App\Http\Controllers\Api\MyController@photographerWorkHide'],
-            'photographerWorkSources' => ['GET|App\Http\Controllers\Api\MyController@photographerWorkSources'],
+            'photographerWorkSources' => [
+                'GET|App\Http\Controllers\Api\MyController@photographerWorkSources',
+                'GET|App\Http\Controllers\Api\MyController@photographerWorkSourcesSimple',
+            ],
             'photographerWork' => [
                 'GET|App\Http\Controllers\Api\MyController@photographerWork',
                 'DELETE|App\Http\Controllers\Api\MyController@photographerWorkDelete',
