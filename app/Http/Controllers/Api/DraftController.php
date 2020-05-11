@@ -479,7 +479,7 @@ class DraftController extends UserGuardController
             Visitor::where(['user_id' => $user->id, 'visitor_tag_id' => 0])->update(['visitor_tag_id' => 2]);
             if ($user->gh_openid != '') {
                 $app = app('wechat.official_account');
-                $template_id = 'zEnIDOdegmj_qB1i4JUV0m0QdM-7COCXpr_3WzBB3Kg';
+                $template_id = 'rjph5uR7iIzT2rEn3LjnF65zEdKZYisUGoAVgpipxpk';
                 $tmr = $app->template_message->send(
                     [
                         'touser' => $user->gh_openid,
@@ -495,7 +495,7 @@ class DraftController extends UserGuardController
                             'keyword2' => SystemArea::where('id', $photographer->city)->value('short_name'),
                             'keyword3' => PhotographerRank::where('id', $photographer->photographer_rank_id)->value(
                                     'name'
-                                ).'用户',
+                                ).'摄影师',
                             'keyword4' => $photographer->wechat,
                             'keyword5' => $photographer->mobile,
                             'remark' => '云作品客服微信'.SystemConfig::getVal('customer_wechat', 'works'),

@@ -263,7 +263,7 @@ class VisitController extends UserGuardController
                                 'url' => config('app.url'),
                                 'miniprogram' => [
                                     'appid' => config('custom.wechat.mp.appid'),
-                                    'pagepath' => 'pages/cameraman/cameraman',//用户控制面板页
+                                    'pagepath' => '/pages/homePage/homePage',
                                 ],
                                 'data' => [
                                     'first' => '快打开云作品，看看你的前3个人脉吧！',
@@ -658,7 +658,7 @@ class VisitController extends UserGuardController
                     'operate_type' => 'in',
                 ]
             )->orderBy('created_at', 'asc')->orderBy("id", "asc")->first();
-            $visitor['first_in_operate_record'] = $this->_generateFirstInOperateRecord($operateRecord);
+            $visitor['first_in_operate_record'] = $this->_generateFirstInOperateRecord($operateRecord,false);
             \DB::commit();//提交事务
             $visitor = SystemServer::parseVisitorTag($visitor);
 
@@ -727,10 +727,10 @@ class VisitController extends UserGuardController
                 }
                 $records[$_k]['time'] = date('H:i', strtotime($record['created_at']));
                 $records[$_k]['describe'] = $this->_makeDescribe($record['id']);
-                $records[$_k] = [
-                    'time' => $records[$_k]['time'],
-                    'describe' => $records[$_k]['describe'],
-                ];
+//                $records[$_k] = [
+//                    'time' => $records[$_k]['time'],
+//                    'describe' => $records[$_k]['describe'],
+//                ];
             }
             $view_records[$k]['date'] = date('Y/m/d', strtotime($view_record['date']));
             $view_records[$k]['view_records'] = $records;
@@ -758,14 +758,14 @@ class VisitController extends UserGuardController
         $describe = '';
         if ($operateRecord->operate_type == 'view') {
             if ($operateRecord->page_name == 'photographer_home') {
-                $describe = '浏览了你的主页';
+                $describe = '浏览了你的合集';
             } elseif ($operateRecord->page_name == 'photographer_work') {
                 $describe = '浏览了「'.$photographer_work_customer_name.'」';
             }
         } elseif ($operateRecord->operate_type == 'in') {
             if ($operateRecord->in_type == 'xacode_in') {
                 if ($operateRecord->page_name == 'photographer_home') {
-                    $describe = '扫描你的主页小程序码进入';
+                    $describe = '扫描你的合集小程序码进入';
                 } elseif ($operateRecord->page_name == 'photographer_work') {
                     $describe = '扫描「'.$photographer_work_customer_name.'」的小程序码进入';
                 }
@@ -792,9 +792,9 @@ class VisitController extends UserGuardController
         } elseif ($operateRecord->operate_type == 'share') {
             if ($operateRecord->page_name == 'photographer_home') {
                 if ($operateRecord->share_type == 'xacard_share') {
-                    $describe = '将你的主页分享给了微信好友';
+                    $describe = '将你的合集分享给了微信好友';
                 } elseif ($operateRecord->share_type == 'poster_share') {
-                    $describe = '生成了你的主页海报';
+                    $describe = '生成了你的合集海报';
                 }
             } elseif ($operateRecord->page_name == 'photographer_work') {
                 if ($operateRecord->share_type == 'xacard_share') {
@@ -818,17 +818,40 @@ class VisitController extends UserGuardController
      * 生成首次进入记录
      * @param OperateRecord $operateRecord
      */
-    public function _generateFirstInOperateRecord(OperateRecord $operateRecord)
+    public function _generateFirstInOperateRecord(OperateRecord $operateRecord, $isSimple = true)
     {
         if ($operateRecord) {
             $auth_id = auth($this->guard)->id();
             $first_in_operate_record = [
-                'in_type' => $operateRecord->in_type,
                 'date' => date('Y/m/d', strtotime($operateRecord->created_at)),
                 'describe' => $this->_makeDescribe($operateRecord->id, true),
+                'in_type' => $operateRecord->in_type,
             ];
-            if ($operateRecord->in_type == 'xacard_in') {
-                if ($auth_id == $operateRecord->shared_user_id) {
+            if(!$isSimple){
+                $first_in_operate_record = array_merge($first_in_operate_record, $operateRecord->toArray());
+                $first_in_operate_record['user'] = User::select(User::allowFields())->where(
+                    ['id' => $operateRecord['user_id']]
+                )->first()->toArray();
+                $first_in_operate_record['photographer'] = Photographer::select(Photographer::allowFields())->where(
+                    ['id' => $operateRecord['photographer_id']]
+                )->first()->toArray();
+                $first_in_operate_record['photographer_work'] = [];
+                if ($operateRecord['page_name'] == 'photographer_work') {
+                    $first_in_operate_record['photographer_work'] = PhotographerWork::select(
+                        PhotographerWork::allowFields()
+                    )->where(['id' => $operateRecord['photographer_work_id']])->first()->toArray();
+                }
+                $first_in_operate_record['shared_user'] = [];
+                if ($operateRecord['in_type'] == 'share_in') {
+                    $first_in_operate_record['shared_user'] = User::select(User::allowFields())->where(
+                        ['id' => $operateRecord['shared_user_id']]
+                    )->first()->toArray();
+                }
+            }
+
+            /*特殊处理代码*/
+            if ($operateRecord['in_type'] == 'xacard_in') {
+                if ($auth_id == $operateRecord['shared_user_id']) {
                     $shared_user_is_me = 1;
                 } else {
                     $shared_user_is_me = 0;
@@ -837,24 +860,21 @@ class VisitController extends UserGuardController
                 if (!$shared_user_is_me) {
                     $shared_visitor_id = (int)Visitor::where(
                         [
-                            'user_id' => $operateRecord->shared_user_id,
-                            'photographer_id' => $operateRecord->photographer_id,
+                            'user_id' => $operateRecord['shared_user_id'],
+                            'photographer_id' => $operateRecord['photographer_id'],
                         ]
                     )->value('id');
                     $shared_user = User::select(User::allowFields())->where(
                         'id',
-                        $operateRecord->shared_user_id
+                        $operateRecord['shared_user_id']
                     )->first();
                     $first_in_operate_record['shared_visitor_id'] = $shared_visitor_id;
                     $first_in_operate_record['shared_user'] = $shared_user;
                 }
             }
+            /*特殊处理代码 end*/
         } else {
-            $first_in_operate_record = [
-                'in_type' => '',
-                'date' => '',
-                'describe' => '',
-            ];
+            $first_in_operate_record = [];
         }
 
         return $first_in_operate_record;

@@ -77,7 +77,7 @@ class MyController extends UserGuardController
 
                                 return $this->response->error($err->message(), 500);
                             } else {
-                                $avatar = $domain . '/' . $ret['key'];
+                                $avatar = $domain.'/'.$ret['key'];
                             }
                             $user->avatar = $avatar;
                         }
@@ -104,7 +104,7 @@ class MyController extends UserGuardController
             } else {
                 \DB::rollback();//回滚事务
 
-                return $this->response->error('微信解密错误：' . $errCode, 500);
+                return $this->response->error('微信解密错误：'.$errCode, 500);
             }
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
@@ -144,7 +144,7 @@ class MyController extends UserGuardController
             } else {
                 \DB::rollback();//回滚事务
 
-                return $this->response->error('微信解密错误：' . $errCode, 500);
+                return $this->response->error('微信解密错误：'.$errCode, 500);
             }
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
@@ -353,7 +353,7 @@ class MyController extends UserGuardController
         }
         $fields = array_map(
             function ($v) {
-                return 'photographer_work_sources.' . $v;
+                return 'photographer_work_sources.'.$v;
             },
             PhotographerWorkSource::allowFields()
         );
@@ -408,6 +408,76 @@ class MyController extends UserGuardController
                 $photographer_work = [];
             }
             $photographerWorkSources[$k]['work'] = $photographer_work;
+        }
+        $photographerWorkSources = SystemServer::parsePaginate($photographerWorkSources->toArray());
+
+        return $this->response->array($photographerWorkSources);
+    }
+
+    /**
+     * 我的用户作品资源列表(简易版)
+     * @param UserRequest $request
+     */
+    public function photographerWorkSourcesSimple(UserRequest $request)
+    {
+        $this->notPhotographerIdentityVerify();
+        $photographer = $this->_photographer(null, $this->guard);
+        if (!$photographer || $photographer->status != 200) {
+            return $this->response->error('用户不存在', 500);
+        }
+        $fields = array_map(
+            function ($v) {
+                return 'photographer_work_sources.'.$v;
+            },
+            ['id', 'photographer_work_id', 'type', 'url', 'deal_url', 'deal_width', 'deal_height']
+        );
+        $photographerWorkSources = PhotographerWorkSource::select(
+            $fields
+        )->join(
+            'photographer_works',
+            'photographer_work_sources.photographer_work_id',
+            '=',
+            'photographer_works.id'
+        )->where(
+            [
+                'photographer_works.photographer_id' => $photographer->id,
+                'photographer_work_sources.status' => 200,
+                'photographer_works.status' => 200,
+                'photographer_work_sources.type' => 'image',
+            ]
+        )->orderBy(
+            'photographer_works.roof',
+            'desc'
+        )->orderBy(
+            'photographer_works.created_at',
+            'desc'
+        )->orderBy(
+            'photographer_works.id',
+            'desc'
+        )->orderBy(
+            'photographer_work_sources.sort',
+            'asc'
+        )->paginate(
+            $request->pageSize
+        );
+        $photographerWorkSources = SystemServer::getPhotographerWorkSourcesThumb(
+            $photographerWorkSources,
+            'imageMogr2/auto-orient/thumbnail/600x'
+        );
+        foreach ($photographerWorkSources as $k => $photographerWorkSource) {
+            $photographer_work = PhotographerWork::select(
+                ['id', 'photographer_id', 'photographer_id', 'photographer_work_category_id']
+            )->where(
+                ['id' => $photographerWorkSource->photographer_work_id]
+            )->first()->toArray();
+            if ($photographer_work) {
+                $photographer_work = SystemServer::parsePhotographerWorkCover($photographer_work, false, true);
+                $photographer_work = SystemServer::parsePhotographerWorkCategory($photographer_work);
+            } else {
+                $photographer_work = [];
+            }
+            $photographerWorkSources[$k]['work'] = $photographer_work;
+            unset($photographerWorkSources[$k]->url, $photographerWorkSources[$k]->deal_url);
         }
         $photographerWorkSources = SystemServer::parsePaginate($photographerWorkSources->toArray());
 
@@ -813,7 +883,7 @@ class MyController extends UserGuardController
                         if ($photographer_work_source->type == 'image') {
                             $photographer_work_source->is_new_source = 1;
                             $photographer_work_source->save();
-                            $res = SystemServer::request('GET', $photographer_work_source->url . '?imageInfo');
+                            $res = SystemServer::request('GET', $photographer_work_source->url.'?imageInfo');
                             if ($res['code'] == 200) {
                                 if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
                                     $photographer_work_source->size = $res['data']['size'];
@@ -827,7 +897,7 @@ class MyController extends UserGuardController
 //                                $photographer_work_source->rich_height = $res['data']['height'];
                                     $photographer_work_source->save();
                                     /*平均色调*/
-                                    $res_ave = SystemServer::request('GET', $photographer_work_source->url . '?imageAve');
+                                    $res_ave = SystemServer::request('GET', $photographer_work_source->url.'?imageAve');
                                     if ($res_ave['code'] == 200) {
                                         if (!isset($res_ave['data']['error']) || (isset($res_ave['data']['code']) && $res_ave['data']['code'] == 200)) {
                                             if (isset($res_ave['data']['RGB'])) {
@@ -843,7 +913,7 @@ class MyController extends UserGuardController
                                             'exif' => json_encode([]),
                                         ]
                                     );
-                                    $res_exif = SystemServer::request('GET', $photographer_work_source->url . '?exif');
+                                    $res_exif = SystemServer::request('GET', $photographer_work_source->url.'?exif');
                                     if ($res_exif['code'] == 200) {
                                         if (!isset($res_exif['data']['error']) || (isset($res_exif['data']['code']) && $res_exif['data']['code'] == 200)) {
                                             PhotographerWorkSource::where('id', $photographer_work_source->id)->update(
@@ -864,7 +934,7 @@ class MyController extends UserGuardController
                                         'pipeline' => null,
                                         'notifyUrl' => config(
                                                 'app.url'
-                                            ) . '/api/notify/qiniu/fopDeal?photographer_work_source_id=' . $photographer_work_source->id,
+                                            ).'/api/notify/qiniu/fopDeal?photographer_work_source_id='.$photographer_work_source->id,
                                         'useHTTPS' => true,
                                         'error_step' => '处理图片持久请求',
                                         'error_msg' => '七牛持久化接口返回错误信息',
@@ -885,14 +955,14 @@ class MyController extends UserGuardController
                                 $asynchronous_task[] = [
                                     'task_type' => 'error_qiniuNotifyFop',
                                     'step' => '原始图片信息请求',
-                                    'msg' => '请求七牛图片信息接口报错：' . $res['msg'],
+                                    'msg' => '请求七牛图片信息接口报错：'.$res['msg'],
                                     'request_data' => $request->all(),
                                     'photographerWorkSource' => $photographer_work_source,
                                     'res' => $res,
                                 ];
                             }
                         } elseif ($photographer_work_source->type == 'video') {
-                            $res = SystemServer::request('GET', $photographer_work_source->url . '?avinfo');
+                            $res = SystemServer::request('GET', $photographer_work_source->url.'?avinfo');
                             if ($res['code'] == 200) {
                                 if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
                                     $photographer_work_source->size = $res['data']['format']['size'];
@@ -913,7 +983,7 @@ class MyController extends UserGuardController
                                 $asynchronous_task[] = [
                                     'task_type' => 'error_qiniuNotifyFop',
                                     'step' => '原始视频信息请求',
-                                    'msg' => '请求七牛视频信息接口报错：' . $res['msg'],
+                                    'msg' => '请求七牛视频信息接口报错：'.$res['msg'],
                                     'request_data' => $request->all(),
                                     'photographerWorkSource' => $photographer_work_source,
                                     'res' => $res,
@@ -934,7 +1004,7 @@ class MyController extends UserGuardController
                 $url = "https://pan.baidu.com/rest/2.0/xpan/multimedia?method=filemetas";
                 $data = [];
                 $data['access_token'] = $access_token;
-                $data['fsids'] = '[' . implode(',', $fsids) . ']';
+                $data['fsids'] = '['.implode(',', $fsids).']';
                 $data['dlink'] = 1;
                 $response = $this->_request(
                     'GET',
@@ -988,10 +1058,10 @@ class MyController extends UserGuardController
                             'task_type' => 'qiniuFetchBaiduPan',
                             'asyncBaiduWorkSourceUpload_id' => $asyncBaiduWorkSourceUpload->id,
                             'type' => $type,
-                            'url' => $file['dlink'] . '&access_token=' . $access_token,
+                            'url' => $file['dlink'].'&access_token='.$access_token,
                             'callbackurl' => config(
                                     'app.url'
-                                ) . '/api/notify/qiniu/fetch?async_baidu_work_source_upload_id=' . $asyncBaiduWorkSourceUpload->id,
+                                ).'/api/notify/qiniu/fetch?async_baidu_work_source_upload_id='.$asyncBaiduWorkSourceUpload->id,
                             'asyncBaiduWorkSourceUpload' => $asyncBaiduWorkSourceUpload,
                         ];
                     }
@@ -1037,7 +1107,7 @@ class MyController extends UserGuardController
                     );
                     if ($qiniuFetchBaiduPan['res']['statusCode'] != 200) {
                         ErrLogServer::qiniuNotifyFetch(
-                            '系统请求七牛异步远程抓取接口时失败：' . $qiniuFetchBaiduPan['res']['error'],
+                            '系统请求七牛异步远程抓取接口时失败：'.$qiniuFetchBaiduPan['res']['error'],
                             $qiniuFetchBaiduPan['res'],
                             $task['asyncBaiduWorkSourceUpload']
                         );
@@ -1141,7 +1211,7 @@ class MyController extends UserGuardController
             if ($photographers) {
                 $fields = array_map(
                     function ($v) {
-                        return 'photographer_work_sources.' . $v;
+                        return 'photographer_work_sources.'.$v;
                     },
                     PhotographerWorkSource::allowFields()
                 );
@@ -1200,7 +1270,7 @@ class MyController extends UserGuardController
         $user = auth($this->guard)->user();
         $fields = array_map(
             function ($v) {
-                return 'photographers.' . $v;
+                return 'photographers.'.$v;
             },
             Photographer::allowFields()
         );
@@ -1224,7 +1294,7 @@ class MyController extends UserGuardController
         if ($view_records['data']) {
             $fields = array_map(
                 function ($v) {
-                    return 'photographer_work_sources.' . $v;
+                    return 'photographer_work_sources.'.$v;
                 },
                 PhotographerWorkSource::allowFields()
             );
