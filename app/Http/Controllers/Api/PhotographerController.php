@@ -813,7 +813,7 @@ class PhotographerController extends BaseController
                 "Microsoft YaHei"
             )."/gravity/SouthWest/dx/160/dy/415/";
 
-        $handle[] = "text/".\Qiniu\base64_urlSafeEncode($photographer_work_category->name."摄影项目").
+        $handle[] = "text/".\Qiniu\base64_urlSafeEncode($photographer_work_category->name."摄影作品集").
             "/fontsize/800/fill/".base64_urlSafeEncode("#969696")."/font/".base64_urlSafeEncode("Microsoft YaHei").
             "/gravity/SouthWest/dx/160/dy/320/";
 
@@ -823,7 +823,7 @@ class PhotographerController extends BaseController
                 "https://file.zuopin.cloud/FlFwKTyTElIIEJaLZK6MUCQMuqW6"
             )."/gravity/SouthWest/dx/160/dy/260/";
 
-        // 摄影师名字名字
+        // 摄影师名字
         $handle[] = "text/".\Qiniu\base64_urlSafeEncode($name)."/fontsize/800/fill/".base64_urlSafeEncode(
                 "#969696"
             )."/font/".base64_urlSafeEncode("Microsoft YaHei")."/gravity/SouthWest/dx/202/dy/252/";
@@ -991,7 +991,7 @@ class PhotographerController extends BaseController
                 "Microsoft YaHei"
             )."/gravity/NorthWest/dx/80/dy/70/";
 
-        $handle[] = "text/".\Qiniu\base64_urlSafeEncode($photographer_work_category->name."摄影项目").
+        $handle[] = "text/".\Qiniu\base64_urlSafeEncode($photographer_work_category->name."摄影作品集").
             "/fontsize/800/fill/".base64_urlSafeEncode("#FFFFFF")."/font/".base64_urlSafeEncode("Microsoft YaHei").
             "/gravity/NorthWest/dx/80/dy/200/";
 
@@ -999,7 +999,7 @@ class PhotographerController extends BaseController
         $handle[] = "/image/".\Qiniu\base64_urlSafeEncode("https://file.zuopin.cloud/FobRpazPS1Er-FQ7waOb2Gnv3vHX").
             "/gravity/NorthWest/dx/80/dy/275/";
 
-        // 摄影师名字名字
+        // 摄影师名字
         $handle[] = "text/".\Qiniu\base64_urlSafeEncode($name)."/fontsize/800/fill/".base64_urlSafeEncode(
                 "#FFFFFF"
             )."/font/".base64_urlSafeEncode("Microsoft YaHei").
@@ -1161,7 +1161,7 @@ class PhotographerController extends BaseController
                 "Microsoft YaHei"
             )."/gravity/NorthWest/dx/80/dy/70/";
 
-        $handle[] = "text/".\Qiniu\base64_urlSafeEncode($photographer_work_category->name."摄影项目").
+        $handle[] = "text/".\Qiniu\base64_urlSafeEncode($photographer_work_category->name."摄影作品集").
             "/fontsize/800/fill/".base64_urlSafeEncode("#FFFFFF")."/font/".base64_urlSafeEncode("Microsoft YaHei").
             "/gravity/NorthWest/dx/80/dy/200/";
 
@@ -1169,7 +1169,7 @@ class PhotographerController extends BaseController
         $handle[] = "/image/".\Qiniu\base64_urlSafeEncode("https://file.zuopin.cloud/FobRpazPS1Er-FQ7waOb2Gnv3vHX").
             "/gravity/NorthWest/dx/80/dy/275/";
 
-        // 摄影师名字名字
+        // 摄影师名字
         $handle[] = "text/".\Qiniu\base64_urlSafeEncode($name)."/fontsize/800/fill/".base64_urlSafeEncode(
                 "#FFFFFF"
             )."/font/".base64_urlSafeEncode("Microsoft YaHei").

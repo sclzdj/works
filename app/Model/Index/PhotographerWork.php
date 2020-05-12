@@ -224,7 +224,7 @@ class  PhotographerWork extends Model
 
     /**
      * 项目海报
-     * @param $photographer_work_id 作品集id
+     * @param $photographer_work_id 项目id
      * @param $template_id 使用template表中的number字段
      * @return array
      */
@@ -364,7 +364,7 @@ class  PhotographerWork extends Model
 
     /**
      * 根据项目id 生成作品分享图
-     * @param $photographer_work_id 作品集id
+     * @param $photographer_work_id 项目id
      * @return string
      */
     public function generateShare($photographer_work_id)

@@ -71,6 +71,7 @@ $api->version(
                 $api->get('my/photographerWorks', 'MyController@photographerWorks');
                 $api->get('my/photographerWork', 'MyController@photographerWork');
                 $api->get('my/photographerWorkSources', 'MyController@photographerWorkSources');
+                $api->get('my/photographerWorkSourcesSimple', 'MyController@photographerWorkSourcesSimple');
                 $api->get('my/setRoof', 'MyController@setRoof');
                 $api->delete('my/photographerWork', 'MyController@photographerWorkDelete');
                 $api->get('my/identity', 'MyController@identity');

@@ -134,7 +134,7 @@ class Photographer extends Model
         }
         if ($user->identity != 1) {
             $response['code'] = 500;
-            $response['msg'] = '用户不是用户';
+            $response['msg'] = '用户不是摄影师';
 
             return $response;
         }
@@ -205,7 +205,7 @@ class Photographer extends Model
         $watermark = 'watermark/3/image/' . \Qiniu\base64_urlSafeEncode($photographer->bg_img) . '/gravity/North/dx/0/dy/0';
         $watermark .= '/image/' . \Qiniu\base64_urlSafeEncode($photographer->avatar) . '/gravity/North/dx/0/dy/450';
         $watermark .= '/text/' . \Qiniu\base64_urlSafeEncode(
-                'Hi！我是用户' . $photographer->name
+                'Hi！我是摄影师' . $photographer->name
             ) . '/fontsize/1500/fill/' . \Qiniu\base64_urlSafeEncode('#313131') . '/gravity/North/dx/0/dy/900';
         $watermark .= '/text/' . \Qiniu\base64_urlSafeEncode(
                 '坐标' . $photographer_city . '·' . '擅长' . $photographer_rank . '摄影'
@@ -338,7 +338,7 @@ class Photographer extends Model
                 "Bold"
             ) . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/98/dy/520/";
         $handle[] = "text/" . \Qiniu\base64_urlSafeEncode(
-                $photographer_city . ' · ' . $photographer_rank . '用户'
+                $photographer_city . ' · ' . $photographer_rank . '摄影师'
             ) . "/fontsize/720/fill/" . base64_urlSafeEncode("#646464") . "/font/" . base64_urlSafeEncode(
                 "微软雅黑"
             ) . "/gravity/SouthWest/dx/99/dy/450/";
@@ -355,7 +355,7 @@ class Photographer extends Model
             ) . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode(
                 "Microsoft YaHei"
             ) . "/gravity/NorthWest/dx/101/dy/180/";
-        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode("我是用户") . "/fontsize/2000/fill/" . base64_urlSafeEncode(
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode("我是摄影师") . "/fontsize/2000/fill/" . base64_urlSafeEncode(
                 "#FFFFFF"
             ) . "/fontstyle/" . base64_urlSafeEncode("Bold") . "/font/" . base64_urlSafeEncode(
                 "Microsoft YaHei"
@@ -410,7 +410,7 @@ class Photographer extends Model
                 "Bold"
             ) . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/100/dy/520/";
         $handle[] = "text/" . \Qiniu\base64_urlSafeEncode(
-                $photographer_city . ' · ' . $photographer_rank . '用户'
+                $photographer_city . ' · ' . $photographer_rank . '摄影师'
             ) . "/fontsize/720/fill/" . base64_urlSafeEncode("#646464") . "/font/" . base64_urlSafeEncode(
                 "微软雅黑"
             ) . "/gravity/SouthWest/dx/100/dy/450/";
@@ -445,7 +445,7 @@ class Photographer extends Model
                 "Bold"
             ) . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthWest/dx/100/dy/520/";
         $handle[] = "text/" . \Qiniu\base64_urlSafeEncode(
-                $photographer_city . ' · ' . $photographer_rank . '用户'
+                $photographer_city . ' · ' . $photographer_rank . '摄影师'
             ) . "/fontsize/720/fill/" . base64_urlSafeEncode("#646464") . "/font/" . base64_urlSafeEncode(
                 "微软雅黑"
             ) . "/gravity/SouthWest/dx/100/dy/450/";

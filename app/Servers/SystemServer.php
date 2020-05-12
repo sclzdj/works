@@ -132,9 +132,10 @@ class SystemServer
      * 格式化项目封面数据
      * @param $data 数据
      * @param $random 是否随机取一个资源，否则取第一张
+     * @param $isSimple 是否需要简易数据
      * @return array
      */
-    public static function parsePhotographerWorkCover($data, $random = false)
+    public static function parsePhotographerWorkCover($data, $random = false,$isSimple=false)
     {
         foreach ($data as $k => $v) {
             if (is_array($v)) {
@@ -151,15 +152,24 @@ class SystemServer
                                 PhotographerWorkSource::allowFields()
                             )->skip($skip)->take(1)->first();
                             $thumb_url = self::getPhotographerWorkSourceThumb($photographer_work_source);
-                            $data['cover'] = $photographer_work_source->toArray();
-                            $data['cover']['thumb_url'] = $thumb_url;
+                            if(!$isSimple){
+                                $data['cover'] = $photographer_work_source->toArray();
+                                $data['cover']['thumb_url'] = $thumb_url;
+                            }else{
+                                $data['cover']=$thumb_url;
+                            }
+
                         } else {
                             $photographer_work_source = PhotographerWorkSource::where($where)->select(
                                 PhotographerWorkSource::allowFields()
                             )->orderBy('sort', 'asc')->first();
                             $thumb_url = self::getPhotographerWorkSourceThumb($photographer_work_source);
-                            $data['cover'] = $photographer_work_source->toArray();
-                            $data['cover']['thumb_url'] = $thumb_url;
+                            if(!$isSimple){
+                                $data['cover'] = $photographer_work_source->toArray();
+                                $data['cover']['thumb_url'] = $thumb_url;
+                            }else{
+                                $data['cover']=$thumb_url;
+                            }
                         }
                     }
                     break;
@@ -454,8 +464,13 @@ class SystemServer
      * @param null $callbackurl
      * @param null $key
      */
-    static public function qiniuFetchBaiduPan($asyncBaiduWorkSourceUpload_id,$type, $url, $callbackurl = null, $key = null)
-    {
+    static public function qiniuFetchBaiduPan(
+        $asyncBaiduWorkSourceUpload_id,
+        $type,
+        $url,
+        $callbackurl = null,
+        $key = null
+    ) {
         $accessKey = config('custom.qiniu.accessKey');
         $secretKey = config('custom.qiniu.secretKey');
         $bucket = 'zuopin';
@@ -496,10 +511,11 @@ class SystemServer
         $headers = array_merge(['Authorization' => $authorization['Authorization']], $headers);
         $client = new Client();
         $res = $client->post($apiUrl, json_encode($body), $headers);
-        $return=[
-            'asyncBaiduWorkSourceUpload_id'=>$asyncBaiduWorkSourceUpload_id,
-            'res'=>json_decode(json_encode($res), true)
+        $return = [
+            'asyncBaiduWorkSourceUpload_id' => $asyncBaiduWorkSourceUpload_id,
+            'res' => json_decode(json_encode($res), true),
         ];
+
         return $return;
     }
 
@@ -570,11 +586,12 @@ class SystemServer
     /**
      * 统一获取七牛缩略图地址
      * @param $url
+     * @param $fop
      * @return string
      */
-    static public function getQiniuUnifiedThumb($url)
+    static public function getQiniuUnifiedThumb($url, $fop = null)
     {
-        $fop = 'imageMogr2/auto-orient/thumbnail/!600x600r/gravity/Center/crop/!600x600';
+        $fop = $fop ? $fop : 'imageMogr2/auto-orient/thumbnail/!600x600r/gravity/Center/crop/!600x600';
 
         return $url.'?'.$fop;
     }
@@ -582,9 +599,10 @@ class SystemServer
     /**
      * 根据资源获取缩略图地址
      * @param PhotographerWorkSource $photographerWorkSource
+     * @param $fop
      * @return mixed|string
      */
-    static public function getPhotographerWorkSourceThumb(PhotographerWorkSource $photographerWorkSource)
+    static public function getPhotographerWorkSourceThumb(PhotographerWorkSource $photographerWorkSource, $fop = null)
     {
         if ($photographerWorkSource) {
             if ($photographerWorkSource->url && $photographerWorkSource->deal_url) {
@@ -594,7 +612,7 @@ class SystemServer
                     if ($photographerWorkSource->url == $photographerWorkSource->deal_url) {
                         return $photographerWorkSource->url;
                     } else {
-                        return self::getQiniuUnifiedThumb($photographerWorkSource->deal_url);
+                        return self::getQiniuUnifiedThumb($photographerWorkSource->deal_url, $fop);
                     }
                 }
             }
@@ -606,12 +624,16 @@ class SystemServer
     /**
      * 根据资源集合获取缩略图地址
      * @param $photographerWorkSources
+     * @param $fop
      * @return mixed
      */
-    static public function getPhotographerWorkSourcesThumb($photographerWorkSources)
+    static public function getPhotographerWorkSourcesThumb($photographerWorkSources, $fop = null)
     {
         foreach ($photographerWorkSources as $k => $photographerWorkSource) {
-            $photographerWorkSources[$k]['thumb_url'] = self::getPhotographerWorkSourceThumb($photographerWorkSource);
+            $photographerWorkSources[$k]['thumb_url'] = self::getPhotographerWorkSourceThumb(
+                $photographerWorkSource,
+                $fop
+            );
         }
 
         return $photographerWorkSources;
