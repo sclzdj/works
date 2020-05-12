@@ -169,6 +169,8 @@ $api->version(
 
                 // 查询用户是否使用过引导
                 $api->post('bootstrap/query' , 'BootstrapController@query');
+
+                $api->post('question/collect' , 'QuestionController@collect');
             }
         );
     }

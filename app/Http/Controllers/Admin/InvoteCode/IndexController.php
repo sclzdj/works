@@ -93,7 +93,7 @@ class IndexController extends BaseController
 
                 for ($i = 0; $i < $number; $i++) {
                     $invoteCode = new InvoteCode();
-                    $invoteCode->code = substr($i.$this->str_Rand(3).mt_rand(0, 9999), 0, 6);
+                    $invoteCode->code = substr($i.$this->str_Rand(6), 0, 6);
                     $invoteCode->type = 2;
                     $invoteCode->status = 0;
                     $invoteCode->user_id = 0;
@@ -189,7 +189,7 @@ class IndexController extends BaseController
      */
     private function str_Rand($length)
     {
-        $strs = "QWERTYUIOPASDFGHJKLZXCVBNM1234567890";
+        $strs = "QWERTYUPASDFGHJKXCVBNM3456789";
 
         return substr(str_shuffle($strs), mt_rand(0, strlen($strs) - 11), $length);
     }

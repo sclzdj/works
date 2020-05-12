@@ -9,11 +9,22 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\Auth\UserGuardController;
+use App\Http\Requests\Index\QuestionRequest;
 
 class QuestionController extends UserGuardController
 {
-    public function index()
+    public function collect(QuestionRequest $request)
     {
+        try {
+            $validated = $request->validated();
+
+
+
+
+        } catch (\Exception $exception) {
+
+
+        }
 
     }
 }
