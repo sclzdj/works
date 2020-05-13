@@ -93,7 +93,7 @@ class IndexController extends BaseController
 
                 for ($i = 0; $i < $number; $i++) {
                     $invoteCode = new InvoteCode();
-                    $invoteCode->code = substr($i.$this->str_Rand(6), 0, 6);
+                    $invoteCode->code = substr($this->str_Rand(6), 0, 6);
                     $invoteCode->type = 2;
                     $invoteCode->status = 0;
                     $invoteCode->user_id = 0;
