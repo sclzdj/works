@@ -62,15 +62,7 @@ class MiniProgramController extends BaseController
                         // 生成二维码
                         $strs = "QWERTYUPASDFGHJKXCVBNM34567890";
                         $invoteCode = new InvoteCode();
-                        $invoteCode->code = substr(
-                            $orderInfo->user_id.$orderInfo->id.substr(
-                                str_shuffle($strs),
-                                mt_rand(0, strlen($strs) - 11),
-                                6
-                            ),
-                            0,
-                            6
-                        );
+                        $invoteCode->code = substr(substr(str_shuffle($strs), mt_rand(0, strlen($strs) - 11), 6), 0, 6);
                         $invoteCode->type = 1;
                         $invoteCode->status = 0;
                         $invoteCode->user_id = $orderInfo->user_id;
