@@ -19,6 +19,7 @@ class QuestionRequest extends BaseRequest
             'content' => 'required|max:255',
             'type' => ['required', Rule::in([1, 2])],
             'page' => 'required|max:255',
+
         ];
     }
 

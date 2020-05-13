@@ -171,6 +171,7 @@ $api->version(
                 $api->post('bootstrap/query' , 'BootstrapController@query');
 
                 $api->post('question/collect' , 'QuestionController@collect');
+                $api->get('question/getPage' , 'QuestionController@getPage');
             }
         );
     }

@@ -109,6 +109,9 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         // 大咖管理
         Route::get('templates/lists', 'Works\TemplatesController@lists');
         Route::resource('templates', 'Works\TemplatesController');
+
+        Route::get('question/lists', 'Works\QuestionController@lists');
+        Route::resource('question' , 'Works\QuestionController');
     });
     //这下面写不需要登录的路由
     Route::get('login', 'Auth\LoginController@showLoginForm');//账号登录

@@ -618,7 +618,12 @@ class MyController extends UserGuardController
 
 
         if (!$updateResult) {
-            return $this->response->error("没有更改成功", 500);
+            $this->response->array(
+                [
+                    'message' => '点击过于频繁',
+                    'status' => 200,
+                ]
+            );
         }
 
 
