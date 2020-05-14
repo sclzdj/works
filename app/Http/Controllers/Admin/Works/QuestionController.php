@@ -43,20 +43,19 @@ class QuestionController extends BaseController
         }
 
         if (isset($form['created_at'][0])) {
-            $where[] = array("created_at", ">=", $form['created_at'][0].' 00:00:01');
+            $where[] = array("created_at", ">=", $form['created_at'][0] . ' 00:00:01');
         }
 
         if (isset($form['created_at'][1])) {
-            $where[] = array("created_at", "<=", $form['created_at'][1].' 23:59:59');
+            $where[] = array("created_at", "<=", $form['created_at'][1] . ' 23:59:59');
         }
-
 
 
         $data = (new Question())
             ->where($where)
             ->skip($page)->take($size)
-            ->join('users' , 'users.id' , '=' ,'question.user_id')
-            ->select('question.*' ,'users.nickname')
+            ->join('users', 'users.id', '=', 'question.user_id')
+            ->select('question.*', 'users.nickname')
             ->get();
 
         $count = (new Star())->count();
@@ -66,39 +65,27 @@ class QuestionController extends BaseController
 
     public function edit($id)
     {
-        return view('admin/question/edit' , compact('id'));
+        return view('admin/question/edit', compact('id'));
+    }
+
+    public function show($id)
+    {
+        return response()->json([
+            'msg' => (new Question())
+                ->where('question.id', $id)
+                ->join('users', 'users.id', '=', 'question.user_id')
+                ->select('question.*', 'users.nickname')
+                ->first()
+        ]);
     }
 
     public function store(Request $request)
     {
-
-        if ($request->input('type', null) == "sort") {
-            $photographer_id = $request->input('form.photographer_id');
-            $result = Star::where(compact('photographer_id'))->update([
-                'sort' => $request->input('form.sort')
-            ]);
-            $msg = "排序完成";
-            return response()->json(compact('result', 'msg'));
-        }
-
-
-        $result = false;
-        $photographer_id = $request->input('form.status', 0);
-        if (empty($photographer_id)) {
-            $msg = "用户不存在";
-            return response()->json(compact('result', 'msg'));
-        }
-
-        if (Star::where(compact('photographer_id'))->first()) {
-            $msg = "用户已经存在";
-            return response()->json(compact('result', 'msg'));
-        }
-
-        $result = Star::insert([
-            'photographer_id' => $photographer_id,
-            'created_at' => date('Y-m-d H:i:s')
+        $data = $request->input('form');
+        $result =Question::where('id' , $data['id'])->update([
+           'status' => $data['status']
         ]);
-        $msg = "用户添加成功";
+        $msg = "";
         return response()->json(compact('result', 'msg'));
     }
 

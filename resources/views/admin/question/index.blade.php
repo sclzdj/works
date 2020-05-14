@@ -81,7 +81,7 @@
                         </li>
                         <li>
                             <button type="button" data-toggle="block-option" data-action="fullscreen_toggle"><i
-                                        class="si si-size-fullscreen"></i></button>
+                                    class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
                     <h3 class="block-title">邀请管理</h3>
@@ -90,29 +90,29 @@
                     <div class="tab-pane active">
                         <div class="block-content">
                             <el-date-picker
-                                    v-model="form.created_at"
-                                    type="daterange"
-                                    range-separator="至"
-                                    value-format="yyyy-MM-dd"
-                                    start-placeholder="开始日期"
-                                    end-placeholder="结束日期">
+                                v-model="form.created_at"
+                                type="daterange"
+                                range-separator="至"
+                                value-format="yyyy-MM-dd"
+                                start-placeholder="开始日期"
+                                end-placeholder="结束日期">
                             </el-date-picker>
 
                             <el-select style="width: 150px" v-model="form.type" placeholder="请选择">
                                 <el-option
-                                        v-for="item in typeOption"
-                                        :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value">
+                                    v-for="item in typeOption"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
                                 </el-option>
                             </el-select>
 
                             <el-select style="width: 150px" v-model="form.status" placeholder="请选择">
                                 <el-option
-                                        v-for="item in statusOption"
-                                        :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value">
+                                    v-for="item in statusOption"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
                                 </el-option>
                             </el-select>
 
@@ -124,9 +124,9 @@
                         </div>
                         <div class="block-content">
                             <el-table
-                                    :data="data"
-                                    style="width: 100%"
-                                    @selection-change="handleSelectionChange"
+                                :data="data"
+                                style="width: 100%"
+                                @selection-change="handleSelectionChange"
                             >
 
 
@@ -140,9 +140,9 @@
                                             <el-form-item label="附件:">
                                                 <div class="demo-image__preview" v-if="props.row.attachment">
                                                     <el-image
-                                                            style="width: 100px; height: 100px"
-                                                            :src="props.row.attachment[0]"
-                                                            :preview-src-list="props.row.attachment">
+                                                        style="width: 100px; height: 100px"
+                                                        :src="props.row.attachment[0]"
+                                                        :preview-src-list="props.row.attachment">
                                                     </el-image>
                                                 </div>
                                             </el-form-item>
@@ -151,44 +151,56 @@
                                 </el-table-column>
 
                                 <el-table-column
-                                        type="selection"
-                                        width="55">
+                                    type="selection"
+                                    width="55">
                                 </el-table-column>
 
                                 <el-table-column
-                                        prop="page"
-                                        label="页面"
-                                        width="180">
+                                    prop="page"
+                                    label="页面"
+                                    width="180">
                                 </el-table-column>
 
                                 <el-table-column
-                                        prop="type"
-                                        label="类型"
-                                        width="180">
+                                    prop="type"
+                                    label="类型"
+                                    width="180">
                                 </el-table-column>
 
                                 <el-table-column
-                                        prop="status"
-                                        label="状态">
-                                </el-table-column>
-
-                                <el-table-column
-                                        prop="nickname"
-                                        label="用户">
-                                </el-table-column>
-
-
-                                <el-table-column
-                                        prop="created_at"
-                                        label="创建时间">
-                                </el-table-column>
-                                <el-table-column
-                                        fixed="right"
-                                        label="操作"
-                                        width="100">
+                                    prop="status"
+                                    label="状态">
                                     <template slot-scope="scope">
+                                        <span v-if="scope.row.status == 0">未处理</span>
+                                        <span v-if="scope.row.status == 1">待处理</span>
+                                        <span v-if="scope.row.status == 2">已完结</span>
 
-                                        <el-button @click="handleEdit(scope.row)" type="text" size="small">编辑</el-button>
+                                    </template>
+                                </el-table-column>
+
+                                <el-table-column
+                                    prop="nickname"
+                                    label="用户">
+                                </el-table-column>
+
+
+                                <el-table-column
+                                    prop="created_at"
+                                    label="创建时间">
+                                </el-table-column>
+                                <el-table-column
+                                    fixed="right"
+                                    label="操作"
+                                    width="100">
+                                    <template slot-scope="scope">
+                                        <el-select @change="changeStatus(scope.row)" v-model="scope.row.status" placeholder="请选择">
+                                            <el-option
+                                                v-for="item in status2Option"
+                                                :key="item.value"
+                                                :label="item.label"
+                                                :value="item.value">
+                                            </el-option>
+                                        </el-select>
                                     </template>
                                 </el-table-column>
                             </el-table>
@@ -385,7 +397,17 @@
                         value: 2,
                         label: '已完结'
                     }],
-
+                status2Option: [
+                    {
+                        value: 0,
+                        label: '未处理'
+                    }, {
+                        value: 1,
+                        label: '待处理'
+                    }, {
+                        value: 2,
+                        label: '已完结'
+                    }],
                 multipleSelection: []
             },
             methods: {
@@ -402,7 +424,6 @@
                         success: function (response) {
                             that.data = response.data;
                             that.total = response.count;
-
                             for (let i = 0; i < that.data.length; i++) {
                                 switch (that.data[i].type) {
                                     case 1:
@@ -414,20 +435,6 @@
                                     default:
                                         break;
                                 }
-                                switch (that.data[i].status) {
-                                    case 0:
-                                        that.data[i].status = "未处理";
-                                        break;
-                                    case 1:
-                                        that.data[i].status = "待处理";
-                                        break;
-                                    case 2:
-                                        that.data[i].status = "已完结";
-                                        break;
-                                    default:
-                                        break;
-                                }
-
                                 if (that.data[i].attachment) {
                                     that.data[i].attachment = JSON.parse(that.data[i].attachment)
                                 }
@@ -459,7 +466,6 @@
                         type: 0,
                         status: -1,
                         created_at: [],
-
                     };
                     this.$refs.children.initPageNo();
                     this.init(1);
@@ -468,31 +474,38 @@
                     this.$refs.children.initPageNo();
                     this.init(1);
                 },
-                create: function () {
+                changeStatus: function (data) {
                     var that = this;
+                    var formData = {
+                        form: data
+                    };
                     $.ajax({
-                        type: 'POST',
-                        url: '/admin/invotecode',
-                        data: {
-                            number: this.number,
-                            action: 'create'
-                        },
+                        url: '/admin/question',
+                        method: 'post',
+                        data: formData,
                         success: function (response) {
-                            if (response.result) {
-                                that.init(1);
-                                that.number = 0;
-                            } else {
-                                alert(response.msg);
-                            }
+
                         },
                         error: function (xhr, status, error) {
-
+                            var response = JSON.parse(xhr.responseText);
+                            if (xhr.status == 419) { // csrf错误，错误码固定为419
+                                alert('请勿重复请求~');
+                            } else if (xhr.status == 422) { // 验证错误
+                                var message = [];
+                                for (var i in response.errors) {
+                                    message = message.concat(response.errors[i]);
+                                }
+                                message = message.join(',');
+                                alert(message);
+                            } else {
+                                if (response.message) {
+                                    alert(response.message);
+                                } else {
+                                    alert('服务器错误~');
+                                }
+                            }
                         }
                     });
-                },
-                handleEdit: function (data) {
-
-                    window.location.href = "/admin/question/" + data.id + '/edit';
                 },
                 handleSelectionChange(val) {
                     this.multipleSelection = val;
