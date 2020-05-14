@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Works;
 
 use App\Http\Controllers\Admin\BaseController;
 use App\Model\Index\Photographer;
+use App\Model\Index\Question;
 use App\Model\Index\Star;
 use Illuminate\Http\Request;
 
@@ -28,27 +29,44 @@ class QuestionController extends BaseController
     public function lists(Request $request)
     {
         $page = $request->input('page', 1);
+        $form = $request->input('form');
         $size = 20;
         $page = ($page - 1) * $size;
+
         $where = [];
-        $data = (new Star())
+        if ($form['type'] != 0) {
+            $where[] = ['type', $form['type']];
+        }
+
+        if ($form['status'] != -1) {
+            $where[] = ['status', $form['status']];
+        }
+
+        if (isset($form['created_at'][0])) {
+            $where[] = array("created_at", ">=", $form['created_at'][0].' 00:00:01');
+        }
+
+        if (isset($form['created_at'][1])) {
+            $where[] = array("created_at", "<=", $form['created_at'][1].' 23:59:59');
+        }
+
+
+
+        $data = (new Question())
+            ->where($where)
             ->skip($page)->take($size)
-            ->leftJoin(
-                'photographers',
-                'photographers.id',
-                '=',
-                'stars.photographer_id')
-            ->orderBy('stars.sort', 'desc')
-            ->orderBy('stars.id', 'desc')
+            ->join('users' , 'users.id' , '=' ,'question.user_id')
+            ->select('question.*' ,'users.nickname')
             ->get();
 
-        $count = (new Star())->leftJoin(
-            'photographers',
-            'photographers.id',
-            '=',
-            'stars.photographer_id')->count();
-        $stars = Photographer::where('status', 200)->get();
-        return response()->json(compact('data', 'count', 'stars'));
+        $count = (new Star())->count();
+
+        return response()->json(compact('data', 'count'));
+    }
+
+    public function edit($id)
+    {
+        return view('admin/question/edit' , compact('id'));
     }
 
     public function store(Request $request)

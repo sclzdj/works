@@ -84,118 +84,37 @@
                                         class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
-                    <h3 class="block-title">邀请管理</h3>
+                    <h3 class="block-title">反馈问题编辑</h3>
                 </div>
                 <div class="tab-content" id="app">
                     <div class="tab-pane active">
-                        <div class="block-content">
-                            <el-date-picker
-                                    v-model="form.created_at"
-                                    type="daterange"
-                                    range-separator="至"
-                                    value-format="yyyy-MM-dd"
-                                    start-placeholder="开始日期"
-                                    end-placeholder="结束日期">
-                            </el-date-picker>
+                        {{$id}}
 
-                            <el-select style="width: 150px" v-model="form.type" placeholder="请选择">
-                                <el-option
-                                        v-for="item in typeOption"
-                                        :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value">
-                                </el-option>
-                            </el-select>
+                        <div class="tab-pane active">
+                            <div class="block-content">
+                                <form class="form-horizontal form-builder row" id="create-form">
+                                    <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
 
-                            <el-select style="width: 150px" v-model="form.status" placeholder="请选择">
-                                <el-option
-                                        v-for="item in statusOption"
-                                        :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value">
-                                </el-option>
-                            </el-select>
+                                        <label class="col-md-2 control-label form-option-line">
+{{--                                            <span class="form-option-require"></span>--}}
+                                        </label>
 
+                                        <div class="col-md-2 form-control-static form-option-line">
+                                            <div class="help-block help-block-line">用户</div>
+                                        </div>
 
-                            <el-button type="primary" @click="search" icon="el-icon-search">搜索</el-button>
-                            <el-button type="primary" @click="clear" icon="el-icon-close">清除</el-button>
+                                        <div class="col-md-4 form-control-static form-option-line">
+                                            <div class="help-block help-block-line" style="text-align: center;">
 
+                                            </div>
+                                        </div>
 
-                        </div>
-                        <div class="block-content">
-                            <el-table
-                                    :data="data"
-                                    style="width: 100%"
-                                    @selection-change="handleSelectionChange"
-                            >
-
-
-                                <el-table-column type="expand">
-                                    <template slot-scope="props">
-                                        <el-form label-position="left" inline class="demo-table-expand">
-                                            <el-form-item label="意见:">
-                                                <span>  @{{ props.row.content }}</span>
-                                            </el-form-item>
-                                            <br/>
-                                            <el-form-item label="附件:">
-                                                <div class="demo-image__preview" v-if="props.row.attachment">
-                                                    <el-image
-                                                            style="width: 100px; height: 100px"
-                                                            :src="props.row.attachment[0]"
-                                                            :preview-src-list="props.row.attachment">
-                                                    </el-image>
-                                                </div>
-                                            </el-form-item>
-                                        </el-form>
-                                    </template>
-                                </el-table-column>
-
-                                <el-table-column
-                                        type="selection"
-                                        width="55">
-                                </el-table-column>
-
-                                <el-table-column
-                                        prop="page"
-                                        label="页面"
-                                        width="180">
-                                </el-table-column>
-
-                                <el-table-column
-                                        prop="type"
-                                        label="类型"
-                                        width="180">
-                                </el-table-column>
-
-                                <el-table-column
-                                        prop="status"
-                                        label="状态">
-                                </el-table-column>
-
-                                <el-table-column
-                                        prop="nickname"
-                                        label="用户">
-                                </el-table-column>
-
-
-                                <el-table-column
-                                        prop="created_at"
-                                        label="创建时间">
-                                </el-table-column>
-                                <el-table-column
-                                        fixed="right"
-                                        label="操作"
-                                        width="100">
-                                    <template slot-scope="scope">
-
-                                        <el-button @click="handleEdit(scope.row)" type="text" size="small">编辑</el-button>
-                                    </template>
-                                </el-table-column>
-                            </el-table>
-                            <div class="page">
-                                <page :total="total" :page-size="size" @navpage="init" ref="children"></page>
+                                    </div>
+                                </form>
                             </div>
+
                         </div>
+
                     </div>
                 </div>
             </div>
