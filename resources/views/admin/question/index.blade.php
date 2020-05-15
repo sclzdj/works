@@ -107,6 +107,15 @@
                                 </el-option>
                             </el-select>
 
+                            <el-select style="width: 150px" v-model="form.page" placeholder="请选择">
+                                <el-option
+                                    v-for="item in pages"
+                                    :key="item"
+                                    :label="item"
+                                    :value="item">
+                                </el-option>
+                            </el-select>
+
                             <el-select style="width: 150px" v-model="form.status" placeholder="请选择">
                                 <el-option
                                     v-for="item in statusOption"
@@ -156,18 +165,6 @@
                                 </el-table-column>
 
                                 <el-table-column
-                                    prop="page"
-                                    label="页面"
-                                    width="180">
-                                </el-table-column>
-
-                                <el-table-column
-                                    prop="type"
-                                    label="类型"
-                                    width="180">
-                                </el-table-column>
-
-                                <el-table-column
                                     prop="status"
                                     label="状态">
                                     <template slot-scope="scope">
@@ -179,6 +176,19 @@
                                 </el-table-column>
 
                                 <el-table-column
+                                    prop="type"
+                                    label="类型"
+                                    width="180">
+                                </el-table-column>
+
+                                <el-table-column
+                                    prop="page"
+                                    label="页面"
+                                    width="180">
+                                </el-table-column>
+
+
+                                <el-table-column
                                     prop="nickname"
                                     label="用户">
                                 </el-table-column>
@@ -188,12 +198,14 @@
                                     prop="created_at"
                                     label="创建时间">
                                 </el-table-column>
+
                                 <el-table-column
                                     fixed="right"
                                     label="操作"
-                                    width="100">
+                                    width="150">
                                     <template slot-scope="scope">
-                                        <el-select @change="changeStatus(scope.row)" v-model="scope.row.status" placeholder="请选择">
+                                        <el-select @change="changeStatus(scope.row)" v-model="scope.row.status"
+                                                   placeholder="请选择">
                                             <el-option
                                                 v-for="item in status2Option"
                                                 :key="item.value"
@@ -368,7 +380,8 @@
                     type: 0,
                     status: -1,
                     is_send: -1,
-                    created_at: []
+                    created_at: [],
+                    page: "选择页面"
                 },
                 typeOption: [
                     {
@@ -408,6 +421,26 @@
                         value: 2,
                         label: '已完结'
                     }],
+                pages:[
+                    '选择页面',
+                    '创建-创建云作品',
+                    '添加-从手机相册选图',
+                    '添加-从百度网盘选图',
+                    '添加-添加/修改项目信息',
+                    '展示-自己的作品/项目/合集',
+                    '展示-别人的作品/项目/合集',
+                    '分享-发给微信好友',
+                    '分享-生成获客海报',
+                    '分享-生成小程序码',
+                    '人脉-访客登录',
+                    '人脉-访客列表',
+                    '人脉-访客详情',
+                    '其他-最近浏览',
+                    '其他-人脉排行榜',
+                    '其他-修改个人资料',
+                    '其他-学习使用技巧',
+                    '其他-其他问题'
+                ],
                 multipleSelection: []
             },
             methods: {
@@ -466,6 +499,7 @@
                         type: 0,
                         status: -1,
                         created_at: [],
+                        page:"选择页面"
                     };
                     this.$refs.children.initPageNo();
                     this.init(1);

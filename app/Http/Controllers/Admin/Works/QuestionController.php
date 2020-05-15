@@ -35,19 +35,23 @@ class QuestionController extends BaseController
 
         $where = [];
         if ($form['type'] != 0) {
-            $where[] = ['type', $form['type']];
+            $where[] = ['question.type', $form['type']];
         }
 
         if ($form['status'] != -1) {
-            $where[] = ['status', $form['status']];
+            $where[] = ['question.status', $form['status']];
+        }
+
+        if ($form['page'] != "选择页面") {
+            $where[] = ['question.page', $form['page']];
         }
 
         if (isset($form['created_at'][0])) {
-            $where[] = array("created_at", ">=", $form['created_at'][0] . ' 00:00:01');
+            $where[] = array("question.created_at", ">=", $form['created_at'][0] . ' 00:00:01');
         }
 
         if (isset($form['created_at'][1])) {
-            $where[] = array("created_at", "<=", $form['created_at'][1] . ' 23:59:59');
+            $where[] = array("question.created_at", "<=", $form['created_at'][1] . ' 23:59:59');
         }
 
 
