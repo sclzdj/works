@@ -464,21 +464,25 @@ class SystemNodesTableSeeder extends Seeder
                                 ],
                             ],
                             [
-                                'name' => '问题反馈管理',
+                                'name' => '问题反馈',
                                 'icon' => 'fa fas fa-user-plus',
                                 'action' => 'Admin\Question\IndexController@index',
                                 'children' => [
                                     [
                                         'name' => '问题列表',
-                                        'action' => 'Admin\Question\IndexController@lists',
+                                        'action' => 'Admin\Works\QuestionController@lists',
                                     ],
                                     [
-                                        'name' => '创建',
-                                        'action' => 'Admin\Question\IndexController@store',
+                                        'name' => '编辑问题',
+                                        'action' => 'Admin\Works\QuestionController@edit',
                                     ],
                                     [
-                                        'name' => '更新',
-                                        'action' => 'Admin\Question\IndexController@update',
+                                        'name' => '查看数据',
+                                        'action' => 'Admin\Works\QuestionController@show',
+                                    ],
+                                    [
+                                        'name' => '更新数据',
+                                        'action' => 'Admin\Works\QuestionController@store',
                                     ],
                                 ],
                             ],
