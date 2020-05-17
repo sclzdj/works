@@ -111,6 +111,7 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::resource('templates', 'Works\TemplatesController');
 
         Route::get('question/lists', 'Works\QuestionController@lists');
+        Route::get('question/export', 'Works\QuestionController@export');
         Route::resource('question' , 'Works\QuestionController');
     });
     //这下面写不需要登录的路由

@@ -125,9 +125,11 @@
                                 </el-option>
                             </el-select>
 
-
+                            <br/>
+                            <br/>
                             <el-button type="primary" @click="search" icon="el-icon-search">搜索</el-button>
                             <el-button type="primary" @click="clear" icon="el-icon-close">清除</el-button>
+                            <el-button type="primary" @click="exports" icon="el-icon-close">导出</el-button>
 
 
                         </div>
@@ -381,7 +383,8 @@
                     status: -1,
                     is_send: -1,
                     created_at: [],
-                    page: "选择页面"
+                    page: "选择页面",
+                    multipleSelection: []
                 },
                 typeOption: [
                     {
@@ -421,7 +424,7 @@
                         value: 2,
                         label: '已完结'
                     }],
-                pages:[
+                pages: [
                     '选择页面',
                     '创建-创建云作品',
                     '添加-从手机相册选图',
@@ -441,7 +444,7 @@
                     '其他-学习使用技巧',
                     '其他-其他问题'
                 ],
-                multipleSelection: []
+
             },
             methods: {
                 init: function (page) {
@@ -499,7 +502,7 @@
                         type: 0,
                         status: -1,
                         created_at: [],
-                        page:"选择页面"
+                        page: "选择页面"
                     };
                     this.$refs.children.initPageNo();
                     this.init(1);
@@ -541,8 +544,14 @@
                         }
                     });
                 },
-                handleSelectionChange(val) {
-                    this.multipleSelection = val;
+                handleSelectionChange(rows) {
+                    this.form.multipleSelection = [];
+                    rows.forEach(row => {
+                        this.form.multipleSelection.push(row.id);
+                    });
+                },
+                exports: function () {
+                    window.location.href = "/admin/question/export?params=" + JSON.stringify(this.form);
                 },
 
             },
