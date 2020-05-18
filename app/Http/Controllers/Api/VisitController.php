@@ -863,6 +863,12 @@ class VisitController extends UserGuardController
                 } elseif ($operateRecord->share_type == 'poster_share') {
                     $describe = '生成了你的合集海报';
                 }
+            }elseif ($operateRecord->in_type == 'xacode_share') {
+                if ($operateRecord->page_name == 'photographer_home') {
+                    $describe = '生成了你的合集小程序码';
+                } elseif ($operateRecord->page_name == 'photographer_work') {
+                    $describe = '生成了「'.$photographer_work_customer_name.'」小程序码';
+                }
             } elseif ($operateRecord->page_name == 'photographer_work') {
                 if ($operateRecord->share_type == 'xacard_share') {
                     $describe = '将「'.$photographer_work_customer_name.'」分享给了微信好友';

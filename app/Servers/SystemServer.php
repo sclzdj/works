@@ -135,7 +135,7 @@ class SystemServer
      * @param $isSimple 是否需要简易数据
      * @return array
      */
-    public static function parsePhotographerWorkCover($data, $random = false,$isSimple=false)
+    public static function parsePhotographerWorkCover($data, $random = false, $isSimple = false)
     {
         foreach ($data as $k => $v) {
             if (is_array($v)) {
@@ -152,23 +152,32 @@ class SystemServer
                                 PhotographerWorkSource::allowFields()
                             )->skip($skip)->take(1)->first();
                             $thumb_url = self::getPhotographerWorkSourceThumb($photographer_work_source);
-                            if(!$isSimple){
+                            $thumb_url_2 = self::getPhotographerWorkSourceThumb(
+                                $photographer_work_source,
+                                'imageMogr2/auto-orient/thumbnail/600x'
+                            );
+                            if (!$isSimple) {
                                 $data['cover'] = $photographer_work_source->toArray();
                                 $data['cover']['thumb_url'] = $thumb_url;
-                            }else{
-                                $data['cover']=$thumb_url;
+                                $data['cover']['thumb_url_2'] = $thumb_url_2;
+                            } else {
+                                $data['cover'] = $thumb_url;
                             }
-
                         } else {
                             $photographer_work_source = PhotographerWorkSource::where($where)->select(
                                 PhotographerWorkSource::allowFields()
                             )->orderBy('sort', 'asc')->first();
                             $thumb_url = self::getPhotographerWorkSourceThumb($photographer_work_source);
-                            if(!$isSimple){
+                            $thumb_url_2 = self::getPhotographerWorkSourceThumb(
+                                $photographer_work_source,
+                                'imageMogr2/auto-orient/thumbnail/600x'
+                            );
+                            if (!$isSimple) {
                                 $data['cover'] = $photographer_work_source->toArray();
                                 $data['cover']['thumb_url'] = $thumb_url;
-                            }else{
-                                $data['cover']=$thumb_url;
+                                $data['cover']['thumb_url_2'] = $thumb_url_2;
+                            } else {
+                                $data['cover'] = $thumb_url;
                             }
                         }
                     }

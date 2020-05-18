@@ -29,7 +29,7 @@ class VisitRequest extends BaseRequest
                     'page_name' => 'required|in:photographer_home,photographer_work',
                     'photographer_id' => 'required|integer',
                     'photographer_work_id' => 'required_if:page_name,photographer_work|integer',
-                    'share_type' => 'required|in:xacard_share,poster_share,all_photo_share',
+                    'share_type' => 'required|in:xacard_share,xacode_share,poster_share,all_photo_share',
                 ];
                 break;
             case 'operateRecord':
@@ -198,7 +198,7 @@ class VisitRequest extends BaseRequest
             'setTag' => ['POST|App\Http\Controllers\Api\VisitController@setTag'],
             'visitors' => ['GET|App\Http\Controllers\Api\VisitController@visitors'],
             'visitor' => ['GET|App\Http\Controllers\Api\VisitController@visitor'],
-            'visitorRecords' => ['GET|App\Http\Controllers\Api\VisitController@visitorRecords'],
+            'visitorRecords' => ['POST|App\Http\Controllers\Api\VisitController@visitorRecords'],
         ];
     }
 }
