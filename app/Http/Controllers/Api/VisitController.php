@@ -363,7 +363,7 @@ class VisitController extends UserGuardController
                         'keyword1' => $keyword1_text,
                         'keyword2' => $keyword2_text,
                         'keyword3' => $keyword3_text,
-                        'keyword4' => date('Y/m/d H:i'),
+                        'keyword4' => date('Y.m.d H:i'),
                         'remark' => '点击查看详情',
                     ],
                 ]
@@ -658,7 +658,7 @@ class VisitController extends UserGuardController
                     'operate_type' => 'in',
                 ]
             )->orderBy('created_at', 'asc')->orderBy("id", "asc")->first();
-            $visitor['first_in_operate_record'] = $this->_generateFirstInOperateRecord($operateRecord,false);
+            $visitor['first_in_operate_record'] = $this->_generateFirstInOperateRecord($operateRecord, false);
             \DB::commit();//提交事务
             $visitor = SystemServer::parseVisitorTag($visitor);
 
@@ -689,7 +689,8 @@ class VisitController extends UserGuardController
             return $this->response->error('访客信息有误', 500);
         }
         $page = $request->page ?? 0;
-        $pageSize = $request->pageSize ?? 15;
+        $pageSize = $request->pageSize ?? 10;
+        $recordPageSize = $request->recordPageSize ?? 0;
         $view_records = OperateRecord::where('photographer_id', $photographer->id)->where(
             'user_id',
             $visitor->user_id
@@ -706,7 +707,11 @@ class VisitController extends UserGuardController
             )->where('operate_type', '!=', 'in')->select(OperateRecord::allowFields())->whereDate(
                 'created_at',
                 $view_record['date']
-            )->orderBy('created_at', 'desc')->orderBy('id', 'desc')->get()->toArray();
+            )->orderBy('created_at', 'desc')->orderBy('id', 'desc');
+            if ($recordPageSize > 0) {
+                $records = $records->take($recordPageSize);
+            }
+            $records = $records->get()->toArray();
             foreach ($records as $_k => $record) {
                 $records[$_k]['user'] = User::select(User::allowFields())->where(['id' => $record['user_id']])->first(
                 )->toArray();
@@ -737,6 +742,68 @@ class VisitController extends UserGuardController
         }
 
         return $this->responseParseArray($view_records);
+    }
+
+    /**
+     * 访客的每日记录数据
+     * @param VisitRequest $request
+     * @return mixed
+     */
+    public function visitorDateRecords(VisitRequest $request)
+    {
+        $this->notPhotographerIdentityVerify();
+        $user = auth($this->guard)->user();
+        $photographer = $this->_photographer(null, $this->guard);
+        $visitor = Visitor::select(Visitor::allowFields())->where(
+            ['id' => $request->visitor_id, 'photographer_id' => $photographer->id]
+        )->first();
+        if (!$visitor) {
+            \DB::rollback();//回滚事务
+
+            return $this->response->error('访客信息有误', 500);
+        }
+        $page = $request->page ?? 0;
+        $pageSize = $request->pageSize ?? 10;
+        $date = $request->date;
+        $date = date('Y-m-d', strtotime($date));
+        $records = OperateRecord::where('photographer_id', $photographer->id)->where(
+            'user_id',
+            $visitor->user_id
+        )->where('operate_type', '!=', 'in')->select(OperateRecord::allowFields())->whereDate(
+            'created_at',
+            $date
+        )->orderBy('created_at', 'desc')->orderBy('id', 'desc')->skip(($page - 1) * $pageSize);
+        if ($pageSize > 0) {
+            $records = $records->take($pageSize);
+        }
+        $records = $records->get()->toArray();
+        foreach ($records as $k => $record) {
+            $records[$k]['user'] = User::select(User::allowFields())->where(['id' => $record['user_id']])->first(
+            )->toArray();
+            $records[$k]['photographer'] = Photographer::select(Photographer::allowFields())->where(
+                ['id' => $record['photographer_id']]
+            )->first()->toArray();
+            $records[$k]['photographer_work'] = [];
+            if ($record['page_name'] == 'photographer_work') {
+                $records[$k]['photographer_work'] = PhotographerWork::select(
+                    PhotographerWork::allowFields()
+                )->where(['id' => $record['photographer_work_id']])->first()->toArray();
+            }
+            $records[$k]['shared_user'] = [];
+            if ($record['in_type'] == 'share_in') {
+                $records[$k]['shared_user'] = User::select(User::allowFields())->where(
+                    ['id' => $record['shared_user_id']]
+                )->first()->toArray();
+            }
+            $records[$k]['time'] = date('H:i', strtotime($record['created_at']));
+            $records[$k]['describe'] = $this->_makeDescribe($record['id']);
+//                $records[$_k] = [
+//                    'time' => $records[$_k]['time'],
+//                    'describe' => $records[$_k]['describe'],
+//                ];
+        }
+
+        return $this->responseParseArray($records);
     }
 
     /**
@@ -827,7 +894,7 @@ class VisitController extends UserGuardController
                 'describe' => $this->_makeDescribe($operateRecord->id, true),
                 'in_type' => $operateRecord->in_type,
             ];
-            if(!$isSimple){
+            if (!$isSimple) {
                 $first_in_operate_record = array_merge($first_in_operate_record, $operateRecord->toArray());
                 $first_in_operate_record['user'] = User::select(User::allowFields())->where(
                     ['id' => $operateRecord['user_id']]

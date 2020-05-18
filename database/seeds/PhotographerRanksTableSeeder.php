@@ -92,7 +92,6 @@ class PhotographerRanksTableSeeder extends Seeder
             [
                 'name' => '其他',
                 'children' => [
-                    ['name' => '其他'],
                     ['name' => '商业'],
                     ['name' => '广告'],
                     ['name' => '艺术'],

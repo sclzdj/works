@@ -129,6 +129,7 @@ $api->version(
                 $api->get('visit/visitors', 'VisitController@visitors');
                 $api->get('visit/visitor', 'VisitController@visitor');
                 $api->get('visit/visitorRecords', 'VisitController@visitorRecords');
+                $api->post('visit/visitorDateRecords', 'VisitController@visitorDateRecords');
                 //PDF
                 $api->post('pdf/save', 'MyController@saveDocPdf');
                 $api->get('pdf/list', 'MyController@docPdfs');

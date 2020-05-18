@@ -86,7 +86,7 @@ class VisitSummary extends Command
                             'keyword1' => '云作品人脉日报',
                             'keyword2' => date('Y/m/d').' 10:00',
 //                            'keyword3' =>$photographer->name,
-                            'remark' => '昨日新增'.$photographer->visitor_yesterday_count.'人',
+                            'remark' => '昨天新增'.$photographer->visitor_yesterday_count.'人',
                         ],
                     ]
                 );

@@ -429,7 +429,7 @@ class MyController extends UserGuardController
             function ($v) {
                 return 'photographer_work_sources.'.$v;
             },
-            ['id', 'photographer_work_id', 'type', 'url', 'deal_url', 'deal_width', 'deal_height']
+            ['id', 'photographer_work_id', 'type', 'url', 'deal_url', 'deal_width', 'deal_height','image_ave']
         );
         $photographerWorkSources = PhotographerWorkSource::select(
             $fields
@@ -466,7 +466,7 @@ class MyController extends UserGuardController
         );
         foreach ($photographerWorkSources as $k => $photographerWorkSource) {
             $photographer_work = PhotographerWork::select(
-                ['id', 'photographer_id', 'photographer_id', 'photographer_work_category_id']
+                ['id', 'photographer_id', 'photographer_id', 'photographer_work_category_id','customer_name']
             )->where(
                 ['id' => $photographerWorkSource->photographer_work_id]
             )->first()->toArray();

@@ -69,6 +69,15 @@ class VisitRequest extends BaseRequest
                 $rules = [
                     'visitor_id' => 'required|integer',
                 ];
+                $rules = array_merge($rules, $this->predefined['paginate']['rules']);
+                $rules['recordPageSize'] ='integer';
+                break;
+            case 'visitorDateRecords':
+                $rules = [
+                    'visitor_id' => 'required|integer',
+                    'date' => 'required',
+                ];
+                $rules = array_merge($rules, $this->predefined['paginate']['rules']);
                 break;
         }
 
@@ -157,6 +166,17 @@ class VisitRequest extends BaseRequest
                     'visitor_id.required' => '访客id必须传递',
                     'visitor_id.integer' => '访客id必须为数字',
                 ];
+                $messages = array_merge($messages, $this->predefined['paginate']['messages']);
+                $messages['recordPageSize'] ='integer';
+                $messages['recordPageSize.integer'] ='访客每日记录数据条数必须为数字';
+                break;
+            case 'visitorDateRecords':
+                $messages = [
+                    'visitor_id.required' => '访客id必须传递',
+                    'visitor_id.integer' => '访客id必须为数字',
+                    'date.required' => '日期必须传递',
+                ];
+                $messages = array_merge($messages, $this->predefined['paginate']['messages']);
                 break;
         }
 
