@@ -110,9 +110,16 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::get('templates/lists', 'Works\TemplatesController@lists');
         Route::resource('templates', 'Works\TemplatesController');
 
+        // 问题反馈管理
         Route::get('question/lists', 'Works\QuestionController@lists');
         Route::get('question/export', 'Works\QuestionController@export');
         Route::resource('question' , 'Works\QuestionController');
+
+        // 帮助文档标签        Route::get('helptags/lists', 'Works\HelpTagsController@lists');
+        Route::get('helptags/lists', 'Works\HelpTagsController@lists');
+        Route::resource('helptags' , 'Works\HelpTagsController');
+
+
     });
     //这下面写不需要登录的路由
     Route::get('login', 'Auth\LoginController@showLoginForm');//账号登录

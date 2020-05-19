@@ -84,52 +84,18 @@
                                     class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
-                    <h3 class="block-title">问题反馈</h3>
+                    <h3 class="block-title">标签管理</h3>
                 </div>
                 <div class="tab-content" id="app">
                     <div class="tab-pane active">
                         <div class="block-content">
-                            <el-date-picker
-                                v-model="form.created_at"
-                                type="daterange"
-                                range-separator="至"
-                                value-format="yyyy-MM-dd"
-                                start-placeholder="开始日期"
-                                end-placeholder="结束日期">
-                            </el-date-picker>
 
-                            <el-select style="width: 150px" v-model="form.type" placeholder="请选择">
-                                <el-option
-                                    v-for="item in typeOption"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
-                                </el-option>
-                            </el-select>
 
-                            <el-select style="width: 150px" v-model="form.page" placeholder="请选择">
-                                <el-option
-                                    v-for="item in pages"
-                                    :key="item"
-                                    :label="item"
-                                    :value="item">
-                                </el-option>
-                            </el-select>
 
-                            <el-select style="width: 150px" v-model="form.status" placeholder="请选择">
-                                <el-option
-                                    v-for="item in statusOption"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
-                                </el-option>
-                            </el-select>
-
-                            <br/>
-                            <br/>
+                            <el-input v-model="form.tagsName" type="text" style="width: 200px" placeholder="标签名"></el-input>
                             <el-button type="primary" @click="search" icon="el-icon-search">搜索</el-button>
                             <el-button type="primary" @click="clear" icon="el-icon-close">清除</el-button>
-                            <el-button type="primary" @click="exports" icon="el-icon-close">导出</el-button>
+                            <el-button type="primary" @click="add"  >创建</el-button>
 
 
                         </div>
@@ -137,68 +103,23 @@
                             <el-table
                                 :data="data"
                                 style="width: 100%"
-                                @selection-change="handleSelectionChange"
+
                             >
 
 
-                                <el-table-column type="expand">
-                                    <template slot-scope="props">
-                                        <el-form label-position="left" inline class="demo-table-expand">
-                                            <el-form-item label="意见:">
-                                                <span>  @{{ props.row.content }}</span>
-                                            </el-form-item>
-                                            <br/>
-                                            <el-form-item label="附件:">
-                                                <div class="demo-image__preview" v-if="props.row.attachment">
-                                                    <el-image
-                                                        style="width: 100px; height: 100px"
-                                                        :src="props.row.attachment[0]"
-                                                        :preview-src-list="props.row.attachment">
-                                                    </el-image>
-                                                </div>
-                                            </el-form-item>
-                                        </el-form>
-                                    </template>
-                                </el-table-column>
+
 
                                 <el-table-column
                                     type="selection"
                                     width="55">
                                 </el-table-column>
 
-                                <el-table-column
-
-                                        label="状态"
-                                        width="150">
-                                    <template slot-scope="scope">
-                                        <el-select @change="changeStatus(scope.row)" v-model="scope.row.status"
-                                                   placeholder="请选择">
-                                            <el-option
-                                                    v-for="item in status2Option"
-                                                    :key="item.value"
-                                                    :label="item.label"
-                                                    :value="item.value">
-                                            </el-option>
-                                        </el-select>
-                                    </template>
-                                </el-table-column>
-
-                                <el-table-column
-                                    prop="type"
-                                    label="类型"
-                                    width="180">
-                                </el-table-column>
-
-                                <el-table-column
-                                    prop="page"
-                                    label="页面"
-                                    width="180">
-                                </el-table-column>
 
 
                                 <el-table-column
-                                    prop="nickname"
-                                    label="用户">
+                                    prop="name"
+                                    label="标签名字"
+                                    >
                                 </el-table-column>
 
 
@@ -207,6 +128,15 @@
                                     label="创建时间">
                                 </el-table-column>
 
+                                <el-table-column
+                                        fixed="right"
+                                        label="操作"
+                                        width="100">
+                                    <template slot-scope="scope">
+                                        <el-button @click="handleDelete(scope.$index, scope.row)" type="text" size="small">删除</el-button>
+                                        <el-button @click="handleEdit(scope.$index, scope.row)" type="text" size="small">编辑</el-button>
+                                    </template>
+                                </el-table-column>
 
                             </el-table>
                             <div class="page">
@@ -240,6 +170,7 @@
                     <a>1</a>
                 </li>
                 <li @click.stop.prevent="pageChange(pageNo - display)" v-if="showJumpPrev">
+
                     <a style="font-weight:900;">&laquo;</a>
                 </li>
 
@@ -370,72 +301,10 @@
                 size: 20,
                 total: 0,
                 form: {
-                    type: 0,
-                    status: -1,
-                    is_send: -1,
                     created_at: [],
-                    page: "选择页面",
+                    tagsName: "",
                     multipleSelection: []
                 },
-                typeOption: [
-                    {
-                        value: 0,
-                        label: '选择类型'
-                    },
-                    {
-                        value: 1,
-                        label: 'bug'
-                    }, {
-                        value: 2,
-                        label: '建议'
-                    }],
-                statusOption: [
-                    {
-                        value: -1,
-                        label: '选择状态'
-                    },
-                    {
-                        value: 0,
-                        label: '未处理'
-                    }, {
-                        value: 1,
-                        label: '待处理'
-                    }, {
-                        value: 2,
-                        label: '已完结'
-                    }],
-                status2Option: [
-                    {
-                        value: 0,
-                        label: '未处理'
-                    }, {
-                        value: 1,
-                        label: '待处理'
-                    }, {
-                        value: 2,
-                        label: '已完结'
-                    }],
-                pages: [
-                    '选择页面',
-                    '创建-创建云作品',
-                    '添加-从手机相册选图',
-                    '添加-从百度网盘选图',
-                    '添加-添加/修改项目信息',
-                    '展示-自己的作品/项目/合集',
-                    '展示-别人的作品/项目/合集',
-                    '分享-发给微信好友',
-                    '分享-生成获客海报',
-                    '分享-生成小程序码',
-                    '人脉-访客登录',
-                    '人脉-访客列表',
-                    '人脉-访客详情',
-                    '其他-最近浏览',
-                    '其他-人脉排行榜',
-                    '其他-修改个人资料',
-                    '其他-学习使用技巧',
-                    '其他-其他问题'
-                ],
-
             },
             methods: {
                 init: function (page) {
@@ -446,26 +315,12 @@
                     };
                     $.ajax({
                         type: 'GET',
-                        url: '/admin/question/lists',
+                        url: '/admin/helptags/lists',
                         data: data,
                         success: function (response) {
                             that.data = response.data;
                             that.total = response.count;
-                            for (let i = 0; i < that.data.length; i++) {
-                                switch (that.data[i].type) {
-                                    case 1:
-                                        that.data[i].type = "bug";
-                                        break;
-                                    case 2:
-                                        that.data[i].type = "建议";
-                                        break;
-                                    default:
-                                        break;
-                                }
-                                if (that.data[i].attachment) {
-                                    that.data[i].attachment = JSON.parse(that.data[i].attachment)
-                                }
-                            }
+
                         },
                         error: function (xhr, status, error) {
                             var response = JSON.parse(xhr.responseText);
@@ -490,10 +345,8 @@
                 },
                 clear: function () {
                     this.form = {
-                        type: 0,
-                        status: -1,
                         created_at: [],
-                        page: "选择页面"
+                        tagsName: ""
                     };
                     this.$refs.children.initPageNo();
                     this.init(1);
@@ -502,17 +355,25 @@
                     this.$refs.children.initPageNo();
                     this.init(1);
                 },
-                changeStatus: function (data) {
+
+                handleDelete(index, row) {
+                    if (!confirm("是否删除")) {
+                        return;
+                    }
+
                     var that = this;
-                    var formData = {
-                        form: data
+                    var data = {
+                        page: row,
                     };
                     $.ajax({
-                        url: '/admin/question',
-                        method: 'post',
-                        data: formData,
+                        type: 'POST',
+                        method: 'DELETE',
+                        url: '/admin/helptags/' + row.id,
+                        data: data,
                         success: function (response) {
-
+                            if (response.result == true) {
+                                that.data.splice(index, 1);
+                            }
                         },
                         error: function (xhr, status, error) {
                             var response = JSON.parse(xhr.responseText);
@@ -534,17 +395,14 @@
                             }
                         }
                     });
-                },
-                handleSelectionChange(rows) {
-                    this.form.multipleSelection = [];
-                    rows.forEach(row => {
-                        this.form.multipleSelection.push(row.id);
-                    });
-                },
-                exports: function () {
-                    window.location.href = "/admin/question/export?params=" + JSON.stringify(this.form);
-                },
 
+                },
+                add: function () {
+                    window.location.href = "/admin/helptags/create";
+                },
+                handleEdit(index, row) {
+                    window.location.href = "/admin/helptags/" + row.id + '/edit';
+                },
             },
             mounted: function () {
                 this.init(1);

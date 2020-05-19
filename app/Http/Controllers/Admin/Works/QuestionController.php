@@ -63,7 +63,7 @@ class QuestionController extends BaseController
             ->select('question.*', 'users.nickname')
             ->get();
 
-        $count = (new Star())->count();
+        $count = (new Question())->count();
 
         return response()->json(compact('data', 'count'));
     }

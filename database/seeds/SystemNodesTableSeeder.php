@@ -522,6 +522,33 @@ class SystemNodesTableSeeder extends Seeder
                                 ],
                             ],
                             [
+                                'name' => '帮助标签',
+                                'icon' => 'fa fas fa-question-circle',
+                                'action' => 'Admin\Works\HelpTagsController@index',
+                                'children' => [
+                                    [
+                                        'name' => '标签列表',
+                                        'action' => 'Admin\Works\HelpTagsController@lists',
+                                    ],
+                                    [
+                                        'name' => '标签修改',
+                                        'action' => 'Admin\Works\HelpTagsController@edit',
+                                    ],
+                                    [
+                                        'name' => '创建标签',
+                                        'action' => 'Admin\Works\HelpTagsController@create',
+                                    ],
+                                    [
+                                        'name' => '保存标签',
+                                        'action' => 'Admin\Works\HelpTagsController@store',
+                                    ],
+                                    [
+                                        'name' => '更新标签',
+                                        'action' => 'Admin\Works\HelpTagsController@update',
+                                    ],
+                                ],
+                            ],
+                            [
                                 'name' => '修改密码',
                                 'icon' => 'fa fas fa-key',
                                 'action' => 'Admin\System\IndexController@updatePassword',
