@@ -6,6 +6,8 @@ use App\Http\Controllers\Admin\BaseController;
 use App\Http\Requests\Admin\HelpNoteRequest;
 use App\Model\Admin\SystemConfig;
 use App\Model\Index\HelpNote;
+use App\Model\Index\HelpTagNotes;
+use App\Model\Index\HelpTags;
 use App\Servers\ArrServer;
 use Illuminate\Http\Request;
 
@@ -57,7 +59,7 @@ class HelpNoteController extends BaseController
 //            $where[] = ['id', 'like', '%'.$filter['id'].'%'];
 //        }
         if ($filter['title'] !== '') {
-            $where[] = ['title', 'like', '%'.$filter['title'].'%'];
+            $where[] = ['title', 'like', '%' . $filter['title'] . '%'];
         }
 //        if ($filter['content'] !== '') {
 //            $where[] = ['content', 'like', '%'.$filter['content'].'%'];
@@ -109,7 +111,8 @@ class HelpNoteController extends BaseController
      */
     public function create()
     {
-        return view('/admin/works/help_note/create');
+        $helpTags = json_encode(HelpTags::all()->pluck('name', 'id'), JSON_UNESCAPED_UNICODE);
+        return view('/admin/works/help_note/create', compact('helpTags'));
     }
 
     /**
@@ -123,6 +126,7 @@ class HelpNoteController extends BaseController
     {
         \DB::beginTransaction();//开启事务
         try {
+
             $data = $helpNoteRequest->all();
             $data = ArrServer::null2strData($data);
             $data['status'] = 200;
@@ -133,6 +137,16 @@ class HelpNoteController extends BaseController
                 'id' => $helpNote->id,
             ];
             \DB::commit();//提交事务
+            // 把标签入库
+            if (isset($data['tags']) && $data['tags'] && $tags = explode(',', $data['tags'])) {
+                foreach ($tags as $tag) {
+                    (new HelpTagNotes())->insert([
+                        'tags_id' => $tag,
+                        'help_id' => $helpNote->id,
+                        'created_at' => date('Y-m-d H:i:s')
+                    ]);
+                }
+            }
 
             return $this->response('添加成功', 201, $response);
 
@@ -239,12 +253,14 @@ class HelpNoteController extends BaseController
             return $this->eResponse($e->getMessage(), 500);
         }
     }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function sort(Request $request) {
+    public function sort(Request $request)
+    {
         if ($request->method() == 'POST') {
             \DB::beginTransaction();//开启事务
             try {
@@ -267,7 +283,7 @@ class HelpNoteController extends BaseController
                 return $this->eResponse($e->getMessage(), 500);
             }
         }
-        $helpNotes = HelpNote::where(['status'=>200])->orderBy('sort','asc')->get();
+        $helpNotes = HelpNote::where(['status' => 200])->orderBy('sort', 'asc')->get();
 
         return view('/admin/works/help_note/sort', compact('helpNotes'));
     }
