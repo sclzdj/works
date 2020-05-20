@@ -178,6 +178,11 @@ class HelpNoteController extends BaseController
      */
     public function edit($id)
     {
+
+        $helpTags = json_encode(HelpTags::all()->pluck('name', 'id'), JSON_UNESCAPED_UNICODE);
+        // 拿到问题下面已经有的标签
+        $owner = json_encode(HelpTagNotes::where('help_id' , $id)->pluck('id') ,JSON_UNESCAPED_UNICODE );
+
         $helpNote = HelpNote::where(['status' => 200])->find($id);
         if (!$helpNote) {
             abort(403, '参数无效');
@@ -185,7 +190,7 @@ class HelpNoteController extends BaseController
 
         return view(
             '/admin/works/help_note/edit',
-            compact('helpNote')
+            compact('helpNote' , 'owner' , 'helpTags')
         );
     }
 
@@ -212,6 +217,19 @@ class HelpNoteController extends BaseController
                 'url' => action('Admin\Works\HelpNoteController@index'),
             ];
             \DB::commit();//提交事务
+
+
+            if (isset($data['tags']) && $data['tags'] && $tags = explode(',', $data['tags'])) {
+                (new HelpTagNotes())->where('help_id' , $helpNote->id)->delete();
+                foreach ($tags as $tag) {
+                    (new HelpTagNotes())->insert([
+                        'tags_id' => $tag,
+                        'help_id' => $helpNote->id,
+                        'created_at' => date('Y-m-d H:i:s')
+                    ]);
+                }
+            }
+
 
             return $this->response('修改成功', 200, $response);
 

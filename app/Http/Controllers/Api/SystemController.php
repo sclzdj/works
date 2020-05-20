@@ -15,6 +15,8 @@ use App\Model\Admin\SystemConfig;
 use App\Model\Index\BaiduOauth;
 use App\Model\Index\CrowdFunding;
 use App\Model\Index\HelpNote;
+use App\Model\Index\HelpTagNotes;
+use App\Model\Index\HelpTags;
 use App\Model\Index\Photographer;
 use App\Model\Index\PhotographerRank;
 use App\Model\Index\PhotographerWorkCategory;
@@ -140,14 +142,50 @@ class SystemController extends BaseController
      */
     public function getHelpNotes(SystemRequest $request)
     {
-        $HelpNote = HelpNote::select(HelpNote::allowFields())->where('status', 200);
-        if (!empty($request->keywords)) {
-            $HelpNote = $HelpNote->where('title', 'like', '%'.$request->keywords.'%');
+        // 如果不传 拿到全部这个标签的
+        $tag_id = $request->input('tag_id' , 0);
+        if ($tag_id == 0) {
+            $tag_id = (HelpTags::where('name' , '全部')->first())->id;
         }
 
-        $help_notes = $HelpNote->orderBy('sort', 'asc')->take($request->limit)->get();
+        $HelpNote = HelpTagNotes::where('help_tag_notes.tags_id' , $tag_id)
+            ->join('help_notes' , 'help_notes.id' , '=' , 'help_tag_notes.help_id')
+            ->where('help_notes.status' , 200)
+            ->select([
+                'help_notes.id',
+                'help_notes.title',
+                'help_notes.content',
+                'help_notes.created_at',
+            ]);
+
+       // $HelpNote = HelpNote::select(HelpNote::allowFields())->where('status', 200);
+        if (!empty($request->keywords)) {
+            $HelpNote = $HelpNote->where('help_notes.title', 'like', '%'.$request->keywords.'%');
+        }
+
+        $help_notes = $HelpNote->orderBy('help_notes.sort', 'asc')->take($request->limit)->get();
 
         return $this->responseParseArray($help_notes);
+    }
+
+    /**
+     * 获取帮助标签
+     * @param  $request
+     * @return mixed
+     */
+    public function getHelpTags()
+    {
+//        $helpnotes = HelpNote::where('status', 200)->get();
+//        foreach ($helpnotes as $helpnote) {
+//            (new HelpTagNotes())->insert([
+//                'tags_id' => 5,
+//                'help_id' => $helpnote->id,
+//                'created_at' => date('Y-m-d H:i:s')
+//            ]);
+//        }
+        $help_tags = HelpTags::select(['name' ,'id'])->get();
+
+        return $this->responseParseArray($help_tags);
     }
 
     /**

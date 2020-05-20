@@ -1,6 +1,10 @@
 @php
     $SFV=\App\Model\Admin\SystemConfig::getVal('basic_static_file_version');
 @endphp
+@section('css')
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="{{asset('/static/admin/css/element.css').'?'.$SFV}}">
+@endsection
 @extends('admin.layouts.master')
 @section('content')
     <div class="row">
@@ -22,7 +26,7 @@
                     <div class="tab-pane active">
                         <div class="block-content">
                             <form class="form-horizontal form-builder row" id="create-form">
-
+                                <input type="hidden" name="tags" id="tags" >
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-title">
                                     <label class="col-md-1 control-label form-option-line">
                                         <span class="form-option-require"></span>
@@ -48,6 +52,18 @@
                                     </div>
                                 </div>
 
+                                <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-content">
+                                    <label class="col-md-1 control-label form-option-line">
+                                        <span class="form-option-require"></span>
+                                        问题标签
+                                    </label>
+                                    <div class="col-md-9 form-option-line">
+                                        <template>
+                                            <el-transfer v-model="value" :data="data"></el-transfer>
+                                        </template>
+                                    </div>
+                                </div>
+
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="col-md-offset-2 col-md-9">
                                         <button class="btn btn-minw btn-primary ajax-post" type="button"
@@ -69,6 +85,8 @@
     </div>
 @endsection
 @section('javascript')
+    <script src="{{asset('/static/admin/js/vue.js').'?'.$SFV}}"></script>
+    <script src="{{asset('/static/admin/js/element.js').'?'.$SFV}}"></script>
     <script src="{{asset('/static/admin/js/change-node.js').'?'.$SFV}}"></script>
     <script src="{{asset('/static/libs/ueditor/ueditor.config.js').'?'.$SFV}}"></script>
     <script src="{{asset('/static/libs/ueditor/ueditor.all.min.js').'?'.$SFV}}"></script>
@@ -118,6 +136,41 @@
                         }
                     }
                 });
+            });
+
+
+            var tags = JSON.parse('{!!$helpTags!!}');
+            var ownerTags = JSON.parse('{!!$owner!!}');
+
+            Vue.config.devtools = true;
+            var vm = new Vue({
+                el: '#app',
+                data: {
+                    value: [],
+                    data: []
+                },
+                methods: {},
+                mounted: function () {
+                    for (let item in tags) {
+                        this.data.push({
+                            key: parseInt(item),
+                            label: tags[item],
+                            disabled: false
+                        })
+                    }
+                    if (ownerTags.length > 0) {
+                        this.value = ownerTags;
+                    }
+                },
+                watch: {
+                    value: {
+                        handler: function () {
+                            // 发送名字不能有中文
+                            document.getElementById('tags').value = this.value.join(',');
+                        },
+                        deep: true
+                    }
+                }
             });
         });
     </script>

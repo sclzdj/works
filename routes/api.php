@@ -46,6 +46,7 @@ $api->version(
                 //系统通用
                 $api->post('sendSmsCode', 'SystemController@sendSmsCode');
                 $api->get('getHelpNotes', 'SystemController@getHelpNotes');
+                $api->get('getHelpTags', 'SystemController@getHelpTags');
                 $api->get('getProvinces', 'SystemController@getProvinces');
                 $api->get('getCitys', 'SystemController@getCitys');
                 $api->get('getAreas', 'SystemController@getAreas');
