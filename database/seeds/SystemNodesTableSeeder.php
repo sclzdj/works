@@ -542,6 +542,10 @@ class SystemNodesTableSeeder extends Seeder
                                         'name' => '更新标签',
                                         'action' => 'Admin\Works\HelpTagsController@update',
                                     ],
+                                    [
+                                        'name' => '删除标签',
+                                        'action' => 'Admin\Works\HelpTagsController@destroy',
+                                    ],
                                 ],
                             ],
                             [
