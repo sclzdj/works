@@ -153,13 +153,21 @@
             },
             methods: {},
             mounted: function () {
+                var firstId = 0;
                 for (let item in tags) {
+
+                    if (tags[item] == "全部") {
+                        firstId = item;
+                    }
+
                     this.data.push({
                         key: item,
                         label: tags[item],
                         disabled: false
                     })
                 }
+
+                this.value.push(firstId)
             },
             watch: {
                 value: {

@@ -181,7 +181,7 @@ class HelpNoteController extends BaseController
 
         $helpTags = json_encode(HelpTags::all()->pluck('name', 'id'), JSON_UNESCAPED_UNICODE);
         // 拿到问题下面已经有的标签
-        $owner = json_encode(HelpTagNotes::where('help_id' , $id)->pluck('id') ,JSON_UNESCAPED_UNICODE );
+        $owner = json_encode(HelpTagNotes::where('help_id' , $id)->pluck('tags_id') ,JSON_UNESCAPED_UNICODE );
 
         $helpNote = HelpNote::where(['status' => 200])->find($id);
         if (!$helpNote) {
