@@ -18,7 +18,7 @@
                         <a href="{{action('Admin\Works\HelpNoteController@index')}}">使用帮助</a>
                     </li>
                     <li class="active">
-                        <a>使用帮助排序</a>
+                        <a>使用帮助文档</a>
                     </li>
                     <li class="pull-right">
                         <ul class="block-options push-10-t push-10-r">

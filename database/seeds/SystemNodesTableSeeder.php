@@ -493,13 +493,9 @@ class SystemNodesTableSeeder extends Seeder
                         'name' => '设置中心',
                         'icon' => 'fa fas fa-cogs',
                         'children' => [
+
                             [
-                                'name' => '客服信息',
-                                'icon' => 'fa fas fa-phone-square',
-                                'action' => 'Admin\Works\IndexController@config',
-                            ],
-                            [
-                                'name' => '使用帮助',
+                                'name' => '帮助文档',
                                 'icon' => 'fa fas fa-question-circle',
                                 'action' => 'Admin\Works\HelpNoteController@index',
                                 'children' => [
@@ -547,6 +543,11 @@ class SystemNodesTableSeeder extends Seeder
                                         'action' => 'Admin\Works\HelpTagsController@update',
                                     ],
                                 ],
+                            ],
+                            [
+                                'name' => '客服信息',
+                                'icon' => 'fa fas fa-phone-square',
+                                'action' => 'Admin\Works\IndexController@config',
                             ],
                             [
                                 'name' => '修改密码',

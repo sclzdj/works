@@ -21,7 +21,7 @@
                                     class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
-                    <h3 class="block-title">添加使用帮助</h3>
+                    <h3 class="block-title">添加帮助文档</h3>
                 </div>
                 <div class="tab-content">
                     <div class="tab-pane active">
