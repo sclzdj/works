@@ -40,6 +40,9 @@ class UserRequest extends BaseRequest
                 ];
                 break;
             case 'photographerWorks':
+                $rules = [
+                    'is_roof_order_by' => 'integer|in:0,1',
+                ];
                 $rules = array_merge($rules, $this->predefined['paginate']['rules']);
                 break;
             case 'photographerWorkSources':
@@ -157,6 +160,10 @@ class UserRequest extends BaseRequest
                 ];
                 break;
             case 'photographerWorks':
+                $messages = [
+                    'is_roof_order_by.integer' => '是否置顶排序',
+                    'is_roof_order_by.in' => '是否置顶排序错误',
+                ];
                 $messages = array_merge($messages, $this->predefined['paginate']['messages']);
                 break;
             case 'photographerWorkSources':
