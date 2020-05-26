@@ -119,6 +119,9 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::get('helptags/lists', 'Works\HelpTagsController@lists');
         Route::resource('helptags' , 'Works\HelpTagsController');
 
+        Route::get('target/lists', 'Works\TargetUserController@lists');
+        Route::resource('target' , 'Works\TargetUserController');
+
 
     });
     //这下面写不需要登录的路由

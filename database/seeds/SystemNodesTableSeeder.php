@@ -486,6 +486,25 @@ class SystemNodesTableSeeder extends Seeder
                                     ],
                                 ],
                             ],
+                            [
+                                'name' => '目标用户管理',
+                                'icon' => 'fa fas fa-user-plus',
+                                'action' => 'Admin\Works\TargetUserController@index',
+                                'children' => [
+                                    [
+                                        'name' => '目标列表',
+                                        'action' => 'Admin\Works\TargetUserController@lists',
+                                    ],
+                                    [
+                                        'name' => '删除数据',
+                                        'action' => 'Admin\Works\TargetUserController@destory',
+                                    ],
+                                    [
+                                        'name' => '更新数据',
+                                        'action' => 'Admin\Works\TargetUserController@update',
+                                    ],
+                                ],
+                            ],
 
                         ],
                     ],
