@@ -90,51 +90,108 @@
                     <div class="tab-pane active">
                         <div class="block-content">
 
+                            <el-select style="width: 150px" v-model="form.sources" placeholder="来源">
+                                <el-option
+                                    v-for="item in sources"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                                </el-option>
+                            </el-select>
 
+                            <el-select style="width: 150px" v-model="form.status" placeholder="状态">
+                                <el-option
+                                    v-for="item in status"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                                </el-option>
+                            </el-select>
 
-                            <el-input v-model="form.tagsName" type="text" style="width: 200px" placeholder="标签名"></el-input>
                             <el-button type="primary" @click="search" icon="el-icon-search">搜索</el-button>
                             <el-button type="primary" @click="clear" icon="el-icon-close">清除</el-button>
-                            <el-button type="primary" @click="add"  >创建</el-button>
-
 
                         </div>
                         <div class="block-content">
                             <el-table
                                 :data="data"
                                 style="width: 100%"
-
                             >
-
-
-
-
+                                <el-table-column type="expand">
+                                    <template slot-scope="props">
+                                        <el-form label-position="left" inline class="demo-table-expand">
+                                            <el-form-item label="作品图片:">
+                                                <div class="demo-image__preview" v-if="props.row.works_info">
+                                                    <el-image
+                                                        style="width: 100px; height: 100px"
+                                                        :src="props.row.works_info[0]"
+                                                        :preview-src-list="props.row.works_info">
+                                                    </el-image>
+                                                </div>
+                                            </el-form-item>
+                                        </el-form>
+                                    </template>
+                                </el-table-column>
                                 <el-table-column
                                     type="selection"
                                     width="55">
                                 </el-table-column>
 
-
-
                                 <el-table-column
-                                    prop="name"
-                                    label="标签名字"
-                                    >
-                                </el-table-column>
-
-
-                                <el-table-column
-                                    prop="created_at"
-                                    label="创建时间">
+                                    prop="source"
+                                    label="来源"
+                                >
                                 </el-table-column>
 
                                 <el-table-column
-                                        fixed="right"
-                                        label="操作"
-                                        width="100">
+                                    prop="code"
+                                    label="邀请码">
+                                </el-table-column>
+
+                                <el-table-column
+                                    prop="nickname"
+                                    label="用户">
+                                </el-table-column>
+
+                                <el-table-column
+                                    prop="wechat"
+                                    label="微信号">
+                                </el-table-column>
+
+                                <el-table-column
+                                    prop="address"
+                                    label="地址">
+                                </el-table-column>
+
+                                <el-table-column
+                                    prop="phone_code"
+                                    label="手机验证码">
+                                </el-table-column>
+
+                                <el-table-column
+                                    label="状态"
+                                    width="150">
                                     <template slot-scope="scope">
-                                        <el-button @click="handleDelete(scope.$index, scope.row)" type="text" size="small">删除</el-button>
-                                        <el-button @click="handleEdit(scope.$index, scope.row)" type="text" size="small">编辑</el-button>
+                                        <el-select @change="changeStatus(scope.row)" v-model="scope.row.status"
+                                                   placeholder="请选择">
+                                            <el-option
+                                                v-for="item in status"
+                                                :key="item.value"
+                                                :label="item.label"
+                                                :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </template>
+                                </el-table-column>
+
+                                <el-table-column
+                                    fixed="right"
+                                    label="操作"
+                                    width="100">
+                                    <template slot-scope="scope">
+                                        <el-button @click="handleDelete(scope.$index, scope.row)" type="text"
+                                                   size="small">删除
+                                        </el-button>
                                     </template>
                                 </el-table-column>
 
@@ -301,10 +358,48 @@
                 size: 20,
                 total: 0,
                 form: {
-                    created_at: [],
-                    tagsName: "",
+                    sources: -1,
+                    status: -1,
                     multipleSelection: []
                 },
+                sources: [
+                    {
+                        value: -1,
+                        label: '选择来源'
+                    },
+                    {
+                        value: 0,
+                        label: '活动'
+                    }, {
+                        value: 1,
+                        label: '主页'
+                    }
+                ],
+                status: [
+                    {
+                        value: -1,
+                        label: '选择类型'
+                    },
+                    {
+                        value: 0,
+                        label: '未处理'
+                    }, {
+                        value: 1,
+                        label: '已驳回'
+                    },
+                    {
+                        value: 2,
+                        label: '已通过'
+                    },
+                    {
+                        value: 3,
+                        label: '已发送'
+                    },
+                    {
+                        value: 4,
+                        label: '已创建'
+                    },
+                ],
             },
             methods: {
                 init: function (page) {
@@ -315,12 +410,46 @@
                     };
                     $.ajax({
                         type: 'GET',
-                        url: '/admin/helptags/lists',
+                        url: '/admin/target/lists',
                         data: data,
                         success: function (response) {
                             that.data = response.data;
                             that.total = response.count;
-
+                            for (let i = 0; i < that.data.length; i++) {
+                                switch (that.data[i].source) {
+                                    case 0:
+                                        that.data[i].source = "活动";
+                                        break;
+                                    case 1:
+                                        that.data[i].source = "主页";
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                // 0未处理1已驳回2已通过3已发送4已创建
+                                // switch (that.data[i].status) {
+                                //     case 0:
+                                //         that.data[i].status = "未处理";
+                                //         break;
+                                //     case 1:
+                                //         that.data[i].status = "已驳回";
+                                //         break;
+                                //     case 2:
+                                //         that.data[i].status = "已通过";
+                                //         break;
+                                //     case 3:
+                                //         that.data[i].status = "已发送";
+                                //         break;
+                                //     case 4:
+                                //         that.data[i].status = "已创建";
+                                //         break;
+                                //     default:
+                                //         break;
+                                // }
+                                if (that.data[i].works_info) {
+                                    that.data[i].works_info = JSON.parse(that.data[i].works_info)
+                                }
+                            }
                         },
                         error: function (xhr, status, error) {
                             var response = JSON.parse(xhr.responseText);
@@ -345,8 +474,8 @@
                 },
                 clear: function () {
                     this.form = {
-                        created_at: [],
-                        tagsName: ""
+                        sources: -1,
+                        status: -1,
                     };
                     this.$refs.children.initPageNo();
                     this.init(1);
@@ -355,12 +484,10 @@
                     this.$refs.children.initPageNo();
                     this.init(1);
                 },
-
                 handleDelete(index, row) {
                     if (!confirm("是否删除")) {
                         return;
                     }
-
                     var that = this;
                     var data = {
                         page: row,
@@ -368,7 +495,7 @@
                     $.ajax({
                         type: 'POST',
                         method: 'DELETE',
-                        url: '/admin/helptags/' + row.id,
+                        url: '/admin/target/' + row.id,
                         data: data,
                         success: function (response) {
                             if (response.result == true) {
@@ -397,11 +524,38 @@
                     });
 
                 },
-                add: function () {
-                    window.location.href = "/admin/helptags/create";
-                },
-                handleEdit(index, row) {
-                    window.location.href = "/admin/helptags/" + row.id + '/edit';
+                changeStatus: function (data) {
+                    var that = this;
+                    var formData = {
+                        form: data
+                    };
+                    $.ajax({
+                        url: '/admin/target',
+                        method: 'post',
+                        data: formData,
+                        success: function (response) {
+
+                        },
+                        error: function (xhr, status, error) {
+                            var response = JSON.parse(xhr.responseText);
+                            if (xhr.status == 419) { // csrf错误，错误码固定为419
+                                alert('请勿重复请求~');
+                            } else if (xhr.status == 422) { // 验证错误
+                                var message = [];
+                                for (var i in response.errors) {
+                                    message = message.concat(response.errors[i]);
+                                }
+                                message = message.join(',');
+                                alert(message);
+                            } else {
+                                if (response.message) {
+                                    alert(response.message);
+                                } else {
+                                    alert('服务器错误~');
+                                }
+                            }
+                        }
+                    });
                 },
             },
             mounted: function () {

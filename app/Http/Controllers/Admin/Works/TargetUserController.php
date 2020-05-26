@@ -8,6 +8,7 @@ use App\Model\Admin\SystemConfig;
 use App\Model\Index\HelpNote;
 use App\Model\Index\HelpTagNotes;
 use App\Model\Index\HelpTags;
+use App\Model\Index\TargetUser;
 use App\Model\Index\Templates;
 use App\Servers\ArrServer;
 use Illuminate\Http\Request;
@@ -21,80 +22,47 @@ class TargetUserController extends BaseController
      */
     public function index(Request $request)
     {
-
-        return view('/admin/works/target/inde');
+        return view('/admin/works/target/index');
     }
 
 
 
     public function lists(Request $request)
     {
-        $id = $request->input('id', 0);
-        if ($id) {
-            $template = Templates::where(compact('id'))->first();
-            return response()->json(compact('template'));
-        }
         $page = $request->input('page', 1);
+        $form = $request->input('form' , []);
         $size = 20;
         $page = ($page - 1) * $size;
 
         $where = [];
-        $data = Templates::where($where)->skip($page)->take($size)->orderBy('created_at', 'desc')->get();
-        $count = Templates::where($where)->count();
-
-        foreach ($data as &$datum) {
-            $datum['type'] = $datum['type'] == 1 ? '用户创建' : '后台创建';
-            $datum['status'] = $statusArr[$datum['status']] ?? '未知';
+        if ($form['sources'] != -1) {
+            $where[] = ['target_users.source', $form['sources']];
         }
+
+        if ($form['status'] != -1) {
+            $where[] = ['target_users.status', $form['status']];
+        }
+        $data = TargetUser::where($where)
+            ->skip($page)->take($size)
+            ->join('invote_codes' , 'invote_codes.id' , '=' , 'target_users.id')
+            ->join('users' , 'users.id' , '=' , 'target_users.user_id')
+            ->orderBy('created_at', 'desc')
+            ->select('target_users.*' ,'invote_codes.code' , 'users.nickname')
+            ->get();
+        $count = TargetUser::where($where)->count();
 
         return response()->json(compact('data', 'count'));
     }
 
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param int $id
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function update(HelpNoteRequest $helpNoteRequest, $id)
+    public function store(Request $request)
     {
-        $helpNote = HelpNote::find($id);
-        if (!$helpNote) {
-            return $this->response('参数无效', 403);
-        }
-        \DB::beginTransaction();//开启事务
-        try {
-            $data = $helpNoteRequest->all();
-            $data = ArrServer::null2strData($data);
-            $helpNote->update($data);
-            $response = [
-                'url' => action('Admin\Works\HelpNoteController@index'),
-            ];
-            \DB::commit();//提交事务
-
-
-            if (isset($data['tags']) && $data['tags'] && $tags = explode(',', $data['tags'])) {
-                (new HelpTagNotes())->where('help_id' , $helpNote->id)->delete();
-                foreach ($tags as $tag) {
-                    (new HelpTagNotes())->insert([
-                        'tags_id' => $tag,
-                        'help_id' => $helpNote->id,
-                        'created_at' => date('Y-m-d H:i:s')
-                    ]);
-                }
-            }
-
-
-            return $this->response('修改成功', 200, $response);
-
-        } catch (\Exception $e) {
-            \DB::rollback();//回滚事务
-
-            return $this->eResponse($e->getMessage(), 500);
-        }
+        $data = $request->input('form');
+        $result = TargetUser::where('id', $data['id'])->update([
+            'status' => $data['status']
+        ]);
+        $msg = "";
+        return response()->json(compact('result', 'msg'));
     }
 
     /**

@@ -501,7 +501,7 @@ class SystemNodesTableSeeder extends Seeder
                                     ],
                                     [
                                         'name' => '更新数据',
-                                        'action' => 'Admin\Works\TargetUserController@update',
+                                        'action' => 'Admin\Works\TargetUserController@store',
                                     ],
                                 ],
                             ],
