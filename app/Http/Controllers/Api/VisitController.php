@@ -298,7 +298,7 @@ class VisitController extends UserGuardController
             }
             $visitor = Visitor::create(['photographer_id' => $request->photographer_id, 'user_id' => $user->id]);
             if ($user->identity == 1) {
-                $visitor->visitor_tag_id = 2;//如果访客也为用户标记为同行
+                $visitor->visitor_tag_id =4;//如果访客也为用户标记为同行
             }
             if ($visitors_count + 1 < 3) {
                 $visit_send_message['is'] = true;//第一次发送模板消息，发模板消息
@@ -825,16 +825,16 @@ class VisitController extends UserGuardController
         $describe = '';
         if ($operateRecord->operate_type == 'view') {
             if ($operateRecord->page_name == 'photographer_home') {
-                $describe = '浏览了你的合集';
+                $describe = '浏览了合集';
             } elseif ($operateRecord->page_name == 'photographer_work') {
-                $describe = '浏览了「'.$photographer_work_customer_name.'」';
+                $describe = '浏览了项目「'.$photographer_work_customer_name.'」';
             }
         } elseif ($operateRecord->operate_type == 'in') {
             if ($operateRecord->in_type == 'xacode_in') {
                 if ($operateRecord->page_name == 'photographer_home') {
-                    $describe = '扫描你的合集小程序码进入';
+                    $describe = '扫描合集的小程序码进入';
                 } elseif ($operateRecord->page_name == 'photographer_work') {
-                    $describe = '扫描「'.$photographer_work_customer_name.'」的小程序码进入';
+                    $describe = '扫描项目「'.$photographer_work_customer_name.'」的小程序码进入';
                 }
             } elseif ($operateRecord->in_type == 'xacard_in') {
                 $auth_id = auth($this->guard)->id();
@@ -844,7 +844,7 @@ class VisitController extends UserGuardController
                     if ($is_special) {
                         $describe = '通过XX分享的小程序卡片进入';
                     } else {
-                        $describe = '通过'.$shared_user_nickname.'分享的小程序卡片进入';
+                        $describe = '通过@'.$shared_user_nickname.'分享的小程序卡片进入';
                     }
                 }
             } elseif ($operateRecord->in_type == 'ranking_list_in') {
@@ -859,29 +859,27 @@ class VisitController extends UserGuardController
         } elseif ($operateRecord->operate_type == 'share') {
             if ($operateRecord->page_name == 'photographer_home') {
                 if ($operateRecord->share_type == 'xacard_share') {
-                    $describe = '将你的合集分享给了微信好友';
+                    $describe = '将合集分享给了微信好友';
                 } elseif ($operateRecord->share_type == 'poster_share') {
-                    $describe = '生成了你的合集海报';
-                }
-            }elseif ($operateRecord->in_type == 'xacode_share') {
-                if ($operateRecord->page_name == 'photographer_home') {
-                    $describe = '生成了你的合集小程序码';
-                } elseif ($operateRecord->page_name == 'photographer_work') {
-                    $describe = '生成了「'.$photographer_work_customer_name.'」小程序码';
+                    $describe = '生成了合集的海报';
+                } elseif ($operateRecord->share_type == 'xacode_share') {
+                    $describe = '生成了合集的小程序码';
                 }
             } elseif ($operateRecord->page_name == 'photographer_work') {
                 if ($operateRecord->share_type == 'xacard_share') {
-                    $describe = '将「'.$photographer_work_customer_name.'」分享给了微信好友';
+                    $describe = '将项目「'.$photographer_work_customer_name.'」分享给了微信好友';
                 } elseif ($operateRecord->share_type == 'poster_share') {
-                    $describe = '生成了「'.$photographer_work_customer_name.'」的海报';
+                    $describe = '生成了项目「'.$photographer_work_customer_name.'」的海报';
                 } elseif ($operateRecord->share_type == 'all_photo_share') {
-                    $describe = '保存了「'.$photographer_work_customer_name.'」的所有照片';
+                    $describe = '保存了项目「'.$photographer_work_customer_name.'」的所有照片';
+                }elseif ($operateRecord->share_type == 'xacode_share') {
+                    $describe = '生成了项目「'.$photographer_work_customer_name.'」的小程序码';
                 }
             }
         } elseif ($operateRecord->operate_type == 'copy_wx') {
-            $describe = '复制了你的微信号';
+            $describe = '复制了我的微信号';
         } elseif ($operateRecord->operate_type == 'view_project_amount') {
-            $describe = '查看了「'.$photographer_work_customer_name.'」的项目金额';
+            $describe = '查看了项目「'.$photographer_work_customer_name.'」的金额';
         }
 
         return $describe;
