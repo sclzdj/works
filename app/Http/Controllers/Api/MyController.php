@@ -1034,10 +1034,6 @@ class MyController extends UserGuardController
                             return $this->response->error('必须选择图片或视频', 500);
                         }
                     }
-                    $sorts = [];
-                    foreach ($fsids as $k => $fs_id) {
-                        $sorts[$fs_id] = $k + 1;
-                    }
                     foreach ($response['list'] as $k => $file) {
                         $photographer_work_source = PhotographerWorkSource::create();
                         $photographer_work_source->photographer_work_id = $photographer_work->id;
