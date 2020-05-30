@@ -119,8 +119,13 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::get('helptags/lists', 'Works\HelpTagsController@lists');
         Route::resource('helptags' , 'Works\HelpTagsController');
 
+        // 目标管理
         Route::get('target/lists', 'Works\TargetUserController@lists');
         Route::resource('target' , 'Works\TargetUserController');
+
+        // 邀请管理
+        Route::get('invite/lists', 'Works\InviteController@lists');
+        Route::resource('invite' , 'Works\InviteController');
 
 
     });

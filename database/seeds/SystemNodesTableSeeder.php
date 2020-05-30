@@ -419,7 +419,7 @@ class SystemNodesTableSeeder extends Seeder
                                 ],
                             ],
                             [
-                                'name' => '邀请管理',
+                                'name' => '创建码',
                                 'icon' => 'fa fas fa-user-plus',
                                 'action' => 'Admin\InvoteCode\IndexController@index',
                                 'children' => [
@@ -434,6 +434,33 @@ class SystemNodesTableSeeder extends Seeder
                                     [
                                         'name' => '更新',
                                         'action' => 'Admin\InvoteCode\IndexController@update',
+                                    ],
+                                ],
+                            ],
+                            [
+                                'name' => '邀请管理',
+                                'icon' => 'fa fas fa-user-plus',
+                                'action' => 'Admin\Works\InviteController@index',
+                                'children' => [
+                                    [
+                                        'name' => '邀请列表',
+                                        'action' => 'Admin\Works\InviteController@lists',
+                                    ],
+                                    [
+                                        'name' => '邀请保存',
+                                        'action' => 'Admin\Works\InviteController@store',
+                                    ],
+                                    [
+                                        'name' => '邀请更新',
+                                        'action' => 'Admin\Works\InviteController@update',
+                                    ],
+                                    [
+                                        'name' => '邀请删除',
+                                        'action' => 'Admin\Works\InviteController@destory',
+                                    ],
+                                    [
+                                        'name' => '邀请更新',
+                                        'action' => 'Admin\Works\InviteController@update',
                                     ],
                                 ],
                             ],
