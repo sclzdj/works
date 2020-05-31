@@ -107,7 +107,7 @@ class MiniProgramController extends BaseController
                                     'url' => config('app.url'),
                                     'miniprogram' => [
                                         'appid' => config('wechat.payment.default.app_id'),
-                                        'pagepath' => '/subPage/crouwdPay/crouwdPay',
+                                        'pagepath' => 'subPage/crouwdPay/crouwdPay',
                                     ],
                                     'data' => [
                                         'first' => '谢谢你对云作品团队的信任和支持！我们将于'.$send_date.'，通过云作品微信公众号向你推送创建码。',

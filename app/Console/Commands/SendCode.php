@@ -71,7 +71,7 @@ class SendCode extends Command
                             'template_id' => 'eQ4Aj2Sb7VvVF-0is1Pg7wO1QU43UcVkJ36wHlhCTFE',
                             'miniprogram' => [
                                 'appid' => config('wechat.payment.default.app_id'),
-                                'pagepath' => '/pages/web/web',
+                                'pagepath' => 'pages/web/web',
                             ],
                             'url' => config('app.url'),
                             'data' => [

@@ -487,7 +487,7 @@ class DraftController extends UserGuardController
                         'url' => config('app.url'),
                         'miniprogram' => [
                             'appid' => config('custom.wechat.mp.appid'),
-                            'pagepath' => 'subPage/share/share',//注册成功分享页
+                            'pagepath' => 'pages/share/share',//注册成功分享页
                         ],
                         'data' => [
                             'first' => '云作品已准备就绪，邀请3人扫码即可开启！',
