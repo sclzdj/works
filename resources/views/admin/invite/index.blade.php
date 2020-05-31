@@ -1,3 +1,4 @@
+
 @php
     $SFV=\App\Model\Admin\SystemConfig::getVal('basic_static_file_version');
 @endphp
@@ -84,117 +85,74 @@
                                     class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
-                    <h3 class="block-title">标签管理</h3>
+                    <h3 class="block-title">邀请管理</h3>
                 </div>
                 <div class="tab-content" id="app">
                     <div class="tab-pane active">
                         <div class="block-content">
-
-                            <el-select style="width: 150px" v-model="form.sources" placeholder="来源">
-                                <el-option
-                                    v-for="item in sources"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
-                                </el-option>
-                            </el-select>
-
-                            <el-select style="width: 150px" v-model="form.status" placeholder="状态">
-                                <el-option
-                                    v-for="item in status"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
-                                </el-option>
-                            </el-select>
+                            <el-date-picker
+                                v-model="form.created_at"
+                                type="daterange"
+                                range-separator="至"
+                                value-format="yyyy-MM-dd"
+                                start-placeholder="开始日期"
+                                end-placeholder="结束日期">
+                            </el-date-picker>
 
                             <el-button type="primary" @click="search" icon="el-icon-search">搜索</el-button>
                             <el-button type="primary" @click="clear" icon="el-icon-close">清除</el-button>
+
+                            <el-button type="primary" @click="create" icon="el-icon-search">创建</el-button>
+                            <br/>
 
                         </div>
                         <div class="block-content">
                             <el-table
                                 :data="data"
                                 style="width: 100%"
+                                @selection-change="handleSelectionChange"
                             >
-                                <el-table-column type="expand">
-                                    <template slot-scope="props">
-                                        <el-form label-position="left" inline class="demo-table-expand">
-                                            <el-form-item label="作品图片:">
-                                                <div class="demo-image__preview" v-if="props.row.works_info">
-                                                    <el-image
-                                                        style="width: 100px; height: 100px"
-                                                        :src="props.row.works_info[0]"
-                                                        :preview-src-list="props.row.works_info">
-                                                    </el-image>
-                                                </div>
-                                            </el-form-item>
-                                        </el-form>
-                                    </template>
-                                </el-table-column>
                                 <el-table-column
                                     type="selection"
                                     width="55">
                                 </el-table-column>
 
                                 <el-table-column
-                                    prop="source"
-                                    label="来源"
-                                >
+                                    prop="status"
+                                    label="状态"
+                                    width="180">
                                 </el-table-column>
 
                                 <el-table-column
                                     prop="code"
-                                    label="邀请码">
+                                    label="创建码"
+                                    width="180">
+                                </el-table-column>
+
+                                <el-table-column
+                                    prop="remark"
+                                    label="备注名">
                                 </el-table-column>
 
                                 <el-table-column
                                     prop="nickname"
-                                    label="用户">
+                                    label="用户名">
+
                                 </el-table-column>
 
                                 <el-table-column
-                                    prop="wechat"
-                                    label="微信号">
+                                    prop="created_at"
+                                    label="创建时间">
                                 </el-table-column>
 
-                                <el-table-column
-                                    prop="address"
-                                    label="地址">
-                                </el-table-column>
-
-                                <el-table-column
-                                    prop="phone_code"
-                                    label="手机验证码">
-                                </el-table-column>
-
-                                <el-table-column
-                                    label="状态"
-                                    width="150">
+                                <el-table-column fixed="right" label="操作" width="100">
                                     <template slot-scope="scope">
-                                        <el-select @change="changeStatus(scope.row)" v-model="scope.row.status"
-                                                   placeholder="请选择">
-                                            <el-option
-                                                v-for="item in status"
-                                                :key="item.value"
-                                                :label="item.label"
-                                                :value="item.value">
-                                            </el-option>
-                                        </el-select>
+                                        <span v-if="scope.row.type == '后台创建'">
+                                            <el-button @click="upadteStatus(scope.row)" type="text"
+                                                       size="small">占用</el-button>
+                                        </span>
                                     </template>
                                 </el-table-column>
-
-                                <el-table-column
-                                    fixed="right"
-                                    label="操作"
-                                    width="100">
-                                    <template slot-scope="scope">
-                                        <el-button @click="handleDelete(scope.$index, scope.row)" type="text"
-                                                   size="small">删除
-                                        </el-button>
-                                    </template>
-                                </el-table-column>
-
                             </el-table>
                             <div class="page">
                                 <page :total="total" :page-size="size" @navpage="init" ref="children"></page>
@@ -227,7 +185,6 @@
                     <a>1</a>
                 </li>
                 <li @click.stop.prevent="pageChange(pageNo - display)" v-if="showJumpPrev">
-
                     <a style="font-weight:900;">&laquo;</a>
                 </li>
 
@@ -358,48 +315,40 @@
                 size: 20,
                 total: 0,
                 form: {
-                    sources: -1,
+                    type: 0,
                     status: -1,
-                    multipleSelection: []
+                    is_send: -1,
+                    created_at: []
                 },
-                sources: [
-                    {
-                        value: -1,
-                        label: '选择来源'
-                    },
+                typeOption: [
                     {
                         value: 0,
-                        label: '活动'
-                    }, {
-                        value: 1,
-                        label: '主页'
-                    }
-                ],
-                status: [
-                    {
-                        value: -1,
                         label: '选择类型'
                     },
                     {
+                        value: 1,
+                        label: '用户创建'
+                    }, {
+                        value: 2,
+                        label: '后台创建'
+                    }],
+                statusOption: [
+                    {
+                        value: -1,
+                        label: '选择状态'
+                    },
+                    {
                         value: 0,
-                        label: '未处理'
+                        label: '未使用'
                     }, {
                         value: 1,
-                        label: '已驳回'
-                    },
-                    {
+                        label: '已占用'
+                    }, {
                         value: 2,
-                        label: '已通过'
-                    },
-                    {
-                        value: 3,
-                        label: '已发送'
-                    },
-                    {
-                        value: 4,
-                        label: '已创建'
-                    },
-                ],
+                        label: '已使用'
+                    }],
+
+                multipleSelection: []
             },
             methods: {
                 init: function (page) {
@@ -410,44 +359,27 @@
                     };
                     $.ajax({
                         type: 'GET',
-                        url: '/admin/target/lists',
+                        url: '/admin/invite/lists',
                         data: data,
                         success: function (response) {
                             that.data = response.data;
                             that.total = response.count;
-                                for (let i = 0; i < that.data.length; i++) {
-                                            switch (that.data[i].source) {
-                                                case 0:
-                                                    that.data[i].source = "活动";
-                                                    break;
-                                                case 1:
-                                                    that.data[i].source = "主页";
-                                                    break;
-                                                default:
-                                                    break;
-                                }
-                                // 0未处理1已驳回2已通过3已发送4已创建
-                                // switch (that.data[i].status) {
-                                //     case 0:
-                                //         that.data[i].status = "未处理";
-                                //         break;
-                                //     case 1:
-                                //         that.data[i].status = "已驳回";
-                                //         break;
-                                //     case 2:
-                                //         that.data[i].status = "已通过";
-                                //         break;
-                                //     case 3:
-                                //         that.data[i].status = "已发送";
-                                //         break;
-                                //     case 4:
-                                //         that.data[i].status = "已创建";
-                                //         break;
-                                //     default:
-                                //         break;
-                                // }
-                                if (that.data[i].works_info) {
-                                    that.data[i].works_info = JSON.parse(that.data[i].works_info)
+                            for (let i = 0; i < that.data.length; i++) {
+                                switch (that.data[i].status) {
+                                    case 0:
+                                        that.data[i].status = "已生成";
+                                        break;
+                                    case 1:
+                                        that.data[i].status = "已绑定";
+                                        break;
+                                    case 2:
+                                        that.data[i].status = "已校验";
+                                        break;
+                                    case 3:
+                                        that.data[i].status = "已创建";
+                                        break;
+                                    default:
+                                        break;
                                 }
                             }
                         },
@@ -474,8 +406,10 @@
                 },
                 clear: function () {
                     this.form = {
-                        sources: -1,
+                        type: 0,
                         status: -1,
+                        created_at: [],
+                        is_send: -1,
                     };
                     this.$refs.children.initPageNo();
                     this.init(1);
@@ -484,79 +418,63 @@
                     this.$refs.children.initPageNo();
                     this.init(1);
                 },
-                handleDelete(index, row) {
-                    if (!confirm("是否删除")) {
-                        return;
-                    }
+                create: function () {
                     var that = this;
-                    var data = {
-                        page: row,
-                    };
                     $.ajax({
                         type: 'POST',
-                        method: 'DELETE',
-                        url: '/admin/target/' + row.id,
-                        data: data,
+                        url: '/admin/invite',
+                        data: {
+                            action: 'create'
+                        },
                         success: function (response) {
-                            if (response.result == true) {
-                                that.data.splice(index, 1);
+                            if (response.result) {
+                                that.init(1);
+                                that.number = 0;
+                            } else {
+                                alert(response.msg);
                             }
                         },
                         error: function (xhr, status, error) {
-                            var response = JSON.parse(xhr.responseText);
-                            if (xhr.status == 419) { // csrf错误，错误码固定为419
-                                alert('请勿重复请求~');
-                            } else if (xhr.status == 422) { // 验证错误
-                                var message = [];
-                                for (var i in response.errors) {
-                                    message = message.concat(response.errors[i]);
-                                }
-                                message = message.join(',');
-                                alert(message);
-                            } else {
-                                if (response.message) {
-                                    alert(response.message);
-                                } else {
-                                    alert('服务器错误~');
-                                }
-                            }
+
                         }
                     });
-
                 },
-                changeStatus: function (data) {
-                    var that = this;
-                    var formData = {
-                        form: data
-                    };
+                upadteStatus: function (data) {
                     $.ajax({
-                        url: '/admin/target',
-                        method: 'post',
-                        data: formData,
-                        success: function (response) {
-
+                        type: 'POST',
+                        url: '/admin/invotecode',
+                        data: {
+                            id: data.id,
+                            action: 'update'
                         },
-                        error: function (xhr, status, error) {
-                            var response = JSON.parse(xhr.responseText);
-                            if (xhr.status == 419) { // csrf错误，错误码固定为419
-                                alert('请勿重复请求~');
-                            } else if (xhr.status == 422) { // 验证错误
-                                var message = [];
-                                for (var i in response.errors) {
-                                    message = message.concat(response.errors[i]);
-                                }
-                                message = message.join(',');
-                                alert(message);
-                            } else {
-                                if (response.message) {
-                                    alert(response.message);
-                                } else {
-                                    alert('服务器错误~');
-                                }
+                        success: function (response) {
+                            if (response.result) {
+                                data.status = "已占用";
                             }
                         }
                     });
                 },
+                handleSelectionChange(val) {
+                    this.multipleSelection = val;
+                },
+                send() {
+                    alert('发送中，请等待');
+                    var that = this;
+                    $.ajax({
+                        type: 'POST',
+                        url: '/admin/invotecode',
+                        data: {
+                            action: 'send'
+                        },
+                        success: function (response) {
+                            if (response.result) {
+                                alert('发送完成');
+                                that.init(1);
+                            }
+                        }
+                    });
+
+                }
             },
             mounted: function () {
                 this.init(1);

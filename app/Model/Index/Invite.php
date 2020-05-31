@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Invite extends Model
 {
+    public $table = "invite";
     /**
      * The attributes that are mass assignable.
      *

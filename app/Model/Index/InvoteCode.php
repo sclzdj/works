@@ -6,6 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class InvoteCode extends Model
 {
+    public $status = [
+        '0' => '已生成',
+        '1' => '已绑定',
+        '2' => '已校验',
+        '4' => '已创建'
+    ];
+
+    public $sendType = [
+        0 => '未发送',
+        1 => '已发送'
+    ];
     /**
      * The attributes that are mass assignable.
      *
@@ -45,14 +56,16 @@ class InvoteCode extends Model
         ];
     }
 
-    public static function createInvote($type = 2, $orderId = 0, $use_count = 1)
+    public static function createInvote(
+        $type = 2, $orderId = 0, $use_count = 1,
+        $user_id = 0, $status = 0
+    )
     {
         $invoteCode = new self();
         $invoteCode->code = substr(self::str_Rand(6), 0, 6);
         $invoteCode->type = $type;
-        $invoteCode->status = 0;
-        $invoteCode->user_id = 0;
-        $invoteCode->order_id = $orderId;
+        $invoteCode->status = $status;
+        $invoteCode->user_id = $user_id;
         $invoteCode->order_id = $orderId;
         $invoteCode->used_count = $use_count;
         $invoteCode->created_at = date('Y-m-d H:i:s');

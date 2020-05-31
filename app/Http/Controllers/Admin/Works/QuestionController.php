@@ -61,6 +61,7 @@ class QuestionController extends BaseController
             ->skip($page)->take($size)
             ->join('users', 'users.id', '=', 'question.user_id')
             ->select('question.*', 'users.nickname')
+            ->orderBy('question.created_at' , 'desc')
             ->get();
 
         $count = (new Question())->count();

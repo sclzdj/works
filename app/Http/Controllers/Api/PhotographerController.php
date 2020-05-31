@@ -443,20 +443,13 @@ class PhotographerController extends BaseController
         $text[] = "等{$projectCount}个项目";
 
         $data = [];
-        $data['url1'] = $this->getPersonStyle1(
+        $data['url1'] = $this->getPersonStyle2(
             $xacodeImgage,
             $photographer,
             $photographer_city,
             $photographer_rank,
             $text
-        );
-        $data['url2'] = $this->getPersonStyle2(
-            $xacodeImgage,
-            $photographer,
-            $photographer_city,
-            $photographer_rank,
-            $text
-        );
+        ) ;
 
         $photographer_works = $photographer->photographerWorks()->where('status', 200)->orderBy(
             'roof',
@@ -473,7 +466,7 @@ class PhotographerController extends BaseController
             $zuopinItems[] = $photographer_work['customer_name'];
         }
 
-        $data['url3'] = $this->getPersonStyle3(
+        $data['url2'] = $this->getPersonStyle3(
             $xacodeImgage,
             $photographer,
             $photographer_city,
@@ -481,6 +474,16 @@ class PhotographerController extends BaseController
             $text,
             $zuopinItems
         );
+
+
+        $data['url3'] = $this->getPersonStyle1(
+            $xacodeImgage,
+            $photographer,
+            $photographer_city,
+            $photographer_rank,
+            $text
+        );
+
 
         return $this->responseParseArray($data);
     }
