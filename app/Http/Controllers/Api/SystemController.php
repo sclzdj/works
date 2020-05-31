@@ -189,10 +189,29 @@ class SystemController extends BaseController
     }
 
     /**
+     * 获取所有地区
+     * @return mixed
+     */
+    public function getRegion()
+    {
+        $provinces=SystemArea::select(['id','pid','name','short_name'])->where(['pid'=>0,'level'=>1])->orderBy('sort','asc')->get();
+        foreach ($provinces as $key=>$province){
+            $citys=SystemArea::select(['id','pid','name','short_name'])->where(['pid'=>$province->id,'level'=>2])->orderBy('sort','asc')->get();
+            $provinces[$key]['citys']=$citys;
+            foreach ($citys as $k=>$city){
+                $areas=SystemArea::select(['id','pid','name','short_name'])->where(['pid'=>$city->id,'level'=>3])->orderBy('sort','asc')->get();
+                $provinces[$key]['citys'][$k]['areas']=$areas;
+            }
+        }
+
+        return $this->responseParseArray($provinces);
+    }
+
+    /**
      * 获取所有省份
      * @return mixed
      */
-    public function getProvinces(SystemRequest $request)
+    public function getProvinces()
     {
         $system_areas = SystemArea::select(SystemArea::allowFields())->where(['pid' => 0, 'level' => 1])->orderBy(
             'sort',

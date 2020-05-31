@@ -375,10 +375,14 @@ class MyController extends UserGuardController
                 'photographer_works.status' => 200,
                 'photographer_work_sources.type' => 'image',
             ]
-        )->orderBy(
-            'photographer_works.roof',
-            'desc'
-        )->orderBy(
+        );
+        if ($request->is_roof_order_by) {
+            $photographerWorkSources = $photographerWorkSources->orderBy(
+                'photographer_works.roof',
+                'desc'
+            );
+        }
+        $photographerWorkSources=$photographerWorkSources->orderBy(
             'photographer_works.created_at',
             'desc'
         )->orderBy(
@@ -449,10 +453,14 @@ class MyController extends UserGuardController
                 'photographer_works.status' => 200,
                 'photographer_work_sources.type' => 'image',
             ]
-        )->orderBy(
-            'photographer_works.roof',
-            'desc'
-        )->orderBy(
+        );
+        if ($request->is_roof_order_by) {
+            $photographerWorkSources = $photographerWorkSources->orderBy(
+                'photographer_works.roof',
+                'desc'
+            );
+        }
+        $photographerWorkSources=$photographerWorkSources->orderBy(
             'photographer_works.created_at',
             'desc'
         )->orderBy(

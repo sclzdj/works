@@ -47,6 +47,7 @@ $api->version(
                 $api->post('sendSmsCode', 'SystemController@sendSmsCode');
                 $api->get('getHelpNotes', 'SystemController@getHelpNotes');
                 $api->get('getHelpTags', 'SystemController@getHelpTags');
+                $api->get('getRegion', 'SystemController@getRegion');
                 $api->get('getProvinces', 'SystemController@getProvinces');
                 $api->get('getCitys', 'SystemController@getCitys');
                 $api->get('getAreas', 'SystemController@getAreas');
