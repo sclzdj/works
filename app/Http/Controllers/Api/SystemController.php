@@ -144,6 +144,11 @@ class SystemController extends BaseController
     {
         // 如果不传 拿到全部这个标签的
         $tag_id = $request->input('tag_id' , 0);
+        $page = $request->input('page' , 1);
+        if (empty($request->limit)) {
+            $request->limit = 15;
+        }
+        $page = ($page - 1) * $request->limit;
         if ($tag_id == 0) {
             $tag_id = (HelpTags::where('name' , '全部')->first())->id;
         }
@@ -158,14 +163,23 @@ class SystemController extends BaseController
                 'help_notes.created_at',
             ]);
 
+
        // $HelpNote = HelpNote::select(HelpNote::allowFields())->where('status', 200);
         if (!empty($request->keywords)) {
             $HelpNote = $HelpNote->where('help_notes.title', 'like', '%'.$request->keywords.'%');
         }
 
-        $help_notes = $HelpNote->orderBy('help_notes.sort', 'asc')->take($request->limit)->get();
+        $count = $HelpNote->count();
 
-        return $this->responseParseArray($help_notes);
+        $data = $HelpNote->orderBy('help_notes.sort', 'asc')
+            ->skip($page)
+            ->take($request->limit)
+            ->get();
+
+
+
+        return $this->response->array(compact('data' , 'count'));
+
     }
 
     /**
