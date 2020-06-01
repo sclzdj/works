@@ -1308,7 +1308,7 @@ class PhotographerController extends BaseController
     }
 
     // 新的海报
-    public function workResourcePoster(Request $request)gt
+    public function workResourcePoster(Request $request)
     {
         $photographer_work_id = $request->input('photographer_reource_id', 0);
         $template_id = $request->input('template_id', 0);
