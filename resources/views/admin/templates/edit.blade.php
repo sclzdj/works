@@ -391,7 +391,7 @@
                         // 发送名字不能有中文
                         for (let i = 0; i < this.form.number.length; i++) {
                             let char_code_at_i = this.form.number.charCodeAt(i);
-                            if ((char_code_at_i > 48 && char_code_at_i < 57)) {
+                            if ((char_code_at_i >= 48 && char_code_at_i <= 57)) {
                             } else {
                                 this.form.number = this.form.number.substr(0, i) + this.form.number.substr(i + 1);
                             }

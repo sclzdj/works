@@ -68,6 +68,7 @@ class PhotographerWorkController extends BaseController
             'order_type' => $request['order_type'] !== null ?
                 $request['order_type'] :
                 'asc',
+           // 'created_at' => 'desc'
         ];
         $where = [];
 //        if ($filter['id'] !== '') {
@@ -126,6 +127,8 @@ class PhotographerWorkController extends BaseController
         $PhotographerWork = $PhotographerWork->where($where)->where(
             ['photographers.status' => 200, 'photographer_works.status' => 200]
         );
+
+
 //        if ($filter['photographer_work_customer_industry_id'] !== '') {
 //            $photographerWorkCustomerIndustries = PhotographerWorkCustomerIndustry::where(
 //                ['pid' => $filter['photographer_work_customer_industry_id']]
@@ -165,8 +168,9 @@ class PhotographerWorkController extends BaseController
             $photographer = ['id' => 0];
         }
         $photographerWorks = $PhotographerWork->orderBy(
-            'photographer_works.'.$orderBy['order_field'],
-            $orderBy['order_type']
+//            'photographer_works.'.$orderBy['order_field'],
+//            $orderBy['order_type']
+            'created_at' , 'desc'
         )->paginate(
             $pageInfo['pageSize']
         );
