@@ -80,7 +80,7 @@ class InviteController extends BaseController
 
     public function destroy($id)
     {
-        $result = HelpTags::where('id', $id)->delete();
+        $result = Invite::where('id', $id)->delete();
         return response()->json(compact('result'));
     }
 
@@ -91,10 +91,15 @@ class InviteController extends BaseController
 
     public function update(Request $request) {
 
-        $data = $request->input('form');
-        $result = HelpTags::where('id', $data['id'])->update([
-            'name' => $data['name']
-        ]);
+        $action = $request->input('action');
+        if ($action == "remark") {
+            $data = $request->input('data');
+            $result = Invite::where('id', $data['id'])->update([
+                'remark' => $data['remark']
+            ]);
+        }
+
+
         $msg = "";
         return response()->json(compact('result', 'msg'));
 

@@ -132,6 +132,11 @@
                                 <el-table-column
                                     prop="remark"
                                     label="备注名">
+
+                                    <template slot-scope="scope">
+                                        <el-input  style="width: 200px" @blur="updateRemark(scope.row)" v-model="scope.row.remark" placeholder="请输入内容" ></el-input>
+                                    </template>
+
                                 </el-table-column>
 
                                 <el-table-column
@@ -147,10 +152,9 @@
 
                                 <el-table-column fixed="right" label="操作" width="100">
                                     <template slot-scope="scope">
-                                        <span v-if="scope.row.type == '后台创建'">
-                                            <el-button @click="upadteStatus(scope.row)" type="text"
-                                                       size="small">占用</el-button>
-                                        </span>
+                                        <el-button @click="handleDelete(scope.$index, scope.row)" type="text"
+                                                   size="small">删除
+                                        </el-button>
                                     </template>
                                 </el-table-column>
                             </el-table>
@@ -457,6 +461,21 @@
                 handleSelectionChange(val) {
                     this.multipleSelection = val;
                 },
+                updateRemark:function(data) {
+                    $.ajax({
+                        type: 'PUT',
+                        url: '/admin/invite/'+data.id,
+                        data: {
+                            data:data,
+                            action: 'remark'
+                        },
+                        success: function (response) {
+                            if (response.result) {
+                                data.status = "已占用";
+                            }
+                        }
+                    });
+                },
                 send() {
                     alert('发送中，请等待');
                     var that = this;
@@ -474,7 +493,48 @@
                         }
                     });
 
-                }
+                },
+                handleDelete(index, row) {
+                    if (!confirm("是否删除")) {
+                        return;
+                    }
+
+                    var that = this;
+                    var data = {
+                        page: row,
+                    };
+                    $.ajax({
+                        type: 'POST',
+                        method: 'DELETE',
+                        url: '/admin/invite/' + row.id,
+                        data: data,
+                        success: function (response) {
+                            if (response.result == true) {
+                                that.data.splice(index, 1);
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            var response = JSON.parse(xhr.responseText);
+                            if (xhr.status == 419) { // csrf错误，错误码固定为419
+                                alert('请勿重复请求~');
+                            } else if (xhr.status == 422) { // 验证错误
+                                var message = [];
+                                for (var i in response.errors) {
+                                    message = message.concat(response.errors[i]);
+                                }
+                                message = message.join(',');
+                                alert(message);
+                            } else {
+                                if (response.message) {
+                                    alert(response.message);
+                                } else {
+                                    alert('服务器错误~');
+                                }
+                            }
+                        }
+                    });
+
+                },
             },
             mounted: function () {
                 this.init(1);
