@@ -39,6 +39,7 @@ class TargetUserController extends UserGuardController
             $target_user->reason = $request['reason'] ?? '';
             $target_user->last_name = $request['last_name'] ?? '';
             $target_user->rank_id = $request['rank_id'] ?? 0;
+            $target_user->status = 0;
             $result = $target_user->save();
         } else {
             $target_user->wechat = $request['wechat'] ?? '';
