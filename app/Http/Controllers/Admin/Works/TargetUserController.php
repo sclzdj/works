@@ -46,8 +46,13 @@ class TargetUserController extends BaseController
             ->skip($page)->take($size)
             ->join('invote_codes' , 'invote_codes.id' , '=' , 'target_users.id')
             ->join('users' , 'users.id' , '=' , 'target_users.user_id')
+            ->leftJoin('photographer_ranks' , 'photographer_ranks.id' , '=' , 'target_users.rank_id')
             ->orderBy('created_at', 'desc')
-            ->select('target_users.*' ,'invote_codes.code' , 'users.nickname')
+            ->select('target_users.*' ,'invote_codes.code' ,
+                'users.nickname' ,'users.phoneNumber' , 'users.city',
+                'users.province' ,'users.gender' ,
+                'photographer_ranks.name as rank_name'
+            )
             ->get();
         $count = TargetUser::where($where)->count();
 

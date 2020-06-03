@@ -24,6 +24,7 @@ class TargetUserRequest extends BaseRequest
      */
     public function rules()
     {
+
         return [
             'status' => ['required', Rule::in(array_keys($this->items))],
             'invote_code_id' => 'integer',
@@ -32,6 +33,9 @@ class TargetUserRequest extends BaseRequest
             'address' => 'max:255',
             'phone_code' => ['max:10', 'alpha_num'],
             'works_info' => 'array',
+            'reason' => ['max:255'],
+            'rank_id' => 'integer',
+            'last_name' => 'max:20'
         ];
     }
 
@@ -44,6 +48,9 @@ class TargetUserRequest extends BaseRequest
             'phone_code.max' => '验证码最大10位',
             'phone_code.alpha_num' => '验证码只能是字母和数字',
             'works_info.array' => '作品信息必须是一个数组',
+            'reason.max' => '理由最大不超过255',
+            'rank_id.integer' => '头衔必须是一个id',
+            'last_name.max' => '用户姓名没有超过20字的'
         ];
     }
 

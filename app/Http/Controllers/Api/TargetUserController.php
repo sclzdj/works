@@ -36,12 +36,18 @@ class TargetUserController extends UserGuardController
             $target_user->address = $request['address'] ?? '';
             $target_user->phone_code = $request['phone_code'] ?? '';
             $target_user->works_info = isset($request['works_info']) ? json_encode($request['works_info'], 1) : '';
+            $target_user->reason = $request['reason'] ?? '';
+            $target_user->last_name = $request['last_name'] ?? '';
+            $target_user->rank_id = $request['rank_id'] ?? 0;
             $result = $target_user->save();
         } else {
             $target_user->wechat = $request['wechat'] ?? '';
             $target_user->address = $request['address'] ?? '';
             $target_user->phone_code = $request['phone_code'] ?? '';
             $target_user->works_info = isset($request['works_info']) ? json_encode($request['works_info'], 1) : '';
+            $target_user->reason = $request['reason'] ?? '';
+            $target_user->last_name = $request['last_name'] ?? '';
+            $target_user->rank_id = $request['rank_id'] ?? 0;
             $result = $target_user->save();
         }
 

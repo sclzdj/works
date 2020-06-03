@@ -131,7 +131,7 @@
 
                                 <el-table-column
                                     prop="remark"
-                                    label="备注名">
+                                    label="备注名" width="250">
 
                                     <template slot-scope="scope">
                                         <el-input  style="width: 200px" @blur="updateRemark(scope.row)" v-model="scope.row.remark" placeholder="请输入内容" ></el-input>

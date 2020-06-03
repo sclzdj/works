@@ -81,7 +81,7 @@
                         </li>
                         <li>
                             <button type="button" data-toggle="block-option" data-action="fullscreen_toggle"><i
-                                    class="si si-size-fullscreen"></i></button>
+                                        class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
                     <h3 class="block-title">标签管理</h3>
@@ -92,19 +92,19 @@
 
                             <el-select style="width: 150px" v-model="form.sources" placeholder="来源">
                                 <el-option
-                                    v-for="item in sources"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
+                                        v-for="item in sources"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
                                 </el-option>
                             </el-select>
 
                             <el-select style="width: 150px" v-model="form.status" placeholder="状态">
                                 <el-option
-                                    v-for="item in status"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
+                                        v-for="item in status"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
                                 </el-option>
                             </el-select>
 
@@ -114,8 +114,8 @@
                         </div>
                         <div class="block-content">
                             <el-table
-                                :data="data"
-                                style="width: 100%"
+                                    :data="data"
+                                    style="width: 100%"
                             >
                                 <el-table-column type="expand">
                                     <template slot-scope="props">
@@ -123,71 +123,97 @@
                                             <el-form-item label="作品图片:">
                                                 <div class="demo-image__preview" v-if="props.row.works_info">
                                                     <el-image
-                                                        style="width: 100px; height: 100px"
-                                                        :src="props.row.works_info[0]"
-                                                        :preview-src-list="props.row.works_info">
+                                                            style="width: 100px; height: 100px"
+                                                            :src="props.row.works_info[0]"
+                                                            :preview-src-list="props.row.works_info">
                                                     </el-image>
                                                 </div>
                                             </el-form-item>
+
+                                            <br/>
+
+                                            <el-form-item label="理由">
+                                                <span>@{{ props.row.reason }}</span>
+                                            </el-form-item>
+
+
                                         </el-form>
                                     </template>
                                 </el-table-column>
                                 <el-table-column
-                                    type="selection"
-                                    width="55">
+                                        type="selection"
+                                        width="55">
                                 </el-table-column>
 
                                 <el-table-column
-                                    prop="source"
-                                    label="来源"
+                                        prop="source"
+                                        label="来源"
                                 >
                                 </el-table-column>
 
                                 <el-table-column
-                                    prop="code"
-                                    label="邀请码">
+                                        prop="code"
+                                        label="邀请码">
                                 </el-table-column>
 
                                 <el-table-column
-                                    prop="nickname"
-                                    label="用户">
+                                        prop="nickname"
+                                        label="用户"  width="100">
                                 </el-table-column>
 
                                 <el-table-column
-                                    prop="wechat"
-                                    label="微信号">
+                                        prop="wechat"
+                                        label="微信号">
                                 </el-table-column>
 
                                 <el-table-column
-                                    prop="address"
-                                    label="地址">
+                                        prop="address"
+                                        label="地址">
+                                </el-table-column>
+
+
+                                <el-table-column
+                                        prop="city"
+                                        label="城市">
                                 </el-table-column>
 
                                 <el-table-column
-                                    prop="phone_code"
-                                    label="手机验证码">
+                                        prop="phoneNumber"
+                                        label=手机号>
+                                </el-table-column>
+
+
+                                <el-table-column
+                                        prop="gender"
+                                        label="性别">
                                 </el-table-column>
 
                                 <el-table-column
-                                    label="状态"
-                                    width="150">
+                                        prop="rank_name"
+                                        label="头衔">
+                                </el-table-column>
+
+
+                                <el-table-column
+                                        label="状态"
+                                        width="150">
                                     <template slot-scope="scope">
                                         <el-select @change="changeStatus(scope.row)" v-model="scope.row.status"
                                                    placeholder="请选择">
                                             <el-option
-                                                v-for="item in status"
-                                                :key="item.value"
-                                                :label="item.label"
-                                                :value="item.value">
+                                                    v-for="item in status"
+                                                    :key="item.value"
+                                                    :label="item.label"
+                                                    :value="item.value">
                                             </el-option>
                                         </el-select>
                                     </template>
                                 </el-table-column>
 
                                 <el-table-column
-                                    fixed="right"
-                                    label="操作"
-                                    width="100">
+                                        fixed="right"
+                                        label="操作"
+                                        width="100">
                                     <template slot-scope="scope">
                                         <el-button @click="handleDelete(scope.$index, scope.row)" type="text"
                                                    size="small">删除
@@ -415,42 +441,43 @@
                         success: function (response) {
                             that.data = response.data;
                             that.total = response.count;
-                                for (let i = 0; i < that.data.length; i++) {
-                                            switch (that.data[i].source) {
-                                                case 0:
-                                                    that.data[i].source = "活动";
-                                                    break;
-                                                case 1:
-                                                    that.data[i].source = "主页";
-                                                    break;
-                                                default:
-                                                    break;
+                            for (let i = 0; i < that.data.length; i++) {
+                                switch (that.data[i].source) {
+                                    case 0:
+                                        that.data[i].source = "活动";
+                                        break;
+                                    case 1:
+                                        that.data[i].source = "主页";
+                                        break;
+                                    default:
+                                        break;
                                 }
-                                // 0未处理1已驳回2已通过3已发送4已创建
-                                // switch (that.data[i].status) {
-                                //     case 0:
-                                //         that.data[i].status = "未处理";
-                                //         break;
-                                //     case 1:
-                                //         that.data[i].status = "已驳回";
-                                //         break;
-                                //     case 2:
-                                //         that.data[i].status = "已通过";
-                                //         break;
-                                //     case 3:
-                                //         that.data[i].status = "已发送";
-                                //         break;
-                                //     case 4:
-                                //         that.data[i].status = "已创建";
-                                //         break;
-                                //     default:
-                                //         break;
-                                // }
+                                switch (that.data[i].gender) {
+                                    case 0:
+                                        that.data[i].gender = "未知";
+                                        break;
+                                    case 1:
+                                        that.data[i].gender = "男";
+                                        break;
+                                    case 2:
+                                        that.data[i].gender = "女";
+                                        break;
+                                    default:
+                                        break;
+                                }
+
+                                that.data[i].nickname = that.data[i].last_name.length > 0 ?
+                                    that.data[i].last_name + ' （' + that.data[i].nickname + '）':
+                                    that.data[i].nickname
+
+                                that.data[i].city = that.data[i].province + ' ' + that.data[i].city;
+                                ;
                                 if (that.data[i].works_info) {
                                     that.data[i].works_info = JSON.parse(that.data[i].works_info)
                                 }
                             }
-                        },
+                        }
+                        ,
                         error: function (xhr, status, error) {
                             var response = JSON.parse(xhr.responseText);
                             if (xhr.status == 419) { // csrf错误，错误码固定为419
