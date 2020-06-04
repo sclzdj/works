@@ -493,7 +493,7 @@ class SystemNodesTableSeeder extends Seeder
                             [
                                 'name' => '问题反馈',
                                 'icon' => 'fa fas fa-user-plus',
-                                'action' => 'Admin\Question\IndexController@index',
+                                'action' => 'Admin\Works\QuestionController@index',
                                 'children' => [
                                     [
                                         'name' => '问题列表',
