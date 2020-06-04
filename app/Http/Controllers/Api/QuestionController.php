@@ -41,6 +41,8 @@ class QuestionController extends UserGuardController
     {
         try {
             $validated = $request->validated();
+            $attachment = $request->input('attachment' , []);
+
             $user_id = (auth($this->guard)->user())->id;
 
             $qustion = new Question();
@@ -48,8 +50,10 @@ class QuestionController extends UserGuardController
             $qustion->type = $validated['type'];
             $qustion->content = $validated['content'];
             $qustion->page = $validated['page'];
-            if (isset($validated['attachment']) && is_array($validated['attachment'])) {
-                $qustion->attachment = json_encode($validated['attachment'], JSON_UNESCAPED_UNICODE);
+
+
+            if ($attachment && is_array($attachment)) {
+                $qustion->attachment = json_encode($attachment, JSON_UNESCAPED_UNICODE);
             }
             $qustion->user_id = $user_id;
             $qustion->save();
