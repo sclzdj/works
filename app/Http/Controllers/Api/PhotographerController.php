@@ -1134,7 +1134,6 @@ class PhotographerController extends BaseController
     public function randomWorkPoster(Request $request)
     {
         $photographer_work_id = $request->input('photographer_work_id', 0);
-        $template_id = $request->input('template_id', 0);
         $photographer_work = PhotographerWork::where(
             ['status' => 200, 'id' => $photographer_work_id]
         )->first();
@@ -1158,16 +1157,13 @@ class PhotographerController extends BaseController
             return $response;
         }
 
-        $photographer_work_source = $photographer_work->photographerWorkSources()
-            ->where(
-                ['status' => 200, 'type' => 'image']
-            )
-            ->orderBy(
-                'sort',
-                'asc'
-            )
-            ->first();
+        $photographer_work_sources = $photographer_work->photographerWorkSources()
+            ->where(['status' => 200, 'type' => 'image'])->get()->toArray();
 
+        $photographer_work_source = array_random($photographer_work_sources);
+
+        $templates = Templates::all()->pluck('number')->toArray();
+        $template_id = $templates[array_random($templates)];
         $bucket = 'zuopin';
         $buckets = config('custom.qiniu.buckets');
         $domain = $buckets[$bucket]['domain'] ?? '';
@@ -1202,7 +1198,7 @@ class PhotographerController extends BaseController
             '##title##' => "{$photographer_rank}摄像师",
         ];
 
-        if (empty($photographer_work_source->deal_key)) {
+        if (empty($photographer_work_source['deal_key'])) {
             return $this->responseParseArray(
                 [
                     'url' => '',
@@ -1212,7 +1208,7 @@ class PhotographerController extends BaseController
             );
         }
 
-        $bg = $photographer_work_source->deal_url . "?imageMogr2/auto-orient/thumbnail/!1200x2133r/gravity/Center/crop/1200x2133";
+        $bg = $photographer_work_source['deal_url'] . "?imageMogr2/auto-orient/thumbnail/!1200x2133r/gravity/Center/crop/1200x2133";
 
         $handle = array();
         $handle[] = $bg;

@@ -27,7 +27,7 @@ class QuestionRequest extends BaseRequest
         '其他-人脉排行榜',
         '其他-修改个人资料',
         '其他-学习使用技巧',
-        '其他-其他问题'
+        '其他'
     ];
     /**
      * 获取应用到请求的验证规则
