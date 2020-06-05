@@ -81,7 +81,7 @@
                         </li>
                         <li>
                             <button type="button" data-toggle="block-option" data-action="fullscreen_toggle"><i
-                                    class="si si-size-fullscreen"></i></button>
+                                        class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
                     <h3 class="block-title">问题反馈</h3>
@@ -90,38 +90,38 @@
                     <div class="tab-pane active">
                         <div class="block-content">
                             <el-date-picker
-                                v-model="form.created_at"
-                                type="daterange"
-                                range-separator="至"
-                                value-format="yyyy-MM-dd"
-                                start-placeholder="开始日期"
-                                end-placeholder="结束日期">
+                                    v-model="form.created_at"
+                                    type="daterange"
+                                    range-separator="至"
+                                    value-format="yyyy-MM-dd"
+                                    start-placeholder="开始日期"
+                                    end-placeholder="结束日期">
                             </el-date-picker>
 
                             <el-select style="width: 150px" v-model="form.type" placeholder="请选择">
                                 <el-option
-                                    v-for="item in typeOption"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
+                                        v-for="item in typeOption"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
                                 </el-option>
                             </el-select>
 
                             <el-select style="width: 150px" v-model="form.page" placeholder="请选择">
                                 <el-option
-                                    v-for="item in pages"
-                                    :key="item"
-                                    :label="item"
-                                    :value="item">
+                                        v-for="item in pages"
+                                        :key="item"
+                                        :label="item"
+                                        :value="item">
                                 </el-option>
                             </el-select>
 
                             <el-select style="width: 150px" v-model="form.status" placeholder="请选择">
                                 <el-option
-                                    v-for="item in statusOption"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
+                                        v-for="item in statusOption"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
                                 </el-option>
                             </el-select>
 
@@ -135,11 +135,10 @@
                         </div>
                         <div class="block-content">
                             <el-table
-                                :data="data"
-                                style="width: 100%"
-                                @selection-change="handleSelectionChange"
+                                    :data="data"
+                                    style="width: 100%"
+                                    @selection-change="handleSelectionChange"
                             >
-
 
                                 <el-table-column type="expand">
                                     <template slot-scope="props">
@@ -148,22 +147,28 @@
                                                 <span>  @{{ props.row.content }}</span>
                                             </el-form-item>
                                             <br/>
-                                            <el-form-item label="附件:">
-                                                <div class="demo-image__preview" v-if="props.row.attachment">
+                                            <el-form-item label="图片:">
+                                                <div class="demo-image__preview" v-if="props.row.img.length > 0">
                                                     <el-image
-                                                        style="width: 100px; height: 100px"
-                                                        :src="props.row.attachment[0]"
-                                                        :preview-src-list="props.row.attachment">
+                                                            style="width: 100px; height: 100px"
+                                                            :src="props.row.img[0]"
+                                                            :preview-src-list="props.row.img">
                                                     </el-image>
                                                 </div>
+                                            </el-form-item>
+                                            <br/>
+                                            <el-form-item label="视频:">
+                                               <span v-if="props.row.video.length > 0" v-for="video in props.row.video">
+                                                <a target="_blank" :href="video">查看视频</a>
+                                               </span>
                                             </el-form-item>
                                         </el-form>
                                     </template>
                                 </el-table-column>
 
                                 <el-table-column
-                                    type="selection"
-                                    width="55">
+                                        type="selection"
+                                        width="55">
                                 </el-table-column>
 
                                 <el-table-column
@@ -184,27 +189,47 @@
                                 </el-table-column>
 
                                 <el-table-column
-                                    prop="type"
-                                    label="类型"
-                                    width="180">
+                                        prop="type"
+                                        label="类型"
+                                        width="180">
                                 </el-table-column>
 
                                 <el-table-column
-                                    prop="page"
-                                    label="页面"
-                                    width="180">
-                                </el-table-column>
-
-
-                                <el-table-column
-                                    prop="nickname"
-                                    label="用户">
+                                        prop="page"
+                                        label="页面"
+                                        width="180">
                                 </el-table-column>
 
 
                                 <el-table-column
-                                    prop="created_at"
-                                    label="创建时间">
+                                        prop="nickname"
+                                        label="用户">
+                                </el-table-column>
+
+                                <el-table-column
+                                        prop="mobile_version"
+                                        label="手机版本">
+                                </el-table-column>
+
+                                <el-table-column
+                                        prop="system_version"
+                                        label="系统版本">
+                                </el-table-column>
+
+                                <el-table-column
+                                        prop="wechat_version"
+                                        label="微信版本">
+                                </el-table-column>
+
+                                <el-table-column
+                                        prop="language"
+                                        label="语言">
+                                </el-table-column>
+
+
+                                <el-table-column
+                                        prop="created_at"
+                                        label="创建时间">
                                 </el-table-column>
 
 
@@ -267,7 +292,9 @@
                     // 当前页
                     pageNo: 1,
                     // 总页数
-                    pages: 0
+                    pages: 0,
+                    video: [],
+                    img: []
                 }
             },
             props: {
@@ -433,7 +460,7 @@
                     '其他-人脉排行榜',
                     '其他-修改个人资料',
                     '其他-学习使用技巧',
-                    '其他-其他问题'
+                    '其他'
                 ],
 
             },
@@ -462,8 +489,21 @@
                                     default:
                                         break;
                                 }
+                                that.data[i].img = [];
+                                that.data[i].video = [];
                                 if (that.data[i].attachment) {
                                     that.data[i].attachment = JSON.parse(that.data[i].attachment)
+                                    for (let j = 0; j < that.data[i].attachment.length; j++) {
+                                        switch (that.data[i].attachment[j].type) {
+                                            case "img":
+                                                that.data[i].img.push(that.data[i].attachment[j].value);
+                                                break;
+                                            case "video":
+                                                that.data[i].video.push(that.data[i].attachment[j].value);
+                                                break;
+                                        }
+                                    }
+
                                 }
                             }
                         },

@@ -41,6 +41,8 @@ class QuestionController extends UserGuardController
     {
         try {
             $validated = $request->validated();
+
+
             $attachment = $request->input('attachment' , []);
 
             $user_id = (auth($this->guard)->user())->id;
@@ -50,9 +52,12 @@ class QuestionController extends UserGuardController
             $qustion->type = $validated['type'];
             $qustion->content = $validated['content'];
             $qustion->page = $validated['page'];
+            $qustion->mobile_version = $validated['mobile_version'] ?? '';
+            $qustion->system_version = $validated['system_version'] ?? '';
+            $qustion->wechat_version = $validated['wechat_version'] ?? '';
+            $qustion->language = $validated['language'] ?? '';
 
-
-            if ($attachment && is_array($attachment)) {
+            if ($attachment) {
                 $qustion->attachment = json_encode($attachment, JSON_UNESCAPED_UNICODE);
             }
             $qustion->user_id = $user_id;

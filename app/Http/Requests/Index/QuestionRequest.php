@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Index;
 
 use App\Http\Requests\BaseRequest;
+use App\Rules\Attachment;
 use Illuminate\Validation\Rule;
 
 class QuestionRequest extends BaseRequest
@@ -20,7 +21,7 @@ class QuestionRequest extends BaseRequest
         '分享-生成获客海报',
         '分享-生成获客海报',
         '分享-生成小程序码',
-        '人脉-访客登录'.
+        '人脉-访客登录' .
         '人脉-访客列表',
         '人脉-访客详情',
         '其他-最近浏览',
@@ -29,6 +30,7 @@ class QuestionRequest extends BaseRequest
         '其他-学习使用技巧',
         '其他'
     ];
+
     /**
      * 获取应用到请求的验证规则
      *
@@ -41,8 +43,13 @@ class QuestionRequest extends BaseRequest
             'status' => ['required', Rule::in([0, 1, 2])],
             'content' => 'required|max:255',
             'type' => ['required', Rule::in([1, 2])],
-            'page' => ['required','max:255' , Rule::in($this->items)],
+            'page' => ['required', 'max:255', Rule::in($this->items)],
             'validated' => 'max:1024',
+            'mobile_version' => 'max:255',
+            'system_version' => 'max:255',
+            'wechat_version' => 'max:255',
+            'language' => 'max:255',
+            'attachment' => [new Attachment()]
         ];
     }
 
