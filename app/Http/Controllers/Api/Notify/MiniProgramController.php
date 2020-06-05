@@ -64,7 +64,7 @@ class MiniProgramController extends BaseController
                         $invoteCode = new InvoteCode();
                         $invoteCode->code = substr(substr(str_shuffle($strs), mt_rand(0, strlen($strs) - 11), 6), 0, 6);
                         $invoteCode->type = 1;
-                        $invoteCode->status = 0;
+                        $invoteCode->status = 1; // 已绑定
                         $invoteCode->user_id = $orderInfo->user_id;
                         $invoteCode->order_id = $orderInfo->id;
                         $invoteCode->created_at = date('Y-m-d H:i:s');

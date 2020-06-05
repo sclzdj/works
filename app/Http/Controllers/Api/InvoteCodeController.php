@@ -70,6 +70,7 @@ class InvoteCodeController extends BaseController
             InvoteCode::where('code', $code)->update([
                 "user_id" => $userInfo->id,
                 'is_use' => 1,
+                'status' => 2
             ]);
             $this->data['result'] = true;
             $this->data['msg'] = "邀请码可以使用";
@@ -126,13 +127,13 @@ class InvoteCodeController extends BaseController
             return $this->responseParseArray($this->data);
         }
 
-        if ($codeInfo->status != 0) {
-            $this->data['msg'] = "邀请码状态不正确";
+        if ($codeInfo->status != 2) {
+            $this->data['msg'] = "邀请码没有经过校验";
             return $this->responseParseArray($this->data);
         }
 
         $result = InvoteCode::where('code', $code)->where('user_id', $userid)->update([
-            'status' => 2
+            'status' => 4
         ]);
 
         if ($result) {
