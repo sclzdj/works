@@ -212,6 +212,7 @@ class InvoteCodeController extends BaseController
     {
         $info = auth($this->guards['user'])->user();
         if (empty($info)) {
+            $this->data['result'] = false;
             $this->data['msg'] = "账户不存在";
             return $this->responseParseArray($this->data);
         }
@@ -221,11 +222,12 @@ class InvoteCodeController extends BaseController
             ->get();
 
         if ($code->isEmpty()) {
-            $this->data['result'] = true;
-            $this->data['msg'] = "未使用过创建吗";
+            $this->data['result'] = false;
+            $this->data['msg'] = "未使用过创建码";
             return $this->responseParseArray($this->data);
         } else {
-            $this->data['msg'] = "使用过创建吗";
+            $this->data['result'] = true;
+            $this->data['msg'] = "使用过创建码";
             return $this->responseParseArray($this->data);
         }
     }
