@@ -222,11 +222,11 @@ class InvoteCodeController extends BaseController
             ->get();
 
         if ($code->isEmpty()) {
-            $this->data['result'] = false;
+            $this->data['result'] = true;
             $this->data['msg'] = "未使用过创建码";
             return $this->responseParseArray($this->data);
         } else {
-            $this->data['result'] = true;
+            $this->data['result'] = false;
             $this->data['msg'] = "使用过创建码";
             return $this->responseParseArray($this->data);
         }
