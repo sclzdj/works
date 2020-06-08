@@ -62,36 +62,87 @@ class InvoteCodeController extends BaseController
             $this->data['msg'] = "创建码错误";
             return $this->responseParseArray($this->data);
         }
-        // 如果是后台创建的验证码，第一次查询的时候做一下绑定,前提这个账户没有绑定过邀请码
-        if ($codeInfo->type == 2 &&
-            empty($codeInfo->user_id) &&
-            InvoteCode::where('user_id', $userInfo->id)->get()->IsEmpty()
-        ) {
-            InvoteCode::where('code', $code)->update([
-                "user_id" => $userInfo->id,
-                'is_use' => 1,
-                'status' => 2
-            ]);
-            $this->data['result'] = true;
-            $this->data['msg'] = "邀请码可以使用";
-            return $this->responseParseArray($this->data);
+
+
+        switch ($codeInfo->type) {
+            case 1:  // 用户创建的邀请码只有通过众筹来的才是这个状况
+
+                if ($codeInfo != 1) {
+                    $this->data['result'] = false;
+                    $this->data['msg'] = "创建码不可用";
+                }
+
+                if ($codeInfo->user_id == $userInfo->id) {
+                    $this->data['result'] = true;
+                    $this->data['msg'] = "创建码可以使用";
+                    InvoteCode::where('code', $code)->update([
+                        'is_use' => 1,
+                        'status' => 2,
+                    ]);
+                }
+
+                return $this->responseParseArray($this->data);
+
+                break;
+            case 2:  // 目标用户 （邀请是后台创建 ，码状态是0   ）
+
+                if ($codeInfo != 0) {
+                    $this->data['result'] = false;
+                    $this->data['msg'] = "创建码不可用";
+                }
+
+                if ($codeInfo->user_id) {
+                    $this->data['result'] = false;
+                    $this->data['msg'] = "创建码已经被使用过";
+                }
+
+                if (InvoteCode::where('user_id', $userInfo->id)->get()) {
+                    $this->data['result'] = false;
+                    $this->data['msg'] = "已经绑定过创建码";
+                }
+
+                if (empty($codeInfo->user_id) && InvoteCode::where('user_id', $userInfo->id)->get()->IsEmpty()
+                ) {
+                    InvoteCode::where('code', $code)->update([
+                        "user_id" => $userInfo->id,
+                        'is_use' => 1,
+                        'status' => 2
+                    ]);
+                    $this->data['result'] = true;
+                    $this->data['msg'] = "创建码可以使用";
+                }
+
+                return $this->responseParseArray($this->data);
+
+                break;
+            case 3: //也就是活动来的，这个码状态直接是1，而且已经绑定了
+
+                if ($codeInfo != 1) {
+                    $this->data['result'] = false;
+                    $this->data['msg'] = "创建码不可用";
+                }
+
+                if ($codeInfo->user_id == $userInfo->id) {
+                    $this->data['result'] = true;
+                    $this->data['msg'] = "创建码可以使用";
+                    InvoteCode::where('code', $code)->update([
+                        'is_use' => 1,
+                        'status' => 2,
+                    ]);
+                }
+
+                return $this->responseParseArray($this->data);
+
+
+                break;
+
+            default:
+                $this->data['msg'] = "邀请码不可用";
+                return $this->responseParseArray($this->data);
+                break;
         }
 
-        if ($codeInfo->status != 0) {
-            $this->data['msg'] = "邀请码不可用";
-        }
 
-        if ($codeInfo->user_id == $userInfo->id) {
-            $this->data['result'] = true;
-            $this->data['msg'] = "邀请码可以使用";
-            InvoteCode::where('code', $code)->update([
-                'is_use' => 1,
-            ]);
-            return $this->responseParseArray($this->data);
-        }
-
-        $this->data['msg'] = "邀请码不可用";
-        return $this->responseParseArray($this->data);
     }
 
     /**
@@ -160,15 +211,15 @@ class InvoteCodeController extends BaseController
         }
 
         $code = InvoteCode::where('user_id', $info->id)
-            ->where('is_use', 1)
+            ->where('status' , 2)
             ->get();
 
         if ($code->isEmpty()) {
             $this->data['result'] = true;
-            $this->data['msg'] = "未使用过验证码";
+            $this->data['msg'] = "未使用过创建吗";
             return $this->responseParseArray($this->data);
         } else {
-            $this->data['msg'] = "使用过验证码";
+            $this->data['msg'] = "使用过创建吗";
             return $this->responseParseArray($this->data);
         }
     }

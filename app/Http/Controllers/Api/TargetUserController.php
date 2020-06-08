@@ -30,7 +30,7 @@ class TargetUserController extends UserGuardController
         if (empty($target_user)) {
             $target_user = new TargetUser();
             $target_user->source = $request['source'];
-            $target_user->invote_code_id = InvoteCode::createInvote();
+            $target_user->invote_code_id = InvoteCode::createInvote(3, '', 1, $user->id, 1);
             $target_user->user_id = $user->id;
             $target_user->wechat = $request['wechat'] ?? '';
             $target_user->address = $request['address'] ?? '';
