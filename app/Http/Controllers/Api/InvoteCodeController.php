@@ -60,10 +60,17 @@ class InvoteCodeController extends BaseController
             }
             if (empty($codeInfo)) {
                 $this->data['result'] = false;
-                $this->data['msg'] = "创建码错误";
+                $this->data['msg'] = "创建码不存在";
                 return $this->responseParseArray($this->data);
             }
 
+
+
+            if ($codeInfo->used_count <= 0) {
+                $this->data['result'] = false;
+                $this->data['msg'] = "创建码可用次数不足";
+                return $this->responseParseArray($this->data);
+            }
 
             switch ($codeInfo->type) {
                 case 1:  // 用户创建的邀请码只有通过众筹来的才是这个状况
@@ -80,6 +87,9 @@ class InvoteCodeController extends BaseController
                             'is_use' => 1,
                             'status' => 2,
                         ]);
+                    } else {
+                        $this->data['result'] = false;
+                        $this->data['msg'] = "这枚创建码不是你的";
                     }
 
                     return $this->responseParseArray($this->data);
@@ -94,10 +104,10 @@ class InvoteCodeController extends BaseController
 
                     if ($codeInfo->user_id) {
                         $this->data['result'] = false;
-                        $this->data['msg'] = "创建码已经被使用过";
+                        $this->data['msg'] = "这枚创建码不是你的";
                     }
 
-                    if (InvoteCode::where('user_id', $userInfo->id)->get()) {
+                    if (InvoteCode::where('user_id', $userInfo->id)->first()) {
                         $this->data['result'] = false;
                         $this->data['msg'] = "已经绑定过创建码";
                     }
@@ -133,8 +143,6 @@ class InvoteCodeController extends BaseController
                     }
 
                     return $this->responseParseArray($this->data);
-
-
                     break;
 
                 default:
@@ -180,7 +188,7 @@ class InvoteCodeController extends BaseController
         $codeInfo = InvoteCode::where('code', $code)->where('user_id', $userid)->first();
         $userInfo = User::where('id', $userid)->first();
         if (empty($codeInfo) || empty($userInfo)) {
-            $this->data['msg'] = "创建码错误";
+            $this->data['msg'] = "创建码不可用";
             return $this->responseParseArray($this->data);
         }
 
@@ -192,6 +200,8 @@ class InvoteCodeController extends BaseController
         $result = InvoteCode::where('code', $code)->where('user_id', $userid)->update([
             'status' => 4
         ]);
+
+        InvoteCode::where('code', $code)->where('user_id', $userid)->decrement('used_count');
 
         if ($result) {
             $this->data['msg'] = "更改成功";
@@ -211,6 +221,7 @@ class InvoteCodeController extends BaseController
     public function used(Request $request)
     {
         $info = auth($this->guards['user'])->user();
+
         if (empty($info)) {
             $this->data['result'] = false;
             $this->data['msg'] = "账户不存在";
