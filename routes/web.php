@@ -22,6 +22,7 @@ Route::get('oauth/baidu/pan',  'Index\Oauth\BaiduController@pan');
 Route::group(['middleware' => ['web', 'wechat.oauth']], function () {
     Route::get('oauth/baidu/panStore',  'Index\Oauth\BaiduController@panStore');
     Route::any('oauth/invotecode' , 'Index\Oauth\InvoteCodeController@index');
+    Route::any('oauth/service',  'Index\Oauth\ServiceController@index');
 });
 
 
@@ -118,6 +119,7 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         // 帮助文档标签        Route::get('helptags/lists', 'Works\HelpTagsController@lists');
         Route::get('helptags/lists', 'Works\HelpTagsController@lists');
         Route::resource('helptags' , 'Works\HelpTagsController');
+
 
         // 目标管理
         Route::get('target/lists', 'Works\TargetUserController@lists');
