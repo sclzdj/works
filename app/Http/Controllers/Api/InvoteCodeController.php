@@ -65,7 +65,6 @@ class InvoteCodeController extends BaseController
             }
 
 
-
             if ($codeInfo->used_count <= 0) {
                 $this->data['result'] = false;
                 $this->data['msg'] = "创建码可用次数不足";
@@ -166,33 +165,36 @@ class InvoteCodeController extends BaseController
      */
     public function update(Request $request)
     {
-        $validateRequest = Validator::make(
-            $request->all(), [
-            'code' => 'required|alpha_num|size:6',
-        ], [
-            'code' => [
-                'required' => '创建码必传',
-                'alpha_num' => '只能是英文或数字组成',
-                'size' => '6位英文或字母组成'
-            ],
-        ]);
-        if ($validateRequest->fails()) {
-            $msg = $validateRequest->errors()->all();
-            $this->data['msg'] = array_shift($msg);
-            return $this->responseParseArray($this->data);
-        }
+//        $validateRequest = Validator::make(
+//            $request->all(), [
+//            'code' => 'required|alpha_num|size:6',
+//        ], [
+//            'code' => [
+//                'required' => '创建码必传',
+//                'alpha_num' => '只能是英文或数字组成',
+//                'size' => '6位英文或字母组成'
+//            ],
+//        ]);
+//        if ($validateRequest->fails()) {
+//            $msg = $validateRequest->errors()->all();
+//            $this->data['msg'] = array_shift($msg);
+//            return $this->responseParseArray($this->data);
+//        }
 
-        $code = $request->input('code');
-        $userid = $request->input('userid');
-
-        $codeInfo = InvoteCode::where('code', $code)->where('user_id', $userid)->first();
+//        $code = $request->input('code');
+        $this->data['result'] = false;
+        $userid = $request->input('userid' , 0);
         $userInfo = User::where('id', $userid)->first();
-        if (empty($codeInfo) || empty($userInfo)) {
-            $this->data['msg'] = "创建码不可用";
+        $InvodeInfo = InvoteCode::where('user_id', $userid)->first();
+        if (empty($InvodeInfo) || empty($userInfo)) {
+            $this->data['msg'] = "用户没有绑定创建码";
             return $this->responseParseArray($this->data);
+
         }
 
-        if ($codeInfo->status != 2) {
+        $InvodeInfo = $InvodeInfo->toArray();
+        $code = $InvodeInfo['code'];
+        if ($InvodeInfo['status'] != 2) {
             $this->data['msg'] = "创建码没有经过校验";
             return $this->responseParseArray($this->data);
         }
