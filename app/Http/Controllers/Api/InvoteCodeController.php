@@ -194,6 +194,12 @@ class InvoteCodeController extends BaseController
 
         $InvodeInfo = $InvodeInfo->toArray();
         $code = $InvodeInfo['code'];
+
+        if ($InvodeInfo['status'] == 4) {
+            $this->data['msg'] = "创建码已经完成了注册";
+            return $this->responseParseArray($this->data);
+        }
+
         if ($InvodeInfo['status'] != 2) {
             $this->data['msg'] = "创建码没有经过校验";
             return $this->responseParseArray($this->data);
