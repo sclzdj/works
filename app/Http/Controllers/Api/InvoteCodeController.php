@@ -171,7 +171,7 @@ class InvoteCodeController extends BaseController
             'code' => 'required|alpha_num|size:6',
         ], [
             'code' => [
-                'required' => '邀请码必传',
+                'required' => '创建码必传',
                 'alpha_num' => '只能是英文或数字组成',
                 'size' => '6位英文或字母组成'
             ],
@@ -193,7 +193,7 @@ class InvoteCodeController extends BaseController
         }
 
         if ($codeInfo->status != 2) {
-            $this->data['msg'] = "邀请码没有经过校验";
+            $this->data['msg'] = "创建码没有经过校验";
             return $this->responseParseArray($this->data);
         }
 
