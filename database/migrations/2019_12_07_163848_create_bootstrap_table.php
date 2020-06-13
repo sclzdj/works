@@ -32,6 +32,6 @@ class CreateBootstrapTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bootstrap');
+        Schema::dropIfExists('bootstraps');
     }
 }

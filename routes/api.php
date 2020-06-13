@@ -113,6 +113,7 @@ $api->version(
                 $api->get('photographer/workPoster2', 'PhotographerController@workPoster2');
                 $api->get('photographer/workPoster3', 'PhotographerController@workPoster3');
                 $api->get('photographer/randomWorkPoster', 'PhotographerController@randomWorkPoster');
+                $api->get('photographer/randomWorkPoster2', 'PhotographerController@randomWorkPoster2');
                 $api->get('photographer/workResourcePoster', 'PhotographerController@workResourcePoster');
 
 

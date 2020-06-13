@@ -379,7 +379,7 @@
                                     case 2:
                                         that.data[i].status = "已校验";
                                         break;
-                                    case 3:
+                                    case 4:
                                         that.data[i].status = "已创建";
                                         break;
                                     default:
@@ -471,7 +471,7 @@
                         },
                         success: function (response) {
                             if (response.result) {
-                                data.status = "已占用";
+
                             }
                         }
                     });

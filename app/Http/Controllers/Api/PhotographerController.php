@@ -1303,6 +1303,161 @@ class PhotographerController extends BaseController
         return $this->responseParseArray(compact('url', 'purpose', 'projectName'));
     }
 
+    public function randomWorkPoster2(Request $request)
+    {
+        $photographer_work_resource_id = $request->input('photographer_work_resource_id', 0);
+        $template_id = $request->input('number');
+        $photographer_work_source = PhotographerWorkSource::where('id' , $photographer_work_resource_id)
+            ->first();
+
+        $photographer_work = PhotographerWork::where(
+            ['status' => 200, 'id' => $photographer_work_source->photographer_work_id]
+        )->first();
+
+        $photographer = $this->_photographer($photographer_work->photographer_id);
+        if (!$photographer || $photographer->status != 200) {
+            return $this->response->error('用户不存在', 500);
+        }
+
+        $bucket = 'zuopin';
+        $buckets = config('custom.qiniu.buckets');
+        $domain = $buckets[$bucket]['domain'] ?? '';
+
+        $template = Templates::where('number', $template_id)->first();
+        if (empty($template)) {
+            return $this->response->error('模板不存在', 500);
+        }
+        $xacode = PhotographerWork::getXacode($photographer_work->id);
+        if ($xacode) {
+            $xacodeImgage = \Qiniu\base64_urlSafeEncode(
+                $xacode . '|imageMogr2/auto-orient/thumbnail/250x250!'
+            );
+        } else {
+            $xacodeImgage = \Qiniu\base64_urlSafeEncode(
+                $domain . '/' . config(
+                    'custom.qiniu.crop_work_source_image_bg'
+                ) . '?imageMogr2/auto-orient/thumbnail/250x250!|roundPic/radius/!50p'
+            );
+        }
+
+        $photographer_rank = (string)PhotographerRank::where('id', $photographer->photographer_rank_id)->value('name');
+        $photographer_work_category = PhotographerWorkCategory::where('id', $photographer_work->photographer_work_category_id)->first();
+        $workName = $photographer_work->customer_name;
+        $name = "{$photographer->name}";
+        $datas = [
+            '##money##' => "{$photographer_work->project_amount}",
+            '##number##' => "{$photographer_work->sheets_number}",
+            '##time##' => "{$photographer_work->shooting_duration}",
+            '##customer##' => $workName,
+            '##name##' => $photographer->name,
+            '##title##' => "{$photographer_rank}摄像师",
+        ];
+
+        if (empty($photographer_work_source['deal_key'])) {
+            return $this->responseParseArray(
+                [
+                    'url' => '',
+                    'purpose' => $template->purpose,
+                    'projectName' => $workName,
+                ]
+            );
+        }
+
+        $bg = $photographer_work_source['deal_url'] . "?imageMogr2/auto-orient/thumbnail/!1200x2133r/gravity/Center/crop/1200x2133";
+
+        $handle = array();
+        $handle[] = $bg;
+        // 蒙层
+        $handle[] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode(
+                'https://file.zuopin.cloud/FlUtqPeo8wfMtZdKzZuOjpcrbtKP?imageMogr2/auto-orient/thumbnail/1200x2133!'
+            ) .
+            "/gravity/NorthWest/dx/0/dy/0/";
+        // 左边白图
+        $handle[] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode(
+                'https://file.zuopin.cloud/Fo0nlMq-8Gp8_VPbnt8CjXychYxO'
+            ) .
+            "/gravity/NorthEast/dx/78/dy/0/";
+        // 二维码
+        $handle[] = "|watermark/3/image/" . $xacodeImgage . "/gravity/NorthEast/dx/118/dy/40/";
+
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($workName) . "/fontstyle/" . base64_urlSafeEncode(
+                "Bold"
+            ) . "/fontsize/1200/fill/" . base64_urlSafeEncode("#FFFFFF") . "/font/" . base64_urlSafeEncode(
+                "Microsoft YaHei"
+            ) . "/gravity/NorthWest/dx/80/dy/70/";
+
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($photographer_work_category->name . "摄影项目") .
+            "/fontsize/800/fill/" . base64_urlSafeEncode("#FFFFFF") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") .
+            "/gravity/NorthWest/dx/80/dy/200/";
+
+        // 白圈
+        $handle[] = "/image/" . \Qiniu\base64_urlSafeEncode("https://file.zuopin.cloud/FobRpazPS1Er-FQ7waOb2Gnv3vHX") .
+            "/gravity/NorthWest/dx/80/dy/275/";
+
+        // 摄影师名字
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($name) . "/fontsize/800/fill/" . base64_urlSafeEncode(
+                "#FFFFFF"
+            ) . "/font/" . base64_urlSafeEncode("Microsoft YaHei") .
+            "/gravity/NorthWest/dx/120/dy/262/";
+
+        foreach ($datas as $key => $data) {
+            $template->text1 = str_replace($key, $data, $template->text1);
+            $template->text2 = str_replace($key, $data, $template->text2);
+            $template->text3 = str_replace($key, $data, $template->text3);
+            $template->text4 = str_replace($key, $data, $template->text4);
+        }
+
+        $height = 580;
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($template->text1) . "/fontstyle/" . base64_urlSafeEncode(
+                "Bold"
+            ) . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/font/" . base64_urlSafeEncode(
+                "Microsoft YaHei"
+
+            ) . "/gravity/NorthWest/dx/80/dy/430/";
+
+
+        if ($template->text2) {
+            $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($template->text2) . "/fontstyle/" . base64_urlSafeEncode(
+                    "Bold"
+                ) . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/font/" . base64_urlSafeEncode(
+                    "Microsoft YaHei"
+
+                ) . "/gravity/NorthWest/dx/80/dy/580/";
+            $height += 150;
+        }
+
+        if ($template->text3) {
+            $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($template->text3) . "/fontstyle/" . base64_urlSafeEncode(
+                    "Bold"
+                ) . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/font/" . base64_urlSafeEncode(
+                    "Microsoft YaHei"
+
+                ) . "/gravity/NorthWest/dx/80/dy/730/";
+            $height += 150;
+        }
+
+        if ($template->text4) {
+            $handle[] = "text/" . \Qiniu\base64_urlSafeEncode($template->text4) . "/fontstyle/" . base64_urlSafeEncode(
+                    "Bold"
+                ) . "/fontsize/2000/fill/" . base64_urlSafeEncode("#FFFFFF") . "/font/" . base64_urlSafeEncode(
+                    "Microsoft YaHei"
+
+                ) . "/gravity/NorthWest/dx/80/dy/880/";
+            $height += 150;
+        }
+        $height += 90;
+        $handle[] = "text/" . \Qiniu\base64_urlSafeEncode("微信扫一扫, 看项目金额。") . "/fontsize/800/fill/" . base64_urlSafeEncode(
+                "#FFFFFF"
+            ) . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/80/dy/" . $height . "/";
+
+
+        $url = implode($handle);
+        $purpose = $template->purpose;
+        $projectName = $workName;
+
+        return $this->responseParseArray(compact('url', 'purpose', 'projectName'));
+    }
+
     // 新的海报
     public function workResourcePoster(Request $request)
     {
