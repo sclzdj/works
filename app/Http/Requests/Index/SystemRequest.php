@@ -44,7 +44,7 @@ class SystemRequest extends BaseRequest
             case 'qiniuFetchBaiduPan':
                 $rules = [
                     'photographer_work_id' => 'integer',
-                    'fsids' => 'required|array|min:1|max:9',
+                    'fsids' => 'required|array|min:1|max:18',
                 ];
                 break;
             case 'baiduDlink':
@@ -104,7 +104,7 @@ class SystemRequest extends BaseRequest
                     'fsids.required' => '网盘文件id不能为空',
                     'fsids.array' => '网盘文件id必须是数组',
                     'fsids.min' => '网盘文件id至少1个',
-                    'fsids.max' => '网盘文件id至多9个',
+                    'fsids.max' => '网盘文件id至多18个',
                     'is_register_photographer.integer' => 'is_register_photographer必须为数字',
                     'is_register_photographer.in' => 'is_register_photographer错误',
                 ];
