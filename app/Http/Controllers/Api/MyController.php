@@ -833,8 +833,8 @@ class MyController extends UserGuardController
         if ($count < 1) {
             return $this->response->error('资源和网盘文件总和至少为1个', 500);
         }
-        if ($count > 9) {
-            return $this->response->error('资源和网盘文件总和至多为9个', 500);
+        if ($count > 18) {
+            return $this->response->error('资源和网盘文件总和至多为18个', 500);
         }
         $this->notPhotographerIdentityVerify();
         $asynchronous_task = [];
