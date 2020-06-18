@@ -456,7 +456,7 @@ class SystemNodesTableSeeder extends Seeder
                                     ],
                                     [
                                         'name' => '邀请删除',
-                                        'action' => 'Admin\Works\InviteController@destory',
+                                        'action' => 'Admin\Works\InviteController@destroy',
                                     ],
                                     [
                                         'name' => '邀请更新',
