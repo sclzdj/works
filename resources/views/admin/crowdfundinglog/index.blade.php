@@ -91,14 +91,7 @@
                 <div class="tab-content" id="app">
                     <div class="tab-pane active">
                         <div class="block-content">
-{{--                            <el-date-picker--}}
-{{--                                v-model="form.created_at"--}}
-{{--                                type="daterange"--}}
-{{--                                range-separator="至"--}}
-{{--                                value-format="yyyy-MM-dd"--}}
-{{--                                start-placeholder="开始日期"--}}
-{{--                                end-placeholder="结束日期">--}}
-{{--                            </el-date-picker>--}}
+
                             <el-select v-model="form.status" placeholder="请选择">
                                 <el-option
                                     v-for="item in statusOption"
@@ -117,22 +110,37 @@
                             <el-table
                                 :data="tableData"
                                 style="width: 100%">
+
                                 <el-table-column
-                                    prop="phoneNumber"
-                                    label="电话"
-                                    width="180">
+                                        prop="crowd_status"
+                                        label="状态">
                                 </el-table-column>
 
                                 <el-table-column
                                     prop="nickname"
-                                    label="用户昵称"
+                                    label="姓名"
                                     width="180">
                                 </el-table-column>
 
                                 <el-table-column
-                                    prop="crowd_status"
-                                    label="状态">
+                                        prop="phoneNumber"
+                                        label="电话"
+                                        width="180">
                                 </el-table-column>
+
+                                <el-table-column
+                                        prop="phoneNumber"
+                                        label="创建码"
+                                        width="180">
+                                </el-table-column>
+
+                                <el-table-column
+                                        prop="phoneNumber"
+                                        label="有效期"
+                                        width="180">
+                                </el-table-column>
+
+
 
 
                                 <el-table-column
