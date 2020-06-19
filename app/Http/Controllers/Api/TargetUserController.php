@@ -25,44 +25,52 @@ class TargetUserController extends BaseController
     {
 //        $user = auth($this->guard)->user();
 
-        $target_user = (new TargetUser())->where('user_id', $request['user_id'])->first();
+        try {
+            $target_user = (new TargetUser())->where('user_id', $request['user_id'])->first();
 
-        if (empty($target_user)) {
-            $target_user = new TargetUser();
-            $target_user->source = $request['source'];
-            $target_user->invote_code_id = InvoteCode::createInvote(3, '', 1, $user->id, 1);
-            $target_user->user_id = $user->id;
-            $target_user->wechat = $request['wechat'] ?? '';
-            $target_user->address = $request['address'] ?? '';
-            $target_user->phone_code = $request['phone_code'] ?? '';
-            $target_user->works_info = isset($request['works_info']) ? json_encode($request['works_info'], 1) : '';
-            $target_user->reason = $request['reason'] ?? '';
-            $target_user->last_name = $request['last_name'] ?? '';
-            $target_user->rank_id = $request['rank_id'] ?? 0;
-            $target_user->status = 0;
-            $result = $target_user->save();
-        }
-        else {
-            $target_user->wechat = $request['wechat'] ?? '';
-            $target_user->address = $request['address'] ?? '';
-            $target_user->phone_code = $request['phone_code'] ?? '';
-            $target_user->works_info = isset($request['works_info']) ? json_encode($request['works_info'], 1) : '';
-            $target_user->reason = $request['reason'] ?? '';
-            $target_user->last_name = $request['last_name'] ?? '';
-            $target_user->rank_id = $request['rank_id'] ?? 0;
-            $result = $target_user->save();
-        }
+            if (empty($target_user)) {
+                $target_user = new TargetUser();
+                $target_user->source = $request['source'];
+                $target_user->invote_code_id = InvoteCode::createInvote(3, '', 1, $request['user_id'], 1);
+                $target_user->user_id = $request['user_id'];
+                $target_user->wechat = $request['wechat'] ?? '';
+                $target_user->address = $request['address'] ?? '';
+                $target_user->phone_code = $request['phone_code'] ?? '';
+                $target_user->works_info = isset($request['works_info']) ? json_encode($request['works_info'], 1) : '';
+                $target_user->reason = $request['reason'] ?? '';
+                $target_user->last_name = $request['last_name'] ?? '';
+                $target_user->rank_id = $request['rank_id'] ?? 0;
+                $target_user->status = 0;
+                $result = $target_user->save();
+            } else {
+                $target_user->wechat = $request['wechat'] ?? '';
+                $target_user->address = $request['address'] ?? '';
+                $target_user->phone_code = $request['phone_code'] ?? '';
+                $target_user->works_info = isset($request['works_info']) ? json_encode($request['works_info'], 1) : '';
+                $target_user->reason = $request['reason'] ?? '';
+                $target_user->last_name = $request['last_name'] ?? '';
+                $target_user->rank_id = $request['rank_id'] ?? 0;
+                $result = $target_user->save();
+            }
 
-        if ($result) {
+            if ($result) {
+                $data = [
+                    'result' => true,
+                    'msg' => '请求完成'
+                ];
+                return $this->responseParseArray($data);
+            } else {
+                $data = [
+                    'result' => false,
+                    'msg' => '请求失败'
+                ];
+                return $this->responseParseArray($data);
+            }
+        } catch (\Exception $exception) {
             $data = [
-                'result' => true,
-                'msg' => '请求完成'
-            ];
-            return $this->responseParseArray($data);
-        } else {
-            $data = [
-                'result' => false,
-                'msg' => '请求失败'
+                'msg' => $exception->getMessage(),
+                'file' => $exception->getFile(),
+                'code' => $exception->getLine(),
             ];
             return $this->responseParseArray($data);
         }
