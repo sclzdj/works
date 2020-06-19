@@ -35,7 +35,8 @@ class TargetUserRequest extends BaseRequest
             'works_info' => 'array',
             'reason' => ['max:255'],
             'rank_id' => 'integer',
-            'last_name' => 'max:20'
+            'last_name' => 'max:20',
+            'user_id' => 'required'
         ];
     }
 
@@ -50,7 +51,8 @@ class TargetUserRequest extends BaseRequest
             'works_info.array' => '作品信息必须是一个数组',
             'reason.max' => '理由最大不超过255',
             'rank_id.integer' => '头衔必须是一个id',
-            'last_name.max' => '用户姓名没有超过20字的'
+            'last_name.max' => '用户姓名没有超过20字的',
+            'user_id.required' => 'user_id必须传入',
         ];
     }
 

@@ -15,7 +15,7 @@ use Validator;
  * Class InvoteCodeController
  * @package App\Http\Controllers\Api
  */
-class TargetUserController extends UserGuardController
+class TargetUserController extends BaseController
 {
     public $data = [
         'result' => false,
@@ -23,9 +23,9 @@ class TargetUserController extends UserGuardController
 
     public function insert(TargetUserRequest $request)
     {
-        $user = auth($this->guard)->user();
+//        $user = auth($this->guard)->user();
 
-        $target_user = (new TargetUser())->where('user_id', $user->id)->first();
+        $target_user = (new TargetUser())->where('user_id', $request['user_id'])->first();
 
         if (empty($target_user)) {
             $target_user = new TargetUser();
@@ -41,7 +41,8 @@ class TargetUserController extends UserGuardController
             $target_user->rank_id = $request['rank_id'] ?? 0;
             $target_user->status = 0;
             $result = $target_user->save();
-        } else {
+        }
+        else {
             $target_user->wechat = $request['wechat'] ?? '';
             $target_user->address = $request['address'] ?? '';
             $target_user->phone_code = $request['phone_code'] ?? '';
