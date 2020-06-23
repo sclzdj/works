@@ -1544,7 +1544,13 @@ class PhotographerController extends BaseController
             );
         }
 
-        $bg = $PhotographerWorkSource->deal_url . "?imageMogr2/auto-orient/thumbnail/!1200x2133r/gravity/Center/crop/1200x2133";
+
+        if($PhotographerWorkSource->deal_width > $PhotographerWorkSource->deal_height) {
+            $bg = $PhotographerWorkSource->deal_url . "?imageMogr2/auto-orient/thumbnail/!1200x2133r/rotate/90/gravity/Center/crop/1200x2133";
+        } else {
+            $bg = $PhotographerWorkSource->deal_url . "?imageMogr2/auto-orient/thumbnail/!1200x2133r/gravity/Center/crop/1200x2133";
+        }
+//        $bg = $PhotographerWorkSource->deal_url . "?imageMogr2/auto-orient/thumbnail/!1200x2133r/gravity/Center/crop/1200x2133";
 
         $handle = array();
         $handle[] = $bg;
