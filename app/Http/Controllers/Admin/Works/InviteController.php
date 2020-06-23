@@ -56,6 +56,7 @@ class InviteController extends BaseController
             ->select(['invite.*' , 'invote_codes.code' , 'invote_codes.status' , 'users.nickname' ])
             ->skip($page)
             ->take($size)
+            ->orderBy('created_at' , 'desc')
             ->get();
 
 

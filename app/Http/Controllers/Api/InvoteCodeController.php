@@ -55,7 +55,7 @@ class InvoteCodeController extends BaseController
 
             if (empty($userInfo)) {
                 $this->data['result'] = false;
-                $this->data['msg'] = "用户不存在";
+                $this->data['msg'] = "请退出重新输入";
                 return $this->responseParseArray($this->data);
             }
             if (empty($codeInfo)) {
@@ -76,7 +76,7 @@ class InvoteCodeController extends BaseController
 
                     if ($codeInfo != 1) {
                         $this->data['result'] = false;
-                        $this->data['msg'] = "创建码不可用";
+                        $this->data['msg'] = "请关闭重新输入";
                     }
 
                     if ($codeInfo->user_id == $userInfo->id) {
@@ -107,7 +107,7 @@ class InvoteCodeController extends BaseController
                     }
 
                     if (InvoteCode::where('user_id', $userInfo->id)->first()) {
-                        $this->data['result'] = false;
+                        $this->data['result'] = true;
                         $this->data['msg'] = "已经绑定过创建码";
                     }
 

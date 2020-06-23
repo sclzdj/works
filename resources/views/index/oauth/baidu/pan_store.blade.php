@@ -15,13 +15,17 @@
             margin: 0;
             padding: 0;
         }
+        .topDiv{
+            width:100vw;
+            height:calc(100vh - 94px);
+        }
         .big-box{
             position: relative;
             left: 0;
             top: 50%;
             transform: translateY(-50%);
         }
-        img.baidu-cloud {
+        embed.baidu-cloud {
             /*margin-top: 140px;*/
             margin-left: auto;
             margin-right: auto;
@@ -43,20 +47,28 @@
             font-size: 16px;
             text-align: center;
             line-height: 44px;
-            color: #ffffff;
-            background: #3ECDF6;
-            border-radius: 5px;
-            width: 190px;
-            margin: 25px auto;
+            color: #C8C8C8;
+            background: #FDFDFD;
+            border-radius: 100px;
+            width: 300px;
+            position: absolute;
+            bottom:50px;
+            left:50%;
+            margin-left:-150px;
+            border:1px solid rgba(230,230,230,0.4);
         }
     </style>
 </head>
 <body>
+<div class='topDiv'>
 <div class="big-box">
-    <img src="{{asset('/images/baidu-cloud.png').'?'.$SFV}}" alt="百度云" class="baidu-cloud">
+<embed src="{{asset('images/baidu.svg')}}" class='baidu-cloud'  />
     <div class="bind-success-text">百度网盘绑定成功</div>
-    <div class="bind-success-box">右滑两次进入网盘</div>
 </div>
+</div>
+
+<div class="bind-success-box">返回两次进入网盘</div>
+
 <div style="clear: both;"></div>
 </body>
 </html>
