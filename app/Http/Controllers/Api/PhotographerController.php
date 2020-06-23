@@ -1035,7 +1035,11 @@ class PhotographerController extends BaseController
             );
         }
 
-        $bg = $photographer_work_source->deal_url . "?imageMogr2/auto-orient/thumbnail/!1200x2133r/gravity/Center/crop/1200x2133";
+        if($photographer_work_source->deal_width > $photographer_work_source->deal_height) {
+            $bg = $photographer_work_source->deal_url . "?imageMogr2/auto-orient/thumbnail/!1200x2133r/rotate/90/gravity/Center/crop/1200x2133";
+        } else {
+            $bg = $photographer_work_source->deal_url . "?imageMogr2/auto-orient/thumbnail/!1200x2133r/gravity/Center/crop/1200x2133";
+        }
 
         $handle = array();
         $handle[] = $bg;
@@ -1310,6 +1314,7 @@ class PhotographerController extends BaseController
         $photographer_work_source = PhotographerWorkSource::where('id' , $photographer_work_resource_id)
             ->first();
 
+
         $photographer_work = PhotographerWork::where(
             ['status' => 200, 'id' => $photographer_work_source->photographer_work_id]
         )->first();
@@ -1363,7 +1368,13 @@ class PhotographerController extends BaseController
             );
         }
 
-        $bg = $photographer_work_source['deal_url'] . "?imageMogr2/auto-orient/thumbnail/!1200x2133r/gravity/Center/crop/1200x2133";
+        if($photographer_work_source['deal_width'] > $photographer_work_source['deal_height']) {
+            $bg = $photographer_work_source['deal_url'] . "?imageMogr2/auto-orient/thumbnail/!1200x2133r/rotate/270/gravity/Center/crop/1200x2133";
+        } else {
+            $bg = $photographer_work_source['deal_url'] . "?imageMogr2/auto-orient/thumbnail/!1200x2133r/gravity/Center/crop/1200x2133";
+        }
+
+
 
         $handle = array();
         $handle[] = $bg;
