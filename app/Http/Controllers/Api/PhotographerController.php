@@ -1307,6 +1307,7 @@ class PhotographerController extends BaseController
         return $this->responseParseArray(compact('url', 'purpose', 'projectName'));
     }
 
+    // 项目海报
     public function randomWorkPoster2(Request $request)
     {
         $photographer_work_resource_id = $request->input('photographer_work_resource_id', 0);
@@ -1369,7 +1370,13 @@ class PhotographerController extends BaseController
         }
 
         if($photographer_work_source['deal_width'] > $photographer_work_source['deal_height']) {
-            $bg = $photographer_work_source['deal_url'] . "?imageMogr2/auto-orient/thumbnail/!1200x2133r/rotate/270/gravity/Center/crop/1200x2133";
+
+            if ($photographer_work_source['width'] < 2133 && $photographer_work_source['height'] < 1200) {
+                $bg = $photographer_work_source['url'] . "?imageMogr2/auto-orient/rotate/270/thumbnail/1200x2133!/blur/1x0/quality/75";
+            } else {
+                $bg = $photographer_work_source['url'] . "?imageView2/5/w/2133/h/1200/q/75|imageMogr2/rotate/270|imageslim";
+            }
+
         } else {
             $bg = $photographer_work_source['deal_url'] . "?imageMogr2/auto-orient/thumbnail/!1200x2133r/gravity/Center/crop/1200x2133";
         }
@@ -1469,7 +1476,7 @@ class PhotographerController extends BaseController
         return $this->responseParseArray(compact('url', 'purpose', 'projectName'));
     }
 
-    // 新的海报
+    // 作品海报
     public function workResourcePoster(Request $request)
     {
         $photographer_work_id = $request->input('photographer_reource_id', 0);
@@ -1546,7 +1553,13 @@ class PhotographerController extends BaseController
 
 
         if($PhotographerWorkSource->deal_width > $PhotographerWorkSource->deal_height) {
-            $bg = $PhotographerWorkSource->deal_url . "?imageMogr2/auto-orient/thumbnail/!1200x2133r/rotate/90/gravity/Center/crop/1200x2133";
+
+            if ($PhotographerWorkSource->width < 2133 && $PhotographerWorkSource->height < 1200) {
+                $bg = $PhotographerWorkSource->url . "?imageMogr2/auto-orient/rotate/90/thumbnail/1200x2133!/blur/1x0/quality/75";
+            } else {
+                $bg = $PhotographerWorkSource->url. "?imageView2/5/w/2133/h/1200/q/75|imageMogr2/rotate/90|imageslim";
+            }
+            //$bg = $PhotographerWorkSource->url . "?imageView2/5/w/2133/h/1200/q/75|imageMogr2/rotate/90|imageslim";
         } else {
             $bg = $PhotographerWorkSource->deal_url . "?imageMogr2/auto-orient/thumbnail/!1200x2133r/gravity/Center/crop/1200x2133";
         }
@@ -1636,6 +1649,7 @@ class PhotographerController extends BaseController
         $handle[] = "text/" . \Qiniu\base64_urlSafeEncode("微信扫一扫, 看项目金额。") . "/fontsize/800/fill/" . base64_urlSafeEncode(
                 "#FFFFFF"
             ) . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/80/dy/" . $height . "/";
+
 
 
         $url = implode($handle);
