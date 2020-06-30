@@ -157,6 +157,11 @@
                                 </el-table-column>
 
                                 <el-table-column
+                                        prop="invote_status"
+                                        label="邀请码使用状态">
+                                </el-table-column>
+
+                                <el-table-column
                                         prop="nickname"
                                         label="用户"  width="100">
                                 </el-table-column>
@@ -452,6 +457,23 @@
                                     default:
                                         break;
                                 }
+                                switch (that.data[i].invote_status) {
+                                    case 0:
+                                        that.data[i].invote_status = "已生成";
+                                        break;
+                                    case 1:
+                                        that.data[i].invote_status = "已绑定";
+                                        break;
+                                    case 2:
+                                        that.data[i].invote_status = "已校验";
+                                        break;
+
+                                    case 4:
+                                        that.data[i].invote_status = "已创建";
+                                        break;
+                                    default:
+                                        break;
+                                }
                                 switch (that.data[i].gender) {
                                     case 0:
                                         that.data[i].gender = "未知";
@@ -466,12 +488,9 @@
                                         break;
                                 }
 
-                                that.data[i].nickname = that.data[i].last_name.length > 0 ?
-                                    that.data[i].last_name + ' （' + that.data[i].nickname + '）':
-                                    that.data[i].nickname
+                                that.data[i].nickname = that.data[i].last_name.length > 0 ? that.data[i].last_name + ' （' + that.data[i].nickname + '）': that.data[i].nickname
 
-                                that.data[i].city = that.data[i].province + ' ' + that.data[i].city;
-                                ;
+                                that.data[i].city = that.data[i].province + ' ' + that.data[i].city;;
                                 if (that.data[i].works_info) {
                                     that.data[i].works_info = JSON.parse(that.data[i].works_info)
                                 }

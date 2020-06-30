@@ -175,14 +175,15 @@ $api->version(
                 // 查询用户是否使用过引导
                 $api->post('bootstrap/query' , 'BootstrapController@query');
 
-                // 问题手机
+                // 问题收集
                 $api->post('question/collect' , 'QuestionController@collect');
                 $api->get('question/getPage' , 'QuestionController@getPage');
 
                 // 目标用户
                 $api->post('target/insert' , 'TargetUserController@insert');
 
-
+                //  添加场景值
+                $api->post('scene/inRecord' , 'SceneControler@inRecord');
             }
         );
     }

@@ -1372,9 +1372,9 @@ class PhotographerController extends BaseController
         if($photographer_work_source['deal_width'] > $photographer_work_source['deal_height']) {
 
             if ($photographer_work_source['width'] < 2133 && $photographer_work_source['height'] < 1200) {
-                $bg = $photographer_work_source['url'] . "?imageMogr2/auto-orient/rotate/270/thumbnail/1200x2133!/blur/1x0/quality/75";
+                $bg = $photographer_work_source['url'] . "?imageMogr2/auto-orient/rotate/90/thumbnail/1200x2133!/blur/1x0/quality/75";
             } else {
-                $bg = $photographer_work_source['url'] . "?imageView2/5/w/2133/h/1200/q/75|imageMogr2/rotate/270|imageslim";
+                $bg = $photographer_work_source['url'] . "?imageView2/5/w/2133/h/1200/q/75|imageMogr2/rotate/90|imageslim";
             }
 
         } else {

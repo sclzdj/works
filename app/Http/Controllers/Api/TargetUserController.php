@@ -31,7 +31,8 @@ class TargetUserController extends BaseController
             if (empty($target_user)) {
                 $target_user = new TargetUser();
                 $target_user->source = $request['source'];
-                $target_user->invote_code_id = InvoteCode::createInvote(3, '', 1, $request['user_id'], 1);
+          //      $target_user->invote_code_id = InvoteCode::createInvote(3, '', 1, $request['user_id'], 1);
+                $target_user->invote_code_id = 0;
                 $target_user->user_id = $request['user_id'];
                 $target_user->wechat = $request['wechat'] ?? '';
                 $target_user->address = $request['address'] ?? '';

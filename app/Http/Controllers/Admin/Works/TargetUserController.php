@@ -44,11 +44,11 @@ class TargetUserController extends BaseController
         }
         $data = TargetUser::where($where)
             ->skip($page)->take($size)
-            ->join('invote_codes' , 'invote_codes.id' , '=' , 'target_users.id')
+            ->leftJoin('invote_codes' , 'invote_codes.id' , '=' , 'target_users.invote_code_id')
             ->join('users' , 'users.id' , '=' , 'target_users.user_id')
             ->leftJoin('photographer_ranks' , 'photographer_ranks.id' , '=' , 'target_users.rank_id')
             ->orderBy('created_at', 'desc')
-            ->select('target_users.*' ,'invote_codes.code' ,
+            ->select('target_users.*' ,'invote_codes.code' , 'invote_codes.status as invote_status',
                 'users.nickname' ,'users.phoneNumber' , 'users.city',
                 'users.province' ,'users.gender' ,
                 'photographer_ranks.name as rank_name'
