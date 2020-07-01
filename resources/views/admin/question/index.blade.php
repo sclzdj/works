@@ -3,72 +3,56 @@
 @endphp
 @extends('admin.layouts.master')
 
-@section('css')
+@section('pre_css')
     <!-- 引入样式 -->
     <link rel="stylesheet" href="{{asset('/static/admin/css/element.css').'?'.$SFV}}">
-    <style>
-        .wd {
-            width: 150px;
-        }
 
-        .el-row {
-            margin-bottom: 20px;
-        }
-
-        :last-child {
-            margin-bottom: 0;
-        }
-
-        .el-col {
-            border-radius: 4px;
-        }
-
-        .bg-purple-dark {
-            background: #99a9bf;
-        }
-
-        .bg-purple {
-            background: #d3dce6;
-        }
-
-        .bg-purple-light {
-            background: #e5e9f2;
-        }
-
-        .grid-content {
-            border-radius: 4px;
-            min-height: 36px;
-        }
-
-        .row-bg {
-            padding: 10px 0;
-            background-color: #f9fafc;
-        }
-
-        .button1 {
-            display: inline-block;
-            line-height: 1;
-            white-space: nowrap;
-            cursor: pointer;
-            background: #FFF;
-            border: 1px solid #DCDFE6;
-            color: #606266;
-            -webkit-appearance: none;
-            text-align: center;
-            box-sizing: border-box;
-            outline: 0;
-            margin: 0;
-            -webkit-transition: .1s;
-            transition: .1s;
-            font-weight: 500;
-            padding: 12px 10px;
-            font-size: 14px;
-            border-radius: 4px;
-            width: 50px;
-        }
-
-    </style>
 @endsection
+
+<style>
+
+    .boxrow {
+        display: inline-block;
+        width: 100%;
+    }
+
+
+    .el-row {
+        margin-bottom: 20px;
+
+    &
+    :last-child {
+        margin-bottom: 0;
+    }
+
+    }
+    .el-col {
+        border-radius: 4px;
+    }
+
+    .bg-purple-dark {
+        background: #99a9bf;
+    }
+
+    .bg-purple {
+        background: #d3dce6;
+    }
+
+    .bg-purple-light {
+        background: #e5e9f2;
+    }
+
+    .grid-content {
+        border-radius: 4px;
+        min-height: 36px;
+    }
+
+    .row-bg {
+        padding: 10px 0;
+        background-color: #f9fafc;
+    }
+
+</style>
 
 @section('content')
     <div class="row">
@@ -89,44 +73,61 @@
                 <div class="tab-content" id="app">
                     <div class="tab-pane active">
                         <div class="block-content">
-                            <el-date-picker
-                                    v-model="form.created_at"
-                                    type="daterange"
-                                    range-separator="至"
-                                    value-format="yyyy-MM-dd"
-                                    start-placeholder="开始日期"
-                                    end-placeholder="结束日期">
-                            </el-date-picker>
 
-                            <el-select style="width: 150px" v-model="form.type" placeholder="请选择">
-                                <el-option
-                                        v-for="item in typeOption"
-                                        :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value">
-                                </el-option>
-                            </el-select>
+                            <el-row :gutter="10">
+                                <el-col :span="5">
 
-                            <el-select style="width: 150px" v-model="form.page" placeholder="请选择">
-                                <el-option
-                                        v-for="item in pages"
-                                        :key="item"
-                                        :label="item"
-                                        :value="item">
-                                </el-option>
-                            </el-select>
+                                    <el-date-picker style="width: 100%"
+                                                    v-model="form.created_at"
+                                                    type="daterange"
+                                                    range-separator="至"
+                                                    value-format="yyyy-MM-dd"
+                                                    start-placeholder="开始日期"
+                                                    end-placeholder="结束日期">
+                                    </el-date-picker>
+                                </el-col>
+                                <el-col :span="5">
+                                    <el-input v-model="form.keyword" placeholder="从描述中搜索"></el-input>
+                                </el-col>
 
-                            <el-select style="width: 150px" v-model="form.status" placeholder="请选择">
-                                <el-option
-                                        v-for="item in statusOption"
-                                        :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value">
-                                </el-option>
-                            </el-select>
+                            </el-row>
 
-                            <br/>
-                            <br/>
+                            <el-row :gutter="10">
+                                <el-col :span="3">
+                                    <el-select style="width: 100%" v-model="form.type" placeholder="请选择">
+                                        <el-option
+                                                v-for="item in typeOption"
+                                                :key="item.value"
+                                                :label="item.label"
+                                                :value="item.value">
+                                        </el-option>
+                                    </el-select>
+                                </el-col>
+                                <el-col :span="3">
+                                    <el-select style="width: 100%" v-model="form.page" placeholder="请选择">
+                                        <el-option
+                                                v-for="item in pages"
+                                                :key="item"
+                                                :label="item"
+                                                :value="item">
+                                        </el-option>
+                                    </el-select>
+                                </el-col>
+                                <el-col :span="4">
+                                    <el-select style="width: 100%" v-model="form.status" placeholder="请选择">
+                                        <el-option
+                                                v-for="item in statusOption"
+                                                :key="item.value"
+                                                :label="item.label"
+                                                :value="item.value">
+                                        </el-option>
+                                    </el-select>
+                                </el-col>
+                            </el-row>
+
+
+
+
                             <el-button type="primary" @click="search" icon="el-icon-search">搜索</el-button>
                             <el-button type="primary" @click="clear" icon="el-icon-close">清除</el-button>
                             <el-button type="primary" @click="exports" icon="el-icon-close">导出</el-button>
@@ -143,10 +144,7 @@
                                 <el-table-column type="expand">
                                     <template slot-scope="props">
                                         <el-form label-position="left" inline class="demo-table-expand">
-                                            <el-form-item label="意见:">
-                                                <span>  @{{ props.row.content }}</span>
-                                            </el-form-item>
-                                            <br/>
+
                                             <el-form-item label="图片:">
                                                 <div class="demo-image__preview" v-if="props.row.img.length > 0">
                                                     <el-image
@@ -156,12 +154,30 @@
                                                     </el-image>
                                                 </div>
                                             </el-form-item>
-                                            <br/>
-                                            <el-form-item label="视频:">
+
+                                            <el-form-item label="视频:" class="boxrow">
                                                <span v-if="props.row.video.length > 0" v-for="video in props.row.video">
                                                 <a target="_blank" :href="video">查看视频</a>
                                                </span>
                                             </el-form-item>
+
+                                            <el-form-item label="手机版本:" class="boxrow">
+                                                <span>  @{{ props.row.mobile_version }}</span>
+                                            </el-form-item>
+
+
+                                            <el-form-item label="系统版本:" class="boxrow">
+                                                <span>  @{{ props.row.system_version }}</span>
+                                            </el-form-item>
+
+                                            <el-form-item label="微信版本:" class="boxrow">
+                                                <span>  @{{ props.row.wechat_version }}</span>
+                                            </el-form-item>
+
+                                            <el-form-item label="语言:" class="boxrow">
+                                                <span>  @{{ props.row.language }}</span>
+                                            </el-form-item>
+
                                         </el-form>
                                     </template>
                                 </el-table-column>
@@ -172,7 +188,6 @@
                                 </el-table-column>
 
                                 <el-table-column
-
                                         label="状态"
                                         width="150">
                                     <template slot-scope="scope">
@@ -188,48 +203,42 @@
                                     </template>
                                 </el-table-column>
 
+
                                 <el-table-column
-                                        prop="type"
-                                        label="类型"
-                                        width="180">
+                                        prop="diffNowTime"
+                                        label="全时" width="100">
                                 </el-table-column>
 
                                 <el-table-column
-                                        prop="page"
-                                        label="页面"
-                                        width="180">
+                                        prop="diffEditTime"
+                                        label="现时" width="100">
+                                </el-table-column>
+
+                                <el-table-column label="描述">
+
+
+                                    <template slot-scope="scope">
+                                        <el-tooltip placement="top">
+                                            <div slot="content">
+                                                鼠标离开边框自动提交
+                                            </div>
+                                            <el-input
+                                                    maxlength="255"
+                                                    type="textarea"
+                                                    :autosize="{ minRows: 2, maxRows: 8}"
+                                                    placeholder="请输入内容"
+                                                    v-model="scope.row.content"
+                                                    @blur="changeStatus(scope.row)"
+                                            >
+                                            </el-input>
+                                        </el-tooltip>
+                                    </template>
                                 </el-table-column>
 
 
                                 <el-table-column
                                         prop="nickname"
                                         label="用户">
-                                </el-table-column>
-
-                                <el-table-column
-                                        prop="mobile_version"
-                                        label="手机版本">
-                                </el-table-column>
-
-                                <el-table-column
-                                        prop="system_version"
-                                        label="系统版本">
-                                </el-table-column>
-
-                                <el-table-column
-                                        prop="wechat_version"
-                                        label="微信版本">
-                                </el-table-column>
-
-                                <el-table-column
-                                        prop="language"
-                                        label="语言">
-                                </el-table-column>
-
-
-                                <el-table-column
-                                        prop="created_at"
-                                        label="创建时间">
                                 </el-table-column>
 
 
@@ -402,7 +411,8 @@
                     is_send: -1,
                     created_at: [],
                     page: "选择页面",
-                    multipleSelection: []
+                    multipleSelection: [],
+                    keyword: ""
                 },
                 typeOption: [
                     {
@@ -423,25 +433,32 @@
                     },
                     {
                         value: 0,
-                        label: '未处理'
+                        label: '待沟通'
                     }, {
                         value: 1,
-                        label: '待处理'
+                        label: '待认领'
                     }, {
                         value: 2,
-                        label: '已完结'
-                    }],
-                status2Option: [
+                        label: '处理中'
+                    },
                     {
-                        value: 0,
-                        label: '未处理'
-                    }, {
-                        value: 1,
-                        label: '待处理'
-                    }, {
-                        value: 2,
-                        label: '已完结'
-                    }],
+                        value: 3,
+                        label: '已处理'
+                    }
+                    , {
+                        value: 4,
+                        label: '已归档'
+                    }
+                    , {
+                        value: 5,
+                        label: '被合并'
+                    }
+                    , {
+                        value: 6,
+                        label: '被搁置'
+                    }
+                ],
+                status2Option: [],
                 pages: [
                     '选择页面',
                     '创建-创建云作品',
@@ -527,13 +544,17 @@
                             }
                         }
                     });
+                    let status = this.statusOption.slice();
+                    status.shift();
+                    this.status2Option = status;
                 },
                 clear: function () {
                     this.form = {
                         type: 0,
                         status: -1,
                         created_at: [],
-                        page: "选择页面"
+                        page: "选择页面",
+                        keyword: ""
                     };
                     this.$refs.children.initPageNo();
                     this.init(1);
@@ -542,17 +563,17 @@
                     this.$refs.children.initPageNo();
                     this.init(1);
                 },
-                changeStatus: function (data) {
+                changeStatus: function (dataItem) {
                     var that = this;
                     var formData = {
-                        form: data
+                        form: dataItem
                     };
                     $.ajax({
                         url: '/admin/question',
                         method: 'post',
                         data: formData,
                         success: function (response) {
-
+                            dataItem.diffEditTime = "0天0小时0分钟";
                         },
                         error: function (xhr, status, error) {
                             var response = JSON.parse(xhr.responseText);

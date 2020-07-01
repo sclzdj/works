@@ -15,7 +15,7 @@ class CreateQuestionTable extends Migration
     {
         Schema::create('question', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('status')->default(0)->comment("状态 0未处理1待处理2已完结");
+            $table->integer('status')->default(0)->comment("状态 0待沟通1待认领2处理中3已处理4已归档5被合并6被搁置");
             $table->integer('type')->default(0)->comment("类型 1bug 2建议");
             $table->string("page" , 255)->comment("页面");
             $table->string("content" , 255)->comment("反馈的问题");

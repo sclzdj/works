@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\BaseController;
 use App\Model\Index\Photographer;
 use App\Model\Index\Question;
 use App\Model\Index\Star;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -47,6 +48,10 @@ class QuestionController extends BaseController
             $where[] = ['question.page', $form['page']];
         }
 
+        if ($form['keyword'] != "") {
+            $where[] = ['question.content', 'like', "%{$form['keyword']}%"];
+        }
+
         if (isset($form['created_at'][0])) {
             $where[] = array("question.created_at", ">=", $form['created_at'][0] . ' 00:00:01');
         }
@@ -61,8 +66,20 @@ class QuestionController extends BaseController
             ->skip($page)->take($size)
             ->join('users', 'users.id', '=', 'question.user_id')
             ->select('question.*', 'users.nickname')
-            ->orderBy('question.created_at' , 'desc')
+            ->orderBy('question.created_at', 'desc')
             ->get();
+
+
+        foreach ($data as &$datum) {
+            $created_at = Carbon::createFromTimeString($datum->created_at);
+            $diff = Carbon::createFromTimestamp(time())->diff($created_at);
+            $datum->diffNowTime = sprintf("%d天", $diff->days);
+
+            $updated_at = Carbon::createFromTimeString($datum->updated_at);
+            $diff2 = Carbon::createFromTimestamp(time())->diff($updated_at);
+            $datum->diffEditTime = sprintf("%d天", $diff2->days);
+
+        }
 
         $count = (new Question())->count();
 
@@ -89,7 +106,8 @@ class QuestionController extends BaseController
     {
         $data = $request->input('form');
         $result = Question::where('id', $data['id'])->update([
-            'status' => $data['status']
+            'status' => $data['status'],
+            'content' => $data['content']
         ]);
         $msg = "";
         return response()->json(compact('result', 'msg'));
