@@ -1372,7 +1372,8 @@ class PhotographerController extends BaseController
         if($photographer_work_source['deal_width'] > $photographer_work_source['deal_height']) {
 
             if ($photographer_work_source['width'] < 2133 && $photographer_work_source['height'] < 1200) {
-                $bg = $photographer_work_source['url'] . "?imageMogr2/auto-orient/rotate/90/thumbnail/1200x2133!/blur/1x0/quality/75";
+              //  $bg = $photographer_work_source['url'] . "?imageMogr2/auto-orient/rotate/90/thumbnail/1200x2133!/blur/1x0/quality/75";
+                $bg =$photographer_work_source['url'] . "?imageMogr2/auto-orient/thumbnail/!2133x1200r/quality/75/rotate/90/gravity/Center/crop/1200x2133|imageslim";
             } else {
                 $bg = $photographer_work_source['url'] . "?imageView2/5/w/2133/h/1200/q/75|imageMogr2/rotate/90|imageslim";
             }
@@ -1555,16 +1556,16 @@ class PhotographerController extends BaseController
         if($PhotographerWorkSource->deal_width > $PhotographerWorkSource->deal_height) {
 
             if ($PhotographerWorkSource->width < 2133 && $PhotographerWorkSource->height < 1200) {
-                $bg = $PhotographerWorkSource->url . "?imageMogr2/auto-orient/rotate/90/thumbnail/1200x2133!/blur/1x0/quality/75";
+              //  $bg = $PhotographerWorkSource->url . "?imageMogr2/auto-orient/thumbnail/2133x1200!/blur/1x0/quality/75/rotate/90/";
+                $bg = $PhotographerWorkSource->url . "?imageMogr2/auto-orient/thumbnail/!2133x1200r/quality/75/rotate/90/gravity/Center/crop/1200x2133|imageslim";
             } else {
                 $bg = $PhotographerWorkSource->url. "?imageView2/5/w/2133/h/1200/q/75|imageMogr2/rotate/90|imageslim";
             }
-            //$bg = $PhotographerWorkSource->url . "?imageView2/5/w/2133/h/1200/q/75|imageMogr2/rotate/90|imageslim";
+
         } else {
             $bg = $PhotographerWorkSource->deal_url . "?imageMogr2/auto-orient/thumbnail/!1200x2133r/gravity/Center/crop/1200x2133";
         }
-//        $bg = $PhotographerWorkSource->deal_url . "?imageMogr2/auto-orient/thumbnail/!1200x2133r/gravity/Center/crop/1200x2133";
-
+//
         $handle = array();
         $handle[] = $bg;
         // 蒙层
