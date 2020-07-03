@@ -126,11 +126,10 @@
                             </el-row>
 
 
-
-
                             <el-button type="primary" @click="search" icon="el-icon-search">搜索</el-button>
                             <el-button type="primary" @click="clear" icon="el-icon-close">清除</el-button>
-                            <el-button type="primary" @click="exports" icon="el-icon-close">导出</el-button>
+                            <el-button type="primary" @click="exports" >导出</el-button>
+                            <el-button type="primary" @click="add" >录入</el-button>
 
 
                         </div>
@@ -185,6 +184,17 @@
                                 <el-table-column
                                         type="selection"
                                         width="55">
+                                </el-table-column>
+
+
+                                <el-table-column
+                                        label="标星"
+                                        width="150"
+                                >
+                                    <template slot-scope="scope">
+                                        <el-checkbox v-model="scope.row.important"
+                                                     @change="changeStatus(scope.row)"></el-checkbox>
+                                    </template>
                                 </el-table-column>
 
                                 <el-table-column
@@ -496,6 +506,13 @@
                             that.data = response.data;
                             that.total = response.count;
                             for (let i = 0; i < that.data.length; i++) {
+
+                                if (that.data[i].important ===1) {
+                                    that.data[i].important = true;
+                                }  else {
+                                    that.data[i].important = false;
+                                }
+
                                 switch (that.data[i].type) {
                                     case 1:
                                         that.data[i].type = "bug";
@@ -522,6 +539,7 @@
                                     }
 
                                 }
+
                             }
                         },
                         error: function (xhr, status, error) {
@@ -569,8 +587,8 @@
                         form: dataItem
                     };
                     $.ajax({
-                        url: '/admin/question',
-                        method: 'post',
+                        url: '/admin/question/'+dataItem.id,
+                        method: 'PUT',
                         data: formData,
                         success: function (response) {
                             dataItem.diffEditTime = "0天0小时0分钟";
@@ -605,6 +623,9 @@
                 exports: function () {
                     window.location.href = "/admin/question/export?params=" + JSON.stringify(this.form);
                 },
+                add:function () {
+                    window.location.href = "/admin/question/create";
+                }
 
             },
             mounted: function () {

@@ -511,6 +511,10 @@ class SystemNodesTableSeeder extends Seeder
                                         'name' => '更新数据',
                                         'action' => 'Admin\Works\QuestionController@store',
                                     ],
+                                    [
+                                        'name' => '创建问题',
+                                        'action' => 'Admin\Works\QuestionController@create',
+                                    ],
                                 ],
                             ],
                             [

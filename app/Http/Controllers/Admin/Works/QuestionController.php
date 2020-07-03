@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\BaseController;
 use App\Model\Index\Photographer;
 use App\Model\Index\Question;
 use App\Model\Index\Star;
+use App\Model\Index\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -21,6 +22,35 @@ class QuestionController extends BaseController
     public function index()
     {
         return view('admin/question/index');
+    }
+
+
+
+    public function create()
+    {
+
+
+
+        return view('admin/question/create' , compact('userstr'));
+    }
+
+    public function update(Request $request)
+    {
+        $data = $request->input('form');
+        $important = 0;
+        if ($data['important'] == "true")
+            $important = 1;
+
+
+        $result = Question::where('id', $data['id'])->update([
+            'status' => $data['status'],
+            'content' => $data['content'],
+            'important' => $important,
+        ]);
+
+
+        $msg = "";
+        return response()->json(compact('result', 'msg'));
     }
 
     /**
@@ -66,6 +96,7 @@ class QuestionController extends BaseController
             ->skip($page)->take($size)
             ->join('users', 'users.id', '=', 'question.user_id')
             ->select('question.*', 'users.nickname')
+            ->orderBy('question.important', 'desc')
             ->orderBy('question.created_at', 'desc')
             ->get();
 
@@ -82,8 +113,8 @@ class QuestionController extends BaseController
         }
 
         $count = (new Question())->count();
-
-        return response()->json(compact('data', 'count'));
+        $user = User::all()->pluck("nickname", 'id');
+        return response()->json(compact('data', 'count' , 'user'));
     }
 
     public function edit($id)
@@ -105,11 +136,21 @@ class QuestionController extends BaseController
     public function store(Request $request)
     {
         $data = $request->input('form');
-        $result = Question::where('id', $data['id'])->update([
-            'status' => $data['status'],
-            'content' => $data['content']
-        ]);
-        $msg = "";
+
+        $important = 0;
+        if ($data['important'] == "true")
+            $important = 1;
+
+        if (empty($data['attachment'] ?? null)) {
+            $data['attachment'] = json_encode([]);
+            $data['user_id'] = 3;
+        }
+        unset($data['users']);
+
+        $data['important'] = $important;
+        $data['created_at'] = date('Y-m-d H:i:s' , time());
+        $data['updated_at'] = date('Y-m-d H:i:s' , time());
+        $result = Question::insert($data);
         return response()->json(compact('result', 'msg'));
     }
 
