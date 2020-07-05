@@ -65,7 +65,7 @@
                         </li>
                         <li>
                             <button type="button" data-toggle="block-option" data-action="fullscreen_toggle"><i
-                                        class="si si-size-fullscreen"></i></button>
+                                    class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
                     <h3 class="block-title">问题反馈</h3>
@@ -96,48 +96,50 @@
                                 <el-col :span="3">
                                     <el-select style="width: 100%" v-model="form.type" placeholder="请选择">
                                         <el-option
-                                                v-for="item in typeOption"
-                                                :key="item.value"
-                                                :label="item.label"
-                                                :value="item.value">
+                                            v-for="item in typeOption"
+                                            :key="item.value"
+                                            :label="item.label"
+                                            :value="item.value">
                                         </el-option>
                                     </el-select>
                                 </el-col>
                                 <el-col :span="3">
                                     <el-select style="width: 100%" v-model="form.page" placeholder="请选择">
                                         <el-option
-                                                v-for="item in pages"
-                                                :key="item"
-                                                :label="item"
-                                                :value="item">
+                                            v-for="item in pages"
+                                            :key="item"
+                                            :label="item"
+                                            :value="item">
                                         </el-option>
                                     </el-select>
                                 </el-col>
                                 <el-col :span="4">
                                     <el-select style="width: 100%" v-model="form.status" placeholder="请选择">
                                         <el-option
-                                                v-for="item in statusOption"
-                                                :key="item.value"
-                                                :label="item.label"
-                                                :value="item.value">
+                                            v-for="item in statusOption"
+                                            :key="item.value"
+                                            :label="item.label"
+                                            :value="item.value">
                                         </el-option>
                                     </el-select>
                                 </el-col>
                             </el-row>
 
 
-                            <el-button type="primary" @click="search" icon="el-icon-search">搜索</el-button>
+                            <el-button type="primary" @click="search(0)" icon="el-icon-search">搜索</el-button>
                             <el-button type="primary" @click="clear" icon="el-icon-close">清除</el-button>
-                            <el-button type="primary" @click="exports" >导出</el-button>
-                            <el-button type="primary" @click="add" >录入</el-button>
+                            <el-button type="primary" @click="exports">导出</el-button>
+                            <el-button type="primary" @click="add">录入</el-button>
+                            <el-button type="primary" @click="search(1)">一键认领</el-button>
+                            <el-button type="primary" @click="mergeQeustion()"> 合并问题</el-button>
 
 
                         </div>
                         <div class="block-content">
                             <el-table
-                                    :data="data"
-                                    style="width: 100%"
-                                    @selection-change="handleSelectionChange"
+                                :data="data"
+                                style="width: 100%"
+                                @selection-change="handleSelectionChange"
                             >
 
                                 <el-table-column type="expand">
@@ -147,9 +149,9 @@
                                             <el-form-item label="图片:">
                                                 <div class="demo-image__preview" v-if="props.row.img.length > 0">
                                                     <el-image
-                                                            style="width: 100px; height: 100px"
-                                                            :src="props.row.img[0]"
-                                                            :preview-src-list="props.row.img">
+                                                        style="width: 100px; height: 100px"
+                                                        :src="props.row.img[0]"
+                                                        :preview-src-list="props.row.img">
                                                     </el-image>
                                                 </div>
                                             </el-form-item>
@@ -182,14 +184,14 @@
                                 </el-table-column>
 
                                 <el-table-column
-                                        type="selection"
-                                        width="55">
+                                    type="selection"
+                                    width="55">
                                 </el-table-column>
 
 
                                 <el-table-column
-                                        label="标星"
-                                        width="150"
+                                    label="标星"
+                                    width="55"
                                 >
                                     <template slot-scope="scope">
                                         <el-checkbox v-model="scope.row.important"
@@ -198,16 +200,16 @@
                                 </el-table-column>
 
                                 <el-table-column
-                                        label="状态"
-                                        width="150">
+                                    label="状态"
+                                    width="150">
                                     <template slot-scope="scope">
                                         <el-select @change="changeStatus(scope.row)" v-model="scope.row.status"
                                                    placeholder="请选择">
                                             <el-option
-                                                    v-for="item in status2Option"
-                                                    :key="item.value"
-                                                    :label="item.label"
-                                                    :value="item.value">
+                                                v-for="item in status2Option"
+                                                :key="item.value"
+                                                :label="item.label"
+                                                :value="item.value">
                                             </el-option>
                                         </el-select>
                                     </template>
@@ -215,30 +217,28 @@
 
 
                                 <el-table-column
-                                        prop="diffNowTime"
-                                        label="全时" width="100">
+                                    prop="diffNowTime"
+                                    label="全时" width="100">
                                 </el-table-column>
 
                                 <el-table-column
-                                        prop="diffEditTime"
-                                        label="现时" width="100">
+                                    prop="diffEditTime"
+                                    label="现时" width="100">
                                 </el-table-column>
 
                                 <el-table-column label="描述">
-
-
                                     <template slot-scope="scope">
                                         <el-tooltip placement="top">
                                             <div slot="content">
                                                 鼠标离开边框自动提交
                                             </div>
                                             <el-input
-                                                    maxlength="255"
-                                                    type="textarea"
-                                                    :autosize="{ minRows: 2, maxRows: 8}"
-                                                    placeholder="请输入内容"
-                                                    v-model="scope.row.content"
-                                                    @blur="changeStatus(scope.row)"
+                                                maxlength="255"
+                                                type="textarea"
+                                                :autosize="{ minRows: 2, maxRows: 8}"
+                                                placeholder="请输入内容"
+                                                v-model="scope.row.content"
+                                                @blur="changeStatus(scope.row)"
                                             >
                                             </el-input>
                                         </el-tooltip>
@@ -247,8 +247,8 @@
 
 
                                 <el-table-column
-                                        prop="nickname"
-                                        label="用户">
+                                    prop="nickname"
+                                    label="用户">
                                 </el-table-column>
 
 
@@ -422,7 +422,8 @@
                     created_at: [],
                     page: "选择页面",
                     multipleSelection: [],
-                    keyword: ""
+                    keyword: "",
+                    method: ""
                 },
                 typeOption: [
                     {
@@ -489,14 +490,14 @@
                     '其他-学习使用技巧',
                     '其他'
                 ],
-
             },
             methods: {
-                init: function (page) {
+                init: function (page, type) {
                     var that = this;
                     var data = {
                         page: page,
-                        form: this.form
+                        form: this.form,
+                        type: type
                     };
                     $.ajax({
                         type: 'GET',
@@ -506,10 +507,9 @@
                             that.data = response.data;
                             that.total = response.count;
                             for (let i = 0; i < that.data.length; i++) {
-
-                                if (that.data[i].important ===1) {
+                                if (that.data[i].important === 1) {
                                     that.data[i].important = true;
-                                }  else {
+                                } else {
                                     that.data[i].important = false;
                                 }
 
@@ -570,16 +570,19 @@
                     this.form = {
                         type: 0,
                         status: -1,
+                        is_send: -1,
                         created_at: [],
                         page: "选择页面",
-                        keyword: ""
+                        multipleSelection: [],
+                        keyword: "",
+                        method: ""
                     };
                     this.$refs.children.initPageNo();
-                    this.init(1);
+                    this.init(1, 0);
                 },
-                search: function () {
+                search: function (type) {
                     this.$refs.children.initPageNo();
-                    this.init(1);
+                    this.init(1, type);
                 },
                 changeStatus: function (dataItem) {
                     var that = this;
@@ -587,11 +590,11 @@
                         form: dataItem
                     };
                     $.ajax({
-                        url: '/admin/question/'+dataItem.id,
+                        url: '/admin/question/' + dataItem.id,
                         method: 'PUT',
                         data: formData,
                         success: function (response) {
-                            dataItem.diffEditTime = "0天0小时0分钟";
+                            dataItem.diffEditTime = "0天";
                         },
                         error: function (xhr, status, error) {
                             var response = JSON.parse(xhr.responseText);
@@ -623,13 +626,58 @@
                 exports: function () {
                     window.location.href = "/admin/question/export?params=" + JSON.stringify(this.form);
                 },
-                add:function () {
+                add: function () {
                     window.location.href = "/admin/question/create";
-                }
+                },
+                mergeQeustion: function () {
+                    var that = this;
+                    if (this.form.multipleSelection.length <= 0) {
+                        this.$message.error("请选择合并的问题");
+                        return;
+                    }
+                    if (this.form.multipleSelection.length <= 1) {
+                        this.$message.error("合并操作至少需要两个");
+                        return;
+                    }
+                    var postData = {
+                        'form': {
+                            'ids': this.form.multipleSelection,
+                            'method': "merge"
+                        }
+                    };
+                    $.ajax({
+                        url: '/admin/question/0',
+                        method: 'PUT',
+                        data: postData,
+                        success: function (response) {
+                            window.location.reload();
+                        },
+                        error: function (xhr, status, error) {
+                            var response = JSON.parse(xhr.responseText);
+                            if (xhr.status == 419) { // csrf错误，错误码固定为419
+                                alert('请勿重复请求~');
+                            } else if (xhr.status == 422) { // 验证错误
+                                var message = [];
+                                for (var i in response.errors) {
+                                    message = message.concat(response.errors[i]);
+                                }
+                                message = message.join(',');
+                                alert(message);
+                            } else {
+                                if (response.message) {
+                                    alert(response.message);
+                                } else {
+                                    alert('服务器错误~');
+                                }
+                            }
+                        }
+                    });
 
+
+                }
             },
             mounted: function () {
-                this.init(1);
+                this.init(1, 0);
             },
             computed: {}
         });

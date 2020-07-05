@@ -118,7 +118,7 @@
                         </li>
                         <li>
                             <button type="button" data-toggle="block-option" data-action="fullscreen_toggle"><i
-                                        class="si si-size-fullscreen"></i></button>
+                                    class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
                     <h3 class="block-title">问题反馈编辑</h3>
@@ -138,10 +138,10 @@
                                 <el-form-item label="问题页面">
                                     <el-select style="width: 60%" v-model="form.page" placeholder="请选择">
                                         <el-option
-                                                v-for="item in pages"
-                                                :key="item"
-                                                :label="item"
-                                                :value="item">
+                                            v-for="item in pages"
+                                            :key="item"
+                                            :label="item"
+                                            :value="item">
                                         </el-option>
                                     </el-select>
                                 </el-form-item>
@@ -164,7 +164,7 @@
                                 </el-form-item>
 
 
-                                <el-form-item label="意见"  prop="content" label-width="400px">
+                                <el-form-item label="意见" prop="content" label-width="400px">
                                     <el-input type="textarea" style="width: 60%" maxlength="255"
                                               :autosize="{ minRows: 4, maxRows: 8}" v-model="form.content"></el-input>
                                 </el-form-item>
@@ -179,14 +179,28 @@
                                     <el-select v-model="form.users" style="width: 60%" filterable multiple
                                                placeholder="请选择">
                                         <el-option
-                                                v-for="key,value in users"
-                                                :key="value"
-                                                :label="key"
-                                                :value="value">
+                                            v-for="key,value in users"
+                                            :key="value"
+                                            :label="key"
+                                            :value="value">
                                         </el-option>
                                     </el-select>
                                 </el-form-item>
 
+                                <el-form-item label="上传附件" label-width="400px">
+                                    <el-upload
+                                        class="upload-demo"
+                                        ref="upload"
+                                        action="https://jsonplaceholder.typicode.com/posts/"
+                                        :on-preview="handlePreview"
+                                        :on-remove="handleRemove"
+                                        :file-list="fileList"
+                                        :auto-upload="true"
+                                        :http-request="uploadSectionFile">
+                                        <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+                                        <span v-if="isPercent"> @{{ percent }}</span>
+                                    </el-upload>
+                                </el-form-item>
 
                                 <el-form-item>
                                     <el-button type="primary" @click="submit('form')">立即创建</el-button>
@@ -206,6 +220,25 @@
 
 @section('javascript')
 
+    <script src="https://unpkg.com/qiniu-js@2.5.4/dist/qiniu.min.js"></script>
+    @php
+        $bucket = 'zuopin';
+        $buckets = config('custom.qiniu.buckets');
+        $domain = $buckets[$bucket]['domain'] ?? '';
+        // 用于签名的公钥和私钥
+        $accessKey = config('custom.qiniu.accessKey');
+        $secretKey = config('custom.qiniu.secretKey');
+        // 初始化签权对象
+        $auth = new \Qiniu\Auth($accessKey, $secretKey);
+        // 生成上传Token
+        $upToken = $auth->uploadToken($bucket);
+        $qiniu_config=compact('upToken', 'domain');
+    @endphp
+    <script>
+        var qiniu_config = {!! json_encode($qiniu_config) !!};
+    </script>
+    <script src="{{asset('/static/admin/js/qiniu-upload.js').'?'.$SFV}}"></script>
+
     <!-- 引入组件库 -->
     <script src="{{asset('/static/admin/js/vue.js').'?'.$SFV}}"></script>
     <script src="{{asset('/static/admin/js/element.js').'?'.$SFV}}"></script>
@@ -215,6 +248,9 @@
         var vm = new Vue({
             el: '#app',
             data: {
+                isPercent: false,
+                percent: 0,
+                fileList: [],
                 pages: [
                     '创建-创建云作品',
                     '添加-从手机相册选图',
@@ -243,7 +279,8 @@
                     system_version: "",
                     wechat_version: "",
                     language: "",
-                    important: false
+                    important: false,
+                    attachment: [],
                 },
                 users: [],
                 rules: {
@@ -256,6 +293,76 @@
                 }
             },
             methods: {
+                uploadSectionFile(params) {
+                    var that = this;
+                    const file = params.file,
+                        fileType = file.type,
+                        isImage = fileType.indexOf("image") != -1,
+                        isLt2M = file.size / 1024 / 1024 < 20,
+                        isVideo = fileType.indexOf('video') != -1;
+                    var fileDataBaseType = "";
+                    if (!isImage && !isVideo) {
+                        this.$message.error("只能上传图片和视频");
+                        this.$refs.upload.uploadFiles = [];
+                        return;
+                    }
+
+                    if(isImage) {
+                        fileDataBaseType = "img";
+                    }
+
+                    if(isVideo) {
+                        fileDataBaseType = "video";
+                    }
+
+                    if (!isLt2M) {
+                        that.$message.error('上传图片或视频大小不能超过 20MB!', '提示', {type: 'error'});
+                        this.$refs.upload.uploadFiles = [];
+                        return;
+                    }
+                    var observable = qiniu.upload(file, null, qiniu_config.upToken, {
+                        fname: "",
+                        params: {},
+                    }, config = {
+                        useCdnDomain: true,
+                        region: null
+                    });
+
+                    var subscription = observable.subscribe({
+                        next(res) {
+                            if (res.total.percent < 100) {
+                                that.isPercent = true;
+                                that.percent = '上传进度' + Math.floor(res.total.percent) + '%'
+                            } else {
+                                that.isPercent = false;
+                            }
+                        },
+                        error(err) {
+                            that.$message.error(err.message);
+                        },
+                        complete(res) {
+                            that.$message({
+                                message: '上传完成',
+                                type: 'success'
+                            });
+                            that.form.attachment.push({
+                                'value': "https://file.zuopin.cloud/" + res.key,
+                                'type': fileDataBaseType
+                            });
+                        }
+                    });
+
+                },
+
+                handleRemove(file, fileList) {
+                    console.log(file, fileList);
+                },
+                handlePreview(file) {
+                    console.log(file);
+                },
+                beforeRemove(file, fileList) {
+                    return this.$confirm(`确定移除 ${file.name}？`);
+                },
                 clear() {
                     window.location.href = "/admin/question";
                 },
