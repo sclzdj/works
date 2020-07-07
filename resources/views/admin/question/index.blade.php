@@ -74,9 +74,8 @@
                     <div class="tab-pane active">
                         <div class="block-content">
 
-                            <el-row :gutter="10">
-                                <el-col :span="5">
-
+                            <el-row :gutter="22">
+                                <el-col :span="8">
                                     <el-date-picker style="width: 100%"
                                                     v-model="form.created_at"
                                                     type="daterange"
@@ -86,17 +85,10 @@
                                                     end-placeholder="结束日期">
                                     </el-date-picker>
                                 </el-col>
-                                <el-col :span="5">
-                                    <el-input v-model="form.keyword" placeholder="从描述中搜索"></el-input>
-                                </el-col>
-
-                            </el-row>
-
-                            <el-row :gutter="10">
                                 <el-col :span="3">
-                                    <el-select style="width: 100%" v-model="form.type" placeholder="请选择">
+                                    <el-select style="width: 100%" v-model="form.status" placeholder="请选择">
                                         <el-option
-                                            v-for="item in typeOption"
+                                            v-for="item in statusOption"
                                             :key="item.value"
                                             :label="item.label"
                                             :value="item.value">
@@ -114,26 +106,51 @@
                                     </el-select>
                                 </el-col>
                                 <el-col :span="4">
-                                    <el-select style="width: 100%" v-model="form.status" placeholder="请选择">
-                                        <el-option
-                                            v-for="item in statusOption"
-                                            :key="item.value"
-                                            :label="item.label"
-                                            :value="item.value">
-                                        </el-option>
-                                    </el-select>
+                                    <el-input v-model="form.keyword" placeholder="从描述中搜索"></el-input>
                                 </el-col>
+                                <el-col :span=2>
+                                    <el-button type="primary" @click="search(0)" icon="el-icon-search">搜索</el-button>
+                                </el-col>
+                                <el-col :span=2>
+                                    <el-button type="primary" @click="clear" icon="el-icon-close">清除</el-button>
+                                </el-col>
+
                             </el-row>
 
+                            <el-row :gutter="22">
+                                {{--                                <el-col :span="3">--}}
+                                {{--                                    <el-select style="width: 100%" v-model="form.type" placeholder="请选择">--}}
+                                {{--                                        <el-option--}}
+                                {{--                                            v-for="item in typeOption"--}}
+                                {{--                                            :key="item.value"--}}
+                                {{--                                            :label="item.label"--}}
+                                {{--                                            :value="item.value">--}}
+                                {{--                                        </el-option>--}}
+                                {{--                                    </el-select>--}}
+                                {{--                                </el-col>--}}
+                                <el-col :span="2.5">
+                                    <el-button type="primary" @click="renling">一键认领</el-button>
+                                </el-col>
+                                <el-col :span="2.5">
+                                    <el-button type="primary" @click="guidang(1)">归档问题</el-button>
+                                </el-col>
+                                <el-col :span="2.5">
+                                    <el-button type="primary" @click="hebing()">合并问题</el-button>
+                                </el-col>
+                                <el-col :span="8.5">
+                                    <span  > <a></a> </span>
+                                </el-col>
 
-                            <el-button type="primary" @click="search(0)" icon="el-icon-search">搜索</el-button>
-                            <el-button type="primary" @click="clear" icon="el-icon-close">清除</el-button>
-                            <el-button type="primary" @click="exports">导出</el-button>
-                            <el-button type="primary" @click="add">录入</el-button>
-                            <el-button type="primary" @click="search(1)">一键认领</el-button>
-                            <el-button type="primary" @click="mergeQeustion()"> 合并问题</el-button>
-
-
+                                <el-col :span="2">
+                                    <el-button type="primary" @click="mergeQeustion()">合并</el-button>
+                                </el-col>
+                                <el-col :span="2">
+                                    <el-button type="primary" @click="exports">导出</el-button>
+                                </el-col>
+                                <el-col :span="2">
+                                    <el-button type="primary" @click="add">添加</el-button>
+                                </el-col>
+                            </el-row>
                         </div>
                         <div class="block-content">
                             <el-table
@@ -218,12 +235,12 @@
 
                                 <el-table-column
                                     prop="diffNowTime"
-                                    label="全时" width="100">
+                                    label="自创建" width="100">
                                 </el-table-column>
 
                                 <el-table-column
                                     prop="diffEditTime"
-                                    label="现时" width="100">
+                                    label="自更改" width="100">
                                 </el-table-column>
 
                                 <el-table-column label="描述">
@@ -235,7 +252,7 @@
                                             <el-input
                                                 maxlength="255"
                                                 type="textarea"
-                                                :autosize="{ minRows: 2, maxRows: 8}"
+                                                :autosize="{ minRows: 3, maxRows: 3}"
                                                 placeholder="请输入内容"
                                                 v-model="scope.row.content"
                                                 @blur="changeStatus(scope.row)"
@@ -492,6 +509,17 @@
                 ],
             },
             methods: {
+                hebing() {
+                    this.form.status = 5;
+                    this.search(0);
+                },
+                guidang() {
+                    this.form.status = 4;
+                    this.search(0);
+                },
+                renling() {
+                    this.search(1);
+                },
                 init: function (page, type) {
                     var that = this;
                     var data = {
