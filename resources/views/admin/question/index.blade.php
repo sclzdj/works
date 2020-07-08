@@ -52,6 +52,10 @@
         background-color: #f9fafc;
     }
 
+    .bg-purple {
+        background: #d3dce6;
+    }
+
 </style>
 
 @section('content')
@@ -65,7 +69,7 @@
                         </li>
                         <li>
                             <button type="button" data-toggle="block-option" data-action="fullscreen_toggle"><i
-                                    class="si si-size-fullscreen"></i></button>
+                                        class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
                     <h3 class="block-title">问题反馈</h3>
@@ -74,8 +78,8 @@
                     <div class="tab-pane active">
                         <div class="block-content">
 
-                            <el-row :gutter="22">
-                                <el-col :span="8">
+                            <el-row :gutter="15">
+                                <el-col :span="6">
                                     <el-date-picker style="width: 100%"
                                                     v-model="form.created_at"
                                                     type="daterange"
@@ -85,39 +89,71 @@
                                                     end-placeholder="结束日期">
                                     </el-date-picker>
                                 </el-col>
-                                <el-col :span="3">
+                                <el-col :span="2">
                                     <el-select style="width: 100%" v-model="form.status" placeholder="请选择">
                                         <el-option
-                                            v-for="item in statusOption"
-                                            :key="item.value"
-                                            :label="item.label"
-                                            :value="item.value">
+                                                v-for="item in statusOption"
+                                                :key="item.value"
+                                                :label="item.label"
+                                                :value="item.value">
+                                        </el-option>
+                                    </el-select>
+                                </el-col>
+                                <el-col :span="2">
+                                    <el-select style="width: 100%" v-model="form.page" placeholder="请选择">
+                                        <el-option
+                                                v-for="item in pages"
+                                                :key="item"
+                                                :label="item"
+                                                :value="item">
                                         </el-option>
                                     </el-select>
                                 </el-col>
                                 <el-col :span="3">
-                                    <el-select style="width: 100%" v-model="form.page" placeholder="请选择">
-                                        <el-option
-                                            v-for="item in pages"
-                                            :key="item"
-                                            :label="item"
-                                            :value="item">
-                                        </el-option>
-                                    </el-select>
-                                </el-col>
-                                <el-col :span="4">
                                     <el-input v-model="form.keyword" placeholder="从描述中搜索"></el-input>
                                 </el-col>
-                                <el-col :span=2>
+                                <el-col :span=1>
                                     <el-button type="primary" @click="search(0)" icon="el-icon-search">搜索</el-button>
                                 </el-col>
-                                <el-col :span=2>
+                                <el-col :span=1>
                                     <el-button type="primary" @click="clear" icon="el-icon-close">清除</el-button>
                                 </el-col>
 
                             </el-row>
 
-                            <el-row :gutter="22">
+
+                            <el-row :gutter="15">
+                                <el-col :span="7">
+                                    <el-row :gutter="4.5">
+                                        <el-col :span="1.5">
+                                            <el-button type="primary" @click="renling">一键认领</el-button>
+                                        </el-col>
+                                        <el-col :span="1.5">
+                                            <el-button type="primary" @click="guidang(1)">归档问题</el-button>
+                                        </el-col>
+                                        <el-col :span="1.5">
+                                            <el-button type="primary" @click="hebing()">合并问题</el-button>
+                                        </el-col>
+                                    </el-row>
+                                </el-col>
+                                <el-col :span="8"   >
+                                    <div class="grid-content" style="float: right">
+                                        <el-row :gutter="4.5">
+                                            <el-col :span="1.5">
+                                                <el-button type="primary" @click="mergeQeustion()">合并</el-button>
+                                            </el-col>
+                                            <el-col :span="1.5">
+                                                <el-button type="primary" @click="exports">导出</el-button>
+                                            </el-col>
+                                            <el-col :span="1.5">
+                                                <el-button type="primary" @click="add">添加</el-button>
+                                            </el-col>
+                                        </el-row>
+                                    </div>
+                                </el-col>
+                            </el-row>
+
+                            <el-row :gutter="15">
                                 {{--                                <el-col :span="3">--}}
                                 {{--                                    <el-select style="width: 100%" v-model="form.type" placeholder="请选择">--}}
                                 {{--                                        <el-option--}}
@@ -128,35 +164,14 @@
                                 {{--                                        </el-option>--}}
                                 {{--                                    </el-select>--}}
                                 {{--                                </el-col>--}}
-                                <el-col :span="2.5">
-                                    <el-button type="primary" @click="renling">一键认领</el-button>
-                                </el-col>
-                                <el-col :span="2.5">
-                                    <el-button type="primary" @click="guidang(1)">归档问题</el-button>
-                                </el-col>
-                                <el-col :span="2.5">
-                                    <el-button type="primary" @click="hebing()">合并问题</el-button>
-                                </el-col>
-                                <el-col :span="8.5">
-                                    <span  > <a></a> </span>
-                                </el-col>
 
-                                <el-col :span="2">
-                                    <el-button type="primary" @click="mergeQeustion()">合并</el-button>
-                                </el-col>
-                                <el-col :span="2">
-                                    <el-button type="primary" @click="exports">导出</el-button>
-                                </el-col>
-                                <el-col :span="2">
-                                    <el-button type="primary" @click="add">添加</el-button>
-                                </el-col>
                             </el-row>
                         </div>
                         <div class="block-content">
                             <el-table
-                                :data="data"
-                                style="width: 100%"
-                                @selection-change="handleSelectionChange"
+                                    :data="data"
+                                    style="width: 100%"
+                                    @selection-change="handleSelectionChange"
                             >
 
                                 <el-table-column type="expand">
@@ -166,9 +181,9 @@
                                             <el-form-item label="图片:">
                                                 <div class="demo-image__preview" v-if="props.row.img.length > 0">
                                                     <el-image
-                                                        style="width: 100px; height: 100px"
-                                                        :src="props.row.img[0]"
-                                                        :preview-src-list="props.row.img">
+                                                            style="width: 100px; height: 100px"
+                                                            :src="props.row.img[0]"
+                                                            :preview-src-list="props.row.img">
                                                     </el-image>
                                                 </div>
                                             </el-form-item>
@@ -201,14 +216,14 @@
                                 </el-table-column>
 
                                 <el-table-column
-                                    type="selection"
-                                    width="55">
+                                        type="selection"
+                                        width="55">
                                 </el-table-column>
 
 
                                 <el-table-column
-                                    label="标星"
-                                    width="55"
+                                        label="标星"
+                                        width="55"
                                 >
                                     <template slot-scope="scope">
                                         <el-checkbox v-model="scope.row.important"
@@ -217,16 +232,16 @@
                                 </el-table-column>
 
                                 <el-table-column
-                                    label="状态"
-                                    width="150">
+                                        label="状态"
+                                        width="150">
                                     <template slot-scope="scope">
                                         <el-select @change="changeStatus(scope.row)" v-model="scope.row.status"
                                                    placeholder="请选择">
                                             <el-option
-                                                v-for="item in status2Option"
-                                                :key="item.value"
-                                                :label="item.label"
-                                                :value="item.value">
+                                                    v-for="item in status2Option"
+                                                    :key="item.value"
+                                                    :label="item.label"
+                                                    :value="item.value">
                                             </el-option>
                                         </el-select>
                                     </template>
@@ -234,13 +249,13 @@
 
 
                                 <el-table-column
-                                    prop="diffNowTime"
-                                    label="自创建" width="100">
+                                        prop="diffNowTime"
+                                        label="自创建" width="100">
                                 </el-table-column>
 
                                 <el-table-column
-                                    prop="diffEditTime"
-                                    label="自更改" width="100">
+                                        prop="diffEditTime"
+                                        label="自更改" width="100">
                                 </el-table-column>
 
                                 <el-table-column label="描述">
@@ -250,12 +265,12 @@
                                                 鼠标离开边框自动提交
                                             </div>
                                             <el-input
-                                                maxlength="255"
-                                                type="textarea"
-                                                :autosize="{ minRows: 3, maxRows: 3}"
-                                                placeholder="请输入内容"
-                                                v-model="scope.row.content"
-                                                @blur="changeStatus(scope.row)"
+                                                    maxlength="255"
+                                                    type="textarea"
+                                                    :autosize="{ minRows: 3, maxRows: 3}"
+                                                    placeholder="请输入内容"
+                                                    v-model="scope.row.content"
+                                                    @blur="changeStatus(scope.row)"
                                             >
                                             </el-input>
                                         </el-tooltip>
@@ -264,8 +279,8 @@
 
 
                                 <el-table-column
-                                    prop="nickname"
-                                    label="用户">
+                                        prop="nickname"
+                                        label="用户">
                                 </el-table-column>
 
 
@@ -349,7 +364,7 @@
                     required: false
                 }
             },
-            created: function () {// 生命周期函数，创建时计算总页数
+            created: function () {
                 let that = this;
                 this.pages = Math.ceil(that.total / that.pageSize)
             },
@@ -678,7 +693,7 @@
                         method: 'PUT',
                         data: postData,
                         success: function (response) {
-                            window.location.reload();
+                           // window.location.reload();
                         },
                         error: function (xhr, status, error) {
                             var response = JSON.parse(xhr.responseText);

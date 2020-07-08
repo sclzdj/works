@@ -26,5 +26,5 @@ class RecodeScence extends Model
     ];
 
 
-
+    
 }
