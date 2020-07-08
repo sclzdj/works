@@ -56,9 +56,6 @@ class QuestionController extends BaseController
             }
 
             //dd(array_unique($allUserId));
-
-
-
             // 删除掉以前问题的用户
             QuestionUser::where('question_id', $firstQuestionId)->delete();
             // 删除掉合并的问题
@@ -72,8 +69,6 @@ class QuestionController extends BaseController
                     'created_at' => date('Y-m-d H:i:s')
                 ]);
             }
-
-
         } else {
             $important = 0;
             if ($data['important'] == "true")
@@ -88,8 +83,6 @@ class QuestionController extends BaseController
             $msg = "";
             return response()->json(compact('result', 'msg'));
         }
-
-
     }
 
     /**
@@ -135,6 +128,7 @@ class QuestionController extends BaseController
         }
 
         if ($isRenling == 1) {
+            //   DB::connection()->enableQueryLog();
             $data = (new Question())
                 ->with(['QuestionUserRelation:nickname'])
                 ->where($where)
@@ -142,13 +136,13 @@ class QuestionController extends BaseController
                 ->leftJoin('users', 'users.id', '=', 'question.user_id')
                 ->select('question.*', 'users.nickname')
                 ->selectRaw("(select COUNT(*) from question_user where question_user.question_id = question.id) as question_user_count")
+                ->havingRaw("question_user_count > ? OR question.important = ?", [1, 1])
                 ->orderBy('question.important', 'desc')
                 ->orderBy('question_user_count', 'desc')
-                ->orderBy('question.created_at', 'desc')
                 ->get()->toArray();
 
-        }
-        else {
+            //dd(DB::getQueryLog());
+        } else {
             $data = (new Question())
                 ->with(['QuestionUserRelation:nickname'])
                 ->where($where)
@@ -237,8 +231,9 @@ class QuestionController extends BaseController
 
     public function destroy($id)
     {
-//        $result = Star::where('photographer_id', $id)->delete();
-//        return response()->json(compact('result'));
+        $result = Question::where('id', $id)->delete();
+        QuestionUser::where('question_id' , $id)->delete();
+        return response()->json(compact('result'));
     }
 
     public function export(Request $request)

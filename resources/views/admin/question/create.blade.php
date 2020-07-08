@@ -129,12 +129,12 @@
 
                             <el-form ref="form" :rules="rules" :model="form" label-width="400px">
 
-                                <el-form-item label="问题类型">
-                                    <el-select style="width: 60%" v-model="form.type" placeholder="">
-                                        <el-option label="bug" value="1"></el-option>
-                                        <el-option label="建议" value="2"></el-option>
-                                    </el-select>
-                                </el-form-item>
+{{--                                <el-form-item label="问题类型">--}}
+{{--                                    <el-select style="width: 60%" v-model="form.type" placeholder="">--}}
+{{--                                        <el-option label="bug" value="1"></el-option>--}}
+{{--                                        <el-option label="建议" value="2"></el-option>--}}
+{{--                                    </el-select>--}}
+{{--                                </el-form-item>--}}
                                 <el-form-item label="问题页面">
                                     <el-select style="width: 60%" v-model="form.page" placeholder="请选择">
                                         <el-option
@@ -146,22 +146,22 @@
                                     </el-select>
                                 </el-form-item>
 
-                                <el-form-item label="手机型号" label-width="400px">
-                                    <el-input style="width: 60%" v-model="form.mobile_version"></el-input>
-                                </el-form-item>
+{{--                                <el-form-item label="手机型号" label-width="400px">--}}
+{{--                                    <el-input style="width: 60%" v-model="form.mobile_version"></el-input>--}}
+{{--                                </el-form-item>--}}
 
-                                <el-form-item label="系统版本" label-width="400px">
-                                    <el-input style="width: 60%" v-model="form.system_version"></el-input>
-                                </el-form-item>
+{{--                                <el-form-item label="系统版本" label-width="400px">--}}
+{{--                                    <el-input style="width: 60%" v-model="form.system_version"></el-input>--}}
+{{--                                </el-form-item>--}}
 
-                                <el-form-item label="微信版本" label-width="400px">
-                                    <el-input style="width: 60%" v-model="form.wechat_version"></el-input>
-                                </el-form-item>
+{{--                                <el-form-item label="微信版本" label-width="400px">--}}
+{{--                                    <el-input style="width: 60%" v-model="form.wechat_version"></el-input>--}}
+{{--                                </el-form-item>--}}
 
 
-                                <el-form-item label="语言" label-width="400px">
-                                    <el-input style="width: 60%" v-model="form.language"></el-input>
-                                </el-form-item>
+{{--                                <el-form-item label="语言" label-width="400px">--}}
+{{--                                    <el-input style="width: 60%" v-model="form.language"></el-input>--}}
+{{--                                </el-form-item>--}}
 
 
                                 <el-form-item label="意见" prop="content" label-width="400px">

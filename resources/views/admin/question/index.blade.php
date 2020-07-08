@@ -69,7 +69,7 @@
                         </li>
                         <li>
                             <button type="button" data-toggle="block-option" data-action="fullscreen_toggle"><i
-                                        class="si si-size-fullscreen"></i></button>
+                                    class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
                     <h3 class="block-title">问题反馈</h3>
@@ -79,7 +79,7 @@
                         <div class="block-content">
 
                             <el-row :gutter="15">
-                                <el-col :span="6">
+                                <el-col :xs="8" :sm="6" :md="4" :lg="8" :xl="1">
                                     <el-date-picker style="width: 100%"
                                                     v-model="form.created_at"
                                                     type="daterange"
@@ -89,41 +89,40 @@
                                                     end-placeholder="结束日期">
                                     </el-date-picker>
                                 </el-col>
-                                <el-col :span="2">
+                                <el-col :xs="8" :sm="6" :md="4" :lg="3" :xl="1">
                                     <el-select style="width: 100%" v-model="form.status" placeholder="请选择">
                                         <el-option
-                                                v-for="item in statusOption"
-                                                :key="item.value"
-                                                :label="item.label"
-                                                :value="item.value">
+                                            v-for="item in statusOption"
+                                            :key="item.value"
+                                            :label="item.label"
+                                            :value="item.value">
                                         </el-option>
                                     </el-select>
                                 </el-col>
-                                <el-col :span="2">
+                                <el-col :xs="8" :sm="6" :md="4" :lg="3" :xl="1">
                                     <el-select style="width: 100%" v-model="form.page" placeholder="请选择">
                                         <el-option
-                                                v-for="item in pages"
-                                                :key="item"
-                                                :label="item"
-                                                :value="item">
+                                            v-for="item in pages"
+                                            :key="item"
+                                            :label="item"
+                                            :value="item">
                                         </el-option>
                                     </el-select>
                                 </el-col>
-                                <el-col :span="3">
+                                <el-col :xs="8" :sm="6" :md="4" :lg="3" :xl="1">
                                     <el-input v-model="form.keyword" placeholder="从描述中搜索"></el-input>
                                 </el-col>
-                                <el-col :span=1>
+                                <el-col :xs="8" :sm="6" :md="4" :lg="2" :xl="2">
                                     <el-button type="primary" @click="search(0)" icon="el-icon-search">搜索</el-button>
                                 </el-col>
                                 <el-col :span=1>
                                     <el-button type="primary" @click="clear" icon="el-icon-close">清除</el-button>
                                 </el-col>
-
                             </el-row>
 
 
                             <el-row :gutter="15">
-                                <el-col :span="7">
+                                <el-col :xs="8" :sm="6" :md="4" :lg="11" :xl="1">
                                     <el-row :gutter="4.5">
                                         <el-col :span="1.5">
                                             <el-button type="primary" @click="renling">一键认领</el-button>
@@ -136,7 +135,7 @@
                                         </el-col>
                                     </el-row>
                                 </el-col>
-                                <el-col :span="8"   >
+                                <el-col :xs="8" :sm="6" :md="4" :lg="11" :xl="1">
                                     <div class="grid-content" style="float: right">
                                         <el-row :gutter="4.5">
                                             <el-col :span="1.5">
@@ -169,9 +168,9 @@
                         </div>
                         <div class="block-content">
                             <el-table
-                                    :data="data"
-                                    style="width: 100%"
-                                    @selection-change="handleSelectionChange"
+                                :data="data"
+                                style="width: 100%"
+                                @selection-change="handleSelectionChange"
                             >
 
                                 <el-table-column type="expand">
@@ -181,9 +180,9 @@
                                             <el-form-item label="图片:">
                                                 <div class="demo-image__preview" v-if="props.row.img.length > 0">
                                                     <el-image
-                                                            style="width: 100px; height: 100px"
-                                                            :src="props.row.img[0]"
-                                                            :preview-src-list="props.row.img">
+                                                        style="width: 100px; height: 100px"
+                                                        :src="props.row.img[0]"
+                                                        :preview-src-list="props.row.img">
                                                     </el-image>
                                                 </div>
                                             </el-form-item>
@@ -216,14 +215,13 @@
                                 </el-table-column>
 
                                 <el-table-column
-                                        type="selection"
-                                        width="55">
+                                    type="selection"
+                                    width="55">
                                 </el-table-column>
 
-
                                 <el-table-column
-                                        label="标星"
-                                        width="55"
+                                    label="标星"
+                                    width="55"
                                 >
                                     <template slot-scope="scope">
                                         <el-checkbox v-model="scope.row.important"
@@ -232,30 +230,29 @@
                                 </el-table-column>
 
                                 <el-table-column
-                                        label="状态"
-                                        width="150">
+                                    label="状态"
+                                    width="150">
                                     <template slot-scope="scope">
                                         <el-select @change="changeStatus(scope.row)" v-model="scope.row.status"
                                                    placeholder="请选择">
                                             <el-option
-                                                    v-for="item in status2Option"
-                                                    :key="item.value"
-                                                    :label="item.label"
-                                                    :value="item.value">
+                                                v-for="item in status2Option"
+                                                :key="item.value"
+                                                :label="item.label"
+                                                :value="item.value">
                                             </el-option>
                                         </el-select>
                                     </template>
                                 </el-table-column>
 
-
                                 <el-table-column
-                                        prop="diffNowTime"
-                                        label="自创建" width="100">
+                                    prop="diffNowTime"
+                                    label="自创建" width="100">
                                 </el-table-column>
 
                                 <el-table-column
-                                        prop="diffEditTime"
-                                        label="自更改" width="100">
+                                    prop="diffEditTime"
+                                    label="自更改" width="100">
                                 </el-table-column>
 
                                 <el-table-column label="描述">
@@ -265,24 +262,36 @@
                                                 鼠标离开边框自动提交
                                             </div>
                                             <el-input
-                                                    maxlength="255"
-                                                    type="textarea"
-                                                    :autosize="{ minRows: 3, maxRows: 3}"
-                                                    placeholder="请输入内容"
-                                                    v-model="scope.row.content"
-                                                    @blur="changeStatus(scope.row)"
+                                                maxlength="255"
+                                                type="textarea"
+                                                :autosize="{ minRows: 3, maxRows: 3}"
+                                                placeholder="请输入内容"
+                                                v-model="scope.row.content"
+                                                @blur="changeStatus(scope.row)"
                                             >
                                             </el-input>
                                         </el-tooltip>
                                     </template>
                                 </el-table-column>
 
-
                                 <el-table-column
-                                        prop="nickname"
-                                        label="用户">
+                                    prop="nickname"
+                                    label="用户">
                                 </el-table-column>
 
+                                <el-table-column
+                                    fixed="right"
+                                    label="操作"
+                                    width="120">
+                                    <template slot-scope="scope">
+                                        <el-button
+                                            @click.native.prevent="deleteRow(scope.$index, data)"
+                                            type="text"
+                                            size="small">
+                                            删除
+                                        </el-button>
+                                    </template>
+                                </el-table-column>
 
                             </el-table>
                             <div class="page">
@@ -693,7 +702,44 @@
                         method: 'PUT',
                         data: postData,
                         success: function (response) {
-                           // window.location.reload();
+                            window.location.reload();
+                        },
+                        error: function (xhr, status, error) {
+                            var response = JSON.parse(xhr.responseText);
+                            if (xhr.status == 419) { // csrf错误，错误码固定为419
+                                alert('请勿重复请求~');
+                            } else if (xhr.status == 422) { // 验证错误
+                                var message = [];
+                                for (var i in response.errors) {
+                                    message = message.concat(response.errors[i]);
+                                }
+                                message = message.join(',');
+                                alert(message);
+                            } else {
+                                if (response.message) {
+                                    alert(response.message);
+                                } else {
+                                    alert('服务器错误~');
+                                }
+                            }
+                        }
+                    });
+
+
+                },
+                deleteRow(index, rows) {
+                    if (!confirm("是否删除")) {
+                        return;
+                    }
+                    var that = this;
+                    $.ajax({
+                        type: 'POST',
+                        method: 'DELETE',
+                        url: '/admin/question/' + rows[index].id,
+                        success: function (response) {
+                            if (response.result == true) {
+                                rows.splice(index, 1);
+                            }
                         },
                         error: function (xhr, status, error) {
                             var response = JSON.parse(xhr.responseText);
