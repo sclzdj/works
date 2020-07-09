@@ -79,7 +79,7 @@
                         <div class="block-content">
 
                             <el-row :gutter="15">
-                                <el-col :xs="8" :sm="6" :md="4" :lg="8" :xl="1">
+                                <el-col :xs="8" :sm="6" :md="4" :lg="8" :xl="8">
                                     <el-date-picker style="width: 100%"
                                                     v-model="form.created_at"
                                                     type="daterange"
@@ -89,7 +89,7 @@
                                                     end-placeholder="结束日期">
                                     </el-date-picker>
                                 </el-col>
-                                <el-col :xs="8" :sm="6" :md="4" :lg="3" :xl="1">
+                                <el-col :xs="8" :sm="6" :md="4" :lg="3" :xl="3">
                                     <el-select style="width: 100%" v-model="form.status" placeholder="请选择">
                                         <el-option
                                             v-for="item in statusOption"
@@ -99,7 +99,7 @@
                                         </el-option>
                                     </el-select>
                                 </el-col>
-                                <el-col :xs="8" :sm="6" :md="4" :lg="3" :xl="1">
+                                <el-col :xs="8" :sm="6" :md="4" :lg="3" :xl="3">
                                     <el-select style="width: 100%" v-model="form.page" placeholder="请选择">
                                         <el-option
                                             v-for="item in pages"
@@ -109,7 +109,7 @@
                                         </el-option>
                                     </el-select>
                                 </el-col>
-                                <el-col :xs="8" :sm="6" :md="4" :lg="3" :xl="1">
+                                <el-col :xs="8" :sm="6" :md="4" :lg="3" :xl="2">
                                     <el-input v-model="form.keyword" placeholder="从描述中搜索"></el-input>
                                 </el-col>
                                 <el-col :xs="8" :sm="6" :md="4" :lg="2" :xl="2">
@@ -122,7 +122,7 @@
 
 
                             <el-row :gutter="15">
-                                <el-col :xs="8" :sm="6" :md="4" :lg="11" :xl="1">
+                                <el-col :xs="8" :sm="6" :md="4" :lg="11" :xl="8">
                                     <el-row :gutter="4.5">
                                         <el-col :span="1.5">
                                             <el-button type="primary" @click="renling">一键认领</el-button>
@@ -135,7 +135,7 @@
                                         </el-col>
                                     </el-row>
                                 </el-col>
-                                <el-col :xs="8" :sm="6" :md="4" :lg="11" :xl="1">
+                                <el-col :xs="8" :sm="6" :md="4" :lg="11" :xl="11">
                                     <div class="grid-content" style="float: right">
                                         <el-row :gutter="4.5">
                                             <el-col :span="1.5">
@@ -374,6 +374,7 @@
                 }
             },
             created: function () {
+
                 let that = this;
                 this.pages = Math.ceil(that.total / that.pageSize)
             },
