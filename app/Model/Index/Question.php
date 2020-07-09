@@ -10,6 +10,11 @@ class Question extends Model
 
     public function QuestionUserRelation()
     {
-        return $this->belongsToMany(User::class , "question_user");
+        return $this->belongsToMany(User::class, "question_user");
+    }
+
+    public function QuestionUserInfoRelation()
+    {
+        return $this->hasMany(QuestionUser::class);
     }
 }

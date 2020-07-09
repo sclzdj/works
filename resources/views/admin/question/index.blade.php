@@ -57,7 +57,38 @@
     }
 
 </style>
+<style>
+    .avatar-uploader .el-upload {
+        border: 1px dashed #d9d9d9;
+        border-radius: 6px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
 
+    .avatar-uploader .el-upload:hover {
+        border-color: #409EFF;
+    }
+
+    .avatar-uploader-icon {
+        font-size: 28px;
+        color: #8c939d;
+        width: 178px;
+        height: 178px;
+        line-height: 178px;
+        text-align: center;
+    }
+
+    .avatar {
+        width: 178px;
+        height: 178px;
+        display: block;
+    }
+
+    .el-upload__input {
+        display: none !important
+    }
+</style>
 @section('content')
     <div class="row">
         <div class="col-md-12">
@@ -169,14 +200,27 @@
                         <div class="block-content">
                             <el-table
                                 :data="data"
+                                @expand-change="expands"
                                 style="width: 100%"
                                 @selection-change="handleSelectionChange"
                             >
 
-                                <el-table-column type="expand">
+                                <el-table-column type="expand" >
                                     <template slot-scope="props">
                                         <el-form label-position="left" inline class="demo-table-expand">
+                                            <el-form-item label="操作:" class="boxrow">
+                                                <el-upload
+                                                    class="upload-demo"
+                                                    ref="upload"
+                                                    action="https://jsonplaceholder.typicode.com/posts/"
+                                                    :auto-upload="true"
+                                                    :http-request="(current) => uploadSectionFile(current ,props.row )">
+                                                    <el-button slot="trigger" size="small" type="primary">添加图片或者视频
+                                                    </el-button>
+                                                    <span v-if="isPercent"> @{{ percent }}</span>
+                                                </el-upload>
 
+                                            </el-form-item>
                                             <el-form-item label="图片:">
                                                 <div class="demo-image__preview" v-if="props.row.img.length > 0">
                                                     <el-image
@@ -186,28 +230,14 @@
                                                     </el-image>
                                                 </div>
                                             </el-form-item>
-
                                             <el-form-item label="视频:" class="boxrow">
                                                <span v-if="props.row.video.length > 0" v-for="video in props.row.video">
                                                 <a target="_blank" :href="video">查看视频</a>
                                                </span>
                                             </el-form-item>
 
-                                            <el-form-item label="手机版本:" class="boxrow">
-                                                <span>  @{{ props.row.mobile_version }}</span>
-                                            </el-form-item>
-
-
-                                            <el-form-item label="系统版本:" class="boxrow">
-                                                <span>  @{{ props.row.system_version }}</span>
-                                            </el-form-item>
-
-                                            <el-form-item label="微信版本:" class="boxrow">
-                                                <span>  @{{ props.row.wechat_version }}</span>
-                                            </el-form-item>
-
-                                            <el-form-item label="语言:" class="boxrow">
-                                                <span>  @{{ props.row.language }}</span>
+                                            <el-form-item label="用户:" class="boxrow">
+                                                <span>  @{{ props.row.nickname }} (  @{{ props.row.mobile_version }} /   @{{ props.row.system_version }} / @{{ props.row.wechat_version }} / @{{ props.row.language }} )</span>
                                             </el-form-item>
 
                                         </el-form>
@@ -274,10 +304,10 @@
                                     </template>
                                 </el-table-column>
 
-                                <el-table-column
-                                    prop="nickname"
-                                    label="用户">
-                                </el-table-column>
+{{--                                <el-table-column--}}
+{{--                                    prop="nickname"--}}
+{{--                                    label="用户">--}}
+{{--                                </el-table-column>--}}
 
                                 <el-table-column
                                     fixed="right"
@@ -303,12 +333,28 @@
             </div>
         </div>
     </div>
-
-
 @endsection
 
 @section('javascript')
 
+    <script src="https://unpkg.com/qiniu-js@2.5.4/dist/qiniu.min.js"></script>
+    @php
+        $bucket = 'zuopin';
+        $buckets = config('custom.qiniu.buckets');
+        $domain = $buckets[$bucket]['domain'] ?? '';
+        // 用于签名的公钥和私钥
+        $accessKey = config('custom.qiniu.accessKey');
+        $secretKey = config('custom.qiniu.secretKey');
+        // 初始化签权对象
+        $auth = new \Qiniu\Auth($accessKey, $secretKey);
+        // 生成上传Token
+        $upToken = $auth->uploadToken($bucket);
+        $qiniu_config=compact('upToken', 'domain');
+    @endphp
+    <script>
+        var qiniu_config = {!! json_encode($qiniu_config) !!};
+    </script>
+    <script src="{{asset('/static/admin/js/qiniu-upload.js').'?'.$SFV}}"></script>
     <!-- 引入组件库 -->
     <script src="{{asset('/static/admin/js/vue.js').'?'.$SFV}}"></script>
     <script src="{{asset('/static/admin/js/element.js').'?'.$SFV}}"></script>
@@ -457,6 +503,8 @@
                 tableData: [],
                 size: 20,
                 total: 0,
+                isPercent: false,
+                percent: 0,
                 form: {
                     type: 0,
                     status: -1,
@@ -534,6 +582,107 @@
                 ],
             },
             methods: {
+                expands(row) {
+
+                },
+                uploadSectionFile(params, data) {
+                    var that = this;
+                    const file = params.file,
+                        fileType = file.type,
+                        isImage = fileType.indexOf("image") != -1,
+                        isLt2M = file.size / 1024 / 1024 < 20,
+                        isVideo = fileType.indexOf('video') != -1;
+                    var fileDataBaseType = "";
+                    if (!isImage && !isVideo) {
+                        this.$message.error("只能上传图片和视频");
+                        this.$refs.upload.uploadFiles = [];
+                        return;
+                    }
+                    if (isImage) {
+                        fileDataBaseType = "img";
+                    }
+                    if (isVideo) {
+                        fileDataBaseType = "video";
+                    }
+                    if (!isLt2M) {
+                        that.$message.error('上传图片或视频大小不能超过 20MB!', '提示', {type: 'error'});
+                        this.$refs.upload.uploadFiles = [];
+                        return;
+                    }
+                    var observable = qiniu.upload(file, null, qiniu_config.upToken, {
+                        fname: "",
+                        params: {},
+                    }, config = {
+                        useCdnDomain: true,
+                        region: null
+                    });
+
+                    var subscription = observable.subscribe({
+                        next(res) {
+                            if (res.total.percent < 100) {
+                                that.isPercent = true;
+                                that.percent = '上传进度' + Math.floor(res.total.percent) + '%'
+                            } else {
+                                that.isPercent = false;
+                            }
+                        },
+                        error(err) {
+                            that.$message.error(err.message);
+                        },
+                        complete(res) {
+                            that.$refs.upload.uploadFiles = [];
+                            that.$message({
+                                message: '上传完成',
+                                type: 'success'
+                            });
+
+                            data.attachment.push({
+                                'value': "https://file.zuopin.cloud/" + res.key,
+                                'type': fileDataBaseType
+                            });
+                            var value = "https://file.zuopin.cloud/" + res.key;
+                            if (isImage) {
+                                data.img.push(value);
+                                Vue.set(data, "img", data.img)
+                            }
+                            if (isVideo) {
+                                data.video.push(value);
+                                Vue.set(data, "video", data.video)
+                            }
+
+                            var formData = {
+                                form: data
+                            };
+                            $.ajax({
+                                url: '/admin/question/' + data.id,
+                                method: 'PUT',
+                                data: formData,
+                                success: function (response) {
+
+                                },
+                                error: function (xhr, status, error) {
+                                    var response = JSON.parse(xhr.responseText);
+                                    if (xhr.status == 419) { // csrf错误，错误码固定为419
+                                        alert('请勿重复请求~');
+                                    } else if (xhr.status == 422) { // 验证错误
+                                        var message = [];
+                                        for (var i in response.errors) {
+                                            message = message.concat(response.errors[i]);
+                                        }
+                                        message = message.join(',');
+                                        alert(message);
+                                    } else {
+                                        if (response.message) {
+                                            alert(response.message);
+                                        } else {
+                                            alert('服务器错误~');
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+                },
                 hebing() {
                     this.form.status = 5;
                     this.search(0);

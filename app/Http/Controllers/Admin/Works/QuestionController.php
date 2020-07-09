@@ -78,6 +78,7 @@ class QuestionController extends BaseController
                 'status' => $data['status'],
                 'content' => $data['content'],
                 'important' => $important,
+                'attachment' => json_encode($data['attachment'], JSON_UNESCAPED_UNICODE)
             ]);
 
             $msg = "";
@@ -130,7 +131,7 @@ class QuestionController extends BaseController
         if ($isRenling == 1) {
             //   DB::connection()->enableQueryLog();
             $data = (new Question())
-                ->with(['QuestionUserRelation:nickname'])
+                ->with(['QuestionUserRelation:nickname' , 'QuestionUserInfoRelation'])
                 ->where($where)
                 ->skip($page)->take($size)
                 ->leftJoin('users', 'users.id', '=', 'question.user_id')
@@ -144,7 +145,7 @@ class QuestionController extends BaseController
             //dd(DB::getQueryLog());
         } else {
             $data = (new Question())
-                ->with(['QuestionUserRelation:nickname'])
+                ->with(['QuestionUserRelation:nickname' , 'QuestionUserInfoRelation'])
                 ->where($where)
                 ->skip($page)->take($size)
                 ->leftJoin('users', 'users.id', '=', 'question.user_id')
@@ -232,7 +233,7 @@ class QuestionController extends BaseController
     public function destroy($id)
     {
         $result = Question::where('id', $id)->delete();
-        QuestionUser::where('question_id' , $id)->delete();
+        QuestionUser::where('question_id', $id)->delete();
         return response()->json(compact('result'));
     }
 
