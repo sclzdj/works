@@ -238,6 +238,13 @@
 
                                             <el-form-item label="用户:" class="boxrow">
                                                 <span>  @{{ props.row.nickname }} (  @{{ props.row.mobile_version }} /   @{{ props.row.system_version }} / @{{ props.row.wechat_version }} / @{{ props.row.language }} )</span>
+                                                <br/>
+                                                <div  v-for="info in props.row.question_user_info_relation">
+                                                    <span > @{{ info.nickname }} (  @{{ info.user_mobile_version }} /   @{{ info.user_system_version }} / @{{ info.user_wechat_version }} / @{{ info.user_language }} ) </span>
+                                                    <br/>
+                                                </div>
+
+
                                             </el-form-item>
 
                                         </el-form>
@@ -852,7 +859,7 @@
                         method: 'PUT',
                         data: postData,
                         success: function (response) {
-                            window.location.reload();
+                             window.location.reload();
                         },
                         error: function (xhr, status, error) {
                             var response = JSON.parse(xhr.responseText);

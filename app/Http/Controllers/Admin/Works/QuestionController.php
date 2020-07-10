@@ -38,35 +38,65 @@ class QuestionController extends BaseController
             $ids = $data['ids'];
             $allIds = $data['ids'];
             // 先获取所有问题
-            $questions = Question::with(['QuestionUserRelation'])
-                ->whereIn('id', $ids)->get()->toArray();
-            // 只留下第一个问题
-            $firstQuestionId = array_shift($ids);
-            $allUserId = [];
-            // 获取所有需要合并的用户
-            foreach ($questions as $question) {
-                if (!empty($question['user_id']))
-                    $allUserId[] = $question['user_id'];
+            $questions = Question::with(['QuestionUserInfoRelation' => function ($query) {
+                $query->join('users', 'users.id', '=', 'question_user.user_id')
+                    ->select('question_user.*', 'users.nickname');
+            }])->whereIn('id', $ids)
+                ->orderBy(\DB::raw('FIND_IN_SET(id, "' . implode(",", $ids) . '"' . ")"))
+                ->get()
+                ->toArray();
 
-                foreach ($question['question_user_relation'] as $item) {
-                    if ($item['id']) {
-                        $allUserId[] = $item['id'];
+
+            // 只留下第一个问题 并拿到第一个问题的id
+            $firstQuestionId = array_shift($ids);
+
+            $mergeQuestionInfo = [];
+
+//            if ($question['id'] == $firstQuestionId)
+//                continue;
+
+            $firstQuestion = Question::find($firstQuestionId);
+
+
+            foreach ($questions as $question) {
+                if ($question['user_id'] != $firstQuestion['user_id']) {
+                    $mergeQuestionInfo[$question['user_id']] = [
+                        'mobile_version' => $question['mobile_version'],
+                        'system_version' => $question['system_version'],
+                        'wechat_version' => $question['wechat_version'],
+                        'language' => $question['language'],
+                    ];
+                }
+
+                foreach ($question['question_user_info_relation'] as $item) {
+                    if (!isset($mergeQuestionInfo[$item['user_id']]) && $item['user_id'] != $firstQuestion['user_id']) {
+                        $mergeQuestionInfo[$item['user_id']] = [
+                            'mobile_version' => $item['user_mobile_version'],
+                            'system_version' => $item['user_system_version'],
+                            'wechat_version' => $item['user_language'],
+                            'language' => $item['user_language'],
+                            'nickname' => $item['nickname']
+                        ];
                     }
                 }
             }
 
-            //dd(array_unique($allUserId));
+
             // 删除掉以前问题的用户
             QuestionUser::where('question_id', $firstQuestionId)->delete();
-            // 删除掉合并的问题
+//          // 除了第一个其余问题改成合并状态
             Question::whereIn('id', $ids)->update([
                 'status' => 5
             ]);
-            foreach (array_unique($allUserId) as $item) {
+            foreach ($mergeQuestionInfo as $user_id => $item) {
                 QuestionUser::insert([
                     'question_id' => $firstQuestionId,
-                    'user_id' => $item,
-                    'created_at' => date('Y-m-d H:i:s')
+                    'user_id' => $user_id,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'user_mobile_version' => $item['mobile_version'],
+                    'user_system_version' => $item['system_version'],
+                    'user_wechat_version' => $item['wechat_version'],
+                    'user_language' => $item['language']
                 ]);
             }
         } else {
@@ -78,7 +108,7 @@ class QuestionController extends BaseController
                 'status' => $data['status'],
                 'content' => $data['content'],
                 'important' => $important,
-                'attachment' => json_encode($data['attachment'], JSON_UNESCAPED_UNICODE)
+                'attachment' => json_encode($data['attachment'] ?? [], JSON_UNESCAPED_UNICODE)
             ]);
 
             $msg = "";
@@ -131,7 +161,7 @@ class QuestionController extends BaseController
         if ($isRenling == 1) {
             //   DB::connection()->enableQueryLog();
             $data = (new Question())
-                ->with(['QuestionUserRelation:nickname' , 'QuestionUserInfoRelation'])
+                ->with(['QuestionUserRelation', 'QuestionUserInfoRelation'])
                 ->where($where)
                 ->skip($page)->take($size)
                 ->leftJoin('users', 'users.id', '=', 'question.user_id')
@@ -144,8 +174,12 @@ class QuestionController extends BaseController
 
             //dd(DB::getQueryLog());
         } else {
+            //DB::connection()->enableQueryLog();
             $data = (new Question())
-                ->with(['QuestionUserRelation:nickname' , 'QuestionUserInfoRelation'])
+                ->with(['QuestionUserInfoRelation' => function ($query) {
+                    $query->join('users', 'users.id', '=', 'question_user.user_id')
+                        ->select('question_user.*', 'users.nickname');
+                }])
                 ->where($where)
                 ->skip($page)->take($size)
                 ->leftJoin('users', 'users.id', '=', 'question.user_id')
@@ -165,9 +199,9 @@ class QuestionController extends BaseController
             $diff2 = Carbon::createFromTimestamp(time())->diff($updated_at);
             $datum['diffEditTime'] = sprintf("%d天", $diff2->days);
 
-            if (count($datum['question_user_relation']) > 0) {
-                $datum['nickname'] = implode(',', array_column($datum['question_user_relation'], 'nickname'));
-            }
+//            if (count($datum['question_user_relation']) > 0) {
+//                $datum['nickname'] = implode(',', array_column($datum['question_user_relation'], 'nickname'));
+//            }
 
         }
 
@@ -214,6 +248,7 @@ class QuestionController extends BaseController
         $data['important'] = $important;
         $data['created_at'] = date('Y-m-d H:i:s', time());
         $data['updated_at'] = date('Y-m-d H:i:s', time());
+        $data['user_id'] = array_shift($users);
         $result = Question::insert($data);
 
         if (count($users) > 0) {
