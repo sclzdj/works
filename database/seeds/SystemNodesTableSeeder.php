@@ -515,6 +515,10 @@ class SystemNodesTableSeeder extends Seeder
                                         'name' => '创建问题',
                                         'action' => 'Admin\Works\QuestionController@create',
                                     ],
+                                    [
+                                        'name' => '删除问题',
+                                        'action' => 'Admin\Works\QuestionController@destroy',
+                                    ]
                                 ],
                             ],
                             [
@@ -528,7 +532,7 @@ class SystemNodesTableSeeder extends Seeder
                                     ],
                                     [
                                         'name' => '删除数据',
-                                        'action' => 'Admin\Works\TargetUserController@destory',
+                                        'action' => 'Admin\Works\TargetUserController@destroy',
                                     ],
                                     [
                                         'name' => '更新数据',
