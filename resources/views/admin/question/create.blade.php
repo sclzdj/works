@@ -175,7 +175,7 @@
                                 </el-form-item>
 
 
-                                <el-form-item label="关联用户" label-width="400px">
+                                <el-form-item label="关联用户" prop="users" label-width="400px">
                                     <el-select v-model="form.users" style="width: 60%" filterable multiple
                                                placeholder="请选择">
                                         <el-option
@@ -289,6 +289,12 @@
                             required: true, message: '意见必须输入', trigger: 'blur'
                         },
                     ],
+                    users:[
+                        {
+                            required: true, message: '必须关联一个用户', trigger: 'blur'
+                        },
+                    ]
+
 
                 }
             },
