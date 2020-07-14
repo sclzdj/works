@@ -177,7 +177,7 @@
 
                                 <el-table-column
                                         label="状态"
-                                        width="150">
+                                        >
                                     <template slot-scope="scope">
                                         <el-select @change="changeStatus(scope.row)" v-model="scope.row.status"
                                                    placeholder="请选择">
@@ -191,8 +191,7 @@
                                     </template>
                                 </el-table-column>
 
-                                <el-table-column label="姓名"  width="300">
-
+                                <el-table-column label="姓名" >
                                     <template slot-scope="scope">
                                         <span v-text="scope.row.nickname"></span><br/>
                                         <span style="color:#0f8496;font-size: 12px" v-text="scope.row.last_name"></span>

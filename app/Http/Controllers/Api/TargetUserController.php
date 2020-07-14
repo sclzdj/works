@@ -24,14 +24,12 @@ class TargetUserController extends BaseController
     public function insert(TargetUserRequest $request)
     {
 //        $user = auth($this->guard)->user();
-
         try {
             $target_user = (new TargetUser())->where('user_id', $request['user_id'])->first();
 
             if (empty($target_user)) {
                 $target_user = new TargetUser();
                 $target_user->source = $request['source'];
-          //      $target_user->invote_code_id = InvoteCode::createInvote(3, '', 1, $request['user_id'], 1);
                 $target_user->invote_code_id = 0;
                 $target_user->user_id = $request['user_id'];
                 $target_user->wechat = $request['wechat'] ?? '';
