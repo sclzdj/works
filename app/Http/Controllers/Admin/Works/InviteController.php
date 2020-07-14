@@ -53,7 +53,7 @@ class InviteController extends BaseController
             ->where($where)
             ->join('invote_codes' , 'invote_codes.id' , '=' , 'invite.invite_id')
             ->leftJoin('users' , 'invote_codes.user_id' , '=' , 'users.id')
-            ->select(['invite.*' , 'invote_codes.code' , 'invote_codes.status' , 'users.nickname' ])
+            ->select(['invite.*' , 'invote_codes.code' , 'invote_codes.status' , 'users.nickname' ,'users.id as user_id' ])
             ->skip($page)
             ->take($size)
             ->orderBy('created_at' , 'desc')
@@ -61,7 +61,7 @@ class InviteController extends BaseController
 
 
 
-        $count = (new Invite())->count();
+        $count = (new Invite())->where($where)->count();
 
         return response()->json(compact('data', 'count'));
     }

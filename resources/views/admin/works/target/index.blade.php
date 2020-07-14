@@ -10,7 +10,10 @@
         .wd {
             width: 150px;
         }
-
+        .boxrow {
+            display: inline-block;
+            width: 100%;
+        }
         .el-row {
             margin-bottom: 20px;
         }
@@ -120,7 +123,8 @@
                                 <el-table-column type="expand">
                                     <template slot-scope="props">
                                         <el-form label-position="left" inline class="demo-table-expand">
-                                            <el-form-item label="作品图片:">
+
+                                            <el-form-item label="作品图片:" class="boxrow">
                                                 <div class="demo-image__preview" v-if="props.row.works_info">
                                                     <el-image
                                                             style="width: 100px; height: 100px"
@@ -130,10 +134,36 @@
                                                 </div>
                                             </el-form-item>
 
-                                            <br/>
-
-                                            <el-form-item label="理由">
+                                            <el-form-item label="理由" class="boxrow">
                                                 <span>@{{ props.row.reason }}</span>
+                                            </el-form-item>
+
+                                            <el-form-item label="来源" class="boxrow">
+                                                <span>@{{ props.row.source }}</span>
+                                            </el-form-item>
+
+                                            <el-form-item label="地址" class="boxrow">
+                                                <span>@{{ props.row.address }}</span>
+                                            </el-form-item>
+
+                                            <el-form-item label="城市" class="boxrow">
+                                                <span>@{{ props.row.city }}</span>
+                                            </el-form-item>
+
+                                            <el-form-item label="手机号" class="boxrow">
+                                                <span>@{{ props.row.phoneNumber }}</span>
+                                            </el-form-item>
+
+                                            <el-form-item label="性别" class="boxrow">
+                                                <span>@{{ props.row.gender }}</span>
+                                            </el-form-item>
+
+                                            <el-form-item label="头衔" class="boxrow">
+                                                <span>@{{ props.row.rank_name }}</span>
+                                            </el-form-item>
+
+                                            <el-form-item label="微信号" class="boxrow">
+                                                <span>@{{ props.row.wechat }}</span>
                                             </el-form-item>
 
 
@@ -144,60 +174,6 @@
                                         type="selection"
                                         width="55">
                                 </el-table-column>
-
-                                <el-table-column
-                                        prop="source"
-                                        label="来源"
-                                >
-                                </el-table-column>
-
-                                <el-table-column
-                                        prop="code"
-                                        label="邀请码">
-                                </el-table-column>
-
-                                <el-table-column
-                                        prop="invote_status"
-                                        label="邀请码使用状态">
-                                </el-table-column>
-
-                                <el-table-column
-                                        prop="nickname"
-                                        label="用户"  width="100">
-                                </el-table-column>
-
-                                <el-table-column
-                                        prop="wechat"
-                                        label="微信号">
-                                </el-table-column>
-
-                                <el-table-column
-                                        prop="address"
-                                        label="地址">
-                                </el-table-column>
-
-
-                                <el-table-column
-                                        prop="city"
-                                        label="城市">
-                                </el-table-column>
-
-                                <el-table-column
-                                        prop="phoneNumber"
-                                        label=手机号>
-                                </el-table-column>
-
-
-                                <el-table-column
-                                        prop="gender"
-                                        label="性别">
-                                </el-table-column>
-
-                                <el-table-column
-                                        prop="rank_name"
-                                        label="头衔">
-                                </el-table-column>
-
 
                                 <el-table-column
                                         label="状态"
@@ -214,6 +190,28 @@
                                         </el-select>
                                     </template>
                                 </el-table-column>
+
+                                <el-table-column label="姓名"  width="300">
+
+                                    <template slot-scope="scope">
+                                        <span v-text="scope.row.nickname"></span><br/>
+                                        <span style="color:#0f8496;font-size: 12px" v-text="scope.row.last_name"></span>
+                                    </template>
+                                </el-table-column>
+
+                                <el-table-column
+                                        prop="code"
+                                        label="邀请码">
+                                </el-table-column>
+
+                                <el-table-column
+                                        prop="invote_status"
+                                        label="邀请码使用状态">
+                                </el-table-column>
+
+
+
+
 
                                 <el-table-column
                                         fixed="right"
@@ -488,7 +486,7 @@
                                         break;
                                 }
 
-                                that.data[i].nickname = that.data[i].last_name.length > 0 ? that.data[i].last_name + ' （' + that.data[i].nickname + '）': that.data[i].nickname
+                             //   that.data[i].nickname = that.data[i].last_name.length > 0 ? that.data[i].last_name + ' （' + that.data[i].nickname + '）': that.data[i].nickname
 
                                 that.data[i].city = that.data[i].province + ' ' + that.data[i].city;;
                                 if (that.data[i].works_info) {

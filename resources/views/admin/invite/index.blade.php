@@ -143,6 +143,21 @@
                                     prop="nickname"
                                     label="用户名">
 
+
+                                    <template slot-scope="scope">
+
+                                        <div v-if="scope.row.status == '已创建'" >
+                                            <a  v-bind:href="'/admin/works/photographerWork?photographer_id='+scope.row.user_id"><span v-text="scope.row.nickname"></span></a>
+                                        </div>
+
+                                        <div v-else>
+                                            <span v-text="scope.row.nickname"></span>
+                                        </div>
+
+
+                                    </template>
+
+
                                 </el-table-column>
 
                                 <el-table-column
