@@ -184,6 +184,10 @@ $api->version(
 
                 //  添加场景值
                 $api->post('scene/inRecord' , 'SceneControler@inRecord');
+
+                // 微信相关
+                $api->get('wechat/qrcode' , 'WechatController@QRCode');
+                $api->get('wechat/miniprogramqrcode' , 'WechatController@miniProgramQRCode');
             }
         );
     }

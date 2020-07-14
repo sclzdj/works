@@ -33,7 +33,7 @@ class BaseController extends Controller
 
     /**
      * 格式化返回数组
-     * @param $data 数据
+     * @param $data array 数据
      *
      * @return mixed
      */
