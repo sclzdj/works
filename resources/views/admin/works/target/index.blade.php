@@ -172,24 +172,29 @@
                                 </el-table-column>
                                 <el-table-column
                                         type="selection"
-                                        width="55">
+                                        >
                                 </el-table-column>
 
-                                <el-table-column
-                                        label="状态"
-                                        >
-                                    <template slot-scope="scope">
-                                        <el-select @change="changeStatus(scope.row)" v-model="scope.row.status"
-                                                   placeholder="请选择">
-                                            <el-option
-                                                    v-for="item in status"
-                                                    :key="item.value"
-                                                    :label="item.label"
-                                                    :value="item.value">
-                                            </el-option>
-                                        </el-select>
-                                    </template>
+                                <el-table-column label="状态"  prop="invote_status">
+
                                 </el-table-column>
+
+
+                                {{--                                <el-table-column--}}
+{{--                                        label="状态"--}}
+{{--                                        >--}}
+{{--                                    <template slot-scope="scope">--}}
+{{--                                        <el-select @change="changeStatus(scope.row)" v-model="scope.row.status"--}}
+{{--                                                   placeholder="请选择">--}}
+{{--                                            <el-option--}}
+{{--                                                    v-for="item in status"--}}
+{{--                                                    :key="item.value"--}}
+{{--                                                    :label="item.label"--}}
+{{--                                                    :value="item.value">--}}
+{{--                                            </el-option>--}}
+{{--                                        </el-select>--}}
+{{--                                    </template>--}}
+{{--                                </el-table-column>--}}
 
                                 <el-table-column label="姓名" >
                                     <template slot-scope="scope">
@@ -203,10 +208,10 @@
                                         label="邀请码">
                                 </el-table-column>
 
-                                <el-table-column
-                                        prop="invote_status"
-                                        label="邀请码使用状态">
-                                </el-table-column>
+{{--                                <el-table-column--}}
+{{--                                        prop="invote_status"--}}
+{{--                                        label="邀请码使用状态">--}}
+{{--                                </el-table-column>--}}
 
 
 
@@ -219,6 +224,10 @@
                                     <template slot-scope="scope">
                                         <el-button @click="handleDelete(scope.$index, scope.row)" type="text"
                                                    size="small">删除
+                                        </el-button>
+
+                                        <el-button @click="changeStatus(scope.$index, scope.row)" type="text"
+                                                   size="small">推送
                                         </el-button>
                                     </template>
                                 </el-table-column>
@@ -298,7 +307,7 @@
                 },
                 pageSize: {// 每页显示条数
                     type: Number,
-                    default: 10,
+                    default: 20,
                     required: false
                 }
             },
@@ -371,6 +380,7 @@
                     handler: function () {
                         let that = this;
                         this.pages = Math.ceil(that.total / that.pageSize)
+                        console.log(that.total , that.pageSize ,Math.ceil(that.total / that.pageSize))
                     }
                 }
             },
@@ -464,7 +474,6 @@
                                     case 2:
                                         that.data[i].invote_status = "已校验";
                                         break;
-
                                     case 4:
                                         that.data[i].invote_status = "已创建";
                                         break;
@@ -567,17 +576,24 @@
                     });
 
                 },
-                changeStatus: function (data) {
+                changeStatus: function (index, row) {
                     var that = this;
                     var formData = {
-                        form: data
+                        form: row,
+                        type:"createInvote"
                     };
                     $.ajax({
                         url: '/admin/target',
                         method: 'post',
                         data: formData,
                         success: function (response) {
-
+                            if (response.result == true) {
+                                row.invote_code_id = response.data.invote_code_id;
+                                row.code = response.data.code;
+                                row.invote_status = "已绑定";
+                            } else {
+                                that.$message.error(response.msg);
+                            }
                         },
                         error: function (xhr, status, error) {
                             var response = JSON.parse(xhr.responseText);

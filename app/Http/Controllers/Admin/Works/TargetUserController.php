@@ -8,6 +8,7 @@ use App\Model\Admin\SystemConfig;
 use App\Model\Index\HelpNote;
 use App\Model\Index\HelpTagNotes;
 use App\Model\Index\HelpTags;
+use App\Model\Index\InvoteCode;
 use App\Model\Index\TargetUser;
 use App\Model\Index\Templates;
 use App\Servers\ArrServer;
@@ -26,11 +27,10 @@ class TargetUserController extends BaseController
     }
 
 
-
     public function lists(Request $request)
     {
         $page = $request->input('page', 1);
-        $form = $request->input('form' , []);
+        $form = $request->input('form', []);
         $size = 20;
         $page = ($page - 1) * $size;
 
@@ -44,16 +44,19 @@ class TargetUserController extends BaseController
         }
         $data = TargetUser::where($where)
             ->skip($page)->take($size)
-            ->leftJoin('invote_codes' , 'invote_codes.id' , '=' , 'target_users.invote_code_id')
-            ->join('users' , 'users.id' , '=' , 'target_users.user_id')
-            ->leftJoin('photographer_ranks' , 'photographer_ranks.id' , '=' , 'target_users.rank_id')
+            ->leftJoin('invote_codes', 'invote_codes.id', '=', 'target_users.invote_code_id')
+            ->leftJoin('users', 'users.id', '=', 'target_users.user_id')
+            ->leftJoin('photographer_ranks', 'photographer_ranks.id', '=', 'target_users.rank_id')
             ->orderBy('created_at', 'desc')
-            ->select('target_users.*' ,'invote_codes.code' , 'invote_codes.status as invote_status',
-                'users.nickname' ,'users.phoneNumber' , 'users.city',
-                'users.province' ,'users.gender' ,
+            ->select('target_users.*', 'invote_codes.code',
+                'invote_codes.status as invote_status',
+                'users.nickname', 'users.phoneNumber',
+                'users.city',
+                'users.province', 'users.gender',
                 'photographer_ranks.name as rank_name'
             )
             ->get();
+
         $count = TargetUser::where($where)->count();
 
         return response()->json(compact('data', 'count'));
@@ -63,11 +66,52 @@ class TargetUserController extends BaseController
     public function store(Request $request)
     {
         $data = $request->input('form');
-        $result = TargetUser::where('id', $data['id'])->update([
-            'status' => $data['status']
-        ]);
-        $msg = "";
-        return response()->json(compact('result', 'msg'));
+        $type = $request->input("type");
+
+
+        switch ($type) {
+            case "createInvote":
+
+                if (TargetUser::find($data['id'])->invote_code_id != 0) {
+                    $result = false;
+                    $msg = "用户已经分配的创建码";
+                    break;
+                }
+
+                $invoteCode = $this->createInvote($data['user_id']);
+                $result = TargetUser::where('id', $data['id'])->update([
+                    'invote_code_id' => $invoteCode
+                ]);
+                $msg = "";
+                $data = [
+                    'invote_code_id' => $invoteCode,
+                    'code' => InvoteCode::find($invoteCode)->code,
+                ];
+                break;
+        }
+
+
+//        $result = TargetUser::where('id', $data['id'])->update([
+//            'status' => $data['status']
+//        ]);
+//        $msg = "";
+        return response()->json(compact('result', 'msg', 'data'));
+    }
+
+    private function createInvote($user_id)
+    {
+        InvoteCode::insert(
+            [
+                "code" => substr(InvoteCode::str_Rand(6), 0, 6),
+                "type" => 3,
+                "user_id" => $user_id,
+                "order_id" => 0,
+                "used_count" => 1,
+                "created_at" => date('Y-m-d H:i:s'),
+                "status" => 1,
+            ]
+        );
+        return \DB::connection()->getPdo()->lastInsertId();
     }
 
     /**

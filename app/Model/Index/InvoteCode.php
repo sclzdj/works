@@ -26,9 +26,10 @@ class InvoteCode extends Model
         'code',
         'type',
         'status',
-        'wechat_openid',
-        'mini_openid',
+        'user_id',
+        'used_count',
         'order_id',
+        'created_at'
     ];
 
     /**
@@ -49,10 +50,10 @@ class InvoteCode extends Model
             'code',
             'type',
             'status',
-            'wechat_openid',
-            'mini_openid',
+            'user_id',
+            'used_count',
             'order_id',
-            'created_at',
+            'created_at'
         ];
     }
 
@@ -64,16 +65,17 @@ class InvoteCode extends Model
         $invoteCode = new self();
         $invoteCode->code = substr(self::str_Rand(6), 0, 6);
         $invoteCode->type = $type;
-        $invoteCode->status = $status;
         $invoteCode->user_id = $user_id;
         $invoteCode->order_id = $orderId;
         $invoteCode->used_count = $use_count;
         $invoteCode->created_at = date('Y-m-d H:i:s');
+        $invoteCode->status = $status;
+
         $invoteCode->save();
         return $invoteCode->id;
     }
 
-    private static function str_Rand($length)
+    public static function str_Rand($length)
     {
         $strs = "QWERTYUPASDFGHJKXCVBNM3456789";
 
