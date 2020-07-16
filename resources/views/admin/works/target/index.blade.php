@@ -102,13 +102,16 @@
                                 </el-option>
                             </el-select>
 
-                            <el-select style="width: 150px" v-model="form.status" placeholder="状态">
-                                <el-option
-                                        v-for="item in status"
-                                        :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value">
-                                </el-option>
+                            <el-select style="width: 150px" v-model="form.status" placeholder="选择推送">
+                                <el-option label="选择推送" :value="-1">选择推送</el-option>
+                                <el-option label="推送" :value="1">推送</el-option>
+                                <el-option label="未推送" :value="2">未推送</el-option>
+{{--                                <el-option--}}
+{{--                                        v-for="item in status"--}}
+{{--                                        :key="item.value"--}}
+{{--                                        :label="item.label"--}}
+{{--                                        :value="item.value">--}}
+{{--                                </el-option>--}}
                             </el-select>
 
                             <el-button type="primary" @click="search" icon="el-icon-search">搜索</el-button>
@@ -198,20 +201,25 @@
 
                                 <el-table-column label="姓名" >
                                     <template slot-scope="scope">
-                                        <span v-text="scope.row.nickname"></span><br/>
-                                        <span style="color:#0f8496;font-size: 12px" v-text="scope.row.last_name"></span>
+                                        <div v-if="scope.row.invote_status == '已创建'">
+                                            <a  target="_blank" v-bind:href="'/admin/works/photographerWork?photographer_id='+scope.row.user_id">
+                                                <span v-text="scope.row.nickname"></span><br/>
+                                                <span style="color:#0f8496;font-size: 12px" v-text="scope.row.last_name"></span>
+                                            </a>
+                                        </div>
+                                        <div v-else>
+                                            <span v-text="scope.row.nickname"></span><br/>
+                                            <span style="color:#0f8496;font-size: 12px" v-text="scope.row.last_name"></span>
+                                        </div>
+
                                     </template>
+
                                 </el-table-column>
 
                                 <el-table-column
                                         prop="code"
                                         label="邀请码">
                                 </el-table-column>
-
-{{--                                <el-table-column--}}
-{{--                                        prop="invote_status"--}}
-{{--                                        label="邀请码使用状态">--}}
-{{--                                </el-table-column>--}}
 
 
 

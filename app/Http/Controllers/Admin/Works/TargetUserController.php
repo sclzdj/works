@@ -39,9 +39,12 @@ class TargetUserController extends BaseController
             $where[] = ['target_users.source', $form['sources']];
         }
 
-        if ($form['status'] != -1) {
-            $where[] = ['target_users.status', $form['status']];
-        }
+        if ($form['status'] == 1) {
+            $where[] = ['target_users.invote_code_id', '!=', 0];
+        } elseif ($form['status'] == 2)
+            $where[] = ['target_users.invote_code_id', 0];
+
+
         $data = TargetUser::where($where)
             ->skip($page)->take($size)
             ->leftJoin('invote_codes', 'invote_codes.id', '=', 'target_users.invote_code_id')
@@ -126,23 +129,34 @@ class TargetUserController extends BaseController
         \DB::beginTransaction();//开启事务
         try {
             if ($id > 0) {
-                HelpNote::where('id', $id)->update(['status' => 400]);
+                TargetUser::where('id', $id)->delete();
                 \DB::commit();//提交事务
 
-                return $this->response('删除成功', 200);
+                return response()->json([
+                    'result' => true,
+                    'msg' => '删除成功',
+                ]);
+
             } else {
                 $ids = is_array($request->ids) ?
                     $request->ids :
                     explode(',', $request->ids);
-                HelpNote::whereIn('id', $ids)->update(['status' => 400]);
+                TargetUser::whereIn('id', $ids)->delete();
                 \DB::commit();//提交事务
 
-                return $this->response('批量删除成功', 200);
+                return response()->json([
+                    'result' => true,
+                    'msg' => '批量删除成功',
+                ]);
+
+
             }
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
-
-            return $this->eResponse($e->getMessage(), 500);
+            return response()->json([
+                'result' => false,
+                'msg' => $e->getMessage(),
+            ]);
         }
     }
 

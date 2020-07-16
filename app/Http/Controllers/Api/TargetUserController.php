@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Api\Auth\UserGuardController;
 use App\Http\Requests\Index\TargetUserRequest;
 use App\Model\Index\InvoteCode;
+use App\Model\Index\Photographer;
 use App\Model\Index\TargetUser;
 use App\Model\Index\User;
 use Illuminate\Http\Request;
@@ -26,6 +27,14 @@ class TargetUserController extends BaseController
 //        $user = auth($this->guard)->user();
         try {
             $target_user = (new TargetUser())->where('user_id', $request['user_id'])->first();
+            $Photographer = Photographer::where('id', $request['user_id'])->first();
+            if (!empty($Photographer)) {
+                $data = [
+                    'result' => false,
+                    'msg' => '用户已经是摄影师,不在是目标用户'
+                ];
+                return $this->responseParseArray($data);
+            }
 
             if (empty($target_user)) {
                 $target_user = new TargetUser();
@@ -42,6 +51,16 @@ class TargetUserController extends BaseController
                 $target_user->status = 0;
                 $result = $target_user->save();
             } else {
+
+                if ($target_user->source == 0 && $request['source'] == 1) {
+                    $data = [
+                        'result' => false,
+                        'msg' => '用户活动提交过,不能通过主页点击提交'
+                    ];
+                    return $this->responseParseArray($data);
+                }
+
+                $target_user->source = $request['source'] ?? 0;
                 $target_user->wechat = $request['wechat'] ?? '';
                 $target_user->address = $request['address'] ?? '';
                 $target_user->phone_code = $request['phone_code'] ?? '';
