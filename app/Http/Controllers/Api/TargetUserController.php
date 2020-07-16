@@ -52,10 +52,10 @@ class TargetUserController extends BaseController
                 $result = $target_user->save();
             } else {
 
-                if ($target_user->source == 0 && $request['source'] == 1) {
+                if ($target_user->source < $request['source'] && $target_user->source < 4) {
                     $data = [
                         'result' => false,
-                        'msg' => '用户活动提交过,不能通过主页点击提交'
+                        'msg' => '用户已经提交过更高的来源'
                     ];
                     return $this->responseParseArray($data);
                 }

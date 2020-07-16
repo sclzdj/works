@@ -28,7 +28,7 @@ class TargetUserRequest extends BaseRequest
         return [
 //            'status' => ['required', Rule::in(array_keys($this->items))],
             'invote_code_id' => 'integer',
-            'source' => ['required', Rule::in([0, 1])],
+            'source' => ['required', Rule::in(range(0, 9))],
             'wechat' => ['max:255'],
             'address' => 'max:255',
             'phone_code' => ['max:10', 'alpha_num'],
