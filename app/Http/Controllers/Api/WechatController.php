@@ -2,6 +2,8 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
+use Log;
+use Cookie;
 
 /**
  * 微信控制器
@@ -25,9 +27,19 @@ class WechatController extends BaseController
 
         if ($scene_type == 1) {//web端登录时使用的二维码
             $app = app('wechat.official_account');
-            $result = $app->qrcode->temporary('work_web_login_qrcode', 3600);
+
+            $qrcodeLoginToken = uniqid("", true);
+            $timeout = 3600;
+            $result = $app->qrcode->temporary('qrcode_login_' .  $qrcodeLoginToken, $timeout);
+            if (isset($result['errcode']) && $result['errcode'] != 0) {
+                return $this->response->error('wechat return failed: '. $result['errmsg'], 500);
+            }
             $data["qrcode_url"] = $app->qrcode->url($result['ticket']);
             $data["expried_at"] = date("Y-m-d H:i:s", time() + $result['expire_seconds']);
+            $data["qrcode_login_token"] = $qrcodeLoginToken;
+
+            //在客户端设置Cookie
+            Cookie::set("QRCODE_LOGIN_TOKEN", $qrcodeLoginToken);
         }
 
         return $this->responseParseArray($data);
@@ -50,6 +62,11 @@ class WechatController extends BaseController
             'page'  => $path,
             'width' => $width,
         ]);
+
+        if (isset($response['errcode']) && $response['errcode'] != 0) {
+            Log::warning("gen miniProgramQRCode failed, wechat return:" . $response['errmsg']);
+            return $this->response->error('wechat return failed: '. $response['errmsg'], 500);
+        }
 
         $contents = $response->getBodyContents();
 
