@@ -13,7 +13,7 @@ use App\Http\Controllers\Api\Auth\UserGuardController;
 use App\Http\Requests\Index\SystemRequest;
 use App\Http\Requests\Index\UserRequest;
 use App\Model\Index\User;
-use Redis;
+use Illuminate\Support\Facades\Redis;
 use Log;
 use Cookie;
 

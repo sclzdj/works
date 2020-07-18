@@ -60,6 +60,7 @@ $api->version(
                 //微信用户登录
                 $api->get('login', 'LoginController@mpLogin');
                 $api->post('login', 'LoginController@login');
+                $api->post('qrcodelogin', 'LoginController@qrcodeLogin');
                 //微信用户中心
                 $api->get('my/logout', 'MyController@logout');
                 $api->get('my/refresh', 'MyController@refresh');

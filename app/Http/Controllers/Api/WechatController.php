@@ -39,7 +39,7 @@ class WechatController extends BaseController
             $data["qrcode_login_token"] = $qrcodeLoginToken;
 
             //在客户端设置Cookie
-            Cookie::set("QRCODE_LOGIN_TOKEN", $qrcodeLoginToken);
+            cookie("QRCODE_LOGIN_TOKEN", $qrcodeLoginToken, $timeout);
         }
 
         return $this->responseParseArray($data);

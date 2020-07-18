@@ -3,7 +3,7 @@ namespace App\Http\Controllers\Wechat;
 
 use App\Http\Controllers\Controller;
 use Log;
-use Redis;
+use Illuminate\Support\Facades\Redis;
 use App\Model\Index\User;
 
 class IndexController extends Controller
@@ -59,16 +59,17 @@ class IndexController extends Controller
         $unionid = $wechatUser['unionid'];
 
         //根据openid查询user表是否有该用户，如果没有新建用户，如果有将该用户的微信扫码登录状态置为已登录
-        $user = User::where(['gh_openid' => $openid])->orWhere(['unionid' => $unionid])->first();
-        if (!$user) {
+        $user = User::where('gh_openid', $openid)->orWhere('unionid', $unionid)->first();
+        if (empty($user)) {
+            Log::warning("登录失败，请在云作品小程序注册并且绑定微信号。");
             return "登录失败，请在云作品小程序注册并且绑定微信号。";
         }
 
         //存储到Redis
-        $res = Redis::set($eventKey, $user->id, 3600);
+        $res = Redis::setex($eventKey, 3600, $user->id);
         if (!$res) {
             Log::warning("qrcode_login redis set failed");
-            return $this->response->error('qrcode_login redis set failed', 500);
+            return "服务异常，请稍后重试";
         }
 
         return "登录成功！";
