@@ -49,6 +49,16 @@ class PhotographerRequest extends BaseRequest
                     'wechat' => 'required|max:50',
                     'mobile' => 'required|regex:/^1\d{10}$/',
                     'sms_code' => 'required',
+                    'auth_tags' => 'array',
+                    'auth_tags.*' => 'required|max:50',
+                    'award_tags' => 'array',
+                    'award_tags.*' => 'required|max:50',
+                    'educate_tags' => 'array',
+                    'educate_tags.*' => 'required|max:50',
+                    'equipment_tags' => 'array',
+                    'equipment_tags.*' => 'required|max:50',
+                    'social_tags' => 'array',
+                    'social_tags.*' => 'required|max:50',
                 ];
                 break;
             case 'photographerInfo':
@@ -160,6 +170,21 @@ class PhotographerRequest extends BaseRequest
                     'mobile.required' => '用户手机号不能为空',
                     'mobile.regex' => '用户手机号格式错误',
                     'sms_code.required' => '短信验证码不能为空',
+                    'auth_tags.array' => '认证情况必须是数组',
+                    'auth_tags.*.required' => '认证情况标签名称不能为空',
+                    'auth_tags.*.max' => '认证情况标签名称长度最大为50',
+                    'award_tags.array' => '获奖情况必须是数组',
+                    'award_tags.*.required' => '获奖情况标签名称不能为空',
+                    'award_tags.*.max' => '获奖情况标签名称长度最大为50',
+                    'educate_tags.array' => '教育情况必须是数组',
+                    'educate_tags.*.required' => '教育情况标签名称不能为空',
+                    'educate_tags.*.max' => '教育情况标签名称长度最大为50',
+                    'equipment_tags.array' => '器材清单必须是数组',
+                    'equipment_tags.*.required' => '器材清单标签名称不能为空',
+                    'equipment_tags.*.max' => '器材清单标签名称长度最大为50',
+                    'social_tags.array' => '社交网络必须是数组',
+                    'social_tags.*.required' => '社交网络标签名称不能为空',
+                    'social_tags.*.max' => '社交网络标签名称长度最大为50',
                 ];
                 break;
             case 'photographerInfo':

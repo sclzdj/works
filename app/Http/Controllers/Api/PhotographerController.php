@@ -13,6 +13,7 @@ use App\Http\Requests\Index\PhotographerRequest;
 use App\Model\Admin\SystemArea;
 use App\Model\Index\OperateRecord;
 use App\Model\Index\Photographer;
+use App\Model\Index\PhotographerInfoTag;
 use App\Model\Index\PhotographerRank;
 use App\Model\Index\PhotographerWork;
 use App\Model\Index\PhotographerWorkCategory;
@@ -50,6 +51,35 @@ class PhotographerController extends BaseController
         $photographer = SystemServer::parseRegionName($photographer);
         $photographer = SystemServer::parsePhotographerRank($photographer);
         $photographer['xacode'] = Photographer::getXacode($photographer['id'], false);
+        $photographer_info_tags = PhotographerInfoTag::where(
+            [
+                'photographer_id' => $photographer['id'],
+            ]
+        )->get();
+        $photographer['auth_tags'] = [];
+        $photographer['award_tags'] = [];
+        $photographer['educate_tags'] = [];
+        $photographer['equipment_tags'] = [];
+        $photographer['social_tags'] = [];
+        foreach ($photographer_info_tags as $photographer_info_tag) {
+            switch ($photographer_info_tag->type) {
+                case 'auth':
+                    $photographer['auth_tags'][] = $photographer_info_tag->name;
+                    break;
+                case 'award':
+                    $photographer['award_tags'][] = $photographer_info_tag->name;
+                    break;
+                case 'educate':
+                    $photographer['educate_tags'][] = $photographer_info_tag->name;
+                    break;
+                case 'equipment':
+                    $photographer['equipment_tags'][] = $photographer_info_tag->name;
+                    break;
+                case 'social':
+                    $photographer['social_tags'][] = $photographer_info_tag->name;
+                    break;
+            }
+        }
 
         return $this->responseParseArray($photographer);
     }

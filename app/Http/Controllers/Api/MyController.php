@@ -12,6 +12,8 @@ use App\Model\Index\AsyncDocPdfMake;
 use App\Model\Index\DocPdf;
 use App\Model\Index\DocPdfPhotographerWork;
 use App\Model\Index\Photographer;
+use App\Model\Index\PhotographerGatherWork;
+use App\Model\Index\PhotographerInfoTag;
 use App\Model\Index\PhotographerWork;
 use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\PhotographerWorkTag;
@@ -222,6 +224,35 @@ class MyController extends UserGuardController
         $photographer = SystemServer::parseRegionName($photographer);
         $photographer = SystemServer::parsePhotographerRank($photographer);
         $photographer['xacode'] = Photographer::getXacode($photographer['id'], false);
+        $photographer_info_tags = PhotographerInfoTag::where(
+            [
+                'photographer_id' => $photographer['id'],
+            ]
+        )->get();
+        $photographer['auth_tags'] = [];
+        $photographer['award_tags'] = [];
+        $photographer['educate_tags'] = [];
+        $photographer['equipment_tags'] = [];
+        $photographer['social_tags'] = [];
+        foreach ($photographer_info_tags as $photographer_info_tag) {
+            switch ($photographer_info_tag->type) {
+                case 'auth':
+                    $photographer['auth_tags'][] = $photographer_info_tag->name;
+                    break;
+                case 'award':
+                    $photographer['award_tags'][] = $photographer_info_tag->name;
+                    break;
+                case 'educate':
+                    $photographer['educate_tags'][] = $photographer_info_tag->name;
+                    break;
+                case 'equipment':
+                    $photographer['equipment_tags'][] = $photographer_info_tag->name;
+                    break;
+                case 'social':
+                    $photographer['social_tags'][] = $photographer_info_tag->name;
+                    break;
+            }
+        }
 
         return $this->responseParseArray($photographer);
     }
@@ -382,7 +413,7 @@ class MyController extends UserGuardController
                 'desc'
             );
         }
-        $photographerWorkSources=$photographerWorkSources->orderBy(
+        $photographerWorkSources = $photographerWorkSources->orderBy(
             'photographer_works.created_at',
             'desc'
         )->orderBy(
@@ -460,7 +491,7 @@ class MyController extends UserGuardController
                 'desc'
             );
         }
-        $photographerWorkSources=$photographerWorkSources->orderBy(
+        $photographerWorkSources = $photographerWorkSources->orderBy(
             'photographer_works.created_at',
             'desc'
         )->orderBy(
@@ -586,6 +617,7 @@ class MyController extends UserGuardController
         try {
             $photographer_work->status = 400;
             $photographer_work->save();
+            PhotographerGatherWork::where(['photographer_work_id' => $photographer_work->id])->delete();//删除合集中关联的项目
             \DB::commit();//提交事务
 
             return $this->response->noContent();
@@ -694,6 +726,62 @@ class MyController extends UserGuardController
             $photographer->wechat = $request->wechat;
             $photographer->mobile = $request->mobile;
             $photographer->save();
+            PhotographerInfoTag::where(['photographer_id' => $photographer->id])->whereIn('type',['auth','award','educate','equipment','social'])->delete();
+            if ($request->auth_tags) {
+                foreach ($request->auth_tags as $auth_tag) {
+                    PhotographerInfoTag::create(
+                        [
+                            'photographer_id' => $photographer->id,
+                            'type' => 'auth',
+                            'name' => $auth_tag,
+                        ]
+                    );
+                }
+            }
+            if ($request->award_tags) {
+                foreach ($request->award_tags as $award_tag) {
+                    PhotographerInfoTag::create(
+                        [
+                            'photographer_id' => $photographer->id,
+                            'type' => 'award',
+                            'name' => $award_tag,
+                        ]
+                    );
+                }
+            }
+            if ($request->educate_tags) {
+                foreach ($request->educate_tags as $educate_tag) {
+                    PhotographerInfoTag::create(
+                        [
+                            'photographer_id' => $photographer->id,
+                            'type' => 'educate',
+                            'name' => $educate_tag,
+                        ]
+                    );
+                }
+            }
+            if ($request->equipment_tags) {
+                foreach ($request->equipment_tags as $equipment_tag) {
+                    PhotographerInfoTag::create(
+                        [
+                            'photographer_id' => $photographer->id,
+                            'type' => 'equipment',
+                            'name' => $equipment_tag,
+                        ]
+                    );
+                }
+            }
+            if ($request->social_tags) {
+                foreach ($request->social_tags as $social_tag) {
+                    PhotographerInfoTag::create(
+                        [
+                            'photographer_id' => $photographer->id,
+                            'type' => 'social',
+                            'name' => $social_tag,
+                        ]
+                    );
+                }
+            }
             \DB::commit();//提交事务
 
             return $this->response->noContent();

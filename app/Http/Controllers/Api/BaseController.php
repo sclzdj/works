@@ -103,4 +103,5 @@ class BaseController extends Controller
             return $photographer;
         }
     }
+
 }

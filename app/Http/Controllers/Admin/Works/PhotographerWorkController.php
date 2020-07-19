@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\PhotographerWorkRequest;
 use App\Model\Admin\SystemArea;
 use App\Model\Admin\SystemConfig;
 use App\Model\Index\Photographer;
+use App\Model\Index\PhotographerGatherWork;
 use App\Model\Index\PhotographerWork;
 use App\Model\Index\PhotographerWorkCategory;
 use App\Model\Index\PhotographerWorkCustomerIndustry;
@@ -68,7 +69,7 @@ class PhotographerWorkController extends BaseController
             'order_type' => $request['order_type'] !== null ?
                 $request['order_type'] :
                 'asc',
-           // 'created_at' => 'desc'
+            // 'created_at' => 'desc'
         ];
         $where = [];
 //        if ($filter['id'] !== '') {
@@ -170,7 +171,8 @@ class PhotographerWorkController extends BaseController
         $photographerWorks = $PhotographerWork->orderBy(
 //            'photographer_works.'.$orderBy['order_field'],
 //            $orderBy['order_type']
-            'created_at' , 'desc'
+            'created_at',
+            'desc'
         )->paginate(
             $pageInfo['pageSize']
         );
@@ -794,7 +796,7 @@ class PhotographerWorkController extends BaseController
                                     'msg' => '七牛图片信息接口返回错误信息',
                                     'request_data' => $photographerWorkRequest->all(),
                                     'photographerWorkSource' => $photographer_work_source,
-                                    'res' =>  $res['data'],
+                                    'res' => $res['data'],
                                 ];
                             }
                         } else {
@@ -944,6 +946,7 @@ class PhotographerWorkController extends BaseController
                 }
                 $photographer_work->status = 400;
                 $photographer_work->save();
+                PhotographerGatherWork::where(['photographer_work_id' => $photographer_work->id])->delete();//删除合集中关联的项目
 
                 \DB::commit();//提交事务
 
@@ -969,6 +972,8 @@ class PhotographerWorkController extends BaseController
                     }
                     $photographer_work->status = 400;
                     $photographer_work->save();
+                    PhotographerGatherWork::where(['photographer_work_id' => $photographer_work->id])->delete(
+                    );//删除合集中关联的项目
                 }
                 \DB::commit();//提交事务
 

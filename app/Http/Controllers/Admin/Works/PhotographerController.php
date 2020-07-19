@@ -8,6 +8,9 @@ use App\Model\Admin\SystemArea;
 use App\Model\Admin\SystemConfig;
 use App\Model\Index\OperateRecord;
 use App\Model\Index\Photographer;
+use App\Model\Index\PhotographerGather;
+use App\Model\Index\PhotographerGatherInfo;
+use App\Model\Index\PhotographerInfoTag;
 use App\Model\Index\PhotographerRank;
 use App\Model\Index\PhotographerRankingLog;
 use App\Model\Index\PhotographerWork;
@@ -367,6 +370,8 @@ class PhotographerController extends BaseController
                 OperateRecord::where('photographer_id', $id)->delete();
                 PhotographerRankingLog::where('photographer_id', $id)->delete();
                 RandomPhotographer::where('photographer_id', $id)->delete();
+                PhotographerGather::where('photographer_id', $id)->update(['status' => 400]);
+                PhotographerGatherInfo::where('photographer_id', $id)->update(['status' => 400]);
                 \DB::commit();//提交事务
 
                 return $this->response('删除成功', 200);
@@ -383,6 +388,8 @@ class PhotographerController extends BaseController
                 OperateRecord::whereIn('photographer_id', $ids)->delete();
                 PhotographerRankingLog::whereIn('photographer_id', $ids)->delete();
                 RandomPhotographer::whereIn('photographer_id', $ids)->delete();
+                PhotographerGather::whereIn('photographer_id', $ids)->update(['status' => 400]);
+                PhotographerGatherInfo::whereIn('photographer_id', $ids)->update(['status' => 400]);
                 \DB::commit();//提交事务
 
                 return $this->response('批量删除成功', 200);
