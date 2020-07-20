@@ -12,9 +12,12 @@ use App\Model\Index\AsyncDocPdfMake;
 use App\Model\Index\DocPdf;
 use App\Model\Index\DocPdfPhotographerWork;
 use App\Model\Index\Photographer;
+use App\Model\Index\PhotographerGather;
 use App\Model\Index\PhotographerGatherWork;
 use App\Model\Index\PhotographerInfoTag;
 use App\Model\Index\PhotographerWork;
+use App\Model\Index\PhotographerWorkCategory;
+use App\Model\Index\PhotographerWorkCustomerIndustry;
 use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\PhotographerWorkTag;
 use App\Model\Index\RandomPhotographer;
@@ -270,8 +273,8 @@ class MyController extends UserGuardController
         }
         $keywords = $request->keywords;
         if ($request->keywords !== null && $request->keywords !== '') {
-            $whereRaw = "(photographer_works.customer_name like ? || photographer_work_customer_industries.name like ? || photographer_work_categories.name like ? || EXISTS (SELECT * from photographer_work_tags WHERE photographer_work_tags.photographer_work_id=photographer_works.id AND photographer_work_tags.name like ?))";
-            $whereRaw2 = ["%{$keywords}%", "%{$keywords}%", "%{$keywords}%", "%{$keywords}%"];
+            $whereRaw = "(`photographer_works`.`name` like ? || `photographer_works`.`customer_name` like ? || `photographer_work_customer_industries`.`name` like ? || `photographer_work_categories`.`name` like ? || EXISTS (select `photographer_work_tags`.* from `photographer_work_tags` where `photographer_work_tags`.`photographer_work_id`=`photographer_works`.`id` AND `photographer_work_tags`.`name` like ?))";
+            $whereRaw2 = ["%{$keywords}%", "%{$keywords}%", "%{$keywords}%", "%{$keywords}%", "%{$keywords}%"];
         }
         $photographer_works = $photographer->photographerWorks()->select('photographer_works.*')->join(
             'photographer_work_customer_industries',
@@ -284,13 +287,157 @@ class MyController extends UserGuardController
             '=',
             'photographer_work_categories.id'
         );
+        if ($request->photographer_work_category_ids !== null && $request->photographer_work_category_ids !== '') {
+            $photographer_work_category_ids = explode(',', $request->photographer_work_category_ids);
+            $exist_zero = in_array(0, $photographer_work_category_ids);
+            $filter_photographer_work_category_ids = [];
+            if ($exist_zero) {
+                foreach ($photographer_work_category_ids as $k => $photographer_work_category_id) {
+                    if ($photographer_work_category_id == 0) {
+                        unset($photographer_work_category_ids[$k]);
+                    }
+                }
+                $filter_photographer_work_category_ids[] = 0;
+            }
+            if ($photographer_work_category_ids) {
+                $photographer_work_category_ids = implode(',', $photographer_work_category_ids);
+                $photographerWorkCategories = PhotographerWorkCategory::whereRaw(
+                    '(`id` in ('.$photographer_work_category_ids.') || `pid` in ('.$photographer_work_category_ids.') )'
+                )->get();
+                if ($photographerWorkCategories->count()) {
+                    $photographer_work_category_ids = ArrServer::ids($photographerWorkCategories->toArray());
+                    if ($photographer_work_category_ids) {
+                        $filter_photographer_work_category_ids = array_merge(
+                            $filter_photographer_work_category_ids,
+                            $photographer_work_category_ids
+                        );
+                    }
+                }
+            }
+            if ($filter_photographer_work_category_ids) {
+                $photographer_works = $photographer_works->whereIn(
+                    'photographer_works.photographer_work_category_id',
+                    $filter_photographer_work_category_ids
+                );
+            }
+        }
+        if ($request->photographer_work_customer_industry_ids !== null && $request->photographer_work_customer_industry_ids !== '') {
+            $photographer_work_customer_industry_ids = explode(',', $request->photographer_work_customer_industry_ids);
+            $exist_zero = in_array(0, $photographer_work_customer_industry_ids);
+            $filter_photographer_work_customer_industry_ids = [];
+            if ($exist_zero) {
+                foreach ($photographer_work_customer_industry_ids as $k => $photographer_work_customer_industry_id) {
+                    if ($photographer_work_customer_industry_id == 0) {
+                        unset($photographer_work_customer_industry_ids[$k]);
+                    }
+                }
+                $filter_photographer_work_customer_industry_ids[] = 0;
+            }
+            if ($photographer_work_customer_industry_ids) {
+                $photographer_work_customer_industry_ids = implode(',', $photographer_work_customer_industry_ids);
+                $photographerWorkCustomerIndustries = PhotographerWorkCustomerIndustry::whereRaw(
+                    '(`id` in ('.$photographer_work_customer_industry_ids.') || `pid` in ('.$photographer_work_customer_industry_ids.') )'
+                )->get();
+                if ($photographerWorkCustomerIndustries->count()) {
+                    $photographer_work_customer_industry_ids = ArrServer::ids(
+                        $photographerWorkCustomerIndustries->toArray()
+                    );
+                    if ($photographer_work_customer_industry_ids) {
+                        $filter_photographer_work_customer_industry_ids = array_merge(
+                            $filter_photographer_work_customer_industry_ids,
+                            $photographer_work_customer_industry_ids
+                        );
+                    }
+                }
+            }
+            if ($filter_photographer_work_customer_industry_ids) {
+                $photographer_works = $photographer_works->whereIn(
+                    'photographer_works.photographer_work_customer_industry_id',
+                    $filter_photographer_work_customer_industry_ids
+                );
+            }
+        }
+        if ($request->is_business !== null && $request->is_business !== '') {
+            $photographer_works = $photographer_works->where(
+                ['photographer_works.is_business' => $request->is_business]
+            );
+        }
+        if ($request->project_amount_min !== null && $request->project_amount_min !== '') {
+            $photographer_works = $photographer_works->where(
+                'photographer_works.project_amount',
+                '>=',
+                $request->project_amount_min
+            );
+        }
+        if ($request->project_amount_max !== null && $request->project_amount_max !== '') {
+            $photographer_works = $photographer_works->where(
+                'photographer_works.project_amount',
+                '<=',
+                $request->project_amount_max
+            );
+        }
+        if ($request->sheets_number_min !== null && $request->sheets_number_min !== '') {
+            $photographer_works = $photographer_works->where(
+                'photographer_works.sheets_number',
+                '>=',
+                $request->sheets_number_min
+            );
+        }
+        if ($request->sheets_number_max !== null && $request->sheets_number_max !== '') {
+            $photographer_works = $photographer_works->where(
+                'photographer_works.sheets_number',
+                '<=',
+                $request->sheets_number_max
+            );
+        }
+        if ($request->shooting_duration_min !== null && $request->shooting_duration_min !== '') {
+            $photographer_works = $photographer_works->where(
+                'photographer_works.shooting_duration',
+                '>=',
+                $request->shooting_duration_min
+            );
+        }
+        if ($request->shooting_duration_max !== null && $request->shooting_duration_max !== '') {
+            $photographer_works = $photographer_works->where(
+                'photographer_works.shooting_duration',
+                '<=',
+                $request->shooting_duration_max
+            );
+        }
         if ($request->keywords !== null && $request->keywords !== '') {
             $photographer_works = $photographer_works->whereRaw(
                 $whereRaw,
                 $whereRaw2
             );
         }
+        if ($request->photographer_gather_id !== null && $request->photographer_gather_id > 0) {
+            $photographer_work_ids = [];
+            $photographerGather = PhotographerGather::where(
+                ['id' => $request->photographer_gather_id, 'photographer_id' => $photographer->id, 'status' => 200]
+            )->first();
+            if ($photographerGather) {
+                $photographerGatherWorks = PhotographerGatherWork::where(
+                    ['photographer_gather_id' => $photographerGather->id]
+                )->orderBy('sort', 'asc')->get()->toArray();
+                if ($photographerGatherWorks) {
+                    $photographer_work_ids = ArrServer::ids($photographerGatherWorks, 'photographer_work_id');
+                    $photographer_works = $photographer_works->whereIn(
+                        'photographer_works.id',
+                        $photographer_work_ids
+                    );
+                } else {
+                    $photographer_works = $photographer_works->where(['photographer_works.id' => 0]);
+                }
+            } else {
+                $photographer_works = $photographer_works->where(['photographer_works.id' => 0]);
+            }
+        }
         $photographer_works = $photographer_works->where(['photographer_works.status' => 200]);
+        if ($request->photographer_gather_id !== null && $request->photographer_gather_id > 0 && $photographer_work_ids) {
+            $photographer_works = $photographer_works->orderByRaw(
+                'FIND_IN_SET (`photographer_works`.`id`,\''.implode(',', $photographer_work_ids).'\')'
+            );
+        }
         if ($request->is_roof_order_by) {
             $photographer_works = $photographer_works->orderBy(
                 'photographer_works.roof',
@@ -314,7 +461,10 @@ class MyController extends UserGuardController
             $all_tags[] = $photographer_work_tags;
         }
         $photographer_works = SystemServer::parsePaginate($photographer_works->toArray());
-        $photographer_works['data'] = ArrServer::inData($photographer_works['data'], PhotographerWork::allowFields());
+        $photographer_works['data'] = ArrServer::inData(
+            $photographer_works['data'],
+            PhotographerWork::allowFields()
+        );
         foreach ($photographer_works['data'] as $k => $v) {
             $photographer_works['data'][$k]['tags'] = $all_tags[$k];
         }
@@ -323,7 +473,9 @@ class MyController extends UserGuardController
             ['sheets_number', 'shooting_duration']
         );
         $photographer_works['data'] = SystemServer::parsePhotographerWorkCover($photographer_works['data']);
-        $photographer_works['data'] = SystemServer::parsePhotographerWorkCustomerIndustry($photographer_works['data']);
+        $photographer_works['data'] = SystemServer::parsePhotographerWorkCustomerIndustry(
+            $photographer_works['data']
+        );
         $photographer_works['data'] = SystemServer::parsePhotographerWorkCategory($photographer_works['data']);
 
         return $this->response->array($photographer_works);
@@ -333,8 +485,10 @@ class MyController extends UserGuardController
      * 我的用户项目详情
      * @param UserRequest $request
      */
-    public function photographerWork(UserRequest $request)
-    {
+    public
+    function photographerWork(
+        UserRequest $request
+    ) {
         $this->notPhotographerIdentityVerify();
         $photographer_work = PhotographerWork::where(
             ['status' => 200, 'id' => $request->photographer_work_id]
@@ -367,9 +521,14 @@ class MyController extends UserGuardController
         $photographer_work = SystemServer::parsePhotographerWorkCategory($photographer_work);
         $photographer_work['sources'] = $photographer_work_sources;
         $photographer_work['tags'] = $photographer_work_tags;
-        $photographer_work['photographer'] = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
+        $photographer_work['photographer'] = ArrServer::inData(
+            $photographer->toArray(),
+            Photographer::allowFields()
+        );
         $photographer_work['photographer'] = SystemServer::parseRegionName($photographer_work['photographer']);
-        $photographer_work['photographer'] = SystemServer::parsePhotographerRank($photographer_work['photographer']);
+        $photographer_work['photographer'] = SystemServer::parsePhotographerRank(
+            $photographer_work['photographer']
+        );
         $photographer_work['xacode'] = PhotographerWork::getXacode($photographer_work['id'], false);
 
         return $this->response->array($photographer_work);
@@ -379,8 +538,10 @@ class MyController extends UserGuardController
      * 我的用户作品资源列表
      * @param UserRequest $request
      */
-    public function photographerWorkSources(UserRequest $request)
-    {
+    public
+    function photographerWorkSources(
+        UserRequest $request
+    ) {
         $this->notPhotographerIdentityVerify();
         $photographer = $this->_photographer(null, $this->guard);
         if (!$photographer || $photographer->status != 200) {
@@ -434,7 +595,10 @@ class MyController extends UserGuardController
                 $photographer_work_tags = $photographer_work->photographerWorkTags()->select(
                     PhotographerWorkTag::allowFields()
                 )->get()->toArray();
-                $photographer_work = ArrServer::inData($photographer_work->toArray(), PhotographerWork::allowFields());
+                $photographer_work = ArrServer::inData(
+                    $photographer_work->toArray(),
+                    PhotographerWork::allowFields()
+                );
                 $photographer_work = ArrServer::toNullStrData(
                     $photographer_work,
                     ['sheets_number', 'shooting_duration']
@@ -457,8 +621,10 @@ class MyController extends UserGuardController
      * 我的用户作品资源列表(简易版)
      * @param UserRequest $request
      */
-    public function photographerWorkSourcesSimple(UserRequest $request)
-    {
+    public
+    function photographerWorkSourcesSimple(
+        UserRequest $request
+    ) {
         $this->notPhotographerIdentityVerify();
         $photographer = $this->_photographer(null, $this->guard);
         if (!$photographer || $photographer->status != 200) {
@@ -532,8 +698,10 @@ class MyController extends UserGuardController
      * @param UserRequest $request
      * @return mixed|void
      */
-    public function photographerStatistics(UserRequest $request)
-    {
+    public
+    function photographerStatistics(
+        UserRequest $request
+    ) {
         $this->notPhotographerIdentityVerify();
         $user = auth($this->guard)->user();
         $rankListLast = $request->rankListLast ?? 50;
@@ -597,8 +765,10 @@ class MyController extends UserGuardController
      * 删除我的用户项目
      * @param UserRequest $request
      */
-    public function photographerWorkDelete(UserRequest $request)
-    {
+    public
+    function photographerWorkDelete(
+        UserRequest $request
+    ) {
         $this->notPhotographerIdentityVerify();
         $photographer_work = PhotographerWork::where(
             ['status' => 200, 'id' => $request->photographer_work_id]
@@ -632,8 +802,10 @@ class MyController extends UserGuardController
      * 项目相关参数显影
      * @param UserRequest $request
      */
-    public function photographerWorkHide(UserRequest $request)
-    {
+    public
+    function photographerWorkHide(
+        UserRequest $request
+    ) {
         $this->notPhotographerIdentityVerify();
         $photographer = $this->_photographer(null, $this->guard);
         $photographer_work = PhotographerWork::where(
@@ -684,8 +856,10 @@ class MyController extends UserGuardController
      * @param UserRequest $request
      * @return \Dingo\Api\Http\Response|void
      */
-    public function savePhotographerInfo(PhotographerRequest $request)
-    {
+    public
+    function savePhotographerInfo(
+        PhotographerRequest $request
+    ) {
         $this->notPhotographerIdentityVerify();
         \DB::beginTransaction();//开启事务
         try {
@@ -726,7 +900,10 @@ class MyController extends UserGuardController
             $photographer->wechat = $request->wechat;
             $photographer->mobile = $request->mobile;
             $photographer->save();
-            PhotographerInfoTag::where(['photographer_id' => $photographer->id])->whereIn('type',['auth','award','educate','equipment','social'])->delete();
+            PhotographerInfoTag::where(['photographer_id' => $photographer->id])->whereIn(
+                'type',
+                ['auth', 'award', 'educate', 'equipment', 'social']
+            )->delete();
             if ($request->auth_tags) {
                 foreach ($request->auth_tags as $auth_tag) {
                     PhotographerInfoTag::create(
@@ -797,8 +974,10 @@ class MyController extends UserGuardController
      * @param UserRequest $request
      * @return \Dingo\Api\Http\Response|void
      */
-    public function savePhotographerAvatar(UserRequest $request)
-    {
+    public
+    function savePhotographerAvatar(
+        UserRequest $request
+    ) {
         $this->notPhotographerIdentityVerify();
         \DB::beginTransaction();//开启事务
         try {
@@ -823,8 +1002,10 @@ class MyController extends UserGuardController
      * @param UserRequest $request
      * @return \Dingo\Api\Http\Response|void
      */
-    public function savePhotographerBgImg(UserRequest $request)
-    {
+    public
+    function savePhotographerBgImg(
+        UserRequest $request
+    ) {
         $this->notPhotographerIdentityVerify();
         \DB::beginTransaction();//开启事务
         try {
@@ -849,8 +1030,10 @@ class MyController extends UserGuardController
      * @param UserRequest $request
      * @return \Dingo\Api\Http\Response|void
      */
-    public function setRoof(UserRequest $request)
-    {
+    public
+    function setRoof(
+        UserRequest $request
+    ) {
         $this->notPhotographerIdentityVerify();
         \DB::beginTransaction();//开启事务
         try {
@@ -907,8 +1090,10 @@ class MyController extends UserGuardController
      * @param UserRequest $request
      * @return \Dingo\Api\Http\Response|void
      */
-    public function savePhotographerWorkInfo(UserRequest $request)
-    {
+    public
+    function savePhotographerWorkInfo(
+        UserRequest $request
+    ) {
         $sources_count = 0;
         if ($request->sources) {
             $sources_count = count($request->sources);
@@ -1009,7 +1194,10 @@ class MyController extends UserGuardController
 //                                $photographer_work_source->rich_height = $res['data']['height'];
                                     $photographer_work_source->save();
                                     /*平均色调*/
-                                    $res_ave = SystemServer::request('GET', $photographer_work_source->url.'?imageAve');
+                                    $res_ave = SystemServer::request(
+                                        'GET',
+                                        $photographer_work_source->url.'?imageAve'
+                                    );
                                     if ($res_ave['code'] == 200) {
                                         if (!isset($res_ave['data']['error']) || (isset($res_ave['data']['code']) && $res_ave['data']['code'] == 200)) {
                                             if (isset($res_ave['data']['RGB'])) {
@@ -1025,10 +1213,16 @@ class MyController extends UserGuardController
                                             'exif' => json_encode([]),
                                         ]
                                     );
-                                    $res_exif = SystemServer::request('GET', $photographer_work_source->url.'?exif');
+                                    $res_exif = SystemServer::request(
+                                        'GET',
+                                        $photographer_work_source->url.'?exif'
+                                    );
                                     if ($res_exif['code'] == 200) {
                                         if (!isset($res_exif['data']['error']) || (isset($res_exif['data']['code']) && $res_exif['data']['code'] == 200)) {
-                                            PhotographerWorkSource::where('id', $photographer_work_source->id)->update(
+                                            PhotographerWorkSource::where(
+                                                'id',
+                                                $photographer_work_source->id
+                                            )->update(
                                                 [
                                                     'exif' => json_encode($res_exif['data']),
                                                 ]
@@ -1271,7 +1465,8 @@ class MyController extends UserGuardController
      * 随机用户列表
      * @return mixed|void
      */
-    public function randomPhotographers()
+    public
+    function randomPhotographers()
     {
         $this->notVisitorIdentityVerify();
         $user = auth($this->guard)->user();
@@ -1351,7 +1546,9 @@ class MyController extends UserGuardController
                         'photographer_work_sources.sort',
                         'asc'
                     )->take(3)->get();
-                    $photographerWorkSources = SystemServer::getPhotographerWorkSourcesThumb($photographerWorkSources);
+                    $photographerWorkSources = SystemServer::getPhotographerWorkSourcesThumb(
+                        $photographerWorkSources
+                    );
 
                     $photographers[$k]['photographer_work_sources'] = $photographerWorkSources->toArray();
                 }
@@ -1373,8 +1570,10 @@ class MyController extends UserGuardController
      * @param UserRequest $request
      * @return mixed
      */
-    public function viewRecords(UserRequest $request)
-    {
+    public
+    function viewRecords(
+        UserRequest $request
+    ) {
         $user = auth($this->guard)->user();
         $fields = array_map(
             function ($v) {
@@ -1470,7 +1669,9 @@ class MyController extends UserGuardController
                         'photographer_work_sources.sort',
                         'asc'
                     )->take($source_limit)->get();
-                    $photographerWorkSources = SystemServer::getPhotographerWorkSourcesThumb($photographerWorkSources);
+                    $photographerWorkSources = SystemServer::getPhotographerWorkSourcesThumb(
+                        $photographerWorkSources
+                    );
                     $view_records['data'][$k]['sources'] = $photographerWorkSources->toArray();
                 }
             }
@@ -1485,8 +1686,10 @@ class MyController extends UserGuardController
      * @param UserRequest $request
      * @return \Dingo\Api\Http\Response|void
      */
-    public function saveDocPdf(UserRequest $request)
-    {
+    public
+    function saveDocPdf(
+        UserRequest $request
+    ) {
         $this->notPhotographerIdentityVerify();
         $photographer = $this->_photographer(null, $this->guard);
         \DB::beginTransaction();//开启事务
@@ -1523,8 +1726,10 @@ class MyController extends UserGuardController
      * @param UserRequest $request
      * @return mixed
      */
-    public function docPdfs(UserRequest $request)
-    {
+    public
+    function docPdfs(
+        UserRequest $request
+    ) {
         $this->notPhotographerIdentityVerify();
         $photographer = $this->_photographer(null, $this->guard);
         $doc_pdfs = DocPdf::select(DocPdf::allowFields())->where('photographer_id', $photographer->id)->whereIn(
@@ -1557,8 +1762,10 @@ class MyController extends UserGuardController
      * @param UserRequest $request
      * @return mixed|void
      */
-    public function getDocPdfStatus(UserRequest $request)
-    {
+    public
+    function getDocPdfStatus(
+        UserRequest $request
+    ) {
         $this->notPhotographerIdentityVerify();
         $photographer = $this->_photographer(null, $this->guard);
         $doc_pdf = DocPdf::select(DocPdf::allowFields())->where(
@@ -1576,8 +1783,10 @@ class MyController extends UserGuardController
      * @param UserRequest $request
      * @return mixed|void
      */
-    public function docPdfDelete(UserRequest $request)
-    {
+    public
+    function docPdfDelete(
+        UserRequest $request
+    ) {
         $this->notPhotographerIdentityVerify();
         $photographer = $this->_photographer(null, $this->guard);
         $doc_pdf = DocPdf::select(DocPdf::allowFields())->where(
@@ -1605,8 +1814,10 @@ class MyController extends UserGuardController
      * 获取用户的分享图
      * @return mixed|void
      */
-    public function photographerShare(Request $request)
-    {
+    public
+    function photographerShare(
+        Request $request
+    ) {
         $photographer_id = $request->input('photographer_id');
         $photographer = Photographer::where('id', $photographer_id)->first();
 
@@ -1628,8 +1839,10 @@ class MyController extends UserGuardController
      * 获取项目的分享图
      * @return mixed|void
      */
-    public function photographerWorkShare(Request $request)
-    {
+    public
+    function photographerWorkShare(
+        Request $request
+    ) {
         $photographer_work_id = $request->input('photographer_work_id', 0);
         $PhotographerWork = new PhotographerWork();
         $buckets = config('custom.qiniu.buckets');
