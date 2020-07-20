@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Auth\UserGuardController;
 use App\Http\Requests\Index\VisitRequest;
 use App\Model\Index\OperateRecord;
 use App\Model\Index\Photographer;
+use App\Model\Index\PhotographerGather;
 use App\Model\Index\PhotographerWork;
 use App\Model\Index\User;
 use App\Model\Index\ViewRecord;
@@ -53,6 +54,15 @@ class VisitController extends UserGuardController
                     return $this->response->error('用户项目不存在', 500);
                 }
             }
+            $request->photographer_gather_id = $request->photographer_gather_id ?? 0;
+            if ($request->photographer_gather_id > 0) {
+                $photographer_gather = PhotographerGather::where(
+                    ['id' => $request->photographer_gather_id, 'photographer_id' => $photographer->id, 'status' => 200]
+                )->first();
+                if (!$photographer_gather) {
+                    return $this->response->error('用户合集不存在', 500);
+                }
+            }
             if ($user->id == $photographer_user->id) {
                 \DB::commit();//提交事务
 
@@ -71,6 +81,7 @@ class VisitController extends UserGuardController
             $operate_record->page_name = $request->page_name;
             $operate_record->photographer_id = $request->photographer_id;
             $operate_record->photographer_work_id = $request->photographer_work_id;
+            $operate_record->photographer_gather_id = $request->photographer_gather_id;
             $operate_record->in_type = $request->in_type;
             $operate_record->shared_user_id = $request->shared_user_id ?? 0;
             $operate_record->operate_type = 'in';
@@ -81,6 +92,7 @@ class VisitController extends UserGuardController
             $operate_record->page_name = $request->page_name;
             $operate_record->photographer_id = $request->photographer_id;
             $operate_record->photographer_work_id = $request->photographer_work_id;
+            $operate_record->photographer_gather_id = $request->photographer_gather_id;
             $operate_record->operate_type = 'view';
             $operate_record->save();
             if ($user->id != $photographer_user->id) {//如果不是自己访问，记录访客信息
@@ -131,6 +143,15 @@ class VisitController extends UserGuardController
                     return $this->response->error('用户项目不存在', 500);
                 }
             }
+            $request->photographer_gather_id = $request->photographer_gather_id ?? 0;
+            if ($request->photographer_gather_id > 0) {
+                $photographer_gather = PhotographerGather::where(
+                    ['id' => $request->photographer_gather_id, 'photographer_id' => $photographer->id, 'status' => 200]
+                )->first();
+                if (!$photographer_gather) {
+                    return $this->response->error('用户合集不存在', 500);
+                }
+            }
             if ($user->id == $photographer_user->id) {
                 \DB::commit();//提交事务
 
@@ -141,6 +162,7 @@ class VisitController extends UserGuardController
             $operate_record->page_name = $request->page_name;
             $operate_record->photographer_id = $request->photographer_id;
             $operate_record->photographer_work_id = $request->photographer_work_id;
+            $operate_record->photographer_gather_id = $request->photographer_gather_id;
             $operate_record->share_type = $request->share_type;
             $operate_record->operate_type = 'share';
             $operate_record->save();
@@ -192,6 +214,15 @@ class VisitController extends UserGuardController
                     return $this->response->error('用户项目不存在', 500);
                 }
             }
+            $request->photographer_gather_id = $request->photographer_gather_id ?? 0;
+            if ($request->photographer_gather_id > 0) {
+                $photographer_gather = PhotographerGather::where(
+                    ['id' => $request->photographer_gather_id, 'photographer_id' => $photographer->id, 'status' => 200]
+                )->first();
+                if (!$photographer_gather) {
+                    return $this->response->error('用户合集不存在', 500);
+                }
+            }
             if ($user->id == $photographer_user->id) {
                 \DB::commit();//提交事务
 
@@ -203,6 +234,7 @@ class VisitController extends UserGuardController
             $operate_record->page_name = $request->page_name;
             $operate_record->photographer_id = $request->photographer_id;
             $operate_record->photographer_work_id = $request->photographer_work_id;
+            $operate_record->photographer_gather_id = $request->photographer_gather_id;
             $operate_record->save();
             if ($user->id != $photographer_user->id) {//如果不是自己访问，记录访客信息
                 $this->_visitorRecord(
@@ -298,7 +330,7 @@ class VisitController extends UserGuardController
             }
             $visitor = Visitor::create(['photographer_id' => $request->photographer_id, 'user_id' => $user->id]);
             if ($user->identity == 1) {
-                $visitor->visitor_tag_id =4;//如果访客也为用户标记为同行
+                $visitor->visitor_tag_id = 4;//如果访客也为用户标记为同行
             }
             if ($visitors_count + 1 < 3) {
                 $visit_send_message['is'] = true;//第一次发送模板消息，发模板消息
@@ -607,6 +639,27 @@ class VisitController extends UserGuardController
     }
 
     /**
+     * 一键已读
+     * @return mixed
+     */
+    public function oneClickRead()
+    {
+        $this->notPhotographerIdentityVerify();
+        $photographer = $this->_photographer(null, $this->guard);
+        \DB::beginTransaction();//开启事务
+        try {
+            OperateRecord::where(['photographer_id' => $photographer->id, 'is_read' => 0])->update(['is_read' => 1]);
+            \DB::commit();//提交事务
+
+            return $this->response->noContent();
+        } catch (\Exception $e) {
+            \DB::rollback();//回滚事务
+
+            return $this->response->error($e->getMessage(), 500);
+        }
+    }
+
+    /**
      * 访客标签列表
      * @return mixed
      */
@@ -817,24 +870,32 @@ class VisitController extends UserGuardController
         $operateRecord = OperateRecord::where(['id' => $operate_id])->first();
         $visitor_nickname = (string)User::where('id', $operateRecord->user_id)->value('nickname');
         $photographer_name = (string)Photographer::where('id', $operateRecord->photographer_id)->value('name');
-        $photographer_work_customer_name = (string)PhotographerWork::where(
+        $photographer_work_name = (string)PhotographerWork::where(
             'id',
             $operateRecord->photographer_work_id
-        )->value('customer_name');
+        )->value('name');
+        $photographer_gather_name = (string)PhotographerGather::where(
+            'id',
+            $operateRecord->photographer_gather_id
+        )->value('name');
         $shared_user_nickname = (string)User::where('id', $operateRecord->shared_user_id)->value('nickname');
         $describe = '';
         if ($operateRecord->operate_type == 'view') {
             if ($operateRecord->page_name == 'photographer_home') {
-                $describe = '浏览了合集';
+                $describe = '浏览了主页';
             } elseif ($operateRecord->page_name == 'photographer_work') {
-                $describe = '浏览了项目「'.$photographer_work_customer_name.'」';
+                $describe = '浏览了项目「'.$photographer_work_name.'」';
+            } elseif ($operateRecord->page_name == 'photographer_gather') {
+                $describe = '浏览了合集「'.$photographer_gather_name.'」';
             }
         } elseif ($operateRecord->operate_type == 'in') {
             if ($operateRecord->in_type == 'xacode_in') {
                 if ($operateRecord->page_name == 'photographer_home') {
-                    $describe = '扫描合集的小程序码进入';
+                    $describe = '扫描主页小程序码进入';
                 } elseif ($operateRecord->page_name == 'photographer_work') {
-                    $describe = '扫描项目「'.$photographer_work_customer_name.'」的小程序码进入';
+                    $describe = '扫描项目「'.$photographer_work_name.'」的小程序码进入';
+                } elseif ($operateRecord->page_name == 'photographer_gather') {
+                    $describe = '扫描合集「'.$photographer_gather_name.'」的小程序码进入';
                 }
             } elseif ($operateRecord->in_type == 'xacard_in') {
                 $auth_id = auth($this->guard)->id();
@@ -859,27 +920,39 @@ class VisitController extends UserGuardController
         } elseif ($operateRecord->operate_type == 'share') {
             if ($operateRecord->page_name == 'photographer_home') {
                 if ($operateRecord->share_type == 'xacard_share') {
-                    $describe = '将合集分享给了微信好友';
+                    $describe = '将主页分享给了微信好友';
                 } elseif ($operateRecord->share_type == 'poster_share') {
-                    $describe = '生成了合集的海报';
+                    $describe = '生成了主页海报';
                 } elseif ($operateRecord->share_type == 'xacode_share') {
-                    $describe = '生成了合集的小程序码';
+                    $describe = '生成了主页小程序码';
+                } elseif ($operateRecord->share_type == 'all_photo_share') {
+                    $describe = '保存了主页所有照片';
                 }
             } elseif ($operateRecord->page_name == 'photographer_work') {
                 if ($operateRecord->share_type == 'xacard_share') {
-                    $describe = '将项目「'.$photographer_work_customer_name.'」分享给了微信好友';
+                    $describe = '将项目「'.$photographer_work_name.'」分享给了微信好友';
                 } elseif ($operateRecord->share_type == 'poster_share') {
-                    $describe = '生成了项目「'.$photographer_work_customer_name.'」的海报';
+                    $describe = '生成了项目「'.$photographer_work_name.'」的海报';
+                } elseif ($operateRecord->share_type == 'xacode_share') {
+                    $describe = '生成了项目「'.$photographer_work_name.'」的小程序码';
                 } elseif ($operateRecord->share_type == 'all_photo_share') {
-                    $describe = '保存了项目「'.$photographer_work_customer_name.'」的所有照片';
-                }elseif ($operateRecord->share_type == 'xacode_share') {
-                    $describe = '生成了项目「'.$photographer_work_customer_name.'」的小程序码';
+                    $describe = '保存了项目「'.$photographer_work_name.'」的所有照片';
+                }
+            } elseif ($operateRecord->page_name == 'photographer_gather') {
+                if ($operateRecord->share_type == 'xacard_share') {
+                    $describe = '将合集「'.$photographer_gather_name.'」分享给了微信好友';
+                } elseif ($operateRecord->share_type == 'poster_share') {
+                    $describe = '生成了合集「'.$photographer_gather_name.'」的海报';
+                } elseif ($operateRecord->share_type == 'xacode_share') {
+                    $describe = '生成了合集「'.$photographer_gather_name.'」的小程序码';
+                } elseif ($operateRecord->share_type == 'all_photo_share') {
+                    $describe = '保存了合集「'.$photographer_gather_name.'」的所有照片';
                 }
             }
         } elseif ($operateRecord->operate_type == 'copy_wx') {
             $describe = '复制了我的微信号';
         } elseif ($operateRecord->operate_type == 'view_project_amount') {
-            $describe = '查看了项目「'.$photographer_work_customer_name.'」的金额';
+            $describe = '查看了项目「'.$photographer_work_name.'」的金额';
         }
 
         return $describe;
@@ -911,6 +984,12 @@ class VisitController extends UserGuardController
                     $first_in_operate_record['photographer_work'] = PhotographerWork::select(
                         PhotographerWork::allowFields()
                     )->where(['id' => $operateRecord['photographer_work_id']])->first()->toArray();
+                }
+                $first_in_operate_record['photographer_gather'] = [];
+                if ($operateRecord['page_name'] == 'photographer_gather') {
+                    $first_in_operate_record['photographer_gather'] = PhotographerWork::select(
+                        PhotographerWork::allowFields()
+                    )->where(['id' => $operateRecord['photographer_gather_id']])->first()->toArray();
                 }
                 $first_in_operate_record['shared_user'] = [];
                 if ($operateRecord['in_type'] == 'share_in') {

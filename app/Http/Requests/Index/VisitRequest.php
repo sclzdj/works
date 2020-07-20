@@ -17,18 +17,20 @@ class VisitRequest extends BaseRequest
         switch ($this->getScene()) {
             case 'inRecord':
                 $rules = [
-                    'page_name' => 'required|in:photographer_home,photographer_work',
+                    'page_name' => 'required|in:photographer_home,photographer_work,photographer_gather',
                     'photographer_id' => 'required|integer',
                     'photographer_work_id' => 'required_if:page_name,photographer_work|integer',
+                    'photographer_gather_id' => 'required_if:page_name,photographer_gather|integer',
                     'in_type' => 'required|in:xacode_in,xacard_in,ranking_list_in,view_history_in,routine_in',
                     'shared_user_id' => 'integer',
                 ];
                 break;
             case 'shareRecord':
                 $rules = [
-                    'page_name' => 'required|in:photographer_home,photographer_work',
+                    'page_name' => 'required|in:photographer_home,photographer_work,photographer_gather',
                     'photographer_id' => 'required|integer',
                     'photographer_work_id' => 'required_if:page_name,photographer_work|integer',
+                    'photographer_gather_id' => 'required_if:page_name,photographer_gather|integer',
                     'share_type' => 'required|in:xacard_share,xacode_share,poster_share,all_photo_share',
                 ];
                 break;
@@ -38,6 +40,7 @@ class VisitRequest extends BaseRequest
                     'page_name' => 'required|in:photographer_home,photographer_work',
                     'photographer_id' => 'required|integer',
                     'photographer_work_id' => 'required_if:page_name,photographer_work|integer',
+                    'photographer_gather_id' => 'required_if:page_name,photographer_gather|integer',
                 ];
                 break;
             case 'setRemind':
@@ -101,6 +104,8 @@ class VisitRequest extends BaseRequest
                     'photographer_id.integer' => '用户id必须为数字',
                     'photographer_work_id.required_if' => '项目id必须传递',
                     'photographer_work_id.integer' => '项目id必须为数字',
+                    'photographer_gather_id.required_if' => '合集id必须传递',
+                    'photographer_gather_id.integer' => '合集id必须为数字',
                     'in_type.required' => '进入方式必须传递',
                     'in_type.in' => '进入方式错误',
                     'shared_user_id.integer' => '分享用户id必须为数字',
@@ -114,6 +119,8 @@ class VisitRequest extends BaseRequest
                     'photographer_id.integer' => '用户id必须为数字',
                     'photographer_work_id.required_if' => '项目id必须传递',
                     'photographer_work_id.integer' => '项目id必须为数字',
+                    'photographer_gather_id.required_if' => '合集id必须传递',
+                    'photographer_gather_id.integer' => '合集id必须为数字',
                     'share_type.required' => '分享方式必须传递',
                     'share_type.in' => '分享方式错误',
                 ];
@@ -128,6 +135,8 @@ class VisitRequest extends BaseRequest
                     'photographer_id.integer' => '用户id必须为数字',
                     'photographer_work_id.required_if' => '项目id必须传递',
                     'photographer_work_id.integer' => '项目id必须为数字',
+                    'photographer_gather_id.required_if' => '合集id必须传递',
+                    'photographer_gather_id.integer' => '合集id必须为数字',
                 ];
                 break;
             case 'setRemind':

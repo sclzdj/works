@@ -141,6 +141,7 @@ $api->version(
                 $api->post('visit/shareRecord', 'VisitController@shareRecord');
                 $api->post('visit/operateRecord', 'VisitController@operateRecord');
                 $api->get('visit/unreadCount', 'VisitController@unreadCount');
+                $api->get('visit/oneClickRead', 'VisitController@oneClickRead');
                 $api->post('visit/remind', 'VisitController@setRemind');
                 $api->post('visit/tag', 'VisitController@setTag');
                 $api->get('visit/tags', 'VisitController@tags');
