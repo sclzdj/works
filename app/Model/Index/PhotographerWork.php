@@ -18,6 +18,13 @@ class  PhotographerWork extends Model
      */
     protected $fillable = [
         'photographer_id',
+        'name',
+        'describe',
+        'is_business',
+        'location',
+        'address',
+        'latitude',
+        'longitude',
         'customer_name',
         'photographer_work_customer_industry_id',
         'project_amount',
@@ -49,6 +56,13 @@ class  PhotographerWork extends Model
         return [
             'id',
             'photographer_id',
+            'name',
+            'describe',
+            'is_business',
+            'location',
+            'address',
+            'latitude',
+            'longitude',
             'customer_name',
             'photographer_work_customer_industry_id',
             'project_amount',

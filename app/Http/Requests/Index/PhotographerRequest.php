@@ -25,6 +25,13 @@ class PhotographerRequest extends BaseRequest
                 break;
             case 'savePhotographerWorkStore':
                 $rules = [
+                    'name' => 'required|max:50',
+                    'describe' => 'present|max:2000',
+                    'is_business' => 'required|in:0,1',
+                    'location' => 'required|max:100',
+                    'address' => 'required|max:2000',
+                    'latitude' => 'required|max:100',
+                    'longitude' => 'required|max:100',
                     'customer_name' => 'required|max:50',
                     'photographer_work_customer_industry_id' => 'required|exists:photographer_work_customer_industries,id',
                     'project_amount' => 'required|integer|min:0',
@@ -122,6 +129,20 @@ class PhotographerRequest extends BaseRequest
                 break;
             case 'savePhotographerWorkStore':
                 $messages = [
+                    'name.required' => '项目名称不能为空',
+                    'name.max' => '项目名称长度最大为50',
+                    'describe.present' => '项目描述必须传递',
+                    'describe.max' => '项目描述长度最大为2000',
+                    'is_business.required' => '是否商业项目必须传递',
+                    'is_business.in' => '是否商业项目传递错误',
+                    'location.required' => '地理位置名称不能为空',
+                    'location.max' => '地理位置名称长度最大为100',
+                    'address.required' => '详细地址不能为空',
+                    'address.max' => '详细地址长度最大为2000',
+                    'latitude.required' => '维度不能为空',
+                    'latitude.max' => '维度长度最大为100',
+                    'longitude.required' => '经度不能为空',
+                    'longitude.max' => '经度长度最大为100',
                     'customer_name.required' => '客户名称不能为空',
                     'customer_name.max' => '客户名称长度最大为50',
                     'photographer_work_customer_industry_id.required' => '客户行业不能为空',

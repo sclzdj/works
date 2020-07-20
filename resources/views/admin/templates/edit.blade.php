@@ -251,7 +251,7 @@
                                                 ##money##       项目金额<br/>
                                                 ##number##      成品张数<br/>
                                                 ##time##        拍摄时长<br/>
-                                                ##customer##    项目名称<br/>
+                                                ##customer##    客户名称<br/>
                                                 ##name##        用户姓名<br/>
                                                 ##title##       用户头衔<br/>
                                                 </span>

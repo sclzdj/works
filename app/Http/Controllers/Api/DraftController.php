@@ -338,6 +338,13 @@ class DraftController extends UserGuardController
                 }
                 $photographer_work->xacode_hyaline = $xacode_res['xacode'];
             }
+            $photographer_work->name = $request->name;
+            $photographer_work->describe = $request->describe;
+            $photographer_work->is_business = $request->is_business;
+            $photographer_work->location = $request->location;
+            $photographer_work->address = $request->address;
+            $photographer_work->latitude = $request->latitude;
+            $photographer_work->longitude = $request->longitude;
             $photographer_work->customer_name = $request->customer_name;
             $photographer_work->photographer_work_customer_industry_id = $request->photographer_work_customer_industry_id;
             $photographer_work->project_amount = $request->project_amount;
@@ -926,6 +933,13 @@ class DraftController extends UserGuardController
                 }
                 $photographer_work->xacode_hyaline = $xacode_res['xacode'];
             }
+            $photographer_work->name = $request->name;
+            $photographer_work->describe = $request->describe;
+            $photographer_work->is_business = $request->is_business;
+            $photographer_work->location = $request->location;
+            $photographer_work->address = $request->address;
+            $photographer_work->latitude = $request->latitude;
+            $photographer_work->longitude = $request->longitude;
             $photographer_work->customer_name = $request->customer_name;
             $photographer_work->photographer_work_customer_industry_id = $request->photographer_work_customer_industry_id;
             $photographer_work->project_amount = $request->project_amount;

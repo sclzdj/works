@@ -34,7 +34,7 @@
                                                      src="{{$photographerWorkSource->thumb_url?:asset('/static/admin/img/in-generation.png'.'?'.$SFV)}}"
                                                      alt="{{$photographerWorkSource->id}}"
                                                      style="max-width: 200px;height:200px;border-bottom-left-radius: 0;border-bottom-right-radius: 0;">
-                                                <div data-toggle="tooltip" data-original-title="项目名称：{{$photographerWorkSource->customer_name}}" class="border text-center" style="font-size:12px;padding:0 5px;width: 200px;height:24px;line-height:24px;border-radius: 0;border-bottom: none;border-top: none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+                                                <div data-toggle="tooltip" data-original-title="客户名称：{{$photographerWorkSource->customer_name}}" class="border text-center" style="font-size:12px;padding:0 5px;width: 200px;height:24px;line-height:24px;border-radius: 0;border-bottom: none;border-top: none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
                                                     {{$photographerWorkSource->customer_name}}
                                                 </div>
                                             </div>

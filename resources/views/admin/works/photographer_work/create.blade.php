@@ -38,10 +38,10 @@
                                      id="create-customer_name">
                                     <label class="col-md-1 control-label form-option-line">
                                         <span class="form-option-require"></span>
-                                        项目名称
+                                        客户名称
                                     </label>
                                     <div class="col-md-6 form-option-line">
-                                        <input class="form-control" name="customer_name" placeholder="请输入项目名称"
+                                        <input class="form-control" name="customer_name" placeholder="请输入客户名称"
                                                value="">
                                     </div>
                                     <div class="col-md-5 form-control-static form-option-line">

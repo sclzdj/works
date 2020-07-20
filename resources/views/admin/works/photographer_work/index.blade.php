@@ -69,10 +69,10 @@
 {{--                                        </div>--}}
                                         <div class="search-bar search-bar-230" style="display: inline-block">
                                             <div class="input-group">
-                                                <div class="input-group-addon">项目名称</div>
+                                                <div class="input-group-addon">客户名称</div>
                                                 <input type="text" class="form-control"
                                                        value="{{$filter['customer_name']}}"
-                                                       name="customer_name" placeholder="请输入项目名称">
+                                                       name="customer_name" placeholder="请输入客户名称">
                                             </div>
                                         </div>
 {{--                                        <div class="search-bar search-bar-150" style="display: inline-block">--}}
@@ -203,7 +203,7 @@
                                                 用户<span></span>
                                             </th>
                                             <th class="">
-                                                项目名称<span></span>
+                                                客户名称<span></span>
                                             </th>
 {{--                                            <th class="">--}}
 {{--                                                客户行业<span></span>--}}
