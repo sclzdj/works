@@ -212,7 +212,7 @@
                   
                        'user_id': '{{$data['userId']}}',
 
-                       'source' : 0
+                       'source' : 2
 
                     };
 
@@ -225,7 +225,7 @@
                         }
                     })
 
-
+                    wx.miniProgram.redirectTo({url: "/subPage/createPrivate/createPrivate"})
 
 
 

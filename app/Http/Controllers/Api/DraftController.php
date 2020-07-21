@@ -579,10 +579,10 @@ class DraftController extends UserGuardController
                         'url' => config('app.url'),
                         'miniprogram' => [
                             'appid' => config('custom.wechat.mp.appid'),
-                            'pagepath' => 'pages/share/share',//注册成功分享页
+                            'pagepath' => 'pages/homePage/homePage',//注册成功分享页
                         ],
                         'data' => [
-                            'first' => '云作品已准备就绪，邀请3人扫码即可开启！',
+                            'first' => '你的云作品已创建成功。',
                             'keyword1' => $photographer->name,
                             'keyword2' => SystemArea::where('id', $photographer->city)->value('short_name'),
                             'keyword3' => PhotographerRank::where('id', $photographer->photographer_rank_id)->value(

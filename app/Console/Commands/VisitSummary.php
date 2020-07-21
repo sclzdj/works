@@ -59,15 +59,15 @@ class VisitSummary extends Command
                 )->first();
                 if ($photographer->visitor_yesterday_count > 0) {
                     if ($photographerRankingLog) {
-                        $firstText = '厉害了！昨天，你的人脉增长迅速，还进入了云作品人脉排行榜。';
+                        $firstText = '太棒了！你有了一些新观众。';
                     } else {
-                        $firstText = '昨天，你的人脉变多了，再接再厉哦！';
+                        $firstText = '太棒了！你有了一些新观众。';
                     }
                 } else {
                     if ($photographerRankingLog) {
-                        $firstText = '昨天，你的人脉没有增长，要加油哦！';
+                        $firstText = '很遗憾，爱你的人还是那些。';
                     } else {
-                        $firstText = '昨天，你的人脉没有增长，要加油哦！';
+                        $firstText = '很遗憾，爱你的人还是那些。';
                     }
                 }
                 $app = app('wechat.official_account');
@@ -83,10 +83,10 @@ class VisitSummary extends Command
                         ],
                         'data' => [
                             'first' => $firstText,
-                            'keyword1' => '云作品人脉日报',
+                            'keyword1' => '云作品日报',
                             'keyword2' => date('Y/m/d').' 10:00',
 //                            'keyword3' =>$photographer->name,
-                            'remark' => '昨天新增'.$photographer->visitor_yesterday_count.'人',
+                            'remark' => '昨天新增'.$photographer->visitor_yesterday_count.'人看过',
                         ],
                     ]
                 );
