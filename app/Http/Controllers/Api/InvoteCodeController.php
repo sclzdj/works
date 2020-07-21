@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Model\Index\InvoteCode;
+use App\Model\Index\TargetUser;
 use App\Model\Index\User;
 use Illuminate\Http\Request;
 use Validator;
@@ -72,7 +73,7 @@ class InvoteCodeController extends BaseController
             }
 
             switch ($codeInfo->type) {
-                case 1:  // 用户创建的邀请码只有通过众筹来的才是这个状况
+                case 1:  // 众筹来的才是这个状况
 
                     if ($codeInfo != 1) {
                         $this->data['result'] = false;
@@ -91,10 +92,12 @@ class InvoteCodeController extends BaseController
                         $this->data['msg'] = "这枚创建码不是你的";
                     }
 
+                    $this->checkTargetUser($codeInfo->user_id, $codeInfo->id);
+
                     return $this->responseParseArray($this->data);
 
                     break;
-                case 2:  // 目标用户 （邀请是后台创建 ，码状态是0   ）
+                case 2:  // 邀请管理来的 （邀请是后台创建 ，码状态是0   ）
 
                     if ($codeInfo->status != 0) {
                         $this->data['result'] = false;
@@ -105,10 +108,17 @@ class InvoteCodeController extends BaseController
                         $this->data['result'] = false;
                         $this->data['msg'] = "这枚创建码不是你的";
                     }
-
+                    // 如果用户是通过邀请管理绑定 或者 众筹又绑定了一个码会走到这里 更新这个码的使用状态
                     if (InvoteCode::where('user_id', $userInfo->id)->first()) {
                         $this->data['result'] = true;
                         $this->data['msg'] = "已经绑定过创建码";
+
+                        InvoteCode::where('user_id' ,  $userInfo->id)->delete();
+                        InvoteCode::where('code', $code)->update([
+                            "user_id" => $userInfo->id,
+                            'is_use' => 1,
+                            'status' => 2
+                        ]);
                     }
 
                     if (empty($codeInfo->user_id) && InvoteCode::where('user_id', $userInfo->id)->get()->IsEmpty()
@@ -122,10 +132,12 @@ class InvoteCodeController extends BaseController
                         $this->data['msg'] = "创建码可以使用";
                     }
 
+
+                    $this->checkTargetUser($userInfo->id, $codeInfo->id);
                     return $this->responseParseArray($this->data);
 
                     break;
-                case 3: //也就是活动来的，这个码状态直接是1，而且已经绑定了
+                case 3: //目标管理来的，这个码状态直接是1，而且已经绑定了
 
                     if ($codeInfo->status != 1) {
                         $this->data['result'] = false;
@@ -158,6 +170,24 @@ class InvoteCodeController extends BaseController
 
     }
 
+    private function checkTargetUser($user_id, $code_id)
+    {
+        $targetUser = TargetUser::where('user_id', $user_id)->first();
+        if (empty($targetUser))
+            return "";
+
+        if ($targetUser->invote_code_id != 0) {
+            $originInvoteCode = $targetUser->invote_code_id;
+            InvoteCode::where('id', $originInvoteCode)->delete();
+        }
+
+        $targetUser = TargetUser::where('user_id', $user_id)->update([
+            'invote_code_id' => $code_id
+        ]);
+
+        return "";
+    }
+
     /**
      * 更改邀请码状态
      * @return \Dingo\Api\Http\Response|void
@@ -183,7 +213,7 @@ class InvoteCodeController extends BaseController
 
 //        $code = $request->input('code');
         $this->data['result'] = false;
-        $userid = $request->input('userid' , 0);
+        $userid = $request->input('userid', 0);
         $userInfo = User::where('id', $userid)->first();
         $InvodeInfo = InvoteCode::where('user_id', $userid)->first();
         if (empty($InvodeInfo) || empty($userInfo)) {
