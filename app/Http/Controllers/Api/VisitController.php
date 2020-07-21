@@ -366,7 +366,7 @@ class VisitController extends UserGuardController
             $miniprogram_pagepath = 'pages/visitorDetails/visitorDetails?id='.$visitor->id;//访客详情页
             if ($visit_send_message['is_remind'] == 0) {
                 if ($visit_send_message['num'] == 1) {
-                    $first_text = '第一个人脉是谁？嘿嘿，再来两个告诉你！';
+                    $first_text = '第一个访客是谁？嘿嘿，再来两个告诉你！';
                     $keyword1_text = '神秘人物1';
                     $keyword3_text = '***********';
                     $miniprogram_pagepath = 'pages/share/share';//注册成功分享页
@@ -377,7 +377,7 @@ class VisitController extends UserGuardController
                     $miniprogram_pagepath = 'pages/share/share';//注册成功分享页
                 }
             } elseif ($visit_send_message['is_remind'] == 1) {
-                $first_text = '你特别关注的人脉有新动态！';
+                $first_text = '你有一则强提醒，请密切关注';
             }
             $app = app('wechat.official_account');
             $template_id = 'RlRlrXRWpeONZZvu-HT1xQ1EhTvDbucp6Z60AgcQdGs';
@@ -509,7 +509,7 @@ class VisitController extends UserGuardController
         if ($visitor) {
             $filterItems[] = [
                 'id' => '-1',
-                'name' => '特别关注',
+                'name' => '强提醒',
             ];
         }
         $visitors = Visitor::select('visitor_tag_id')->distinct()->where(
