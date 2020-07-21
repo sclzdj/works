@@ -55,7 +55,7 @@ class TargetUserController extends BaseController
                 'invote_codes.status as invote_status',
                 'users.nickname', 'users.phoneNumber',
                 'users.city',
-                'users.province', 'users.gender',
+                'users.province', 'users.gender', 'users.photographer_id',
                 'photographer_ranks.name as rank_name'
             )
             ->get();

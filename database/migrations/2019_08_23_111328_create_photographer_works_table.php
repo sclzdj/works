@@ -17,6 +17,13 @@ class CreatePhotographerWorksTable extends Migration
             $table->engine = 'innodb';
             $table->increments('id');
             $table->unsignedInteger('photographer_id')->index()->default(0)->comment('用户ID');
+            $table->string('name', 50)->index()->default('')->comment('名称');
+            $table->string('describe', 2000)->default('')->comment('描述');
+            $table->unsignedTinyInteger('is_business')->default(0)->comment('是否商业【0:否;1:是】');
+            $table->string('location', 100)->default('')->comment('地理位置名称');
+            $table->string('address', 2000)->default('')->comment('详细地址');
+            $table->string('latitude', 100)->default('')->comment('维度');
+            $table->string('longitude', 100)->default('')->comment('经度');
             $table->string('customer_name', 50)->index()->default('')->comment('客户姓名');
             $table->unsignedInteger('photographer_work_customer_industry_id')->default(0)->comment('客户行业id');
             $table->unsignedInteger('project_amount')->default(0)->comment('项目金额，元');

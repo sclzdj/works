@@ -7,6 +7,7 @@ use App\Http\Requests\Index\PhotographerRequest;
 use App\Model\Admin\SystemArea;
 use App\Model\Admin\SystemConfig;
 use App\Model\Index\Photographer;
+use App\Model\Index\PhotographerInfoTag;
 use App\Model\Index\PhotographerRank;
 use App\Model\Index\PhotographerWork;
 use App\Model\Index\PhotographerWorkSource;
@@ -337,6 +338,13 @@ class DraftController extends UserGuardController
                 }
                 $photographer_work->xacode_hyaline = $xacode_res['xacode'];
             }
+            $photographer_work->name = $request->name;
+            $photographer_work->describe = $request->describe;
+            $photographer_work->is_business = $request->is_business;
+            $photographer_work->location = $request->location;
+            $photographer_work->address = $request->address;
+            $photographer_work->latitude = $request->latitude;
+            $photographer_work->longitude = $request->longitude;
             $photographer_work->customer_name = $request->customer_name;
             $photographer_work->photographer_work_customer_industry_id = $request->photographer_work_customer_industry_id;
             $photographer_work->project_amount = $request->project_amount;
@@ -377,6 +385,35 @@ class DraftController extends UserGuardController
         $photographer = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
         $photographer = SystemServer::parseRegionName($photographer);
         $photographer = SystemServer::parsePhotographerRank($photographer);
+        $photographer_info_tags = PhotographerInfoTag::where(
+            [
+                'photographer_id' => $photographer['id'],
+            ]
+        )->get();
+        $photographer['auth_tags'] = [];
+        $photographer['award_tags'] = [];
+        $photographer['educate_tags'] = [];
+        $photographer['equipment_tags'] = [];
+        $photographer['social_tags'] = [];
+        foreach ($photographer_info_tags as $photographer_info_tag) {
+            switch ($photographer_info_tag->type) {
+                case 'auth':
+                    $photographer['auth_tags'][] = $photographer_info_tag->name;
+                    break;
+                case 'award':
+                    $photographer['award_tags'][] = $photographer_info_tag->name;
+                    break;
+                case 'educate':
+                    $photographer['educate_tags'][] = $photographer_info_tag->name;
+                    break;
+                case 'equipment':
+                    $photographer['equipment_tags'][] = $photographer_info_tag->name;
+                    break;
+                case 'social':
+                    $photographer['social_tags'][] = $photographer_info_tag->name;
+                    break;
+            }
+        }
 
         return $this->responseParseArray($photographer);
 
@@ -451,6 +488,61 @@ class DraftController extends UserGuardController
                 $photographer->xacode_hyaline = $xacode_res['xacode'];
             }
             $photographer->save();
+            if ($request->auth_tags) {
+                foreach ($request->auth_tags as $auth_tag) {
+                    PhotographerInfoTag::create(
+                        [
+                            'photographer_id' => $photographer->id,
+                            'type' => 'auth',
+                            'name' => $auth_tag,
+                        ]
+                    );
+                }
+            }
+            if ($request->award_tags) {
+                foreach ($request->award_tags as $award_tag) {
+                    PhotographerInfoTag::create(
+                        [
+                            'photographer_id' => $photographer->id,
+                            'type' => 'award',
+                            'name' => $award_tag,
+                        ]
+                    );
+                }
+            }
+            if ($request->educate_tags) {
+                foreach ($request->educate_tags as $educate_tag) {
+                    PhotographerInfoTag::create(
+                        [
+                            'photographer_id' => $photographer->id,
+                            'type' => 'educate',
+                            'name' => $educate_tag,
+                        ]
+                    );
+                }
+            }
+            if ($request->equipment_tags) {
+                foreach ($request->equipment_tags as $equipment_tag) {
+                    PhotographerInfoTag::create(
+                        [
+                            'photographer_id' => $photographer->id,
+                            'type' => 'equipment',
+                            'name' => $equipment_tag,
+                        ]
+                    );
+                }
+            }
+            if ($request->social_tags) {
+                foreach ($request->social_tags as $social_tag) {
+                    PhotographerInfoTag::create(
+                        [
+                            'photographer_id' => $photographer->id,
+                            'type' => 'social',
+                            'name' => $social_tag,
+                        ]
+                    );
+                }
+            }
             $photographer_work = $photographer->photographerWorks()->where(['status' => 0])->first();
             if (!$photographer_work) {
                 \DB::rollback();//回滚事务
@@ -841,6 +933,13 @@ class DraftController extends UserGuardController
                 }
                 $photographer_work->xacode_hyaline = $xacode_res['xacode'];
             }
+            $photographer_work->name = $request->name;
+            $photographer_work->describe = $request->describe;
+            $photographer_work->is_business = $request->is_business;
+            $photographer_work->location = $request->location;
+            $photographer_work->address = $request->address;
+            $photographer_work->latitude = $request->latitude;
+            $photographer_work->longitude = $request->longitude;
             $photographer_work->customer_name = $request->customer_name;
             $photographer_work->photographer_work_customer_industry_id = $request->photographer_work_customer_industry_id;
             $photographer_work->project_amount = $request->project_amount;

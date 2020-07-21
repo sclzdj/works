@@ -202,7 +202,7 @@
                                 <el-table-column label="姓名" >
                                     <template slot-scope="scope">
                                         <div v-if="scope.row.invote_status == '已创建'">
-                                            <a  target="_blank" v-bind:href="'/admin/works/photographerWork?photographer_id='+scope.row.user_id">
+                                            <a  target="_blank" v-bind:href="'/admin/works/photographerWork?photographer_id='+scope.row.photographer_id">
                                                 <span v-text="scope.row.nickname"></span><br/>
                                                 <span style="color:#0f8496;font-size: 12px" v-text="scope.row.last_name"></span>
                                             </a>

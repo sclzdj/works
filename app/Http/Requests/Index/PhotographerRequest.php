@@ -25,6 +25,13 @@ class PhotographerRequest extends BaseRequest
                 break;
             case 'savePhotographerWorkStore':
                 $rules = [
+                    'name' => 'required|max:50',
+                    'describe' => 'present|max:2000',
+                    'is_business' => 'required|in:0,1',
+                    'location' => 'required|max:100',
+                    'address' => 'required|max:2000',
+                    'latitude' => 'required|max:100',
+                    'longitude' => 'required|max:100',
                     'customer_name' => 'required|max:50',
                     'photographer_work_customer_industry_id' => 'required|exists:photographer_work_customer_industries,id',
                     'project_amount' => 'required|integer|min:0',
@@ -49,6 +56,16 @@ class PhotographerRequest extends BaseRequest
                     'wechat' => 'required|max:50',
                     'mobile' => 'required|regex:/^1\d{10}$/',
                     'sms_code' => 'required',
+                    'auth_tags' => 'array',
+                    'auth_tags.*' => 'required|max:50',
+                    'award_tags' => 'array',
+                    'award_tags.*' => 'required|max:50',
+                    'educate_tags' => 'array',
+                    'educate_tags.*' => 'required|max:50',
+                    'equipment_tags' => 'array',
+                    'equipment_tags.*' => 'required|max:50',
+                    'social_tags' => 'array',
+                    'social_tags.*' => 'required|max:50',
                 ];
                 break;
             case 'photographerInfo':
@@ -112,6 +129,20 @@ class PhotographerRequest extends BaseRequest
                 break;
             case 'savePhotographerWorkStore':
                 $messages = [
+                    'name.required' => '项目名称不能为空',
+                    'name.max' => '项目名称长度最大为50',
+                    'describe.present' => '项目描述必须传递',
+                    'describe.max' => '项目描述长度最大为2000',
+                    'is_business.required' => '是否商业项目必须传递',
+                    'is_business.in' => '是否商业项目传递错误',
+                    'location.required' => '地理位置名称不能为空',
+                    'location.max' => '地理位置名称长度最大为100',
+                    'address.required' => '详细地址不能为空',
+                    'address.max' => '详细地址长度最大为2000',
+                    'latitude.required' => '维度不能为空',
+                    'latitude.max' => '维度长度最大为100',
+                    'longitude.required' => '经度不能为空',
+                    'longitude.max' => '经度长度最大为100',
                     'customer_name.required' => '客户名称不能为空',
                     'customer_name.max' => '客户名称长度最大为50',
                     'photographer_work_customer_industry_id.required' => '客户行业不能为空',
@@ -160,6 +191,21 @@ class PhotographerRequest extends BaseRequest
                     'mobile.required' => '用户手机号不能为空',
                     'mobile.regex' => '用户手机号格式错误',
                     'sms_code.required' => '短信验证码不能为空',
+                    'auth_tags.array' => '认证情况必须是数组',
+                    'auth_tags.*.required' => '认证情况标签名称不能为空',
+                    'auth_tags.*.max' => '认证情况标签名称长度最大为50',
+                    'award_tags.array' => '获奖情况必须是数组',
+                    'award_tags.*.required' => '获奖情况标签名称不能为空',
+                    'award_tags.*.max' => '获奖情况标签名称长度最大为50',
+                    'educate_tags.array' => '教育情况必须是数组',
+                    'educate_tags.*.required' => '教育情况标签名称不能为空',
+                    'educate_tags.*.max' => '教育情况标签名称长度最大为50',
+                    'equipment_tags.array' => '器材清单必须是数组',
+                    'equipment_tags.*.required' => '器材清单标签名称不能为空',
+                    'equipment_tags.*.max' => '器材清单标签名称长度最大为50',
+                    'social_tags.array' => '社交网络必须是数组',
+                    'social_tags.*.required' => '社交网络标签名称不能为空',
+                    'social_tags.*.max' => '社交网络标签名称长度最大为50',
                 ];
                 break;
             case 'photographerInfo':

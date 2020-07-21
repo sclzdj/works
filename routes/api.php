@@ -88,6 +88,20 @@ $api->version(
                 $api->get('my/photographerStatistics', 'MyController@photographerStatistics');
                 $api->get('my/photographerShare' , 'MyController@photographerShare');
                 $api->get('my/photographerWorkShare' , 'MyController@photographerWorkShare');
+
+                //用户合集
+                $api->get('my/photographerGathers', 'PhotographerGatherController@index');
+                $api->post('my/addPhotographerGather', 'PhotographerGatherController@store');
+                $api->post('my/savePhotographerGather', 'PhotographerGatherController@update');
+                //用户合集资料
+                $api->get('my/photographerGatherInfos', 'PhotographerGatherInfoController@index');
+                $api->post('my/addPhotographerGatherInfo', 'PhotographerGatherInfoController@store');
+                $api->post('my/savePhotographerGatherInfo', 'PhotographerGatherInfoController@update');
+                $api->get('my/photographerGatherInfo', 'PhotographerGatherInfoController@show');
+                $api->delete('my/photographerGatherInfo', 'PhotographerGatherInfoController@destroy');
+                $api->post('my/copyPhotographerGatherInfo', 'PhotographerGatherInfoController@copy');
+                $api->post('my/setDefaultPhotographerGatherInfo', 'PhotographerGatherInfoController@setDefault');
+
                 // 用户作品 成片个数 拍摄时长 项目金额
                 $api->get('my/photographerWorkHide' , 'MyController@photographerWorkHide');
 
@@ -127,6 +141,7 @@ $api->version(
                 $api->post('visit/shareRecord', 'VisitController@shareRecord');
                 $api->post('visit/operateRecord', 'VisitController@operateRecord');
                 $api->get('visit/unreadCount', 'VisitController@unreadCount');
+                $api->get('visit/oneClickRead', 'VisitController@oneClickRead');
                 $api->post('visit/remind', 'VisitController@setRemind');
                 $api->post('visit/tag', 'VisitController@setTag');
                 $api->get('visit/tags', 'VisitController@tags');

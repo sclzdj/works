@@ -4,7 +4,7 @@ namespace App\Model\Index;
 
 use Illuminate\Database\Eloquent\Model;
 
-class OperateRecord extends Model
+class PhotographerGatherInfo extends Model
 {
     /**
      * The attributes that are mass assignable.
@@ -12,16 +12,11 @@ class OperateRecord extends Model
      * @var array
      */
     protected $fillable = [
-        'user_id',
         'photographer_id',
-        'photographer_work_id',
-        'photographer_gather_id',
-        'page_name',
-        'operate_type',
-        'in_type',
-        'share_type',
-        'shared_user_id',
-        'is_read',
+        'photographer_rank_id',
+        'start_year',
+        'is_default',
+        'status',
     ];
 
     /**
@@ -41,16 +36,10 @@ class OperateRecord extends Model
     {
         return [
             'id',
-            'user_id',
             'photographer_id',
-            'photographer_work_id',
-            'photographer_gather_id',
-            'page_name',
-            'operate_type',
-            'in_type',
-            'share_type',
-            'shared_user_id',
-            'is_read',
+            'photographer_rank_id',
+            'start_year',
+            'is_default',
             'created_at',
         ];
     }

@@ -19,6 +19,7 @@ use App\Model\Index\HelpTagNotes;
 use App\Model\Index\HelpTags;
 use App\Model\Index\Photographer;
 use App\Model\Index\PhotographerRank;
+use App\Model\Index\PhotographerWork;
 use App\Model\Index\PhotographerWorkCategory;
 use App\Model\Index\PhotographerWorkCustomerIndustry;
 use App\Model\Index\SmsCode;

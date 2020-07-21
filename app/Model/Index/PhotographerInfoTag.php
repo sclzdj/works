@@ -4,24 +4,19 @@ namespace App\Model\Index;
 
 use Illuminate\Database\Eloquent\Model;
 
-class OperateRecord extends Model
+class PhotographerInfoTag extends Model
 {
+    public $timestamps = false;//关闭时间维护
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'user_id',
         'photographer_id',
-        'photographer_work_id',
-        'photographer_gather_id',
-        'page_name',
-        'operate_type',
-        'in_type',
-        'share_type',
-        'shared_user_id',
-        'is_read',
+        'photographer_gather_info_id',
+        'type',
+        'name',
     ];
 
     /**
@@ -41,17 +36,10 @@ class OperateRecord extends Model
     {
         return [
             'id',
-            'user_id',
             'photographer_id',
-            'photographer_work_id',
-            'photographer_gather_id',
-            'page_name',
-            'operate_type',
-            'in_type',
-            'share_type',
-            'shared_user_id',
-            'is_read',
-            'created_at',
+            'photographer_gather_info_id',
+            'type',
+            'name',
         ];
     }
 }

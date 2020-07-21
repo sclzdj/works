@@ -100,7 +100,6 @@ class PhotographerWorkCategoriesTableSeeder extends Seeder
                     ['name' => '创意'],
                     ['name' => '动物'],
                     ['name' => '宠物'],
-                    ['name' => ''],
                 ],
             ],
         ];
