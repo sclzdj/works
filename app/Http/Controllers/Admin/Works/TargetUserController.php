@@ -51,7 +51,7 @@ class TargetUserController extends BaseController
             ->leftJoin('users', 'users.id', '=', 'target_users.user_id')
             ->leftJoin('photographer_ranks', 'photographer_ranks.id', '=', 'target_users.rank_id')
             ->orderBy('created_at', 'desc')
-            ->select('target_users.*', 'invote_codes.code',
+            ->select('target_users.*', 'invote_codes.code', 'invote_codes.type as invote_type',
                 'invote_codes.status as invote_status',
                 'users.nickname', 'users.phoneNumber',
                 'users.city',
