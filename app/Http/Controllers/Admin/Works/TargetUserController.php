@@ -60,6 +60,14 @@ class TargetUserController extends BaseController
             )
             ->get();
 
+        foreach ($data as &$datum) {
+            if ($datum['status'] == 0 && $datum['works_info']) {
+                $workinfo = json_decode($datum['works_info'] , 1);
+                $img = array_column($workinfo , 'url');
+                $datum['works_info'] = json_encode($img);
+            }
+        }
+
         $count = TargetUser::where($where)->count();
 
         return response()->json(compact('data', 'count'));
