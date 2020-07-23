@@ -255,7 +255,7 @@ class PhotographerWorkSource extends Model
                 );
             }
             if (!isset($response['data']['size'])) {
-                SystemServer::filePutContents('logs/cesi/'.time().'.log', json_encode($response));
+                SystemServer::filePutContents('logs/cesi/'.date('YmdHis').mt_rand(1000,9999).'.log', json_encode($response));
             }
             $photographerWorkSource->rich_size = $response['data']['size'];
             $photographerWorkSource->rich_width = $response['data']['width'];

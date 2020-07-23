@@ -55,10 +55,18 @@ class TargetUserController extends BaseController
                 'invote_codes.status as invote_status',
                 'users.nickname', 'users.phoneNumber',
                 'users.city',
-                'users.province', 'users.gender',
+                'users.province', 'users.gender', 'users.photographer_id',
                 'photographer_ranks.name as rank_name'
             )
             ->get();
+
+        foreach ($data as &$datum) {
+            if ($datum['status'] == 0 && $datum['works_info']) {
+                $workinfo = json_decode($datum['works_info'] , 1);
+                $img = array_column($workinfo , 'url');
+                $datum['works_info'] = json_encode($img);
+            }
+        }
 
         $count = TargetUser::where($where)->count();
 

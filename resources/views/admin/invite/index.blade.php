@@ -147,7 +147,7 @@
                                     <template slot-scope="scope">
 
                                         <div v-if="scope.row.status == '已创建'" >
-                                            <a  target="_blank" v-bind:href="'/admin/works/photographerWork?photographer_id='+scope.row.user_id"><span v-text="scope.row.nickname"></span></a>
+                                            <a  target="_blank" v-bind:href="'/admin/works/photographerWork?photographer_id='+scope.row.photographer_id"><span v-text="scope.row.nickname"></span></a>
                                         </div>
 
                                         <div v-else>

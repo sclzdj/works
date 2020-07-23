@@ -127,6 +127,20 @@
                                     <template slot-scope="props">
                                         <el-form label-position="left" inline class="demo-table-expand">
 
+
+
+                                            <el-form-item label="来源" class="boxrow">
+                                                <span>@{{ props.row.source }}</span>
+                                            </el-form-item>
+
+                                            <el-form-item label="头衔" class="boxrow">
+                                                <span>@{{ props.row.rank_name }}</span>
+                                            </el-form-item>
+
+                                            <el-form-item label="理由" class="boxrow">
+                                                <span>@{{ props.row.reason }}</span>
+                                            </el-form-item>
+
                                             <el-form-item label="作品图片:" class="boxrow">
                                                 <div class="demo-image__preview" v-if="props.row.works_info">
                                                     <el-image
@@ -137,37 +151,26 @@
                                                 </div>
                                             </el-form-item>
 
-                                            <el-form-item label="理由" class="boxrow">
-                                                <span>@{{ props.row.reason }}</span>
-                                            </el-form-item>
 
-                                            <el-form-item label="来源" class="boxrow">
-                                                <span>@{{ props.row.source }}</span>
-                                            </el-form-item>
 
-                                            <el-form-item label="地址" class="boxrow">
-                                                <span>@{{ props.row.address }}</span>
-                                            </el-form-item>
+{{--                                            <el-form-item label="地址" class="boxrow">--}}
+{{--                                                <span>@{{ props.row.address }}</span>--}}
+{{--                                            </el-form-item>--}}
 
-                                            <el-form-item label="城市" class="boxrow">
-                                                <span>@{{ props.row.city }}</span>
-                                            </el-form-item>
+{{--                                            <el-form-item label="城市" class="boxrow">--}}
+{{--                                                <span>@{{ props.row.city }}</span>--}}
+{{--                                            </el-form-item>--}}
 
-                                            <el-form-item label="手机号" class="boxrow">
-                                                <span>@{{ props.row.phoneNumber }}</span>
-                                            </el-form-item>
 
-                                            <el-form-item label="性别" class="boxrow">
-                                                <span>@{{ props.row.gender }}</span>
-                                            </el-form-item>
+{{--                                            <el-form-item label="性别" class="boxrow">--}}
+{{--                                                <span>@{{ props.row.gender }}</span>--}}
+{{--                                            </el-form-item>--}}
 
-                                            <el-form-item label="头衔" class="boxrow">
-                                                <span>@{{ props.row.rank_name }}</span>
-                                            </el-form-item>
 
-                                            <el-form-item label="微信号" class="boxrow">
-                                                <span>@{{ props.row.wechat }}</span>
-                                            </el-form-item>
+
+{{--                                            <el-form-item label="微信号" class="boxrow">--}}
+{{--                                                <span>@{{ props.row.wechat }}</span>--}}
+{{--                                            </el-form-item>--}}
 
 
                                         </el-form>
@@ -203,7 +206,7 @@
                                 <el-table-column label="姓名" >
                                     <template slot-scope="scope">
                                         <div v-if="scope.row.invote_status == '已创建'">
-                                            <a  target="_blank" v-bind:href="'/admin/works/photographerWork?photographer_id='+scope.row.user_id">
+                                            <a  target="_blank" v-bind:href="'/admin/works/photographerWork?photographer_id='+scope.row.photographer_id">
                                                 <span v-text="scope.row.nickname"></span><br/>
                                                 <span style="color:#0f8496;font-size: 12px" v-text="scope.row.last_name"></span>
                                             </a>
@@ -216,6 +219,12 @@
                                     </template>
 
                                 </el-table-column>
+
+                                <el-table-column
+                                        prop="phoneNumber"
+                                        label="手机号">
+                                </el-table-column>
+
 
                                 <el-table-column
                                         prop="code"
@@ -416,10 +425,18 @@
                     },
                     {
                         value: 0,
-                        label: '活动'
+                        label: '申请页提交'
                     }, {
                         value: 1,
-                        label: '主页'
+                        label: '申请页点击'
+                    },
+                     {
+                        value: 2,
+                        label: '用户页点击'
+                    }
+                    , {
+                        value: 5,
+                        label: '创建页点击'
                     }
                 ],
                 status: [
@@ -465,10 +482,16 @@
                             for (let i = 0; i < that.data.length; i++) {
                                 switch (that.data[i].source) {
                                     case 0:
-                                        that.data[i].source = "活动";
+                                        that.data[i].source = "申请页提交";
                                         break;
                                     case 1:
-                                        that.data[i].source = "主页";
+                                        that.data[i].source = "申请页点击";
+                                        break;
+                                    case 2:
+                                        that.data[i].source = "用户页点击";
+                                        break;
+                                    case 5:
+                                        that.data[i].source = "创建页点击";
                                         break;
                                     default:
                                         break;

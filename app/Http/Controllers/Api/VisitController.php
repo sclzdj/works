@@ -295,12 +295,12 @@ class VisitController extends UserGuardController
                                 'url' => config('app.url'),
                                 'miniprogram' => [
                                     'appid' => config('custom.wechat.mp.appid'),
-                                    'pagepath' => 'pages/homePage/homePage',
+                                    'pagepath' => 'pages/visitorHistory/visitorHistory',
                                 ],
                                 'data' => [
-                                    'first' => '快打开云作品，看看你的前3个人脉吧！',
+                                    'first' => '快打开云作品，看看你的前3位访客吧！',
                                     'keyword1' => '已开启',
-                                    'keyword2' => '云作品',
+                                    'keyword2' => '暗中观察访客',
                                     'remark' => '',
                                 ],
                             ]
@@ -366,18 +366,18 @@ class VisitController extends UserGuardController
             $miniprogram_pagepath = 'pages/visitorDetails/visitorDetails?id='.$visitor->id;//访客详情页
             if ($visit_send_message['is_remind'] == 0) {
                 if ($visit_send_message['num'] == 1) {
-                    $first_text = '第一个人脉是谁？嘿嘿，再来两个告诉你！';
+                    $first_text = '谁看过你？嘿嘿，再来两位告诉你！';
                     $keyword1_text = '神秘人物1';
                     $keyword3_text = '***********';
-                    $miniprogram_pagepath = 'pages/share/share';//注册成功分享页
+                    $miniprogram_pagepath = 'pages/homePage/homePage';//注册成功分享页
                 } elseif ($visit_send_message['num'] == 2) {
-                    $first_text = '叮咚！又来一个，距离开启只有一步之遥。';
+                    $first_text = '叮咚！又来一位，距离真相只有一步之遥。';
                     $keyword1_text = '神秘人物2';
                     $keyword3_text = '***********';
-                    $miniprogram_pagepath = 'pages/share/share';//注册成功分享页
+                    $miniprogram_pagepath = 'pages/homePage/homePage';//注册成功分享页
                 }
             } elseif ($visit_send_message['is_remind'] == 1) {
-                $first_text = '你特别关注的人脉有新动态！';
+                $first_text = '你有一则强提醒，请密切关注！';
             }
             $app = app('wechat.official_account');
             $template_id = 'RlRlrXRWpeONZZvu-HT1xQ1EhTvDbucp6Z60AgcQdGs';
@@ -509,7 +509,7 @@ class VisitController extends UserGuardController
         if ($visitor) {
             $filterItems[] = [
                 'id' => '-1',
-                'name' => '特别关注',
+                'name' => '强提醒',
             ];
         }
         $visitors = Visitor::select('visitor_tag_id')->distinct()->where(
