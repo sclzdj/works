@@ -205,7 +205,7 @@ class QiniuController extends BaseController
                         );
                     } else {
                         if (!isset($response['data']['size'])) {
-                            SystemServer::filePutContents('logs/cesi/'.time().'.log', json_encode($response));
+                            SystemServer::filePutContents('logs/cesi/'.date('YmdHis').mt_rand(1000,9999).'.log', json_encode($response));
                         }
                         $photographerWorkSource->deal_size = $response['data']['size'];
                         $photographerWorkSource->deal_width = $response['data']['width'];
@@ -242,6 +242,14 @@ class QiniuController extends BaseController
 
             }
         } catch (\Exception $e) {
+            $msg = 'Error: ' . $e->getMessage(); // 获取错误信息
+
+            $msg .= $e->getTraceAsString(); // 获取字符串类型的异常追踪信息
+
+            $msg .= '异常行号：' . $e->getLine(); // 异常发生所在行
+
+            $msg .= '所在文件：' . $e->getFile(); // 异常发生所在文件绝对路径
+            SystemServer::filePutContents('logs/exception/'.date('YmdHis').mt_rand(1000,9999).'.log', $msg);
             return ErrLogServer::qiniuNotifyFop(
                 $step,
                 $e->getMessage(),
