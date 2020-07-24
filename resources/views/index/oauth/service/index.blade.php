@@ -27,8 +27,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-top:1.5rem;
-            margin-bottom: 50px;
+            margin-top:1.9rem;
+            margin-bottom: 60px;
 }
 
         .imgView img {
@@ -100,11 +100,6 @@
    <div>公众号推送，请及时关注。</div>
 </div>
 
-<div class='guid-button'>
-    <a href="http://mp.weixin.qq.com/mp/getmasssendmsg?__biz=MjM5MzkwNTMxNQ==#wechat_redirect"">
-	   <div class='guid-button' hover-class="hover" bindtap="goAdd" style="background:linear-gradient(-28deg,rgba(3,0,0,0.15),rgba(255,255,255,0.15));">前往关注公众号</div>
-    </a>
-	</div>
 
 
 

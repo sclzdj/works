@@ -200,15 +200,21 @@ class MyController extends UserGuardController
     public function identity()
     {
         $info = auth($this->guard)->user();
+        $data = [
+            'identity' => $info->identity,
+            'is_wx_authorize' => $info->is_wx_authorize,
+            'is_wx_get_phone_number' => $info->is_wx_get_phone_number,
+            'is_formal_photographer' => $info->is_formal_photographer,
+        ];
+        $log = [
+            'time' => date('Y-m-d H:i:s'),
+            'user_id' => $info->id,
+            'photographer_id' => $info->photographer_id,
+            'response' => $data,
+        ];
+        SystemServer::filePutContents('logs/identity/'.date('Y-m-d').'.log', json_encode($log).PHP_EOL);
 
-        return $this->responseParseArray(
-            [
-                'identity' => $info->identity,
-                'is_wx_authorize' => $info->is_wx_authorize,
-                'is_wx_get_phone_number' => $info->is_wx_get_phone_number,
-                'is_formal_photographer' => $info->is_formal_photographer,
-            ]
-        );
+        return $this->responseParseArray($data);
     }
 
     /**

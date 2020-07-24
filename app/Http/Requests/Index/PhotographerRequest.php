@@ -25,13 +25,13 @@ class PhotographerRequest extends BaseRequest
                 break;
             case 'savePhotographerWorkStore':
                 $rules = [
-                    'name' => 'required|max:50',
-                    'describe' => 'present|max:2000',
-                    'is_business' => 'required|in:0,1',
-                    'location' => 'required|max:100',
-                    'address' => 'required|max:2000',
-                    'latitude' => 'required|max:100',
-                    'longitude' => 'required|max:100',
+//                    'name' => 'required|max:50',
+//                    'describe' => 'present|max:2000',
+//                    'is_business' => 'required|in:0,1',
+//                    'location' => 'required|max:100',
+//                    'address' => 'required|max:2000',
+//                    'latitude' => 'required|max:100',
+//                    'longitude' => 'required|max:100',
                     'customer_name' => 'required|max:50',
                     'photographer_work_customer_industry_id' => 'required|exists:photographer_work_customer_industries,id',
                     'project_amount' => 'required|integer|min:0',
@@ -267,6 +267,7 @@ class PhotographerRequest extends BaseRequest
             'savePhotographerWorkStore' => [
                 'POST|App\Http\Controllers\Api\DraftController@registerPhotographerWorkStore',
                 'POST|App\Http\Controllers\Api\DraftController@addPhotographerWorkStore',
+                'POST|App\Http\Controllers\Api\DraftController@registerPhotographerWorkStore2',
             ],
             'savePhotographerStore' => [
                 'POST|App\Http\Controllers\Api\DraftController@registerPhotographerStore',

@@ -202,17 +202,17 @@
 
                 redirectTo: function() {
                     var that = this
-                    that.showTest = true
-                    that.content = '我们会尽快联系你'
-                    setTimeout(function() {
-                        that.showTest = false
-                    }, 1000)
+                    // that.showTest = true
+                    // that.content = '我们会尽快联系你'
+                    // setTimeout(function() {
+                    //     that.showTest = false
+                    // }, 1000)
 
                     var data = {
                   
                        'user_id': '{{$data['userId']}}',
 
-                       'source' : 0
+                       'source' : 2
 
                     };
 
@@ -225,7 +225,7 @@
                         }
                     })
 
-
+                    wx.miniProgram.redirectTo({url: "/subPage/createPrivate/createPrivate"})
 
 
 

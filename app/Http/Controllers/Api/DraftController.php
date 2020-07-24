@@ -375,6 +375,185 @@ class DraftController extends UserGuardController
     }
 
     /**
+     * 保存用户注册项目信息(直接完成注册)
+     * @param PhotographerRequest $request
+     * @return \Dingo\Api\Http\Response|void
+     */
+    public function registerPhotographerWorkStore2(PhotographerRequest $request)
+    {
+        $this->notVisitorIdentityVerify();
+        $user = auth($this->guard)->user();
+        \DB::beginTransaction();//开启事务
+        try {
+            $photographer = $this->_photographer(null, $this->guard);
+            $photographer_work = $photographer->photographerWorks()->where(
+                ['status' => 0]
+            )->first();
+            if (!$photographer_work) {
+                $photographer_work = PhotographerWork::create();
+                $photographer_work->photographer_id = $photographer->id;
+                $photographer_work->save();
+            }
+            $scene = '1/'.$photographer_work->id;
+            if (!$photographer_work->xacode) {
+                $xacode_res = WechatServer::generateXacode($scene, false);
+                if ($xacode_res['code'] != 200) {
+                    \DB::rollback();//回滚事务
+
+                    return $this->response->error($xacode_res['msg'], $xacode_res['code']);
+                }
+                $photographer_work->xacode = $xacode_res['xacode'];
+            }
+            if (!$photographer_work->xacode_hyaline) {
+                $xacode_res = WechatServer::generateXacode($scene);
+                if ($xacode_res['code'] != 200) {
+                    \DB::rollback();//回滚事务
+
+                    return $this->response->error($xacode_res['msg'], $xacode_res['code']);
+                }
+                $photographer_work->xacode_hyaline = $xacode_res['xacode'];
+            }
+            $photographer_work->name = $request->name;
+            $photographer_work->describe = $request->describe;
+            $photographer_work->is_business = $request->is_business;
+            $photographer_work->location = $request->location;
+            $photographer_work->address = $request->address;
+            $photographer_work->latitude = $request->latitude;
+            $photographer_work->longitude = $request->longitude;
+            $photographer_work->customer_name = $request->customer_name;
+            $photographer_work->photographer_work_customer_industry_id = $request->photographer_work_customer_industry_id;
+            $photographer_work->project_amount = $request->project_amount;
+            $photographer_work->hide_project_amount = $request->hide_project_amount;
+            $photographer_work->sheets_number = $request->sheets_number;
+            $photographer_work->hide_sheets_number = $request->hide_sheets_number;
+            $photographer_work->shooting_duration = $request->shooting_duration;
+            $photographer_work->hide_shooting_duration = $request->hide_shooting_duration;
+            $photographer_work->photographer_work_category_id = $request->photographer_work_category_id;
+            $photographer_work->save();
+            PhotographerWorkTag::where(['photographer_work_id' => $photographer_work->id])->delete();
+            if ($request->tags) {
+                foreach ($request->tags as $v) {
+                    $photographer_work_tag = PhotographerWorkTag::create();
+                    $photographer_work_tag->photographer_work_id = $photographer_work->id;
+                    $photographer_work_tag->name = $v;
+                    $photographer_work_tag->save();
+                }
+            }
+
+            $photographer->avatar = $user->avatar;
+            $photographer->name = $user->nickname;
+            $photographer->gender = $user->gender;
+            $photographer->mobile = $user->purePhoneNumber;
+            $photographer->created_at = date('Y-m-d H:i:s');
+            $photographer->status = 200;
+            $scene = '0/'.$photographer->id;
+            if (!$photographer->xacode) {
+                $xacode_res = WechatServer::generateXacode($scene, false);
+                if ($xacode_res['code'] != 200) {
+                    \DB::rollback();//回滚事务
+
+                    return $this->response->error($xacode_res['msg'], $xacode_res['code']);
+                }
+                $photographer->xacode = $xacode_res['xacode'];
+            }
+            if (!$photographer->xacode_hyaline) {
+                $xacode_res = WechatServer::generateXacode($scene);
+                if ($xacode_res['code'] != 200) {
+                    \DB::rollback();//回滚事务
+
+                    return $this->response->error($xacode_res['msg'], $xacode_res['code']);
+                }
+                $photographer->xacode_hyaline = $xacode_res['xacode'];
+            }
+            $photographer_work->status = 200;
+            $photographer_work->save();
+            $photographerWorkSources = $photographer_work->photographerWorkSources()->where(
+                ['status' => 200, 'type' => 'image']
+            )->orderBy('sort', 'asc')->get();
+            if ($photographerWorkSources) {
+                foreach ($photographerWorkSources as $photographerWorkSource) {
+                    $photographerWorkSource->is_new_source = 0;
+                    $photographerWorkSource->save();
+                    $asynchronous_task[] = [
+                        'task_type' => 'editRunGenerateWatermark',
+                        'photographer_work_source_id' => $photographerWorkSource->id,
+                        'edit_node' => '用户注册',
+                    ];
+                }
+            }
+            $user->identity = 1;
+            $user->save();
+            $photographer->save();
+            //把他作为别人的访客标为同行
+            Visitor::where(['user_id' => $user->id, 'visitor_tag_id' => 0])->update(['visitor_tag_id' => 4]);
+            if ($user->gh_openid != '') {
+                $app = app('wechat.official_account');
+                $template_id = 'rjph5uR7iIzT2rEn3LjnF65zEdKZYisUGoAVgpipxpk';
+                $tmr = $app->template_message->send(
+                    [
+                        'touser' => $user->gh_openid,
+                        'template_id' => $template_id,
+                        'url' => config('app.url'),
+                        'miniprogram' => [
+                            'appid' => config('custom.wechat.mp.appid'),
+                            'pagepath' => 'pages/homePage/homePage',//注册成功分享页
+                        ],
+                        'data' => [
+                            'first' => '你的云作品已创建成功。',
+                            'keyword1' => $photographer->name,
+                            'keyword2' => SystemArea::where('id', $photographer->city)->value('short_name'),
+                            'keyword3' => PhotographerRank::where('id', $photographer->photographer_rank_id)->value(
+                                    'name'
+                                ).'摄影师',
+                            'keyword4' => $photographer->wechat,
+                            'keyword5' => $photographer->mobile,
+                            'remark' => '云作品客服微信'.SystemConfig::getVal('customer_wechat', 'works'),
+                        ],
+                    ]
+                );
+                if ($tmr['errcode'] != 0) {
+                    ErrLogServer::SendWxGhTemplateMessage($template_id, $user->gh_openid, $tmr['errmsg'], $tmr);
+                }
+            }
+            if ($photographer->mobile) {//发送短信
+                $third_type = config('custom.send_short_message.third_type');
+                $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
+                if ($third_type == 'ali') {
+                    AliSendShortMessageServer::quickSendSms(
+                        $photographer->mobile,
+                        $TemplateCodes,
+                        'register_success',
+                        ['name' => $photographer->name]
+                    );
+                }
+            }
+            \DB::commit();//提交事务
+            foreach ($asynchronous_task as $task) {
+                if ($task['task_type'] == 'editRunGenerateWatermark') {
+                    PhotographerWorkSource::editRunGenerateWatermark(
+                        $task['photographer_work_source_id'],
+                        $task['edit_node']
+                    );
+                } elseif ($task['task_type'] == 'error_qiniuNotifyFop') {
+                    ErrLogServer::qiniuNotifyFop(
+                        $task['step'],
+                        $task['msg'],
+                        $task['request_data'],
+                        $task['photographerWorkSource'],
+                        $task['res']
+                    );
+                }
+            }
+
+            return $this->response->noContent();
+        } catch (\Exception $e) {
+            \DB::rollback();//回滚事务
+
+            return $this->response->error($e->getMessage(), 500);
+        }
+    }
+
+    /**
      * 查出用户注册信息
      * @return mixed|void
      */
@@ -579,10 +758,10 @@ class DraftController extends UserGuardController
                         'url' => config('app.url'),
                         'miniprogram' => [
                             'appid' => config('custom.wechat.mp.appid'),
-                            'pagepath' => 'pages/share/share',//注册成功分享页
+                            'pagepath' => 'pages/homePage/homePage',//注册成功分享页
                         ],
                         'data' => [
-                            'first' => '云作品已准备就绪，邀请3人扫码即可开启！',
+                            'first' => '你的云作品已创建成功。',
                             'keyword1' => $photographer->name,
                             'keyword2' => SystemArea::where('id', $photographer->city)->value('short_name'),
                             'keyword3' => PhotographerRank::where('id', $photographer->photographer_rank_id)->value(
