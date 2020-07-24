@@ -483,6 +483,7 @@ class DraftController extends UserGuardController
             }
             $user->identity = 1;
             $user->save();
+            $photographer->save();
             //把他作为别人的访客标为同行
             Visitor::where(['user_id' => $user->id, 'visitor_tag_id' => 0])->update(['visitor_tag_id' => 4]);
             if ($user->gh_openid != '') {
