@@ -113,6 +113,7 @@ $api->version(
                 );
                 $api->get('draft/registerPhotographerWork', 'DraftController@registerPhotographerWork');
                 $api->post('draft/registerPhotographerWork', 'DraftController@registerPhotographerWorkStore');
+                $api->post('draft/registerPhotographerWork2', 'DraftController@registerPhotographerWorkStore2');
                 $api->get('draft/registerPhotographer', 'DraftController@registerPhotographer');
                 $api->post('draft/registerPhotographer', 'DraftController@registerPhotographerStore');
                 //用户

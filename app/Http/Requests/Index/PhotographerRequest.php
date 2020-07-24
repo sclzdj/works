@@ -267,6 +267,7 @@ class PhotographerRequest extends BaseRequest
             'savePhotographerWorkStore' => [
                 'POST|App\Http\Controllers\Api\DraftController@registerPhotographerWorkStore',
                 'POST|App\Http\Controllers\Api\DraftController@addPhotographerWorkStore',
+                'POST|App\Http\Controllers\Api\DraftController@registerPhotographerWorkStore2',
             ],
             'savePhotographerStore' => [
                 'POST|App\Http\Controllers\Api\DraftController@registerPhotographerStore',
