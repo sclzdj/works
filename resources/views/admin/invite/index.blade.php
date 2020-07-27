@@ -90,23 +90,14 @@
                 <div class="tab-content" id="app">
                     <div class="tab-pane active">
                         <div class="block-content">
-                            <el-date-picker
-                                v-model="form.created_at"
-                                type="daterange"
-                                range-separator="至"
-                                value-format="yyyy-MM-dd"
-                                start-placeholder="开始日期"
-                                end-placeholder="结束日期">
-                            </el-date-picker>
-
-                            <el-select style="width: 150px" v-model="form.status" placeholder="验证码状态">
-                                <el-option
-                                        v-for="item in statusOption"
-                                        :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value">
-                                </el-option>
-                            </el-select>
+{{--                            <el-date-picker--}}
+{{--                                v-model="form.created_at"--}}
+{{--                                type="daterange"--}}
+{{--                                range-separator="至"--}}
+{{--                                value-format="yyyy-MM-dd"--}}
+{{--                                start-placeholder="开始日期"--}}
+{{--                                end-placeholder="结束日期">--}}
+{{--                            </el-date-picker>--}}
 
                             <el-select style="width: 150px" v-model="form.remark2" placeholder="运营">
                                 <el-option
@@ -125,6 +116,19 @@
                                         :value="item.value">
                                 </el-option>
                             </el-select>
+
+                            <el-select style="width: 150px" v-model="form.status" placeholder="验证码状态">
+                                <el-option
+                                        v-for="item in statusOption"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                </el-option>
+                            </el-select>
+
+                            <el-input v-model="form.remark" style="width: 200px" placeholder="关键词"></el-input>
+
+
 
                             <el-button type="primary" @click="search" icon="el-icon-search">搜索</el-button>
                             <el-button type="primary" @click="clear" icon="el-icon-close">清除</el-button>
@@ -396,6 +400,7 @@
                     status: -1,
                     is_send: -1,
                     created_at: [],
+                    remark:"",
                     remark2: "",
                     remark3: "",
                 },
@@ -552,6 +557,7 @@
                         status: -1,
                         created_at: [],
                         is_send: -1,
+                        remark:"",
                         remark2: "",
                         remark3: "",
                     };

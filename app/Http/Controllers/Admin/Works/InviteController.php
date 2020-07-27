@@ -53,32 +53,37 @@ class InviteController extends BaseController
         }
 
         if (!empty($form['remark3'])) {
-            $where[] = array("invite.remark3",  $form['remark3']);
+            $where[] = array("invite.remark3", $form['remark3']);
         }
 
+        if (!empty($form['remark'])) {
+            $where[] = array("invite.remark", 'like', '%'.$form['remark'].'%');
+        }
+
+
         if ($form['status'] != -1) {
-            $where[] = array("invote_codes.status",  $form['status']);
+            $where[] = array("invote_codes.status", $form['status']);
         }
 
 
         $data = (new Invite())
-            ->join('invote_codes' , 'invote_codes.id' , '=' , 'invite.invite_id')
-            ->leftJoin('users' , 'invote_codes.user_id' , '=' , 'users.id')
+            ->join('invote_codes', 'invote_codes.id', '=', 'invite.invite_id')
+            ->leftJoin('users', 'invote_codes.user_id', '=', 'users.id')
             ->where($where)
             ->select([
-                'invite.*' , 'invote_codes.code' , 'invote_codes.status' ,
-                'users.nickname' ,'users.id as user_id' ,'users.photographer_id',
+                'invite.*', 'invote_codes.code', 'invote_codes.status',
+                'users.nickname', 'users.id as user_id', 'users.photographer_id',
             ])
             ->skip($page)
             ->take($size)
-            ->orderBy('created_at' , 'desc')
+            ->orderBy('created_at', 'desc')
             ->get();
 
 
         $count = (new Invite())
             ->where($where)
-            ->join('invote_codes' , 'invote_codes.id' , '=' , 'invite.invite_id')
-            ->leftJoin('users' , 'invote_codes.user_id' , '=' , 'users.id')
+            ->join('invote_codes', 'invote_codes.id', '=', 'invite.invite_id')
+            ->leftJoin('users', 'invote_codes.user_id', '=', 'users.id')
             ->count();
 
         return response()->json(compact('data', 'count'));
@@ -91,7 +96,7 @@ class InviteController extends BaseController
         $invite = new Invite();
         $invite->invite_id = $inviteCode;
         $invite->remark = "";
-        $invite->created_at =  date('Y-m-d H:i:s');
+        $invite->created_at = date('Y-m-d H:i:s');
         $result = $invite->save();
 
         return response()->json(compact('result', 'msg'));
@@ -108,7 +113,8 @@ class InviteController extends BaseController
         return view('admin/helptags/create');
     }
 
-    public function update(Request $request) {
+    public function update(Request $request)
+    {
 
         $action = $request->input('action');
         if ($action == "remark") {
