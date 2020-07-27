@@ -139,10 +139,10 @@
                                 style="width: 100%"
                                 @selection-change="handleSelectionChange"
                             >
-                                <el-table-column
-                                    type="selection"
-                                    width="55">
-                                </el-table-column>
+{{--                                <el-table-column--}}
+{{--                                    type="selection"--}}
+{{--                                    width="55">--}}
+{{--                                </el-table-column>--}}
                                 <el-table-column label="运营">
                                     <template slot-scope="scope">
 
@@ -172,16 +172,27 @@
                                         </el-select>
                                     </template>
                                 </el-table-column>
+
+                                <el-table-column label="项目数据" >
+                                    <template slot-scope="scope">
+
+
+                                    </template>
+                                </el-table-column>
+
                                 <el-table-column
                                     prop="status"
                                     label="状态"
-
+                                    width="110px"
+                                    min-width="110px"
                                     >
                                 </el-table-column>
 
                                 <el-table-column
                                     prop="code"
                                     label="创建码"
+                                    width="110px"
+                                    min-width="110px"
                                     >
                                 </el-table-column>
 
