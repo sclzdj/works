@@ -26,7 +26,7 @@ class InviteController extends BaseController
     }
 
     /**
-     * 大咖列表
+     * 邀请列表
      *
      * @return \Illuminate\Http\Response
      */
@@ -48,20 +48,38 @@ class InviteController extends BaseController
             $where[] = array("invite.created_at", "<=", $form['created_at'][1] . ' 23:59:59');
         }
 
+        if (!empty($form['remark2'])) {
+            $where[] = array("invite.remark2", $form['remark2']);
+        }
+
+        if (!empty($form['remark3'])) {
+            $where[] = array("invite.remark3",  $form['remark3']);
+        }
+
+        if ($form['status'] != -1) {
+            $where[] = array("invote_codes.status",  $form['status']);
+        }
+
 
         $data = (new Invite())
-            ->where($where)
             ->join('invote_codes' , 'invote_codes.id' , '=' , 'invite.invite_id')
             ->leftJoin('users' , 'invote_codes.user_id' , '=' , 'users.id')
-            ->select(['invite.*' , 'invote_codes.code' , 'invote_codes.status' , 'users.nickname' ,'users.id as user_id' ,'users.photographer_id' ])
+            ->where($where)
+            ->select([
+                'invite.*' , 'invote_codes.code' , 'invote_codes.status' ,
+                'users.nickname' ,'users.id as user_id' ,'users.photographer_id',
+            ])
             ->skip($page)
             ->take($size)
             ->orderBy('created_at' , 'desc')
             ->get();
 
 
-
-        $count = (new Invite())->where($where)->count();
+        $count = (new Invite())
+            ->where($where)
+            ->join('invote_codes' , 'invote_codes.id' , '=' , 'invite.invite_id')
+            ->leftJoin('users' , 'invote_codes.user_id' , '=' , 'users.id')
+            ->count();
 
         return response()->json(compact('data', 'count'));
     }
@@ -97,6 +115,19 @@ class InviteController extends BaseController
             $data = $request->input('data');
             $result = Invite::where('id', $data['id'])->update([
                 'remark' => $data['remark']
+            ]);
+        }
+        if ($action == "remark2") {
+            $data = $request->input('data');
+            $result = Invite::where('id', $data['id'])->update([
+                'remark2' => $data['remark2']
+            ]);
+        }
+
+        if ($action == "remark3") {
+            $data = $request->input('data');
+            $result = Invite::where('id', $data['id'])->update([
+                'remark3' => $data['remark3']
             ]);
         }
 
