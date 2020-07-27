@@ -57,7 +57,7 @@ class InviteController extends BaseController
         }
 
         if (!empty($form['remark'])) {
-            $where[] = array("invite.remark", 'like', '%'.$form['remark'].'%');
+            $where[] = array("invite.remark", 'like', '%' . $form['remark'] . '%');
         }
 
 
@@ -65,6 +65,10 @@ class InviteController extends BaseController
             $where[] = array("invote_codes.status", $form['status']);
         }
 
+        $orderBy = "created_at";
+        if (!empty($form['orderBy'])) {
+            $orderBy = $form['orderBy'];
+        }
 
         $data = (new Invite())
             ->join('invote_codes', 'invote_codes.id', '=', 'invite.invite_id')
@@ -73,12 +77,17 @@ class InviteController extends BaseController
             ->select([
                 'invite.*', 'invote_codes.code', 'invote_codes.status',
                 'users.nickname', 'users.id as user_id', 'users.photographer_id',
+                \DB::raw('(select COUNT(*) FROM photographer_works WHERE `photographer_id` = users.photographer_id and status = 200) as `photographer_works_count`'),
+                \DB::raw('(select COUNT(*) FROM photographer_work_sources
+                 WHERE `photographer_work_id` in (select id FROM photographer_works WHERE `photographer_id` = users.photographer_id) and status = 200) 
+                 as `photographer_works_resource_count`'),
             ])
             ->skip($page)
             ->take($size)
-            ->orderBy('created_at', 'desc')
+            ->orderBy($orderBy, 'desc')
             ->get();
 
+        // dd($data);
 
         $count = (new Invite())
             ->where($where)

@@ -181,9 +181,10 @@ class InvoteCodeController extends BaseController
             InvoteCode::where('id', $originInvoteCode)->delete();
         }
 
-        $targetUser = TargetUser::where('user_id', $user_id)->update([
-            'invote_code_id' => $code_id
-        ]);
+        $targetUser = TargetUser::where('user_id', $user_id)->delete();
+//        $targetUser = TargetUser::where('user_id', $user_id)->update([
+//            'invote_code_id' => $code_id
+//        ]);
 
         return "";
     }

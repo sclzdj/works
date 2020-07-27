@@ -1,4 +1,3 @@
-
 @php
     $SFV=\App\Model\Admin\SystemConfig::getVal('basic_static_file_version');
 @endphp
@@ -90,50 +89,55 @@
                 <div class="tab-content" id="app">
                     <div class="tab-pane active">
                         <div class="block-content">
-{{--                            <el-date-picker--}}
-{{--                                v-model="form.created_at"--}}
-{{--                                type="daterange"--}}
-{{--                                range-separator="至"--}}
-{{--                                value-format="yyyy-MM-dd"--}}
-{{--                                start-placeholder="开始日期"--}}
-{{--                                end-placeholder="结束日期">--}}
-{{--                            </el-date-picker>--}}
+                            {{--                            <el-date-picker--}}
+                            {{--                                v-model="form.created_at"--}}
+                            {{--                                type="daterange"--}}
+                            {{--                                range-separator="至"--}}
+                            {{--                                value-format="yyyy-MM-dd"--}}
+                            {{--                                start-placeholder="开始日期"--}}
+                            {{--                                end-placeholder="结束日期">--}}
+                            {{--                            </el-date-picker>--}}
 
                             <el-select style="width: 150px" v-model="form.remark2" placeholder="运营">
                                 <el-option
-                                        v-for="(item,index) in remark2Option"
-                                        :key="index"
-                                        :label="item.label"
-                                        :value="item.value">
+                                    v-for="(item,index) in remark2Option"
+                                    :key="index"
+                                    :label="item.label"
+                                    :value="item.value">
                                 </el-option>
                             </el-select>
 
                             <el-select style="width: 150px" v-model="form.remark3" placeholder="类别">
                                 <el-option
-                                        v-for="(item,index) in remark3Option"
-                                        :key="index"
-                                        :label="item.label"
-                                        :value="item.value">
+                                    v-for="(item,index) in remark3Option"
+                                    :key="index"
+                                    :label="item.label"
+                                    :value="item.value">
                                 </el-option>
                             </el-select>
 
                             <el-select style="width: 150px" v-model="form.status" placeholder="验证码状态">
                                 <el-option
-                                        v-for="item in statusOption"
-                                        :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value">
+                                    v-for="item in statusOption"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
                                 </el-option>
+                            </el-select>
+
+                            <el-select style="width: 150px" v-model="form.orderBy" placeholder="排序">
+
+                                <el-option key="1" value="photographer_works_count" label="项目数"></el-option>
+                                <el-option key="2" value="photographer_works_resource_count" label="作品数"></el-option>
                             </el-select>
 
                             <el-input v-model="form.remark" style="width: 200px" placeholder="关键词"></el-input>
 
 
-
                             <el-button type="primary" @click="search" icon="el-icon-search">搜索</el-button>
                             <el-button type="primary" @click="clear" icon="el-icon-close">清除</el-button>
 
-{{--                            <el-button type="primary" @click="create" icon="el-icon-search">创建</el-button>--}}
+                            {{--                            <el-button type="primary" @click="create" icon="el-icon-search">创建</el-button>--}}
                             <br/>
 
                         </div>
@@ -143,44 +147,46 @@
                                 style="width: 100%"
                                 @selection-change="handleSelectionChange"
                             >
-{{--                                <el-table-column--}}
-{{--                                    type="selection"--}}
-{{--                                    width="55">--}}
-{{--                                </el-table-column>--}}
+                                {{--                                <el-table-column--}}
+                                {{--                                    type="selection"--}}
+                                {{--                                    width="55">--}}
+                                {{--                                </el-table-column>--}}
                                 <el-table-column label="运营">
                                     <template slot-scope="scope">
 
-                                        <el-select  @change="((val)=>{changeStatus(scope.row,'remark2')})" style="width: 150px" v-model="scope.row.remark2"
-                                                    placeholder="请选择">
+                                        <el-select @change="((val)=>{changeStatus(scope.row,'remark2')})"
+                                                   style="width: 150px" v-model="scope.row.remark2"
+                                                   placeholder="请选择">
                                             <el-option
-                                                    v-for="item in remark2Option"
+                                                v-for="item in remark2Option"
 
-                                                    :label="item.label"
-                                                    :value="item.value">
+                                                :label="item.label"
+                                                :value="item.value">
                                             </el-option>
                                         </el-select>
                                     </template>
                                 </el-table-column>
 
-                                <el-table-column label="类别" >
+                                <el-table-column label="类别">
                                     <template slot-scope="scope">
 
-                                        <el-select  @change="((val)=>{changeStatus(scope.row,'remark3')})" style="width: 150px" v-model="scope.row.remark3"
-                                                    placeholder="请选择">
+                                        <el-select @change="((val)=>{changeStatus(scope.row,'remark3')})"
+                                                   style="width: 150px" v-model="scope.row.remark3"
+                                                   placeholder="请选择">
                                             <el-option
-                                                    v-for="item in remark3Option"
+                                                v-for="item in remark3Option"
 
-                                                    :label="item.label"
-                                                    :value="item.value">
+                                                :label="item.label"
+                                                :value="item.value">
                                             </el-option>
                                         </el-select>
                                     </template>
                                 </el-table-column>
 
-                                <el-table-column label="项目数据" >
+                                <el-table-column label="项目数据">
                                     <template slot-scope="scope">
-
-
+                                        项目数:<span v-text="scope.row.photographer_works_count"></span><br/>
+                                        作品数:<span v-text="scope.row.photographer_works_resource_count"></span>
                                     </template>
                                 </el-table-column>
 
@@ -189,7 +195,7 @@
                                     label="状态"
                                     width="110px"
                                     min-width="110px"
-                                    >
+                                >
                                 </el-table-column>
 
                                 <el-table-column
@@ -197,35 +203,37 @@
                                     label="创建码"
                                     width="110px"
                                     min-width="110px"
-                                    >
+                                >
                                 </el-table-column>
 
                                 <el-table-column
                                     prop="remark"
-                                    label="备注名" >
+                                    label="备注名">
 
                                     <template slot-scope="scope">
 
-                                        <div v-if="scope.row.status == '已创建'" >
-                                            <a  target="_blank" v-bind:href="'/admin/works/photographerWork?photographer_id='+scope.row.photographer_id"><span v-text="scope.row.nickname"></span></a>
+                                        <div v-if="scope.row.status == '已创建'">
+                                            <a target="_blank"
+                                               v-bind:href="'/admin/works/photographerWork?photographer_id='+scope.row.photographer_id"><span
+                                                    v-text="scope.row.nickname"></span></a>
                                         </div>
 
                                         <div v-else>
                                             <span v-text="scope.row.nickname"></span>
                                         </div>
 
-                                        <el-input  style="width: 150px" @blur="updateRemark(scope.row)" v-model="scope.row.remark" placeholder="请输入内容" ></el-input>
+                                        <el-input style="width: 150px" @blur="updateRemark(scope.row)"
+                                                  v-model="scope.row.remark" placeholder="请输入内容"></el-input>
 
                                     </template>
 
                                 </el-table-column>
 
 
-
-{{--                                <el-table-column--}}
-{{--                                    prop="created_at"--}}
-{{--                                    label="创建时间">--}}
-{{--                                </el-table-column>--}}
+                                {{--                                <el-table-column--}}
+                                {{--                                    prop="created_at"--}}
+                                {{--                                    label="创建时间">--}}
+                                {{--                                </el-table-column>--}}
 
                                 <el-table-column fixed="right" label="操作" width="100">
                                     <template slot-scope="scope">
@@ -400,9 +408,10 @@
                     status: -1,
                     is_send: -1,
                     created_at: [],
-                    remark:"",
+                    remark: "",
                     remark2: "",
                     remark3: "",
+                    orderBy: "",
                 },
                 typeOption: [
                     {
@@ -557,9 +566,10 @@
                         status: -1,
                         created_at: [],
                         is_send: -1,
-                        remark:"",
+                        remark: "",
                         remark2: "",
                         remark3: "",
+                        orderBy: "",
                     };
                     this.$refs.children.initPageNo();
                     this.init(1);
@@ -604,13 +614,13 @@
                         }
                     });
                 },
-                changeStatus(data , type){
+                changeStatus(data, type) {
 
                     $.ajax({
                         type: 'PUT',
-                        url: '/admin/invite/'+data.id,
+                        url: '/admin/invite/' + data.id,
                         data: {
-                            data:data,
+                            data: data,
                             action: type
                         },
                         success: function (response) {
@@ -623,12 +633,12 @@
                 handleSelectionChange(val) {
                     this.multipleSelection = val;
                 },
-                updateRemark:function(data) {
+                updateRemark: function (data) {
                     $.ajax({
                         type: 'PUT',
-                        url: '/admin/invite/'+data.id,
+                        url: '/admin/invite/' + data.id,
                         data: {
-                            data:data,
+                            data: data,
                             action: 'remark'
                         },
                         success: function (response) {

@@ -44,6 +44,10 @@ class TargetUserController extends BaseController
         } elseif ($form['status'] == 2)
             $where[] = ['target_users.invote_code_id', 0];
 
+        if ($form['codeStatus'] != -1) {
+            $where[] = ['invote_codes.status', $form['codeStatus']];
+        }
+
 
         $data = TargetUser::where($where)
             ->skip($page)->take($size)
@@ -68,7 +72,9 @@ class TargetUserController extends BaseController
             }
         }
 
-        $count = TargetUser::where($where)->count();
+        $count = TargetUser::where($where)
+            ->leftJoin('invote_codes', 'invote_codes.id', '=', 'target_users.invote_code_id')
+            ->count();
 
         return response()->json(compact('data', 'count'));
     }
