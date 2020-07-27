@@ -49,7 +49,9 @@ class LoginController extends UserGuardController
                 $user->nickname = '微信用户_'.$random;
                 $user->remember_token = str_random(10);
                 $user->openid = $data['openid'];
-                //$user->unionid = $data['unionid'];//用于公众号授权登录时将账号打通，add by chenchen 2020/7/14
+                if (isset($data['unionid']) && !empty($data['unionid'])) {
+                    $user->unionid = $data['unionid'];//用于公众号授权登录时将账号打通，add by chenchen 2020/7/14
+                }
                 $userPresetCreate = User::presetCreate();
                 $user->photographer_id = $userPresetCreate['photographer_id'];
                 $user->save();

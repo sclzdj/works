@@ -208,6 +208,8 @@ class MyController extends UserGuardController
         ];
         $log = [
             'time' => date('Y-m-d H:i:s'),
+            'user_id' => $info->id,
+            'photographer_id' => $info->photographer_id,
             'response' => $data,
         ];
         SystemServer::filePutContents('logs/identity/'.date('Y-m-d').'.log', json_encode($log).PHP_EOL);

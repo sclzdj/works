@@ -370,12 +370,16 @@
                                                     </td>
                                                     <td class=" ">
                                                         <div class="table-cell">
-                                                            {{$photographer['province']->short_name.' '.$photographer['city']->short_name.' '.$photographer['area']->short_name}}
+                                                            {{$photographer['province']['short_name']??$photographer['province']['short_name']}}
+                                                            &nbsp;
+                                                            {{$photographer['city']['short_name']??$photographer['city']['short_name']}}
+                                                            &nbsp;
+                                                            {{$photographer['area']['short_name']??$photographer['area']['short_name']}}
                                                         </div>
                                                     </td>
                                                     <td class=" ">
                                                         <div class="table-cell">
-                                                            {{$photographer['rank']['name']}}摄影师
+                                                            {{$photographer['rank']['name']?$photographer['rank']['name'].'摄影师':''}}
                                                         </div>
                                                     </td>
                                                     <td class=" ">

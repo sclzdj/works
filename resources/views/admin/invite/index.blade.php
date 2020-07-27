@@ -90,19 +90,50 @@
                 <div class="tab-content" id="app">
                     <div class="tab-pane active">
                         <div class="block-content">
-                            <el-date-picker
-                                v-model="form.created_at"
-                                type="daterange"
-                                range-separator="至"
-                                value-format="yyyy-MM-dd"
-                                start-placeholder="开始日期"
-                                end-placeholder="结束日期">
-                            </el-date-picker>
+{{--                            <el-date-picker--}}
+{{--                                v-model="form.created_at"--}}
+{{--                                type="daterange"--}}
+{{--                                range-separator="至"--}}
+{{--                                value-format="yyyy-MM-dd"--}}
+{{--                                start-placeholder="开始日期"--}}
+{{--                                end-placeholder="结束日期">--}}
+{{--                            </el-date-picker>--}}
+
+                            <el-select style="width: 150px" v-model="form.remark2" placeholder="运营">
+                                <el-option
+                                        v-for="(item,index) in remark2Option"
+                                        :key="index"
+                                        :label="item.label"
+                                        :value="item.value">
+                                </el-option>
+                            </el-select>
+
+                            <el-select style="width: 150px" v-model="form.remark3" placeholder="类别">
+                                <el-option
+                                        v-for="(item,index) in remark3Option"
+                                        :key="index"
+                                        :label="item.label"
+                                        :value="item.value">
+                                </el-option>
+                            </el-select>
+
+                            <el-select style="width: 150px" v-model="form.status" placeholder="验证码状态">
+                                <el-option
+                                        v-for="item in statusOption"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                </el-option>
+                            </el-select>
+
+                            <el-input v-model="form.remark" style="width: 200px" placeholder="关键词"></el-input>
+
+
 
                             <el-button type="primary" @click="search" icon="el-icon-search">搜索</el-button>
                             <el-button type="primary" @click="clear" icon="el-icon-close">清除</el-button>
 
-                            <el-button type="primary" @click="create" icon="el-icon-search">创建</el-button>
+{{--                            <el-button type="primary" @click="create" icon="el-icon-search">创建</el-button>--}}
                             <br/>
 
                         </div>
@@ -112,37 +143,66 @@
                                 style="width: 100%"
                                 @selection-change="handleSelectionChange"
                             >
-                                <el-table-column
-                                    type="selection"
-                                    width="55">
+{{--                                <el-table-column--}}
+{{--                                    type="selection"--}}
+{{--                                    width="55">--}}
+{{--                                </el-table-column>--}}
+                                <el-table-column label="运营">
+                                    <template slot-scope="scope">
+
+                                        <el-select  @change="((val)=>{changeStatus(scope.row,'remark2')})" style="width: 150px" v-model="scope.row.remark2"
+                                                    placeholder="请选择">
+                                            <el-option
+                                                    v-for="item in remark2Option"
+
+                                                    :label="item.label"
+                                                    :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </template>
+                                </el-table-column>
+
+                                <el-table-column label="类别" >
+                                    <template slot-scope="scope">
+
+                                        <el-select  @change="((val)=>{changeStatus(scope.row,'remark3')})" style="width: 150px" v-model="scope.row.remark3"
+                                                    placeholder="请选择">
+                                            <el-option
+                                                    v-for="item in remark3Option"
+
+                                                    :label="item.label"
+                                                    :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </template>
+                                </el-table-column>
+
+                                <el-table-column label="项目数据" >
+                                    <template slot-scope="scope">
+
+
+                                    </template>
                                 </el-table-column>
 
                                 <el-table-column
                                     prop="status"
                                     label="状态"
-                                    width="180">
+                                    width="110px"
+                                    min-width="110px"
+                                    >
                                 </el-table-column>
 
                                 <el-table-column
                                     prop="code"
                                     label="创建码"
-                                    width="180">
+                                    width="110px"
+                                    min-width="110px"
+                                    >
                                 </el-table-column>
 
                                 <el-table-column
                                     prop="remark"
-                                    label="备注名" width="250">
-
-                                    <template slot-scope="scope">
-                                        <el-input  style="width: 200px" @blur="updateRemark(scope.row)" v-model="scope.row.remark" placeholder="请输入内容" ></el-input>
-                                    </template>
-
-                                </el-table-column>
-
-                                <el-table-column
-                                    prop="nickname"
-                                    label="用户名">
-
+                                    label="备注名" >
 
                                     <template slot-scope="scope">
 
@@ -154,16 +214,18 @@
                                             <span v-text="scope.row.nickname"></span>
                                         </div>
 
+                                        <el-input  style="width: 150px" @blur="updateRemark(scope.row)" v-model="scope.row.remark" placeholder="请输入内容" ></el-input>
 
                                     </template>
 
-
                                 </el-table-column>
 
-                                <el-table-column
-                                    prop="created_at"
-                                    label="创建时间">
-                                </el-table-column>
+
+
+{{--                                <el-table-column--}}
+{{--                                    prop="created_at"--}}
+{{--                                    label="创建时间">--}}
+{{--                                </el-table-column>--}}
 
                                 <el-table-column fixed="right" label="操作" width="100">
                                     <template slot-scope="scope">
@@ -337,7 +399,10 @@
                     type: 0,
                     status: -1,
                     is_send: -1,
-                    created_at: []
+                    created_at: [],
+                    remark:"",
+                    remark2: "",
+                    remark3: "",
                 },
                 typeOption: [
                     {
@@ -358,15 +423,78 @@
                     },
                     {
                         value: 0,
-                        label: '未使用'
+                        label: '已生成'
                     }, {
                         value: 1,
-                        label: '已占用'
+                        label: '已绑定'
                     }, {
                         value: 2,
-                        label: '已使用'
-                    }],
+                        label: '已校验'
+                    },
+                    {
+                        value: 4,
+                        label: '已创建'
+                    }
 
+                ],
+                remark2Option: [
+
+                    {
+                        value: "谢莉莉",
+                        label: '谢莉莉'
+                    },
+                    {
+                        value: "周燕云",
+                        label: '周燕云'
+                    },
+                    {
+                        value: "王丫丫",
+                        label: '王丫丫'
+                    },
+                    {
+                        value: "小助理",
+                        label: '小助理'
+                    },
+                    {
+                        value: "谢莉莉",
+                        label: '谢莉莉'
+                    },
+                    {
+                        value: "周星宜",
+                        label: '周星宜'
+                    },
+                    {
+                        value: "王一坤",
+                        label: '王一坤'
+                    },
+                ],
+                remark3Option: [
+
+                    {
+                        value: "敢死队",
+                        label: '敢死队'
+                    },
+                    {
+                        value: "随食拍",
+                        label: '随食拍'
+                    },
+                    {
+                        value: "媒体",
+                        label: '媒体'
+                    },
+                    {
+                        value: "大咖",
+                        label: '大咖'
+                    },
+                    {
+                        value: "KOL",
+                        label: 'KOL'
+                    },
+                    {
+                        value: "裂变",
+                        label: '裂变'
+                    }
+                ],
                 multipleSelection: []
             },
             methods: {
@@ -429,6 +557,9 @@
                         status: -1,
                         created_at: [],
                         is_send: -1,
+                        remark:"",
+                        remark2: "",
+                        remark3: "",
                     };
                     this.$refs.children.initPageNo();
                     this.init(1);
@@ -469,6 +600,22 @@
                         success: function (response) {
                             if (response.result) {
                                 data.status = "已占用";
+                            }
+                        }
+                    });
+                },
+                changeStatus(data , type){
+
+                    $.ajax({
+                        type: 'PUT',
+                        url: '/admin/invite/'+data.id,
+                        data: {
+                            data:data,
+                            action: type
+                        },
+                        success: function (response) {
+                            if (response.result) {
+
                             }
                         }
                     });
