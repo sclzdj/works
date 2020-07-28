@@ -129,6 +129,7 @@
 
                                 <el-option key="1" value="photographer_works_count" label="项目数"></el-option>
                                 <el-option key="2" value="photographer_works_resource_count" label="作品数"></el-option>
+                                <el-option key="3" value="photographer_works_visit_count" label="访问数"></el-option>
                             </el-select>
 
                             <el-input v-model="form.remark" style="width: 200px" placeholder="关键词"></el-input>
@@ -186,7 +187,8 @@
                                 <el-table-column label="项目数据">
                                     <template slot-scope="scope">
                                         项目数:<span v-text="scope.row.photographer_works_count"></span><br/>
-                                        作品数:<span v-text="scope.row.photographer_works_resource_count"></span>
+                                        作品数:<span v-text="scope.row.photographer_works_resource_count"></span><br/>
+                                        访问数:<span v-text="scope.row.photographer_works_visit_count"></span>
                                     </template>
                                 </el-table-column>
 

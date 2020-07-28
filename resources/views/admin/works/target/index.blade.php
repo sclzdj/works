@@ -89,7 +89,7 @@
                                     class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
-                    <h3 class="block-title">标签管理</h3>
+                    <h3 class="block-title">目标用户管理</h3>
                 </div>
                 <div class="tab-content" id="app">
                     <div class="tab-pane active">
@@ -124,6 +124,8 @@
                                 {{--                                        :value="item.value">--}}
                                 {{--                                </el-option>--}}
                             </el-select>
+
+                            <el-input v-model="form.phone" style="width: 200px" placeholder="电话搜索"></el-input>
 
                             <el-button type="primary" @click="search" icon="el-icon-search">搜索</el-button>
                             <el-button type="primary" @click="clear" icon="el-icon-close">清除</el-button>
@@ -425,7 +427,8 @@
                     sources: -1,
                     status: -1,
                     codeStatus: -1,
-                    multipleSelection: []
+                    multipleSelection: [],
+                    phone:""
                 },
                 sources: [
                     {
@@ -567,7 +570,8 @@
                         sources: -1,
                         status: -1,
                         codeStatus: -1,
-                        multipleSelection: []
+                        multipleSelection: [],
+                        phone:""
                     };
                     this.$refs.children.initPageNo();
                     this.init(1);

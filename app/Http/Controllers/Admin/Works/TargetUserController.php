@@ -48,6 +48,10 @@ class TargetUserController extends BaseController
             $where[] = ['invote_codes.status', $form['codeStatus']];
         }
 
+        if (!empty($form['phone'])) {
+            $where[] = ['users.phoneNumber', 'like', '%' . $form['phone'] . '%'];
+        }
+
 
         $data = TargetUser::where($where)
             ->skip($page)->take($size)
@@ -66,14 +70,15 @@ class TargetUserController extends BaseController
 
         foreach ($data as &$datum) {
             if ($datum['status'] == 0 && $datum['works_info']) {
-                $workinfo = json_decode($datum['works_info'] , 1);
-                $img = array_column($workinfo , 'url');
+                $workinfo = json_decode($datum['works_info'], 1);
+                $img = array_column($workinfo, 'url');
                 $datum['works_info'] = json_encode($img);
             }
         }
 
         $count = TargetUser::where($where)
             ->leftJoin('invote_codes', 'invote_codes.id', '=', 'target_users.invote_code_id')
+            ->leftJoin('users', 'users.id', '=', 'target_users.user_id')
             ->count();
 
         return response()->json(compact('data', 'count'));
