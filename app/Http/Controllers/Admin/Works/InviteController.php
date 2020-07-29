@@ -79,9 +79,9 @@ class InviteController extends BaseController
                 'users.nickname', 'users.id as user_id', 'users.photographer_id',
                 \DB::raw('(select COUNT(*) FROM photographer_works WHERE `photographer_id` = users.photographer_id and status = 200) as `photographer_works_count`'),
                 \DB::raw('(select COUNT(*) FROM photographer_work_sources
-                 WHERE `photographer_work_id` in (select id FROM photographer_works WHERE `photographer_id` = users.photographer_id) and status = 200) 
+                 WHERE `photographer_work_id` in (select id FROM photographer_works WHERE `photographer_id` = users.photographer_id and status = 200) and status = 200) 
                  as `photographer_works_resource_count`'),
-                \DB::raw("(select count(*) from operate_records where `photographer_id` = users.photographer_id and `operate_type` = 'view' ) as photographer_works_visit_count")
+                \DB::raw("(select count(*) from visitors where `photographer_id` = users.photographer_id  ) as photographer_works_visit_count")
             ])
             ->skip($page)
             ->take($size)

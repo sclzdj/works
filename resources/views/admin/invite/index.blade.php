@@ -184,6 +184,29 @@
                                     </template>
                                 </el-table-column>
 
+                                <el-table-column
+                                        prop="remark"
+                                        label="备注名">
+
+                                    <template slot-scope="scope">
+
+                                        <div v-if="scope.row.status == '已创建'">
+                                            <a target="_blank"
+                                               v-bind:href="'/admin/works/photographerWork?photographer_id='+scope.row.photographer_id"><span
+                                                        v-text="scope.row.nickname"></span></a>
+                                        </div>
+
+                                        <div v-else>
+                                            <span v-text="scope.row.nickname"></span>
+                                        </div>
+
+                                        <el-input style="width: 150px" @blur="updateRemark(scope.row)"
+                                                  v-model="scope.row.remark" placeholder="请输入内容"></el-input>
+
+                                    </template>
+
+                                </el-table-column>
+
                                 <el-table-column label="项目数据">
                                     <template slot-scope="scope">
                                         项目数:<span v-text="scope.row.photographer_works_count"></span><br/>
@@ -208,28 +231,7 @@
                                 >
                                 </el-table-column>
 
-                                <el-table-column
-                                    prop="remark"
-                                    label="备注名">
 
-                                    <template slot-scope="scope">
-
-                                        <div v-if="scope.row.status == '已创建'">
-                                            <a target="_blank"
-                                               v-bind:href="'/admin/works/photographerWork?photographer_id='+scope.row.photographer_id"><span
-                                                    v-text="scope.row.nickname"></span></a>
-                                        </div>
-
-                                        <div v-else>
-                                            <span v-text="scope.row.nickname"></span>
-                                        </div>
-
-                                        <el-input style="width: 150px" @blur="updateRemark(scope.row)"
-                                                  v-model="scope.row.remark" placeholder="请输入内容"></el-input>
-
-                                    </template>
-
-                                </el-table-column>
 
 
                                 {{--                                <el-table-column--}}
