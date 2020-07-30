@@ -164,7 +164,7 @@
                 <input class="input" type="text" v-model="inputData" :placeholder="inputPlace" id="inputs" maxlength="6" style="text-transform:uppercase;caret-color: #323232;-webkit-appearance: none;appearance: none;" @focus="inputfocus" @blur="inputblur" @input="inputWrite" adjust-position="false" />
 
                 <div style="width: 10rem;height: 14px;margin: auto;margin-top: 0.533333rem;display: flex;justify-content: center;">
-                    <div class="" style="font-size:14px;font-family:PingFang SC;font-weight:500;color:rgba(255,255,255,1);height: 0.4rem;line-height: 0.4rem;margin-top: 0.013333rem;user-select:none;-ms-user-select:none;-moz-user-select:none;-webkit-user-select:none;" @click="redirectTo">申请参加内测</div>
+                    <div class="" style="font-size:14px;font-family:PingFang SC;font-weight:500;color:rgba(255,255,255,1);height: 0.4rem;line-height: 0.4rem;margin-top: 0.013333rem;user-select:none;-ms-user-select:none;-moz-user-select:none;-webkit-user-select:none;" @click="redirectTo">怎样获取邀请码</div>
                 </div>
             </div>
         </div>
@@ -212,7 +212,7 @@
                   
                        'user_id': '{{$data['userId']}}',
 
-                       'source' : 2
+                       'source' : 1
 
                     };
 
