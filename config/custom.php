@@ -59,7 +59,7 @@ return [
                 'crowd_raising_result' => ['TemplateCode' => 'SMS_184221063', 'SignName' => '云作品'],//众筹结果通知
                 'register_code_generate' => ['TemplateCode' => 'SMS_184221131', 'SignName' => '云作品'],//注册码生成通知
                 'register_success' => ['TemplateCode' => 'SMS_196651659', 'SignName' => '云作品'],//注册成功通知
-                'service_open' => ['TemplateCode' => 'SMS_196653046', 'SignName' => '云作品'],//服务开启通知
+                'service_open' => ['TemplateCode' => 'SMS_198670917', 'SignName' => '云作品'],//服务开启通知
                 'visit_remind_1' => ['TemplateCode' => 'SMS_196617995', 'SignName' => '云作品'],//来访提醒1
                 'visit_remind_2' => ['TemplateCode' => 'SMS_196642993', 'SignName' => '云作品'],//来访提醒2
                 'report_generate' => ['TemplateCode' => 'SMS_196642982', 'SignName' => '云作品'],//报告生成通知

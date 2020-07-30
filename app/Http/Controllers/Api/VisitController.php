@@ -300,7 +300,7 @@ class VisitController extends UserGuardController
                                 'data' => [
                                     'first' => '快打开云作品，看看你的前3位访客吧！',
                                     'keyword1' => '已开启',
-                                    'keyword2' => '暗中观察访客',
+                                    'keyword2' => '访客通讯录',
                                     'remark' => '',
                                 ],
                             ]
