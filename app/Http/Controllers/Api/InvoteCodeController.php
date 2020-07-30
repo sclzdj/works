@@ -267,8 +267,9 @@ class InvoteCodeController extends BaseController
             return $this->responseParseArray($this->data);
         }
 
+
         $code = InvoteCode::where('user_id', $info->id)
-            ->where('status', 2)
+            //->where('status', 2)
             ->get();
 
         if ($code->isEmpty()) {
