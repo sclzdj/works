@@ -2,6 +2,7 @@
 namespace App\Model\Index;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * 交付助手作品文件模型
@@ -11,5 +12,12 @@ use Illuminate\Database\Eloquent\Model;
  */
 class DeliverWorkFile extends Model
 {
+    use SoftDeletes;
 
+    /**
+     * 需要转换成日期的属性
+     *
+     * @var array
+     */
+    protected $dates = ['deleted_at'];
 }

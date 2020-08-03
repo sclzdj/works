@@ -17,6 +17,7 @@ use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\User;
 use App\Servers\ErrLogServer;
 use App\Servers\SystemServer;
+use App\Servers\BaiduServer;
 
 /**
  * 百度网盘通用
@@ -32,6 +33,7 @@ class BaiduController extends UserGuardController
     public function isOauth()
     {
         $oauth = 0;
+        $username = '';
         $access_token = BaiduOauth::where(
             [
                 ['user_id', '=', auth($this->guard)->id()],
@@ -40,9 +42,16 @@ class BaiduController extends UserGuardController
         )->value('access_token');
         if ($access_token) {
             $oauth = 1;
+
+            if (isset($_REQUEST['is_display_username']) && $_REQUEST['is_display_username'] == 1) {//add by jsyzchenchen@gmail.com, 为了显示绑定百度账号的昵称，2020/08/01
+                $uinfo = BaiduServer::getNasUInfo($access_token);
+                if ($uinfo && isset($uinfo['baidu_name'])) {
+                    $username = $uinfo['baidu_name'];
+                }
+            }
         }
 
-        return $this->responseParseArray(compact('oauth'));
+        return $this->responseParseArray(compact('oauth', 'username'));
     }
 
     /**
