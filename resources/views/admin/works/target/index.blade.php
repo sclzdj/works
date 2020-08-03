@@ -244,6 +244,11 @@
                                     label="邀请码">
                                 </el-table-column>
 
+                                <el-table-column
+                                        prop="invote_type"
+                                        label="邀请码的类型">
+                                </el-table-column>
+
 
                                 <el-table-column
                                     fixed="right"
