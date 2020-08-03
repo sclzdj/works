@@ -44,6 +44,14 @@ class TargetUserController extends BaseController
         } elseif ($form['status'] == 2)
             $where[] = ['target_users.invote_code_id', 0];
 
+        if ($form['codeStatus'] != -1) {
+            $where[] = ['invote_codes.status', $form['codeStatus']];
+        }
+
+        if (!empty($form['phone'])) {
+            $where[] = ['users.phoneNumber', 'like', '%' . $form['phone'] . '%'];
+        }
+
 
         $data = TargetUser::where($where)
             ->skip($page)->take($size)
@@ -51,8 +59,9 @@ class TargetUserController extends BaseController
             ->leftJoin('users', 'users.id', '=', 'target_users.user_id')
             ->leftJoin('photographer_ranks', 'photographer_ranks.id', '=', 'target_users.rank_id')
             ->orderBy('created_at', 'desc')
-            ->select('target_users.*', 'invote_codes.code',
+            ->select('target_users.*', 'invote_codes.code', 'invote_codes.type as invote_type',
                 'invote_codes.status as invote_status',
+                'invote_codes.type as invote_type',
                 'users.nickname', 'users.phoneNumber',
                 'users.city',
                 'users.province', 'users.gender', 'users.photographer_id',
@@ -62,13 +71,16 @@ class TargetUserController extends BaseController
 
         foreach ($data as &$datum) {
             if ($datum['status'] == 0 && $datum['works_info']) {
-                $workinfo = json_decode($datum['works_info'] , 1);
-                $img = array_column($workinfo , 'url');
+                $workinfo = json_decode($datum['works_info'], 1);
+                $img = array_column($workinfo, 'url');
                 $datum['works_info'] = json_encode($img);
             }
         }
 
-        $count = TargetUser::where($where)->count();
+        $count = TargetUser::where($where)
+            ->leftJoin('invote_codes', 'invote_codes.id', '=', 'target_users.invote_code_id')
+            ->leftJoin('users', 'users.id', '=', 'target_users.user_id')
+            ->count();
 
         return response()->json(compact('data', 'count'));
     }

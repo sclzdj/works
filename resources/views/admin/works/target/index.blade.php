@@ -10,10 +10,12 @@
         .wd {
             width: 150px;
         }
+
         .boxrow {
             display: inline-block;
             width: 100%;
         }
+
         .el-row {
             margin-bottom: 20px;
         }
@@ -84,10 +86,10 @@
                         </li>
                         <li>
                             <button type="button" data-toggle="block-option" data-action="fullscreen_toggle"><i
-                                        class="si si-size-fullscreen"></i></button>
+                                    class="si si-size-fullscreen"></i></button>
                         </li>
                     </ul>
-                    <h3 class="block-title">标签管理</h3>
+                    <h3 class="block-title">目标用户管理</h3>
                 </div>
                 <div class="tab-content" id="app">
                     <div class="tab-pane active">
@@ -95,10 +97,19 @@
 
                             <el-select style="width: 150px" v-model="form.sources" placeholder="来源">
                                 <el-option
-                                        v-for="item in sources"
-                                        :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value">
+                                    v-for="item in sources"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                                </el-option>
+                            </el-select>
+
+                            <el-select style="width: 150px" v-model="form.codeStatus" placeholder="选择状态">
+                                <el-option
+                                    v-for="item in status"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
                                 </el-option>
                             </el-select>
 
@@ -106,13 +117,15 @@
                                 <el-option label="选择推送" :value="-1">选择推送</el-option>
                                 <el-option label="推送" :value="1">推送</el-option>
                                 <el-option label="未推送" :value="2">未推送</el-option>
-{{--                                <el-option--}}
-{{--                                        v-for="item in status"--}}
-{{--                                        :key="item.value"--}}
-{{--                                        :label="item.label"--}}
-{{--                                        :value="item.value">--}}
-{{--                                </el-option>--}}
+                                {{--                                <el-option--}}
+                                {{--                                        v-for="item in status"--}}
+                                {{--                                        :key="item.value"--}}
+                                {{--                                        :label="item.label"--}}
+                                {{--                                        :value="item.value">--}}
+                                {{--                                </el-option>--}}
                             </el-select>
+
+                            <el-input v-model="form.phone" style="width: 200px" placeholder="电话搜索"></el-input>
 
                             <el-button type="primary" @click="search" icon="el-icon-search">搜索</el-button>
                             <el-button type="primary" @click="clear" icon="el-icon-close">清除</el-button>
@@ -120,13 +133,12 @@
                         </div>
                         <div class="block-content">
                             <el-table
-                                    :data="data"
-                                    style="width: 100%"
+                                :data="data"
+                                style="width: 100%"
                             >
                                 <el-table-column type="expand">
                                     <template slot-scope="props">
                                         <el-form label-position="left" inline class="demo-table-expand">
-
 
 
                                             <el-form-item label="来源" class="boxrow">
@@ -144,75 +156,73 @@
                                             <el-form-item label="作品图片:" class="boxrow">
                                                 <div class="demo-image__preview" v-if="props.row.works_info">
                                                     <el-image
-                                                            style="width: 100px; height: 100px"
-                                                            :src="props.row.works_info[0]"
-                                                            :preview-src-list="props.row.works_info">
+                                                        style="width: 100px; height: 100px"
+                                                        :src="props.row.works_info[0]"
+                                                        :preview-src-list="props.row.works_info">
                                                     </el-image>
                                                 </div>
                                             </el-form-item>
 
 
+                                            {{--                                            <el-form-item label="地址" class="boxrow">--}}
+                                            {{--                                                <span>@{{ props.row.address }}</span>--}}
+                                            {{--                                            </el-form-item>--}}
 
-{{--                                            <el-form-item label="地址" class="boxrow">--}}
-{{--                                                <span>@{{ props.row.address }}</span>--}}
-{{--                                            </el-form-item>--}}
-
-{{--                                            <el-form-item label="城市" class="boxrow">--}}
-{{--                                                <span>@{{ props.row.city }}</span>--}}
-{{--                                            </el-form-item>--}}
-
-
-{{--                                            <el-form-item label="性别" class="boxrow">--}}
-{{--                                                <span>@{{ props.row.gender }}</span>--}}
-{{--                                            </el-form-item>--}}
+                                            {{--                                            <el-form-item label="城市" class="boxrow">--}}
+                                            {{--                                                <span>@{{ props.row.city }}</span>--}}
+                                            {{--                                            </el-form-item>--}}
 
 
+                                            {{--                                            <el-form-item label="性别" class="boxrow">--}}
+                                            {{--                                                <span>@{{ props.row.gender }}</span>--}}
+                                            {{--                                            </el-form-item>--}}
 
-{{--                                            <el-form-item label="微信号" class="boxrow">--}}
-{{--                                                <span>@{{ props.row.wechat }}</span>--}}
-{{--                                            </el-form-item>--}}
+
+
+                                            {{--                                            <el-form-item label="微信号" class="boxrow">--}}
+                                            {{--                                                <span>@{{ props.row.wechat }}</span>--}}
+                                            {{--                                            </el-form-item>--}}
 
 
                                         </el-form>
                                     </template>
                                 </el-table-column>
                                 <el-table-column
-                                        type="selection"
-                                        >
-                                </el-table-column>
-
-                                <el-table-column label="状态"  prop="invote_status">
-
+                                    type="selection"
+                                >
                                 </el-table-column>
 
 
                                 {{--                                <el-table-column--}}
-{{--                                        label="状态"--}}
-{{--                                        >--}}
-{{--                                    <template slot-scope="scope">--}}
-{{--                                        <el-select @change="changeStatus(scope.row)" v-model="scope.row.status"--}}
-{{--                                                   placeholder="请选择">--}}
-{{--                                            <el-option--}}
-{{--                                                    v-for="item in status"--}}
-{{--                                                    :key="item.value"--}}
-{{--                                                    :label="item.label"--}}
-{{--                                                    :value="item.value">--}}
-{{--                                            </el-option>--}}
-{{--                                        </el-select>--}}
-{{--                                    </template>--}}
-{{--                                </el-table-column>--}}
+                                {{--                                        label="状态"--}}
+                                {{--                                        >--}}
+                                {{--                                    <template slot-scope="scope">--}}
+                                {{--                                        <el-select @change="changeStatus(scope.row)" v-model="scope.row.status"--}}
+                                {{--                                                   placeholder="请选择">--}}
+                                {{--                                            <el-option--}}
+                                {{--                                                    v-for="item in status"--}}
+                                {{--                                                    :key="item.value"--}}
+                                {{--                                                    :label="item.label"--}}
+                                {{--                                                    :value="item.value">--}}
+                                {{--                                            </el-option>--}}
+                                {{--                                        </el-select>--}}
+                                {{--                                    </template>--}}
+                                {{--                                </el-table-column>--}}
 
-                                <el-table-column label="姓名" >
+                                <el-table-column label="姓名">
                                     <template slot-scope="scope">
                                         <div v-if="scope.row.invote_status == '已创建'">
-                                            <a  target="_blank" v-bind:href="'/admin/works/photographerWork?photographer_id='+scope.row.photographer_id">
+                                            <a target="_blank"
+                                               v-bind:href="'/admin/works/photographerWork?photographer_id='+scope.row.photographer_id">
                                                 <span v-text="scope.row.nickname"></span><br/>
-                                                <span style="color:#0f8496;font-size: 12px" v-text="scope.row.last_name"></span>
+                                                <span style="color:#0f8496;font-size: 12px"
+                                                      v-text="scope.row.last_name"></span>
                                             </a>
                                         </div>
                                         <div v-else>
                                             <span v-text="scope.row.nickname"></span><br/>
-                                            <span style="color:#0f8496;font-size: 12px" v-text="scope.row.last_name"></span>
+                                            <span style="color:#0f8496;font-size: 12px"
+                                                  v-text="scope.row.last_name"></span>
                                         </div>
 
                                     </template>
@@ -220,24 +230,30 @@
                                 </el-table-column>
 
                                 <el-table-column
-                                        prop="phoneNumber"
-                                        label="手机号">
+                                    prop="phoneNumber"
+                                    label="手机号">
+                                </el-table-column>
+
+                                <el-table-column label="状态" prop="invote_status">
+
                                 </el-table-column>
 
 
                                 <el-table-column
-                                        prop="code"
-                                        label="邀请码">
+                                    prop="code"
+                                    label="邀请码">
+                                </el-table-column>
+
+                                <el-table-column
+                                        prop="invote_type"
+                                        label="邀请码的类型">
                                 </el-table-column>
 
 
-
-
-
                                 <el-table-column
-                                        fixed="right"
-                                        label="操作"
-                                        width="100">
+                                    fixed="right"
+                                    label="操作"
+                                    width="100">
                                     <template slot-scope="scope">
                                         <el-button @click="handleDelete(scope.$index, scope.row)" type="text"
                                                    size="small">删除
@@ -397,7 +413,7 @@
                     handler: function () {
                         let that = this;
                         this.pages = Math.ceil(that.total / that.pageSize)
-                        console.log(that.total , that.pageSize ,Math.ceil(that.total / that.pageSize))
+                        console.log(that.total, that.pageSize, Math.ceil(that.total / that.pageSize))
                     }
                 }
             },
@@ -415,7 +431,9 @@
                 form: {
                     sources: -1,
                     status: -1,
-                    multipleSelection: []
+                    codeStatus: -1,
+                    multipleSelection: [],
+                    phone:""
                 },
                 sources: [
                     {
@@ -429,7 +447,7 @@
                         value: 1,
                         label: '申请页点击'
                     },
-                     {
+                    {
                         value: 2,
                         label: '用户页点击'
                     }
@@ -445,18 +463,14 @@
                     },
                     {
                         value: 0,
-                        label: '未处理'
+                        label: '已生成'
                     }, {
                         value: 1,
-                        label: '已驳回'
+                        label: '已绑定'
                     },
                     {
                         value: 2,
-                        label: '已通过'
-                    },
-                    {
-                        value: 3,
-                        label: '已发送'
+                        label: '已校验'
                     },
                     {
                         value: 4,
@@ -525,9 +539,10 @@
                                         break;
                                 }
 
-                             //   that.data[i].nickname = that.data[i].last_name.length > 0 ? that.data[i].last_name + ' （' + that.data[i].nickname + '）': that.data[i].nickname
+                                //   that.data[i].nickname = that.data[i].last_name.length > 0 ? that.data[i].last_name + ' （' + that.data[i].nickname + '）': that.data[i].nickname
 
-                                that.data[i].city = that.data[i].province + ' ' + that.data[i].city;;
+                                that.data[i].city = that.data[i].province + ' ' + that.data[i].city;
+                                ;
                                 if (that.data[i].works_info) {
                                     that.data[i].works_info = JSON.parse(that.data[i].works_info)
                                 }
@@ -559,6 +574,9 @@
                     this.form = {
                         sources: -1,
                         status: -1,
+                        codeStatus: -1,
+                        multipleSelection: [],
+                        phone:""
                     };
                     this.$refs.children.initPageNo();
                     this.init(1);
@@ -611,7 +629,7 @@
                     var that = this;
                     var formData = {
                         form: row,
-                        type:"createInvote"
+                        type: "createInvote"
                     };
                     $.ajax({
                         url: '/admin/target',

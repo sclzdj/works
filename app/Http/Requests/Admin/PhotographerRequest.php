@@ -39,11 +39,11 @@ class PhotographerRequest extends FormRequest
             $rules = [
                 'name' => 'required|max:10',
                 'gender' => 'integer|in:0,1,2',
-                'province' => 'required|integer|exists:system_areas,id',
-                'city' => 'required|integer|exists:system_areas,id',
-                'area' => 'required|integer|exists:system_areas,id',
-                'photographer_rank_id' => 'required|exists:photographer_ranks,id',
-                'wechat' => 'required|max:50',
+                'province' => 'nullable|integer|exists:system_areas,id',
+                'city' => 'nullable|integer|exists:system_areas,id',
+                'area' => 'nullable|integer|exists:system_areas,id',
+                'photographer_rank_id' => 'nullable|exists:photographer_ranks,id',
+                'wechat' => 'max:50',
                 'mobile' => 'required|regex:/^1\d{10}$/',
             ];
         } else {

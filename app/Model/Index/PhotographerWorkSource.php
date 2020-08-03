@@ -152,9 +152,13 @@ class PhotographerWorkSource extends Model
             $qiniuPfopRichSourceJob->save();
             $qiniuPfopRichSourceJobLog = QiniuPfopRichSourceJobLog::where(['id' => $qiniuPfopRichSourceJob->id])->first(
             );
-            $qiniuPfopRichSourceJobLog->status = 1;
-            $qiniuPfopRichSourceJobLog->run_at = date('Y-m-d H:i:s');
-            $qiniuPfopRichSourceJobLog->save();
+
+            if ($qiniuPfopRichSourceJobLog){
+                $qiniuPfopRichSourceJobLog->status = 1;
+                $qiniuPfopRichSourceJobLog->run_at = date('Y-m-d H:i:s');
+                $qiniuPfopRichSourceJobLog->save();
+            }
+
             self::generateWatermark($photographer_work_source_id, $qiniuPfopRichSourceJob->id);
         }
     }
@@ -182,13 +186,13 @@ class PhotographerWorkSource extends Model
         )->orderBy('created_at', 'desc')->orderBy('id', 'desc')->first();
         $qiniuPfopRichSourceJobLog = QiniuPfopRichSourceJobLog::where('id', $qiniuPfopRichSourceJob->id)->first();
         $at = date('Y-m-d H:i:s');
-        $qiniuPfopRichSourceJobLog->response_at = $at;
-        $qiniuPfopRichSourceJobLog->qiniu_response = json_encode($qiniu_response, JSON_UNESCAPED_UNICODE);
+        if ($qiniuPfopRichSourceJobLog) $qiniuPfopRichSourceJobLog->response_at = $at;
+        if ($qiniuPfopRichSourceJobLog) $qiniuPfopRichSourceJobLog->qiniu_response = json_encode($qiniu_response, JSON_UNESCAPED_UNICODE);
         if ($qiniu_response['code'] != 0) {
             $qiniuPfopRichSourceJob->status = 500;
-            $qiniuPfopRichSourceJobLog->status = 500;
+            if ($qiniuPfopRichSourceJobLog) $qiniuPfopRichSourceJobLog->status = 500;
             $qiniuPfopRichSourceJob->save();
-            $qiniuPfopRichSourceJobLog->save();
+            if ($qiniuPfopRichSourceJobLog) $qiniuPfopRichSourceJobLog->save();
 
             return ErrLogServer::qiniuNotifyFop(
                 $step,
@@ -202,9 +206,9 @@ class PhotographerWorkSource extends Model
             (isset($qiniu_response['items'][0]) && $qiniu_response['items'][0]['code'] != 0)
         ) {
             $qiniuPfopRichSourceJob->status = 500;
-            $qiniuPfopRichSourceJobLog->status = 500;
+            if ($qiniuPfopRichSourceJobLog) $qiniuPfopRichSourceJobLog->status = 500;
             $qiniuPfopRichSourceJob->save();
-            $qiniuPfopRichSourceJobLog->save();
+            if ($qiniuPfopRichSourceJobLog) $qiniuPfopRichSourceJobLog->save();
 
             return ErrLogServer::qiniuNotifyFop(
                 $step,
@@ -217,11 +221,11 @@ class PhotographerWorkSource extends Model
         $buckets = config('custom.qiniu.buckets');
         $domain = $buckets[$bucket]['domain'] ?? '';
         $qiniuPfopRichSourceJob->status = 200;
-        $qiniuPfopRichSourceJobLog->status = 200;
-        $qiniuPfopRichSourceJobLog->rich_key = $qiniu_response['items'][0]['key'];
-        $qiniuPfopRichSourceJobLog->rich_url = $domain.'/'.$qiniu_response['items'][0]['key'];
+        if ($qiniuPfopRichSourceJobLog)  $qiniuPfopRichSourceJobLog->status = 200;
+        if ($qiniuPfopRichSourceJobLog)  $qiniuPfopRichSourceJobLog->rich_key = $qiniu_response['items'][0]['key'];
+        if ($qiniuPfopRichSourceJobLog)  $qiniuPfopRichSourceJobLog->rich_url = $domain.'/'.$qiniu_response['items'][0]['key'];
         $qiniuPfopRichSourceJob->save();
-        $qiniuPfopRichSourceJobLog->save();
+        if ($qiniuPfopRichSourceJobLog) $qiniuPfopRichSourceJobLog->save();
         QiniuPfopRichSourceJob::where('photographer_work_source_id', $photographer_work_source_id)->where(
             'id',
             '<',

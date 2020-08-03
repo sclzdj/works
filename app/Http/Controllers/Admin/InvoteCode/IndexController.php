@@ -59,7 +59,10 @@ class IndexController extends BaseController
             $where[] = array("created_at", "<=", $form['created_at'][1].' 23:59:59');
         }
 
-        $data = InvoteCode::where($where)->skip($page)->take($size)->orderBy('created_at', 'desc')->get();
+        $data = InvoteCode::where($where)
+            ->skip($page)->take($size)
+            ->orderBy('created_at', 'desc')
+            ->get();
         $count = InvoteCode::where($where)->count();
 
         foreach ($data as &$datum) {

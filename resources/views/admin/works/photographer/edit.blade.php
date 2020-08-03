@@ -97,7 +97,6 @@
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-area">
                                     <label class="col-md-1 control-label form-option-line">
-                                        <span class="form-option-require"></span>
                                         城市
                                     </label>
                                     <div class="col-md-2 form-option-line">
@@ -143,7 +142,6 @@
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12"
                                      id="create-photographer_rank_id">
                                     <label class="col-md-1 control-label form-option-line">
-                                        <span class="form-option-require"></span>
                                         头衔
                                     </label>
                                     <input type="hidden" name="photographer_rank_id"
@@ -167,7 +165,6 @@
                                 </div>
                                 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12" id="create-wechat">
                                     <label class="col-md-1 control-label form-option-line">
-                                        <span class="form-option-require"></span>
                                         微信号
                                     </label>
                                     <div class="col-md-6 form-option-line">
