@@ -113,12 +113,12 @@ class InvoteCodeController extends BaseController
                         $this->data['result'] = true;
                         $this->data['msg'] = "已经绑定过创建码";
 
-                        InvoteCode::where('user_id' ,  $userInfo->id)->delete();
-                        InvoteCode::where('code', $code)->update([
-                            "user_id" => $userInfo->id,
-                            'is_use' => 1,
-                            'status' => 2
-                        ]);
+//                        InvoteCode::where('user_id', $userInfo->id)->delete();
+//                        InvoteCode::where('code', $code)->update([
+//                            "user_id" => $userInfo->id,
+//                            'is_use' => 1,
+//                            'status' => 2
+//                        ]);
                     }
 
                     if (empty($codeInfo->user_id) && InvoteCode::where('user_id', $userInfo->id)->get()->IsEmpty()
@@ -179,9 +179,14 @@ class InvoteCodeController extends BaseController
         if ($targetUser->invote_code_id != 0) {
             $originInvoteCode = $targetUser->invote_code_id;
             InvoteCode::where('id', $originInvoteCode)->delete();
+            TargetUser::where('user_id', $user_id)->delete();
+            \Log::error("删除:" . var_export([
+                    'invote_code_id' => $originInvoteCode,
+                    'user_id' => $user_id
+                ], 1));
         }
 
-        $targetUser = TargetUser::where('user_id', $user_id)->delete();
+
 //        $targetUser = TargetUser::where('user_id', $user_id)->update([
 //            'invote_code_id' => $code_id
 //        ]);

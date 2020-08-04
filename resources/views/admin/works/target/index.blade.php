@@ -187,10 +187,18 @@
                                         </el-form>
                                     </template>
                                 </el-table-column>
+
                                 <el-table-column
-                                    type="selection"
-                                >
+                                        prop="user_id"
+                                        label="用户id">
                                 </el-table-column>
+
+{{--                                <el-table-column--}}
+{{--                                    type="selection"--}}
+{{--                                >--}}
+{{--                                </el-table-column>--}}
+
+
 
 
                                 {{--                                <el-table-column--}}
