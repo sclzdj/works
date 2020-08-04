@@ -42,9 +42,9 @@ class TargetUserController extends BaseController
         }
 
         if ($form['status'] == 1) {
-            $where[] = ['target_users.invote_code_id', '!=', 0];
+            $where[] = ['target_users.status', 1];
         } elseif ($form['status'] == 2)
-            $where[] = ['target_users.invote_code_id', 0];
+            $where[] = ['target_users.status', '!=', 1];
 
         if ($form['codeStatus'] != -1) {
             $where[] = ['invote_codes.status', $form['codeStatus']];
@@ -100,7 +100,8 @@ class TargetUserController extends BaseController
                 $user = User::where('id', $data['user_id'])->first();
                 $invoteCode = $this->createInvote($data['user_id']);
                 $result = TargetUser::where('id', $data['id'])->update([
-                    'invote_code_id' => $invoteCode
+                    'invote_code_id' => $invoteCode,
+                    'status' => 1,
                 ]);
                 $msg = "";
                 $data = [

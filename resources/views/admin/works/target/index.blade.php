@@ -190,14 +190,14 @@
 
 
                                 <el-table-column
-                                        prop="user_id"
-                                        label="用户id">
+                                    prop="user_id"
+                                    label="用户id">
                                 </el-table-column>
 
-{{--                                <el-table-column--}}
-{{--                                    type="selection"--}}
-{{--                                >--}}
-{{--                                </el-table-column>--}}
+                                {{--                                <el-table-column--}}
+                                {{--                                    type="selection"--}}
+                                {{--                                >--}}
+                                {{--                                </el-table-column>--}}
 
 
 
@@ -255,8 +255,8 @@
                                 </el-table-column>
 
                                 <el-table-column
-                                        prop="invote_type"
-                                        label="邀请码的类型">
+                                    prop="invote_type"
+                                    label="邀请码的类型">
                                 </el-table-column>
 
 
@@ -265,13 +265,17 @@
                                     label="操作"
                                     width="100">
                                     <template slot-scope="scope">
+
+                                        <el-button
+                                            v-if="scope.row.status != 1 && scope.row.invote_status != '已创建' && scope.row.invote_status != '已校验' "
+                                            @click="changeStatus(scope.$index, scope.row)" type="text"
+                                            size="small">推送
+                                        </el-button>
                                         <el-button @click="handleDelete(scope.$index, scope.row)" type="text"
                                                    size="small">删除
                                         </el-button>
 
-                                        <el-button v-if="scope.row.invote_code_id == 0" @click="changeStatus(scope.$index, scope.row)" type="text"
-                                                   size="small">推送
-                                        </el-button>
+
                                     </template>
                                 </el-table-column>
 
@@ -443,7 +447,7 @@
                     status: -1,
                     codeStatus: -1,
                     multipleSelection: [],
-                    phone:""
+                    phone: ""
                 },
                 sources: [
                     {
@@ -586,7 +590,7 @@
                         status: -1,
                         codeStatus: -1,
                         multipleSelection: [],
-                        phone:""
+                        phone: ""
                     };
                     this.$refs.children.initPageNo();
                     this.init(1);
@@ -650,6 +654,7 @@
                                 row.invote_code_id = response.data.invote_code_id;
                                 row.code = response.data.code;
                                 row.invote_status = "已绑定";
+                                row.status = 1;
                             } else {
                                 that.$message.error(response.msg);
                             }
