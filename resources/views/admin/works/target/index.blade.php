@@ -187,14 +187,21 @@
                                         </el-form>
                                     </template>
                                 </el-table-column>
+
+
+                                <el-table-column
+                                        prop="user_id"
+                                        label="用户id">
+                                </el-table-column>
+
 {{--                                <el-table-column--}}
 {{--                                    type="selection"--}}
 {{--                                >--}}
 {{--                                </el-table-column>--}}
-                                <el-table-column
-                                    prop="user_id"
-                                    label="用户id">
-                                </el-table-column>
+
+
+
+
 
                                 {{--                                <el-table-column--}}
                                 {{--                                        label="状态"--}}
@@ -245,6 +252,11 @@
                                 <el-table-column
                                     prop="code"
                                     label="邀请码">
+                                </el-table-column>
+
+                                <el-table-column
+                                        prop="invote_type"
+                                        label="邀请码的类型">
                                 </el-table-column>
 
 

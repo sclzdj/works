@@ -61,6 +61,7 @@ class TargetUserController extends BaseController
             ->orderBy('created_at', 'desc')
             ->select('target_users.*', 'invote_codes.code', 'invote_codes.type as invote_type',
                 'invote_codes.status as invote_status',
+                'invote_codes.type as invote_type',
                 'users.nickname', 'users.phoneNumber',
                 'users.city',
                 'users.province', 'users.gender', 'users.photographer_id',
