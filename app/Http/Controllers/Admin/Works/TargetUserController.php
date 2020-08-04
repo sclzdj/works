@@ -11,6 +11,8 @@ use App\Model\Index\HelpTags;
 use App\Model\Index\InvoteCode;
 use App\Model\Index\TargetUser;
 use App\Model\Index\Templates;
+use App\Model\Index\User;
+use App\Servers\AliSendShortMessageServer;
 use App\Servers\ArrServer;
 use Illuminate\Http\Request;
 
@@ -95,12 +97,7 @@ class TargetUserController extends BaseController
         switch ($type) {
             case "createInvote":
 
-                if (TargetUser::find($data['id'])->invote_code_id != 0) {
-                    $result = false;
-                    $msg = "用户已经分配的创建码";
-                    break;
-                }
-
+                $user = User::where('id', $data['user_id'])->first();
                 $invoteCode = $this->createInvote($data['user_id']);
                 $result = TargetUser::where('id', $data['id'])->update([
                     'invote_code_id' => $invoteCode
@@ -110,6 +107,36 @@ class TargetUserController extends BaseController
                     'invote_code_id' => $invoteCode,
                     'code' => InvoteCode::find($invoteCode)->code,
                 ];
+
+                $app = app('wechat.official_account');
+                $tmr = $app->template_message->send(
+                    [
+                        'touser' => $user->gh_openid,
+                        'template_id' => 'r7dzz9MM_KxzPeZRCdkswGUqMA_AgqgMVZercZ5WMgM',
+                        'url' => config('app.url'),
+                        'miniprogram' => [
+                            'appid' => config('wechat.payment.default.app_id'),
+//                            'pagepath' => 'subPage/crouwdPay/crouwdPay',
+                        ],
+                        'data' => [
+                            'first' => '恭喜你获得云作品试用资格！点击此处，即可开始创建',
+                            'keyword1' => '通过',
+                            'keyword2' => $user->nickname,
+                            'keyword3' => $data['code'],
+                            'remark' => '备注：云作品客服微信JUSHEKEJI',
+                        ],
+                    ]
+                );
+                $TemplateCodes = config('custom.send_short_message.ali.TemplateCodes');
+                $sendePhone = AliSendShortMessageServer::quickSendSms(
+                    $user->purePhoneNumber,
+                    $TemplateCodes,
+                    'send_invite_result',
+                    [
+                        'name' => $user->nickname,
+                        'code' => $data['code'],
+                    ]
+                );
                 break;
         }
 
