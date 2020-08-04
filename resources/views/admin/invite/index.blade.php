@@ -148,6 +148,14 @@
                                 style="width: 100%"
                                 @selection-change="handleSelectionChange"
                             >
+
+                                <el-table-column
+                                    prop="user_id"
+                                    label="用户id"
+                                    width="110px"
+                                    min-width="110px"
+                                >
+                                </el-table-column>
                                 {{--                                <el-table-column--}}
                                 {{--                                    type="selection"--}}
                                 {{--                                    width="55">--}}

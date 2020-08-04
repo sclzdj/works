@@ -187,11 +187,14 @@
                                         </el-form>
                                     </template>
                                 </el-table-column>
+{{--                                <el-table-column--}}
+{{--                                    type="selection"--}}
+{{--                                >--}}
+{{--                                </el-table-column>--}}
                                 <el-table-column
-                                    type="selection"
-                                >
+                                    prop="user_id"
+                                    label="用户id">
                                 </el-table-column>
-
 
                                 {{--                                <el-table-column--}}
                                 {{--                                        label="状态"--}}
@@ -254,7 +257,7 @@
                                                    size="small">删除
                                         </el-button>
 
-                                        <el-button @click="changeStatus(scope.$index, scope.row)" type="text"
+                                        <el-button v-if="scope.row.invote_code_id == 0" @click="changeStatus(scope.$index, scope.row)" type="text"
                                                    size="small">推送
                                         </el-button>
                                     </template>
