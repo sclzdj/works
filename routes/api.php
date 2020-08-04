@@ -203,8 +203,19 @@ $api->version(
                 $api->post('scene/inRecord' , 'SceneControler@inRecord');
 
                 // 微信相关
-                $api->get('wechat/qrcode' , 'WechatController@QRCode');
-                $api->get('wechat/miniprogramqrcode' , 'WechatController@miniProgramQRCode');
+                $api->get('wechat/qrcode', 'WechatController@QRCode');
+                $api->get('wechat/miniprogramqrcode', 'WechatController@miniProgramQRCode');
+
+                //交付助手
+                $api->post('deliver/works', 'DeliverController@createWork');
+                $api->get('deliver/works', 'DeliverController@getWorks');
+                $api->get('deliver/works/filelist', 'DeliverController@getWorkFileList');
+                $api->post('deliver/works/obtaintopan', 'DeliverController@obtainToPan');
+                $api->post('deliver/works/obtaintolocal', 'DeliverController@obtainToLocal');
+                $api->post('deliver/works/obtainremind', 'DeliverController@obtainRemindBySms');
+                $api->post('deliver/works/obtain', 'DeliverController@getWorksByObtainCode');
+                $api->get('deliver/works/{id}', 'DeliverController@getWork');
+                $api->delete('deliver/works/{id}', 'DeliverController@deleteWork');
             }
         );
     }

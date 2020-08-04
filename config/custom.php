@@ -36,6 +36,8 @@ return [
             'id' => '17131374',
             'apiKey' => '2n959zvKCVgAg0rQ1jiGwSGS',
             'secretKey' => 'T4GvSLtdjuZA64rf4KXsnFCGpLQwxMeY',
+            'appDir' => '/apps/云作品',
+            'appDirDisplay' => '/我的应用数据/云作品',
         ],
     ],
     /*发送短信*/
@@ -66,6 +68,7 @@ return [
                 'silent_activation_1' => ['TemplateCode' => 'SMS_177256162', 'SignName' => '云作品'],//沉默激活提醒1
                 'silent_activation_2' => ['TemplateCode' => 'SMS_177256161', 'SignName' => '云作品'],//沉默激活提醒2
                 'silent_activation_3' => ['TemplateCode' => 'SMS_177241303', 'SignName' => '云作品'],//沉默激活提醒3
+                'deliver_work_obtain' => ['TemplateCode' => 'SMS_184221131', 'SignName' => '云作品'],//交付助手客户提取作品通知
             ],
         ],
     ],

@@ -63,10 +63,10 @@ class WechatController extends BaseController
             'width' => $width,
         ]);
 
-        if (isset($response['errcode']) && $response['errcode'] != 0) {
-            Log::warning("gen miniProgramQRCode failed, wechat return:" . $response['errmsg']);
-            return $this->response->error('wechat return failed: '. $response['errmsg'], 500);
-        }
+//        if (isset($response['errcode']) && $response['errcode'] != 0) {
+//            Log::warning("gen miniProgramQRCode failed, wechat return:" . $response['errmsg']);
+//            return $this->response->error('wechat return failed: '. $response['errmsg'], 500);
+//        }
 
         $contents = $response->getBodyContents();
 
