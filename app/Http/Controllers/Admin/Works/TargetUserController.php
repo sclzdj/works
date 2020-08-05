@@ -108,26 +108,27 @@ class TargetUserController extends BaseController
                     'invote_code_id' => $invoteCode,
                     'code' => InvoteCode::find($invoteCode)->code,
                 ];
-
-                $app = app('wechat.official_account');
-                $tmr = $app->template_message->send(
-                    [
-                        'touser' => $user->gh_openid,
-                        'template_id' => 'r7dzz9MM_KxzPeZRCdkswGUqMA_AgqgMVZercZ5WMgM',
-                        'url' => config('app.url'),
-                        'miniprogram' => [
-                            'appid' => config('wechat.payment.default.app_id'),
+                if ($user->gh_openid) {
+                    $app = app('wechat.official_account');
+                    $tmr = $app->template_message->send(
+                        [
+                            'touser' => $user->gh_openid,
+                            'template_id' => 'r7dzz9MM_KxzPeZRCdkswGUqMA_AgqgMVZercZ5WMgM',
+                            'url' => config('app.url'),
+                            'miniprogram' => [
+                                'appid' => config('wechat.payment.default.app_id'),
 //                            'pagepath' => 'subPage/crouwdPay/crouwdPay',
-                        ],
-                        'data' => [
-                            'first' => '恭喜你获得云作品试用资格！点击此处，即可开始创建',
-                            'keyword1' => '通过',
-                            'keyword2' => $user->nickname,
-                            'keyword3' => $data['code'],
-                            'remark' => '备注：云作品客服微信JUSHEKEJI',
-                        ],
-                    ]
-                );
+                            ],
+                            'data' => [
+                                'first' => '恭喜你获得云作品试用资格！点击此处，即可开始创建',
+                                'keyword1' => '通过',
+                                'keyword2' => $user->nickname,
+                                'keyword3' => $data['code'],
+                                'remark' => '备注：云作品客服微信JUSHEKEJI',
+                            ],
+                        ]
+                    );
+                }
                 $TemplateCodes = config('custom.send_short_message.ali.TemplateCodes');
                 $sendePhone = AliSendShortMessageServer::quickSendSms(
                     $user->purePhoneNumber,

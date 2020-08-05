@@ -184,6 +184,8 @@ class InvoteCodeController extends BaseController
                     'invote_code_id' => $originInvoteCode,
                     'user_id' => $user_id
                 ], 1));
+        } else {
+            TargetUser::where('user_id', $user_id)->delete();
         }
 
 

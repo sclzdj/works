@@ -37,14 +37,14 @@ class TargetUserController extends BaseController
             }
 
             $target_user = (new TargetUser())->where('user_id', $request['user_id'])->first();
-            $Photographer = Photographer::where('id', $request['user_id'])->first();
-            if (!empty($Photographer)) {
-                $data = [
-                    'result' => false,
-                    'msg' => '用户已经是摄影师,不在是目标用户'
-                ];
-                return $this->responseParseArray($data);
-            }
+//            $Photographer = Photographer::where('id', $request['user_id'])->first();
+//            if (!empty($Photographer)) {
+//                $data = [
+//                    'result' => false,
+//                    'msg' => '用户已经是摄影师,不在是目标用户'
+//                ];
+//                return $this->responseParseArray($data);
+//            }
 
             if (empty($target_user)) {
                 $target_user = new TargetUser();
