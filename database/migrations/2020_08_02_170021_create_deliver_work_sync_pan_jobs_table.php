@@ -13,7 +13,7 @@ class CreateDeliveryWorkSyncPanJobsTable extends Migration
      */
     public function up()
     {
-        Schema::create('delivery_work_sync_pan_jobs', function (Blueprint $table) {
+        Schema::create('deliver_work_sync_pan_jobs', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedBigInteger('work_id')->comment('作品ID');
             $table->unsignedBigInteger('obtain_id')->comment('提取ID');
@@ -38,6 +38,6 @@ class CreateDeliveryWorkSyncPanJobsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('delivery_work_sync_pan_jobs');
+        Schema::dropIfExists('deliver_work_sync_pan_jobs');
     }
 }

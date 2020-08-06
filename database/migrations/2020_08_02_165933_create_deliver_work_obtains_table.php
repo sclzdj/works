@@ -13,7 +13,7 @@ class CreateDeliveryWorkObtainsTable extends Migration
      */
     public function up()
     {
-        Schema::create('delivery_work_obtains', function (Blueprint $table) {
+        Schema::create('deliver_work_obtains', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedBigInteger('work_id')->comment('作品ID');
             $table->string('phone', 32)->default('')->comment('提取人手机号');

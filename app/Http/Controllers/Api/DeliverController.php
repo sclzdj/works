@@ -79,13 +79,22 @@ class DeliverController extends UserGuardController
                 $choiceFileList[] = $file;
             }
 
+            $fileTotalSize += intval($file['size']);
+
             $dir = File::dirname($file["path"]);
             if (empty($dir) || $dir == "/" || $dir == ".") {
-                $fileTotalSize += intval($file['size']);
                 continue;
             }
             $dirs[] = $dir;
         }
+        //解决3层目录的情况 TODO 多层目录需要递归处理
+        foreach ($dirs as $dir) {
+            if (File::dirname($dir) != '/') {
+                $dirs[] = File::dirname($dir);
+            }
+        }
+        $dirs = array_unique($dirs);
+
         // 获取当前时间
         $currentTime = Carbon::now();
         $obtainExpiredAt = $currentTime->addDays(14)->toDateTimeString();
@@ -119,6 +128,7 @@ class DeliverController extends UserGuardController
                     $row['extension']  = '';
                     $row['etag']       = '';
                     $row['object_key'] = '';
+                    $row['file_type']  = 0;
                     $row['size']       = 0;
                     $row['pic_width']  = 0;
                     $row['pic_height'] = 0;
@@ -275,7 +285,7 @@ class DeliverController extends UserGuardController
      */
     public function getWork(Request $request)
     {
-        $workId = $request->input('work_id');
+        $workId = $request->route("id");
         if (empty($workId)) {
             Log::warning("param error");
             return $this->response->error("param error", 400);
@@ -308,7 +318,7 @@ class DeliverController extends UserGuardController
      */
     public function deleteWork(Request $request)
     {
-        $workId = $request->input('work_id');
+        $workId = $request->route("id");
         if (empty($workId)) {
             Log::warning("param error");
             return $this->response->error("param error", 400);
@@ -323,7 +333,7 @@ class DeliverController extends UserGuardController
         }
 
         //删除作品和作品文件
-        DB::transaction(function ($workId) {
+        DB::transaction(function () use ($workId) {
             //删除作品
             DeliverWork::destroy($workId);
 

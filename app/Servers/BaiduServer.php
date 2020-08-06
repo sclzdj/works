@@ -94,7 +94,7 @@ class BaiduServer
             return false;
         }
 
-        return $contents;
+        return $contentsArr;
     }
 
     /**

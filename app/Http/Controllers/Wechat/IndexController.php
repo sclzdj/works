@@ -29,7 +29,7 @@ class IndexController extends Controller
                         }
                     }
                 default:
-                    return "欢迎关注云作品！";
+                    return "";
                     break;
             }
         });
