@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateDeliveryWorkSyncPanJobsTable extends Migration
+class CreateDeliverWorkSyncPanJobsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -28,7 +28,7 @@ class CreateDeliveryWorkSyncPanJobsTable extends Migration
         });
 
         //表注释
-        DB::statement("ALTER TABLE `delivery_work_sync_pan_jobs` COMMENT '交付助手-作品同步百度网盘任务表'");
+        DB::statement("ALTER TABLE `deliver_work_sync_pan_jobs` COMMENT '交付助手-作品同步百度网盘任务表'");
     }
 
     /**

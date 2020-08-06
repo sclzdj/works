@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateDeliveryWorkObtainsTable extends Migration
+class CreateDeliverWorkObtainsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -37,6 +37,6 @@ class CreateDeliveryWorkObtainsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('delivery_work_obtains');
+        Schema::dropIfExists('deliver_work_obtains');
     }
 }
