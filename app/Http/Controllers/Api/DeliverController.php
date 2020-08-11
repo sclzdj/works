@@ -59,7 +59,11 @@ class DeliverController extends UserGuardController
 
         $baiduAccessToken = '';
         if ($isSyncPan) {//如果需要同步网盘，校验是否绑定百度账号
-            $baiduAccessToken = $this->_getBaiduAccessToken();
+            if ($request->input("baidu_access_token", "")) {
+                $baiduAccessToken = $request->input("baidu_access_token");
+            } else {
+                $baiduAccessToken = $this->_getBaiduAccessToken();
+            }
         }
 
         /*
@@ -202,6 +206,8 @@ class DeliverController extends UserGuardController
                     $row["height"]               = $file['pic_height'];
                     $row["height"]               = $file['pic_height'];
                     $row["status"]               = 200;
+                    $row['created_at'] = $nowDateTime;
+                    $row['updated_at'] = $nowDateTime;
 
                     $insertData[] = $row;
                 }
@@ -612,6 +618,8 @@ class DeliverController extends UserGuardController
     private function photographerWorkSourceDeal($photographerWorkId, $request)
     {
         $photographerWorkSources = PhotographerWorkSource::where('photographer_work_id', $photographerWorkId)->get();
+
+        $asynchronousTask = array();
         foreach ($photographerWorkSources as $photographerWorkSource) {
             $fops = ["imageMogr2/auto-orient/thumbnail/1200x|imageMogr2/auto-orient/colorspace/srgb|imageslim"];
             $bucket = 'zuopin';
@@ -619,6 +627,7 @@ class DeliverController extends UserGuardController
                 'task_type' => 'qiniuPfop',
                 'bucket' => $bucket,
                 'key' => $photographerWorkSource->key,
+                'photographer_work_source_id' => $photographerWorkSource->id,
                 'fops' => $fops,
                 'pipeline' => null,
                 'notifyUrl' => config(
@@ -628,11 +637,11 @@ class DeliverController extends UserGuardController
                 'error_step' => '处理图片持久请求',
                 'error_msg' => '七牛持久化接口返回错误信息',
                 'error_request_data' => $request->all(),
-                'error_photographerWorkSource' => $photographerWorkSource,
+                'error_photographerWorkSource' => null,
             ];
         }
 
-        foreach ($photographerWorkSources as $task) {
+        foreach ($asynchronousTask as $task) {
             $qrst = SystemServer::qiniuPfop(
                 $task['bucket'],
                 $task['key'],
@@ -646,7 +655,7 @@ class DeliverController extends UserGuardController
                     $task['error_step'],
                     $task['error_msg'],
                     $task['error_request_data'],
-                    $task['error_photographerWorkSource'],
+                    PhotographerWorkSource::find($task['photographer_work_source_id']),
                     $qrst['err']
                 );
             }
