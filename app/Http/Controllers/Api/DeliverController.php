@@ -188,6 +188,8 @@ class DeliverController extends UserGuardController
                 $res = PhotographerWork::create([
                     'photographer_id'                        => $photographerId,
                     'photographer_work_customer_industry_id' => $customerIndustryId,
+                    'name'                                   => $name,
+                    'customer_name'                          => $name,
                     'sheets_number'                          => count($choiceFileList),
                     'photographer_work_category_id'          => $categoryId,
                     'status'                                 => 200
@@ -202,6 +204,7 @@ class DeliverController extends UserGuardController
                     $row["key"]                  = $file['object_key'];
                     $row["url"]                  = $this->getQiniuUrl($file['object_key']);
                     $row["size"]                 = $file['size'];
+                    $row["type"]                 = "image";
                     $row["width"]                = $file['pic_width'];
                     $row["height"]               = $file['pic_height'];
                     $row["height"]               = $file['pic_height'];
