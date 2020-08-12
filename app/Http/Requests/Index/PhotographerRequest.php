@@ -47,15 +47,17 @@ class PhotographerRequest extends BaseRequest
                 break;
             case 'savePhotographerStore':
                 $rules = [
-                    'name' => 'required|max:10',
+                    'name' => 'required|max:32',
                     'gender' => 'integer|in:0,1,2',
                     'province' => 'required|integer|exists:system_areas,id',
                     'city' => 'required|integer|exists:system_areas,id',
                     'area' => 'required|integer|exists:system_areas,id',
                     'photographer_rank_id' => 'required|exists:photographer_ranks,id',
-                    'wechat' => 'required|max:50',
-                    'mobile' => 'required|regex:/^1\d{10}$/',
-                    'sms_code' => 'required',
+//                    'wechat' => 'required|max:50',
+//                    'mobile' => 'required|regex:/^1\d{10}$/',
+//                    'sms_code' => 'required',
+                    'mobilecontact' => 'string|regex:/^1\d{10}$/',
+                    'email' => 'string|regex:/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/',
                     'auth_tags' => 'array',
                     'auth_tags.*' => 'required|max:50',
                     'award_tags' => 'array',
@@ -172,7 +174,7 @@ class PhotographerRequest extends BaseRequest
             case 'savePhotographerStore':
                 $messages = [
                     'name.required' => '用户名称不能为空',
-                    'name.max' => '用户名称长度最大为10',
+                    'name.max' => '用户名称长度最大为32位',
                     'gender.integer' => '用户性别必须为数字',
                     'gender.in' => '用户性别错误',
                     'province.required' => '用户所在省份必须传递',
@@ -190,6 +192,7 @@ class PhotographerRequest extends BaseRequest
                     'wechat.max' => '用户微信号长度最大为50',
                     'mobile.required' => '用户手机号不能为空',
                     'mobile.regex' => '用户手机号格式错误',
+                    'mobilecontact.regex' => '用户手机号格式错误',
                     'sms_code.required' => '短信验证码不能为空',
                     'auth_tags.array' => '认证情况必须是数组',
                     'auth_tags.*.required' => '认证情况标签名称不能为空',

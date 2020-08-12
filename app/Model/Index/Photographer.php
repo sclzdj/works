@@ -27,6 +27,8 @@ class Photographer extends Model
         'photographer_rank_id',
         'wechat',
         'mobile',
+        'mobilecontact',
+        'email',
         'xacode',
         'xacode_hyaline',
         'status',
@@ -57,6 +59,8 @@ class Photographer extends Model
             'photographer_rank_id',
             'wechat',
             'mobile',
+            'mobilecontact',
+            'email',
             'created_at',
         ];
     }

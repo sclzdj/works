@@ -869,28 +869,28 @@ class MyController extends UserGuardController
         $this->notPhotographerIdentityVerify();
         \DB::beginTransaction();//开启事务
         try {
-            //验证短信验证码
-            $verify_result = SystemServer::verifySmsCode(
-                $request->mobile,
-                $request->sms_code,
-                'update_my_photographer_info',
-                $request->getClientIp()
-            );
-            if ($verify_result['status'] != 'SUCCESS') {
-                \DB::rollback();//回滚事务
-
-                return $this->response->error($verify_result['message'], 500);
-            }
+            //验证短信验证码 手机号码不验证
+//            $verify_result = SystemServer::verifySmsCode(
+//                $request->mobile,
+//                $request->sms_code,
+//                'update_my_photographer_info',
+//                $request->getClientIp()
+//            );
+//            if ($verify_result['status'] != 'SUCCESS') {
+//                \DB::rollback();//回滚事务
+//
+//                return $this->response->error($verify_result['message'], 500);
+//            }
             $photographer = $this->_photographer(null, $this->guard);
-            //验证手机号的唯一性
-            $other_photographer = Photographer::where('id', '!=', $photographer->id)->where(
-                ['mobile' => $request->mobile, 'status' => 200]
-            )->first();
-            if ($other_photographer) {
-                \DB::rollback();//回滚事务
-
-                return $this->response->error('该手机号已经创建过云作品', 500);
-            }
+//            //验证手机号的唯一性
+//            $other_photographer = Photographer::where('id', '!=', $photographer->id)->where(
+//                ['mobile' => $request->mobile, 'status' => 200]
+//            )->first();
+//            if ($other_photographer) {
+//                \DB::rollback();//回滚事务
+//
+//                return $this->response->error('该手机号已经创建过云作品', 500);
+//            }
             if (!$photographer || $photographer->status != 200) {
                 return $this->response->error('用户不存在', 500);
             }
@@ -904,7 +904,9 @@ class MyController extends UserGuardController
             $photographer->area = $request->area;
             $photographer->photographer_rank_id = $request->photographer_rank_id;
             $photographer->wechat = $request->wechat;
-            $photographer->mobile = $request->mobile;
+//            $photographer->mobile = $request->mobile;
+            $photographer->mobilecontact = $request->mobilecontact;
+            $photographer->email = $request->email;
             $photographer->save();
             PhotographerInfoTag::where(['photographer_id' => $photographer->id])->whereIn(
                 'type',
