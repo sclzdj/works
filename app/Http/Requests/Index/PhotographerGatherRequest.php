@@ -46,7 +46,7 @@ class PhotographerGatherRequest extends BaseRequest
                 $rules = [
                     'photographer_rank_id' => 'required|exists:photographer_ranks,id',
                     'start_year' => 'required|digits:4',
-                    'is_default' => 'in:0,1',
+//                    'is_default' => 'in:0,1',
                     'brand_tags' => 'required|array',
                     'brand_tags.*' => 'required|max:50',
                 ];
@@ -56,7 +56,7 @@ class PhotographerGatherRequest extends BaseRequest
                     'photographer_gather_info_id' => 'required|exists:photographer_gather_infos,id',
                     'photographer_rank_id' => 'required|exists:photographer_ranks,id',
                     'start_year' => 'required|digits:4',
-                    'is_default' => 'in:0,1',
+//                    'is_default' => 'in:0,1',
                     'brand_tags' => 'required|array',
                     'brand_tags.*' => 'required|max:50',
                 ];
