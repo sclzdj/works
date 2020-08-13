@@ -57,6 +57,7 @@ class PhotographerGatherRequest extends BaseRequest
                     'photographer_rank_id' => 'required|exists:photographer_ranks,id',
                     'start_year' => 'required|digits:4',
 //                    'is_default' => 'in:0,1',
+                    'showtype' => 'integer',
                     'brand_tags' => 'required|array',
                     'brand_tags.*' => 'required|max:50',
                 ];

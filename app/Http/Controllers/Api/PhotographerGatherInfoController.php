@@ -129,6 +129,7 @@ class PhotographerGatherInfoController extends UserGuardController
             $photographerGatherInfo->photographer_rank_id = $request->photographer_rank_id;
             $photographerGatherInfo->start_year = $request->start_year;
             $photographerGatherInfo->is_default = $is_default;
+            $photographerGatherInfo->showtype = $request->showtype;
             $photographerGatherInfo->status = 200;
             $photographerGatherInfo->save();
             \DB::commit();//提交事务
