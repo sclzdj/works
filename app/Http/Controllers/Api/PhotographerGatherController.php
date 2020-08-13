@@ -81,33 +81,33 @@ class PhotographerGatherController extends BaseController
             return $this->response->errorUnauthorized();
         }
         $photographer = $this->_photographer(null, $this->guards['user']);
-        $photographerGatherInfo = PhotographerGatherInfo::where(
-            ['id' => $request->photographer_gather_info_id, 'photographer_id' => $photographer->id]
-        )->where(['status' => 200])->first();
-        if (!$photographerGatherInfo) {
-            return $this->response->error('合集资料不存在', 500);
-        }
-        $photographer_work_ids = $request->photographer_work_ids;
+//        $photographerGatherInfo = PhotographerGatherInfo::where(
+//            ['id' => $request->photographer_gather_info_id, 'photographer_id' => $photographer->id]
+//        )->where(['status' => 200])->first();
+//        if (!$photographerGatherInfo) {
+//            return $this->response->error('合集资料不存在', 500);
+//        }
+//        $photographer_work_ids = $request->photographer_work_ids;
         \DB::beginTransaction();//开启事务
         try {
             $photographerGather = PhotographerGather::create();
-            if ($photographer_work_ids) {
-                foreach ($photographer_work_ids as $k => $photographer_work_id) {
-                    $photographerWork = PhotographerWork::where(
-                        ['photographer_id' => $photographer->id, 'id' => $photographer_work_id, 'status' => 200]
-                    )->first();
-                    if (!$photographerWork) {
-                        \DB::rollback();//回滚事务
-
-                        return $this->response->error('ID为'.$photographer_work_id.'的项目不存在', 500);
-                    }
-                    $photographerGatherWork = PhotographerGatherWork::create();
-                    $photographerGatherWork->photographer_gather_id = $photographerGather->id;
-                    $photographerGatherWork->photographer_work_id = $photographer_work_id;
-                    $photographerGatherWork->sort = $k + 1;
-                    $photographerGatherWork->save();
-                }
-            }
+//            if ($photographer_work_ids) {
+//                foreach ($photographer_work_ids as $k => $photographer_work_id) {
+//                    $photographerWork = PhotographerWork::where(
+//                        ['photographer_id' => $photographer->id, 'id' => $photographer_work_id, 'status' => 200]
+//                    )->first();
+//                    if (!$photographerWork) {
+//                        \DB::rollback();//回滚事务
+//
+//                        return $this->response->error('ID为'.$photographer_work_id.'的项目不存在', 500);
+//                    }
+//                    $photographerGatherWork = PhotographerGatherWork::create();
+//                    $photographerGatherWork->photographer_gather_id = $photographerGather->id;
+//                    $photographerGatherWork->photographer_work_id = $photographer_work_id;
+//                    $photographerGatherWork->sort = $k + 1;
+//                    $photographerGatherWork->save();
+//                }
+//            }
             $scene = '2/'.$photographerGather->id;
             if (!$photographerGather->xacode) {
                 $xacode_res = WechatServer::generateXacode($scene, false);
@@ -129,7 +129,7 @@ class PhotographerGatherController extends BaseController
             }
             $photographerGather->photographer_id = $photographer->id;
             $photographerGather->name = $request->name;
-            $photographerGather->photographer_gather_info_id = $request->photographer_gather_info_id;
+//            $photographerGather->photographer_gather_info_id = $request->photographer_gather_info_id;
             $photographerGather->status = 200;
             $photographerGather->save();
             \DB::commit();//提交事务
@@ -159,12 +159,12 @@ class PhotographerGatherController extends BaseController
         if (!$photographerGather) {
             return $this->response->error('合集不存在', 500);
         }
-        $photographerGatherInfo = PhotographerGatherInfo::where(
-            ['id' => $request->photographer_gather_info_id, 'photographer_id' => $photographer->id]
-        )->where(['status' => 200])->first();
-        if (!$photographerGatherInfo) {
-            return $this->response->error('合集资料不存在', 500);
-        }
+//        $photographerGatherInfo = PhotographerGatherInfo::where(
+//            ['id' => $request->photographer_gather_info_id, 'photographer_id' => $photographer->id]
+//        )->where(['status' => 200])->first();
+//        if (!$photographerGatherInfo) {
+//            return $this->response->error('合集资料不存在', 500);
+//        }
         $photographer_work_ids = $request->photographer_work_ids;
         \DB::beginTransaction();//开启事务
         try {
@@ -189,7 +189,7 @@ class PhotographerGatherController extends BaseController
                 }
             }
             $photographerGather->name = $request->name;
-            $photographerGather->photographer_gather_info_id = $request->photographer_gather_info_id;
+//            $photographerGather->photographer_gather_info_id = $request->photographer_gather_info_id;
             $photographerGather->status = 200;
             $photographerGather->save();
             \DB::commit();//提交事务

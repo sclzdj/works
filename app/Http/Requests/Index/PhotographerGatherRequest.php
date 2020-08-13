@@ -24,15 +24,16 @@ class PhotographerGatherRequest extends BaseRequest
             case 'store':
                 $rules = [
                     'name' => 'required',
-                    'photographer_gather_info_id' => 'required|exists:photographer_gather_infos,id',
-                    'photographer_work_ids' => 'required|array',
+                    //创建合集暂时不需要添加项目
+//                    'photographer_gather_info_id' => 'required|exists:photographer_gather_infos,id',
+//                    'photographer_work_ids' => 'required|array',
                 ];
                 break;
             case 'update':
                 $rules = [
                     'photographer_gather_id' => 'required',
                     'name' => 'required',
-                    'photographer_gather_info_id' => 'required|exists:photographer_gather_infos,id',
+//                    'photographer_gather_info_id' => 'required|exists:photographer_gather_infos,id',
                     'photographer_work_ids' => 'required|array',
                 ];
                 break;
