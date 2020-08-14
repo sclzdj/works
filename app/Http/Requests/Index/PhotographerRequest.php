@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Index;
 
 use App\Http\Requests\BaseRequest;
+use App\Rules\ValidationName;
 
 class PhotographerRequest extends BaseRequest
 {
@@ -25,7 +26,7 @@ class PhotographerRequest extends BaseRequest
                 break;
             case 'savePhotographerWorkStore':
                 $rules = [
-//                    'name' => 'required|max:50',
+                    'name' => ['required', new ValidationName],
 //                    'describe' => 'present|max:2000',
 //                    'is_business' => 'required|in:0,1',
 //                    'location' => 'required|max:100',
@@ -47,7 +48,7 @@ class PhotographerRequest extends BaseRequest
                 break;
             case 'savePhotographerStore':
                 $rules = [
-                    'name' => 'required|max:32',
+                    'name' => ['required', new ValidationName],
                     'gender' => 'integer|in:0,1,2',
                     'province' => 'required|integer|exists:system_areas,id',
                     'city' => 'required|integer|exists:system_areas,id',
