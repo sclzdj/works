@@ -26,24 +26,24 @@ class PhotographerRequest extends BaseRequest
                 break;
             case 'savePhotographerWorkStore':
                 $rules = [
-                    'name' => ['required', new ValidationName],
+//                    'name' => ['required', new ValidationName],
 //                    'describe' => 'present|max:2000',
-//                    'is_business' => 'required|in:0,1',
+                    'is_business' => 'integer|in:0,1',
 //                    'location' => 'required|max:100',
 //                    'address' => 'required|max:2000',
-//                    'latitude' => 'required|max:100',
-//                    'longitude' => 'required|max:100',
+                    'latitude' => 'string|max:100',
+                    'longitude' => 'string|max:100',
                     'customer_name' => 'required|max:50',
-                    'photographer_work_customer_industry_id' => 'required|exists:photographer_work_customer_industries,id',
-                    'project_amount' => 'required|integer|min:0',
-                    'hide_project_amount' => 'required|in:0,1',
-                    'sheets_number' => 'required|integer|min:0',
-                    'hide_sheets_number' => 'required|in:0,1',
-                    'shooting_duration' => 'required|integer|min:0',
-                    'hide_shooting_duration' => 'required|in:0,1',
-                    'photographer_work_category_id' => 'required|exists:photographer_work_categories,id',
+                    'photographer_work_customer_industry_id' => 'integer|exists:photographer_work_customer_industries,id',
+                    'project_amount' => 'integer|min:0',
+                    'hide_project_amount' => 'in:0,1',
+                    'sheets_number' => 'integer|min:0',
+                    'hide_sheets_number' => 'integer|in:0,1',
+                    'shooting_duration' => 'integer|min:0',
+                    'hide_shooting_duration' => 'integer|in:0,1',
+                    'photographer_work_category_id' => 'integer|exists:photographer_work_categories,id',
                     'tags' => 'array',
-                    'tags.*' => 'required|max:50',
+                    'tags.*' => 'array|max:50',
                 ];
                 break;
             case 'savePhotographerStore':

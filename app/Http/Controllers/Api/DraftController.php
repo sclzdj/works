@@ -1112,9 +1112,14 @@ class DraftController extends UserGuardController
                 }
                 $photographer_work->xacode_hyaline = $xacode_res['xacode'];
             }
+            //  如果一旦填些客户行业 ，就算是一个商业项目
+            $is_business = $request->is_business;
+            if ($request->photographer_work_customer_industry_id){
+                $is_business = 1;
+            }
             $photographer_work->name = $request->name;
             $photographer_work->describe = $request->describe;
-            $photographer_work->is_business = $request->is_business;
+            $photographer_work->is_business = $is_business;
             $photographer_work->location = $request->location;
             $photographer_work->address = $request->address;
             $photographer_work->latitude = $request->latitude;
