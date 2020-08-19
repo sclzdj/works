@@ -3,6 +3,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\Auth\UserGuardController;
 use App\Http\Requests\Index\UserRequest;
+use App\Http\Requests\Index\DeliverRequest;
+use App\Model\Index\Question;
+use App\Model\Index\QuestionUser;
+use App\Model\Index\User;
 use App\Servers\AliSendShortMessageServer;
 use App\Servers\ErrLogServer;
 use App\Servers\SystemServer;
@@ -511,6 +515,105 @@ class DeliverController extends UserGuardController
         DeliverWorkObtain::where('id', $obtainId)->update(['status' => 1, 'is_download' => 1]);
         //修改作品表的是否已下载和下载次数
         DeliverWork::where('id', $workId)->increment('download_num', 1, ['is_download' => 1]);
+
+        return $this->response->noContent();
+    }
+
+    /**
+     * 下载有水印的图片
+     * @param Request $request
+     */
+    public function downXacodeFile(DeliverRequest $request){
+        $this->notPhotographerIdentityVerify();
+
+        $photographerWorkSource_id = $request->photographer_work_source_id;
+        $photographerWork_id = $request->photographer_work_id;
+        DB::beginTransaction();
+        try{
+            if ($photographerWorkSource_id) {
+                $photographerWorkSource = PhotographerWorkSource::where(
+                    ['id' => $photographerWorkSource_id]
+                )->first();
+                if ($photographerWorkSource->type == 'image') {
+                    $photographerWorkSource->is_new_source = 0;
+                    $photographerWorkSource->save();
+                    $asynchronous_task[] = [
+                        'task_type' => 'editRunGenerateWatermark',
+                        'photographer_work_source_id' => $photographerWorkSource_id,
+                        'edit_node' => '用户下载',
+                    ];
+                }
+
+            }elseif ($photographerWork_id){
+                $photographer_work = PhotographerWork::where(['id' => $photographerWork_id])->first();
+                $photographerWorkSources = $photographer_work->photographerWorkSources()->where(
+                    ['status' => 200, 'type' => 'image']
+                )->orderBy('sort', 'asc')->get();
+
+                foreach ($photographerWorkSources as $photographerWorkSource) {
+                    if ($photographerWorkSource->type == 'image') {
+                        $photographerWorkSource->is_new_source = 0;
+                        $photographerWorkSource->save();
+                        $asynchronous_task[] = [
+                            'task_type' => 'editRunGenerateWatermark',
+                            'photographer_work_source_id' => $photographerWorkSource->id,
+                            'edit_node' => '用户下载',
+                        ];
+                    }
+                }
+
+            }
+
+        }catch (\Exception $e){
+            DB::rollBack();
+        }
+        foreach ($asynchronous_task as $task) {
+            PhotographerWorkSource::editRunGenerateWatermark(
+                $task['photographer_work_source_id'],
+                $task['edit_node']
+            );
+        }
+
+        DB::commit();
+        $rich_urls = [];
+        if ($photographerWorkSource_id) {
+            $rich_url = $photographerWorkSource = PhotographerWorkSource::where(
+                ['id' => $photographerWorkSource_id]
+            )->value('rich_url');
+            array_push($rich_urls, $rich_url);
+        }else{
+            $photographer_work = PhotographerWork::where(['id' => $photographerWork_id])->first();
+            $photographerWorkSources = $photographer_work->photographerWorkSources()->where(
+                ['status' => 200, 'type' => 'image']
+            )->orderBy('sort', 'asc')->get();
+            foreach ($photographerWorkSources as $photographerWorkSource) {
+                if ($photographerWorkSource->rich_url){
+                    array_push($rich_urls, $photographerWorkSource->rich_url);
+                }
+            }
+        }
+
+        return $this->responseParseArray($rich_urls);
+    }
+
+
+    public function generateWatermarkErrorFeedback(Request $request){
+        $photographer = $this->_photographer();
+        $important = 0;
+        $user = User::where(['photographer_id' => $photographer->id])->first();
+        $data['attachment'] = json_encode([]);
+        $data['page'] = '其他';
+        $data['type'] = 1;
+        $data['content'] = '用户水印图片未生成成功';
+        $data['important'] = $important;
+        $data['created_at'] = date('Y-m-d H:i:s', time());
+        $data['updated_at'] = date('Y-m-d H:i:s', time());
+        $data['mobile_version'] = $request->input('mobile_version', '');
+        $data['system_version'] = $request->input('system_version', '');
+        $data['wechat_version'] = $request->input('wechat_version', '');
+        $data['language'] = 'zh_CN';
+        $data['user_id'] = $user->id;
+        $result = Question::insert($data);
 
         return $this->response->noContent();
     }
