@@ -332,7 +332,7 @@ class SystemServer
      *
      * @return   返回请求结果
      */
-    static public function request($type, $url, $data = [], $ssl = true, $headers = [])
+    static public function request($type, $url, $data = [], $ssl = true, $headers = [], $file=false)
     {
         //提交方式
         if ($type != 'get' && $type != 'GET' && $type != 'post' &&
@@ -342,8 +342,10 @@ class SystemServer
         }
         //请求数据处理
         if ($type == 'post' || $type == 'POST') {
-            if (is_array($data)) {
-                $data = json_encode($data);
+            if (!$file){
+                if (is_array($data)) {
+                    $data = json_encode($data,JSON_UNESCAPED_UNICODE);
+                }
             }
         } else {
             if ($data) {
@@ -646,5 +648,80 @@ class SystemServer
         }
 
         return $photographerWorkSources;
+    }
+
+    /**
+     * 修改图片尺寸
+     */
+    static public function resize_image($img_src, $new_img_path, $new_width, $new_height)
+    {
+        $img_info = @getimagesize($img_src);
+        if (!$img_info || $new_width < 1 || $new_height < 1 || empty($new_img_path)) {
+            return false;
+        }
+        if (strpos($img_info['mime'], 'jpeg') !== false) {
+            $pic_obj = imagecreatefromjpeg($img_src);
+        } else if (strpos($img_info['mime'], 'gif') !== false) {
+            $pic_obj = imagecreatefromgif($img_src);
+        } else if (strpos($img_info['mime'], 'png') !== false) {
+            $pic_obj = imagecreatefrompng($img_src);
+        } else {
+            return false;
+        }
+        $pic_width = imagesx($pic_obj);
+        $pic_height = imagesy($pic_obj);
+        if (function_exists("imagecopyresampled")) {
+            $new_img = imagecreatetruecolor($new_width,$new_height);
+            imagecopyresampled($new_img, $pic_obj, 0, 0, 0, 0, $new_width, $new_height, $pic_width, $pic_height);
+        } else {
+            $new_img = imagecreate($new_width, $new_height);
+            imagecopyresized($new_img, $pic_obj, 0, 0, 0, 0, $new_width, $new_height, $pic_width, $pic_height);
+        }
+        if (preg_match('~.([^.]+)$~', $new_img_path, $match)) {
+            $new_type = strtolower($match[1]);
+            switch ($new_type) {
+                case 'jpg':
+                    imagejpeg($new_img, $new_img_path);
+                    break;
+                case 'gif':
+                    imagegif($new_img, $new_img_path);
+                    break;
+                case 'png':
+                    imagepng($new_img, $new_img_path);
+                    break;
+                default:
+                    imagejpeg($new_img, $new_img_path);
+            }
+        } else {
+            imagejpeg($new_img, $new_img_path);
+        }
+        imagedestroy($pic_obj);
+        imagedestroy($new_img);
+        return true;
+    }
+
+    /**
+     *
+     */
+    static public function checkImgSecurity($PhotographerWorkSource_id){
+        $PhotographerWorkSource = PhotographerWorkSource::where(['id' => $PhotographerWorkSource_id])->first();
+        $picurl = $PhotographerWorkSource->deal_url;
+        $localtmppic = '/tmp/' . uniqid() . random_int(1, 1000) . '.jpg';
+        file_put_contents($localtmppic, file_get_contents($picurl));
+        $localpic = '/tmp/' . md5($PhotographerWorkSource->deal_key) . '.jpg';
+        SystemServer::resize_image($localtmppic, $localpic, 750, 1334);
+
+        $flag = WechatServer::checkContentSecurity($localpic, true);
+        if ($flag){
+            $PhotographerWorkSource->review = 1;
+        }else{
+            $PhotographerWorkSource->review = 2;
+        }
+
+        $PhotographerWorkSource->save();
+
+        \Log::info("checkImgSecurity " . $PhotographerWorkSource->picurl);
+
+        return $flag;
     }
 }

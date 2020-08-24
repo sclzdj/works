@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Notify;
 
 use App\Http\Controllers\Api\BaseController;
+use App\Jobs\CheckImgSecurity;
 use App\Model\Index\AsyncBaiduWorkSourceUpload;
 use App\Model\Index\Photographer;
 use App\Model\Index\PhotographerWork;
@@ -227,6 +228,9 @@ class QiniuController extends BaseController
                             }
                             /*平均色调 END*/
                         }
+                        //检查图片
+                        SystemServer::checkImgSecurity($photographerWorkSource->id);
+
                         PhotographerWorkSource::dealNotifyRunGenerateWatermark($photographerWorkSource->id);
                     }
                 } else {

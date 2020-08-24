@@ -54,6 +54,8 @@ class PhotographerGatherController extends BaseController
                 $photographerGather['id'],
                 false
             );
+            //添加review
+            $photographerGathers['data'][$k]['review'] = PhotographerGather::getPhotographerGatherReviewStatus($photographerGathers['data'][$k]['id']);
             $photographerGatherWork = PhotographerGatherWork::where(
                 ['photographer_gather_id' => $photographerGather['id']]
             )->orderBy('sort', 'asc')->first();

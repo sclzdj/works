@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Index;
 
 use App\Http\Requests\BaseRequest;
+use App\Rules\ValidateWordSecurity;
 use App\Rules\ValidationName;
 
 class PhotographerRequest extends BaseRequest
@@ -33,7 +34,7 @@ class PhotographerRequest extends BaseRequest
 //                    'address' => 'required|max:2000',
                     'latitude' => 'string|max:100',
                     'longitude' => 'string|max:100',
-                    'customer_name' => 'required|max:50',
+                    'customer_name' => ['required', new ValidationName, new ValidateWordSecurity],
                     'photographer_work_customer_industry_id' => 'integer|exists:photographer_work_customer_industries,id',
                     'project_amount' => 'integer|min:0',
                     'hide_project_amount' => 'in:0,1',
@@ -48,7 +49,7 @@ class PhotographerRequest extends BaseRequest
                 break;
             case 'savePhotographerStore':
                 $rules = [
-                    'name' => ['required', new ValidationName],
+                    'name' => ['required', new ValidationName, new ValidateWordSecurity],
                     'gender' => 'integer|in:0,1,2',
                     'province' => 'required|integer|exists:system_areas,id',
                     'city' => 'required|integer|exists:system_areas,id',
@@ -60,15 +61,16 @@ class PhotographerRequest extends BaseRequest
                     'mobilecontact' => 'string|regex:/^1\d{10}$/',
                     'email' => 'string|regex:/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/',
                     'auth_tags' => 'array',
-                    'auth_tags.*' => 'required|max:50',
+//                    'auth_tags.*' => 'required|max:50',
+                    'auth_tags.*' => ['required', 'max:50', new ValidateWordSecurity],
                     'award_tags' => 'array',
-                    'award_tags.*' => 'required|max:50',
+                    'award_tags.*' => ['required', 'max:50', new ValidateWordSecurity],
                     'educate_tags' => 'array',
-                    'educate_tags.*' => 'required|max:50',
+                    'educate_tags.*' => ['required', 'max:50', new ValidateWordSecurity],
                     'equipment_tags' => 'array',
-                    'equipment_tags.*' => 'required|max:50',
+                    'equipment_tags.*' => ['required', 'max:50', new ValidateWordSecurity],
                     'social_tags' => 'array',
-                    'social_tags.*' => 'required|max:50',
+                    'social_tags.*' => ['required', 'max:50', new ValidateWordSecurity],
                 ];
                 break;
             case 'photographerInfo':

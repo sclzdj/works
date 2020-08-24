@@ -438,4 +438,20 @@ class  PhotographerWork extends Model
         return implode("", $handleUrl);
     }
 
+    /**
+     * 获取项目中作品的审核信息
+     */
+    public static function getPhotographerWorkReviewStatus($photographer_work_id){
+        $where = [
+            ['photographer_work_id', $photographer_work_id],
+            ['review', '<>', 1],
+        ];
+        $PhotographerWorkSources = PhotographerWorkSource::where($where)->orderBy('review', 'desc')->get()->toArray();
+
+        if (!empty($PhotographerWorkSources)){
+            return $PhotographerWorkSources[0]['review'];
+        }else{
+            return 1;
+        }
+    }
 }

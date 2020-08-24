@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Index;
 
 use App\Http\Requests\BaseRequest;
+use App\Rules\ValidateWordSecurity;
+use App\Rules\ValidationName;
 
 class PhotographerGatherRequest extends BaseRequest
 {
@@ -23,7 +25,7 @@ class PhotographerGatherRequest extends BaseRequest
                 break;
             case 'store':
                 $rules = [
-                    'name' => 'required',
+                    'name' => ['required', new ValidationName, new ValidateWordSecurity],
                     //创建合集暂时不需要添加项目
 //                    'photographer_gather_info_id' => 'required|exists:photographer_gather_infos,id',
 //                    'photographer_work_ids' => 'required|array',

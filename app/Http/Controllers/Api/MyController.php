@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Auth\UserGuardController;
 use App\Http\Requests\Index\PhotographerRequest;
 use App\Http\Requests\Index\UserRequest;
 use App\Jobs\AsyncDocPdfMakeJob;
+use App\Jobs\CheckImgSecurity;
 use App\Libs\WXBizDataCrypt\WXBizDataCrypt;
 use App\Model\Index\AsyncBaiduWorkSourceUpload;
 use App\Model\Index\AsyncDocPdfMake;
@@ -65,6 +66,9 @@ class MyController extends UserGuardController
                 if ($data['openId'] == $user->openid) {
                     if (isset($data['unionId']) && $data['unionId'] != '') {
                         $user->nickname = $data['nickName'];
+                        if (WechatServer::checkContentSecurity($user->nickname)){
+                            return $this->response->error("用户名称带有非法字符！", 500);
+                        }
                         if ($data['avatarUrl']) {
                             $avatar = '';
                             $bucket = 'zuopin';
@@ -472,6 +476,7 @@ class MyController extends UserGuardController
             PhotographerWork::allowFields()
         );
         foreach ($photographer_works['data'] as $k => $v) {
+            $photographer_works['data'][$k]['review'] = PhotographerWork::getPhotographerWorkReviewStatus($photographer_works['data'][$k]['id']);
             $photographer_works['data'][$k]['tags'] = $all_tags[$k];
         }
         $photographer_works['data'] = ArrServer::toNullStrData(
@@ -987,15 +992,15 @@ class MyController extends UserGuardController
         UserRequest $request
     ) {
         $this->notPhotographerIdentityVerify();
-        \DB::beginTransaction();//开启事务
         try {
             $photographer = $this->_photographer(null, $this->guard);
             if (!$photographer || $photographer->status != 200) {
                 return $this->response->error('用户不存在', 500);
             }
-            $photographer->avatar = (string)$request->avatar;
-            $photographer->save();
-            \DB::commit();//提交事务
+
+            //检查头像
+            CheckImgSecurity::dispatch($photographer, $request->avatar)->onConnection('redis')->onQueue('check');
+
 
             return $this->response->noContent();
         } catch (\Exception $e) {

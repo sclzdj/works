@@ -2,6 +2,7 @@
 
 namespace App\Model\Index;
 
+use App\Model\Admin\SystemConfig;
 use Illuminate\Database\Eloquent\Model;
 
 class PhotographerGather extends Model
@@ -96,6 +97,28 @@ class PhotographerGather extends Model
      */
     public static function poster($photographer_gather_id)
     {
+
+    }
+
+    /**
+     * 获取项目中作品的审核信息
+     */
+    public static function getPhotographerGatherReviewStatus($photographer_gather_id){
+        $app = $app = app('wechat.official_account');
+        $photographerworks = \DB::table('photographer_gather_works')->where(['photographer_gather_id' => $photographer_gather_id])->get();
+        foreach ($photographerworks as $photographerwork){
+            $where = [
+                'photographer_work_id'  =>  $photographerwork->id,
+                ['review', '<>', 1],
+            ];
+
+            $PhotographerWorkSources = PhotographerWorkSource::where($where)->orderBy('review', 'desc')->get();
+            if (!empty($PhotographerWorkSources)){
+                return $PhotographerWorkSources[0]['review'];
+            }else{
+                return 1;
+            }
+        }
 
     }
 }
