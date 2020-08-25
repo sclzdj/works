@@ -3,12 +3,15 @@
 namespace App\Servers;
 
 use App\Model\Admin\SystemArea;
+use App\Model\Admin\SystemConfig;
+use App\Model\Index\Photographer;
 use App\Model\Index\PhotographerRank;
 use App\Model\Index\PhotographerWork;
 use App\Model\Index\PhotographerWorkCategory;
 use App\Model\Index\PhotographerWorkCustomerIndustry;
 use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\SmsCode;
+use App\Model\Index\User;
 use App\Model\Index\VisitorTag;
 use Intervention\Image\Facades\Image;
 use Qiniu\Auth;
@@ -716,6 +719,14 @@ class SystemServer
             $PhotographerWorkSource->review = 1;
         }else{
             $PhotographerWorkSource->review = 2;
+            $message = "您有一张作品审核不通过，请及时查看";
+            $user = \DB::table('users u')->join('photographer_works pw', function ($join){
+                $join->on('u.photographer_id', '=', 'pw.photographer_id');
+            })->join('photographer_work_sources pws', function ($join){
+                $join->on('pws.photographer_work_id', '=', 'pw.id');
+            })->where(['pws.id' => $PhotographerWorkSource_id])->first();
+
+            SystemServer::noticeMessage($message, $user);
         }
 
         $PhotographerWorkSource->save();
@@ -723,5 +734,31 @@ class SystemServer
         \Log::info("checkImgSecurity " . $PhotographerWorkSource->picurl);
 
         return $flag;
+    }
+
+    /**
+     * 通知消息
+     */
+    public static function noticeMessage($message, $user, $type='wechat'){
+        $app = app('wechat.official_account');
+
+        $tmr = $app->template_message->send(
+            [
+                'touser' => $user->gh_openid,
+                'template_id' => 'eQ4Aj2Sb7VvVF-0is1Pg7wO1QU43UcVkJ36wHlhCTFE',
+                'miniprogram' => [
+                    'appid' => config('wechat.payment.default.app_id'),
+                    'pagepath' => 'pages/web/web',
+                ],
+                'url' => config('app.url'),
+                'data' => [
+                    'first' => $message,
+                    'keyword1' => $user->nickname,
+                    'keyword2' => $user->phoneNumber,
+                    'keyword3' => '200',
+                    'remark' => '云作品客服微信'.SystemConfig::getVal('customer_wechat', 'works'),
+                ],
+            ]
+        );
     }
 }

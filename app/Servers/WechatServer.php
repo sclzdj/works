@@ -32,7 +32,7 @@ class WechatServer
             );
             if ($response['code'] == 200) {
                 if (!isset($response['data']['errcode']) || $response['data']['errcode'] == 0) {
-                    $expiresAt = Carbon::now()->addSeconds($response['data']['expires_in'] - 1);
+                    $expiresAt = Carbon::now()->addSeconds($response['data']['expires_in'] - 60);
                     \Cache::put('wechat_mp_access_token', $response['data']['access_token'], $expiresAt);
 
                     return $response['data']['access_token'];

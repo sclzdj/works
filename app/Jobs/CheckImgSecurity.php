@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Model\Index\User;
 use App\Servers\SystemServer;
 use Log;
 use App\Model\Index\PhotographerWorkSource;
@@ -42,6 +43,10 @@ class CheckImgSecurity implements ShouldQueue
             $this->photographer->review = 1;
         }else{
             $this->photographer->review = 2;
+            $message = "您的头像审核不通过，请及时修改";
+            $user = User::where(['photographer_id' => $this->photographer->id])->first();
+
+            SystemServer::noticeMessage($message, $user);
         }
 
         $this->photographer->save();

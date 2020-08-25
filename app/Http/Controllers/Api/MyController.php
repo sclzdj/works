@@ -66,7 +66,7 @@ class MyController extends UserGuardController
                 if ($data['openId'] == $user->openid) {
                     if (isset($data['unionId']) && $data['unionId'] != '') {
                         $user->nickname = $data['nickName'];
-                        if (WechatServer::checkContentSecurity($user->nickname)){
+                        if (!WechatServer::checkContentSecurity($user->nickname)){
                             return $this->response->error("用户名称带有非法字符！", 500);
                         }
                         if ($data['avatarUrl']) {
