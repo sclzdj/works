@@ -283,20 +283,10 @@ class MyController extends UserGuardController
         }
         $keywords = $request->keywords;
         if ($request->keywords !== null && $request->keywords !== '') {
-            $whereRaw = "(`photographer_works`.`name` like ? || `photographer_works`.`customer_name` like ? || `photographer_work_customer_industries`.`name` like ? || `photographer_work_categories`.`name` like ? || EXISTS (select `photographer_work_tags`.* from `photographer_work_tags` where `photographer_work_tags`.`photographer_work_id`=`photographer_works`.`id` AND `photographer_work_tags`.`name` like ?))";
+            $whereRaw = "(`photographer_works`.`name` like ? || `photographer_works`.`customer_name` like ? || `photographer_work_customer_industries`.`name` like ? || `photographer_work_categories`.`name` like ? || EXISTS (select `photographer_work_tags`.* from `photographer_work_tags` where `photographer_work_tags`  .`photographer_work_id`=`photographer_works`.`id` AND `photographer_work_tags`.`name` like ?))";
             $whereRaw2 = ["%{$keywords}%", "%{$keywords}%", "%{$keywords}%", "%{$keywords}%", "%{$keywords}%"];
         }
-        $photographer_works = $photographer->photographerWorks()->select('photographer_works.*')->join(
-            'photographer_work_customer_industries',
-            'photographer_works.photographer_work_customer_industry_id',
-            '=',
-            'photographer_work_customer_industries.id'
-        )->join(
-            'photographer_work_categories',
-            'photographer_works.photographer_work_category_id',
-            '=',
-            'photographer_work_categories.id'
-        );
+        $photographer_works = $photographer->photographerWorks();
         if ($request->photographer_work_category_ids !== null && $request->photographer_work_category_ids !== '') {
             $photographer_work_category_ids = explode(',', $request->photographer_work_category_ids);
             $exist_zero = in_array(0, $photographer_work_category_ids);
