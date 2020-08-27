@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\Auth\UserGuardController;
 use App\Http\Requests\Index\UserRequest;
+use App\Model\Index\Photographer;
 use App\Servers\AliSendShortMessageServer;
 use App\Servers\ErrLogServer;
 use App\Servers\SystemServer;
@@ -59,8 +60,13 @@ class DeliverController extends UserGuardController
 
         $baiduAccessToken = '';
         if ($isSyncPan) {//如果需要同步网盘，校验是否绑定百度账号
+            $baiduOauthCode = $request->input("baidu_oauth_code", "");
+            $baiduOauthRedirectUri = $request->input("baidu_oauth_redirect_uri", "");
             if ($request->input("baidu_access_token", "")) {
                 $baiduAccessToken = $request->input("baidu_access_token");
+            } elseif ($baiduOauthCode && $baiduOauthRedirectUri) {
+                //根据code获取百度access_token
+                $baiduAccessToken = BaiduServer::getAccessTokenByCode($baiduOauthCode, $baiduOauthRedirectUri);
             } else {
                 $baiduAccessToken = $this->_getBaiduAccessToken();
             }
@@ -241,7 +247,7 @@ class DeliverController extends UserGuardController
         }
 
         //发送短信
-        $res = $this->sendObtainSms($customerPhoneList);
+        $res = $this->sendObtainSms($photographerId, $customerPhoneList);
         if ($res === false) {
             Log::warning("sendObtainSms failed");
             return $this->response->error("sendObtainSms failed", 400);
@@ -441,25 +447,29 @@ class DeliverController extends UserGuardController
      */
     public function obtainToPan(Request $request)
     {
-        $data = array();
-
         $obtainCode = $request->input("obtain_code", "");
-        $baiduOauthCode = $request->input("baidu_oauth_code", "");
-        $baiduOauthRedirectUri = $request->input("baidu_oauth_redirect_uri", "");
         $workId = $request->input("work_id", 0);
-        if (empty($obtainCode) || empty($baiduOauthCode) || empty($workId)) {
+        if (empty($workId)) {
             Log::warning("param error");
             return $this->response->error("param error", 400);
         }
 
         //根据code获取百度access_token
-        $accessToken = BaiduServer::getAccessTokenByCode($baiduOauthCode, $baiduOauthRedirectUri);
+        $baiduOauthCode = $request->input("baidu_oauth_code", "");
+        $baiduOauthRedirectUri = $request->input("baidu_oauth_redirect_uri", "");
+        if ($request->input("baidu_access_token", "")) {
+            $accessToken = $request->input("baidu_access_token");
+        } elseif ($baiduOauthCode && $baiduOauthRedirectUri) {
+            //根据code获取百度access_token
+            $accessToken = BaiduServer::getAccessTokenByCode($baiduOauthCode, $baiduOauthRedirectUri);
+        } else {
+            $accessToken = $this->_getBaiduAccessToken();
+        }
+
         if (!$accessToken) {
             Log::warning("getAccessTokenByCode failed.");
             return $this->response->error("get baidu accessToken failed", 400);
         }
-        $accessToken = "121.09328b96d4c84120efce9a518d2229fa.YDNekqyLWXmjQ-jb5ESdais69mUYXpfNwdGU9gL.I6EPaQ";
-        $workId = 9;
 
         $currentDateTime = Carbon::now()->toDateTimeString();
 
@@ -544,7 +554,7 @@ class DeliverController extends UserGuardController
                 $phoneList[] = $obtain->phone;
             }
 
-            $res = $this->sendObtainSms($phoneList);
+            $res = $this->sendObtainSms($work->photographer_id, $phoneList);
             if ($res === false) {
                 Log::warning("sms send failed");
                 return $this->response->error("param error", 400);
@@ -556,15 +566,19 @@ class DeliverController extends UserGuardController
 
     /**
      * 发送短信
+     * @param $photographerId
      * @param $customerPhoneList
      * @return bool
      * @author jsyzchenchen@gmail.com
      * @date 2020/07/18
      */
-    private function sendObtainSms($customerPhoneList)
+    private function sendObtainSms($photographerId, $customerPhoneList)
     {
         $third_type = config('custom.send_short_message.third_type');
         $TemplateCodes = config('custom.send_short_message.' . $third_type . '.TemplateCodes');
+
+        //获取摄影师信息
+        $photographer = Photographer::find($photographerId);
 
         //发送短信
         foreach ($customerPhoneList as $phoneNumber) {
@@ -574,8 +588,8 @@ class DeliverController extends UserGuardController
                     $TemplateCodes,
                     'deliver_work_obtain',
                     [
-                        'name' => '提取作品提醒',
-                        'code' => mt_rand(1000, 9999),
+                        'name' => $photographer->name,
+                        'download' => 'home/#/customerLogin',
                     ]
                 );
             }
