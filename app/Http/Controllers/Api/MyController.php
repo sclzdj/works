@@ -8,6 +8,7 @@ use App\Http\Requests\Index\UserRequest;
 use App\Jobs\AsyncDocPdfMakeJob;
 use App\Jobs\CheckImgSecurity;
 use App\Libs\WXBizDataCrypt\WXBizDataCrypt;
+use App\Model\Admin\SystemConfig;
 use App\Model\Index\AsyncBaiduWorkSourceUpload;
 use App\Model\Index\AsyncDocPdfMake;
 use App\Model\Index\DocPdf;
@@ -21,6 +22,7 @@ use App\Model\Index\PhotographerWorkCategory;
 use App\Model\Index\PhotographerWorkCustomerIndustry;
 use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\PhotographerWorkTag;
+use App\Model\Index\Question;
 use App\Model\Index\RandomPhotographer;
 use App\Model\Index\User;
 use App\Model\Index\UserGrowths;
@@ -982,15 +984,18 @@ class MyController extends UserGuardController
         UserRequest $request
     ) {
         $this->notPhotographerIdentityVerify();
+        \DB::beginTransaction();
         try {
             $photographer = $this->_photographer(null, $this->guard);
             if (!$photographer || $photographer->status != 200) {
                 return $this->response->error('用户不存在', 500);
             }
-
             //检查头像
             CheckImgSecurity::dispatch($photographer, $request->avatar)->onConnection('redis')->onQueue('check');
 
+            $photographer->review = 0;
+            $photographer->save();
+            \DB::commit();
 
             return $this->response->noContent();
         } catch (\Exception $e) {
@@ -1860,6 +1865,27 @@ class MyController extends UserGuardController
                 'share_url' => $PhotographerWork->generateShare($photographer_work_id),
             ];
         }
+    }
+
+    public function generateWatermarkErrorFeedback(Request $request){
+        $photographer = $this->_photographer();
+        $important = 0;
+        $user = User::where(['photographer_id' => $photographer->id])->first();
+        $data['attachment'] = json_encode([]);
+        $data['page'] = '其他';
+        $data['type'] = 1;
+        $data['content'] = '用户水印图片未生成成功';
+        $data['important'] = $important;
+        $data['created_at'] = date('Y-m-d H:i:s', time());
+        $data['updated_at'] = date('Y-m-d H:i:s', time());
+        $data['mobile_version'] = $request->input('mobile_version', '');
+        $data['system_version'] = $request->input('system_version', '');
+        $data['wechat_version'] = $request->input('wechat_version', '');
+        $data['language'] = 'zh_CN';
+        $data['user_id'] = $user->id;
+        Question::insert($data);
+
+        return $this->response->noContent();
     }
 
 }
