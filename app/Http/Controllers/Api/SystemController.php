@@ -28,6 +28,7 @@ use App\Model\Index\VisitorTag;
 use App\Servers\AliSendShortMessageServer;
 use App\Servers\ErrLogServer;
 use App\Servers\SystemServer;
+use App\Servers\WechatServer;
 use function Qiniu\base64_urlSafeDecode;
 use function Qiniu\base64_urlSafeEncode;
 
@@ -402,5 +403,19 @@ class SystemController extends BaseController
 //        return redirect(config('app.url').'/'.$filename);
 
         return redirect($dlink);
+    }
+    /**
+     *  检测是否为非法字符
+     * @param SystemRequest $request
+     */
+
+    public function checkWordSecurity(SystemRequest $request){
+        $word = $request->word;
+        $flag = WechatServer::checkContentSecurity($word);
+        if (!$flag){
+            return $this->response->error("含有非法字符!", 500);
+        }
+
+        return $this->response->noContent();
     }
 }

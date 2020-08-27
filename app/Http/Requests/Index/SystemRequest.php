@@ -52,6 +52,11 @@ class SystemRequest extends BaseRequest
                     'dlink' => 'required',
                 ];
                 break;
+            case 'wordcheck':
+                $rules = [
+                    'word' => 'required',
+                ];
+                break;
         }
 
         return $rules;
@@ -117,6 +122,11 @@ class SystemRequest extends BaseRequest
                     'dlink.required' => '网盘文件dlink不能为空',
                 ];
                 break;
+            case 'wordcheck':
+                $messages = [
+                    'word.required' => '关键字不能为空',
+                ];
+                break;
         }
 
         return $messages;
@@ -137,6 +147,7 @@ class SystemRequest extends BaseRequest
             'baiduOauthStore' => ['POST|App\Http\Controllers\Api\SystemController@baiduOauthStore'],
             'qiniuFetchBaiduPan' => ['POST|App\Http\Controllers\Api\BaiduController@qiniuFetchPan'],
             'baiduDlink' => ['GET|App\Http\Controllers\Api\SystemController@baiduDlink'],
+            'wordcheck' => ['GET|App\Http\Controllers\Api\SystemController@checkWordSecurity'],
         ];
     }
 }

@@ -34,7 +34,7 @@ class PhotographerRequest extends BaseRequest
 //                    'address' => 'required|max:2000',
 //                    'latitude' => 'string|max:100',
 //                    'longitude' => 'string|max:100',
-                    'customer_name' => ['required', new ValidationName, new ValidateWordSecurity],
+                    'customer_name' => ['required', new ValidationName],
                     'photographer_work_customer_industry_id' => 'integer|exists:photographer_work_customer_industries,id',
                     'project_amount' => 'integer|min:0',
                     'hide_project_amount' => 'in:0,1',

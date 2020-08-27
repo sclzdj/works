@@ -62,7 +62,11 @@ class WechatServer
         $auto_color = false,
         $line_color = ['r' => 0, 'g' => 0, 'b' => 0]
     ) {
-        $access_token = WechatServer::getMpAccessToken();
+        $app = app('wechat.mini_program');
+        $accessToken = $app->access_token; // EasyWeChat\Core\AccessToken 实例
+        $access_token = $accessToken->getToken(); // token 字符串
+        $access_token = $access_token['access_token'];
+
         if (!$access_token) {
             return ['code' => 500, 'msg' => 'access_token错误'];
         }
@@ -146,7 +150,11 @@ class WechatServer
      * 请求微信内容安全接口
      */
     public static function checkContentSecurity($content, $media=false){
-        $access_token = WechatServer::getMpAccessToken();
+        $app = app('wechat.mini_program');
+        $accessToken = $app->access_token; // EasyWeChat\Core\AccessToken 实例
+        $access_token = $accessToken->getToken(); // token 字符串
+        $access_token = $access_token['access_token'];
+
         if (!$access_token) {
             return ['code' => 500, 'msg' => 'access_token错误'];
         }
@@ -184,7 +192,6 @@ class WechatServer
             );
 
         }
-
 
         if (!isset($response['data']['errcode']) || $response['data']['errcode'] == 0) {
             return true;

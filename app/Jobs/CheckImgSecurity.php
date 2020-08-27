@@ -39,18 +39,26 @@ class CheckImgSecurity implements ShouldQueue
     {
         $flag = WechatServer::checkContentSecurity($this->picurl, true);
         \DB::beginTransaction();
-        if ($flag){
-            $this->photographer->review = 1;
-        }else{
-            $this->photographer->review = 2;
-            $message = "您的头像审核不通过，请及时修改";
-            $user = User::where(['photographer_id' => $this->photographer->id])->first();
+        try{
+            if ($flag){
+                $this->photographer->review = 1;
+                $this->photographer->avatar = $this->picurl;
 
-            SystemServer::noticeMessage($message, $user);
+            }else{
+                $this->photographer->review = 2;
+
+                $message = "您的头像审核不通过，请及时修改";
+                $user = User::where(['photographer_id' => $this->photographer->id])->first();
+
+                SystemServer::noticeMessage($message, $user);
+            }
+            
+            $this->photographer->save();
+            \Db::commit();
+        }catch (\Exception $e){
+            \DB::rollBack();
+
         }
-
-        $this->photographer->save();
-        \Db::commit();
 
         Log::info("checkPhotographerAvaterSecurity " . $this->picurl);
     }

@@ -713,19 +713,18 @@ class SystemServer
         file_put_contents($localtmppic, file_get_contents($picurl));
         $localpic = '/tmp/' . md5($PhotographerWorkSource->deal_key) . '.jpg';
         SystemServer::resize_image($localtmppic, $localpic, 750, 1334);
-
         $flag = WechatServer::checkContentSecurity($localpic, true);
         if ($flag){
             $PhotographerWorkSource->review = 1;
         }else{
             $PhotographerWorkSource->review = 2;
             $message = "您有一张作品审核不通过，请及时查看";
-            $user = \DB::table('users u')->join('photographer_works pw', function ($join){
+            $user = \DB::table('users as u')->join('photographer_works as pw', function ($join){
                 $join->on('u.photographer_id', '=', 'pw.photographer_id');
-            })->join('photographer_work_sources pws', function ($join){
+            })->join('photographer_work_sources as pws', function ($join){
                 $join->on('pws.photographer_work_id', '=', 'pw.id');
             })->where(['pws.id' => $PhotographerWorkSource_id])->first();
-
+            
             SystemServer::noticeMessage($message, $user);
         }
 
@@ -739,7 +738,7 @@ class SystemServer
     /**
      * 通知消息
      */
-    public static function noticeMessage($message, $user, $type='wechat'){
+    static public  function noticeMessage($message, $user, $type='wechat'){
         $app = app('wechat.official_account');
 
         $tmr = $app->template_message->send(
