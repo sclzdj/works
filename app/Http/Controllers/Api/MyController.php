@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Auth\UserGuardController;
 use App\Http\Requests\Index\PhotographerRequest;
 use App\Http\Requests\Index\UserRequest;
 use App\Jobs\AsyncDocPdfMakeJob;
+use App\Jobs\CheckImgSecurity;
 use App\Libs\WXBizDataCrypt\WXBizDataCrypt;
 use App\Model\Index\AsyncBaiduWorkSourceUpload;
 use App\Model\Index\AsyncDocPdfMake;
@@ -65,6 +66,9 @@ class MyController extends UserGuardController
                 if ($data['openId'] == $user->openid) {
                     if (isset($data['unionId']) && $data['unionId'] != '') {
                         $user->nickname = $data['nickName'];
+                        if (!WechatServer::checkContentSecurity($user->nickname)){
+                            return $this->response->error("用户名称带有非法字符！", 500);
+                        }
                         if ($data['avatarUrl']) {
                             $avatar = '';
                             $bucket = 'zuopin';
@@ -279,20 +283,10 @@ class MyController extends UserGuardController
         }
         $keywords = $request->keywords;
         if ($request->keywords !== null && $request->keywords !== '') {
-            $whereRaw = "(`photographer_works`.`name` like ? || `photographer_works`.`customer_name` like ? || `photographer_work_customer_industries`.`name` like ? || `photographer_work_categories`.`name` like ? || EXISTS (select `photographer_work_tags`.* from `photographer_work_tags` where `photographer_work_tags`.`photographer_work_id`=`photographer_works`.`id` AND `photographer_work_tags`.`name` like ?))";
+            $whereRaw = "(`photographer_works`.`name` like ? || `photographer_works`.`customer_name` like ? || `photographer_work_customer_industries`.`name` like ? || `photographer_work_categories`.`name` like ? || EXISTS (select `photographer_work_tags`.* from `photographer_work_tags` where `photographer_work_tags`  .`photographer_work_id`=`photographer_works`.`id` AND `photographer_work_tags`.`name` like ?))";
             $whereRaw2 = ["%{$keywords}%", "%{$keywords}%", "%{$keywords}%", "%{$keywords}%", "%{$keywords}%"];
         }
-        $photographer_works = $photographer->photographerWorks()->select('photographer_works.*')->join(
-            'photographer_work_customer_industries',
-            'photographer_works.photographer_work_customer_industry_id',
-            '=',
-            'photographer_work_customer_industries.id'
-        )->join(
-            'photographer_work_categories',
-            'photographer_works.photographer_work_category_id',
-            '=',
-            'photographer_work_categories.id'
-        );
+        $photographer_works = $photographer->photographerWorks();
         if ($request->photographer_work_category_ids !== null && $request->photographer_work_category_ids !== '') {
             $photographer_work_category_ids = explode(',', $request->photographer_work_category_ids);
             $exist_zero = in_array(0, $photographer_work_category_ids);
@@ -472,6 +466,7 @@ class MyController extends UserGuardController
             PhotographerWork::allowFields()
         );
         foreach ($photographer_works['data'] as $k => $v) {
+            $photographer_works['data'][$k]['review'] = PhotographerWork::getPhotographerWorkReviewStatus($photographer_works['data'][$k]['id']);
             $photographer_works['data'][$k]['tags'] = $all_tags[$k];
         }
         $photographer_works['data'] = ArrServer::toNullStrData(
@@ -869,28 +864,28 @@ class MyController extends UserGuardController
         $this->notPhotographerIdentityVerify();
         \DB::beginTransaction();//开启事务
         try {
-            //验证短信验证码
-            $verify_result = SystemServer::verifySmsCode(
-                $request->mobile,
-                $request->sms_code,
-                'update_my_photographer_info',
-                $request->getClientIp()
-            );
-            if ($verify_result['status'] != 'SUCCESS') {
-                \DB::rollback();//回滚事务
-
-                return $this->response->error($verify_result['message'], 500);
-            }
+            //验证短信验证码 手机号码不验证
+//            $verify_result = SystemServer::verifySmsCode(
+//                $request->mobile,
+//                $request->sms_code,
+//                'update_my_photographer_info',
+//                $request->getClientIp()
+//            );
+//            if ($verify_result['status'] != 'SUCCESS') {
+//                \DB::rollback();//回滚事务
+//
+//                return $this->response->error($verify_result['message'], 500);
+//            }
             $photographer = $this->_photographer(null, $this->guard);
-            //验证手机号的唯一性
-            $other_photographer = Photographer::where('id', '!=', $photographer->id)->where(
-                ['mobile' => $request->mobile, 'status' => 200]
-            )->first();
-            if ($other_photographer) {
-                \DB::rollback();//回滚事务
-
-                return $this->response->error('该手机号已经创建过云作品', 500);
-            }
+//            //验证手机号的唯一性
+//            $other_photographer = Photographer::where('id', '!=', $photographer->id)->where(
+//                ['mobile' => $request->mobile, 'status' => 200]
+//            )->first();
+//            if ($other_photographer) {
+//                \DB::rollback();//回滚事务
+//
+//                return $this->response->error('该手机号已经创建过云作品', 500);
+//            }
             if (!$photographer || $photographer->status != 200) {
                 return $this->response->error('用户不存在', 500);
             }
@@ -904,7 +899,9 @@ class MyController extends UserGuardController
             $photographer->area = $request->area;
             $photographer->photographer_rank_id = $request->photographer_rank_id;
             $photographer->wechat = $request->wechat;
-            $photographer->mobile = $request->mobile;
+//            $photographer->mobile = $request->mobile;
+            $photographer->mobilecontact = $request->mobilecontact;
+            $photographer->email = $request->email;
             $photographer->save();
             PhotographerInfoTag::where(['photographer_id' => $photographer->id])->whereIn(
                 'type',
@@ -985,15 +982,15 @@ class MyController extends UserGuardController
         UserRequest $request
     ) {
         $this->notPhotographerIdentityVerify();
-        \DB::beginTransaction();//开启事务
         try {
             $photographer = $this->_photographer(null, $this->guard);
             if (!$photographer || $photographer->status != 200) {
                 return $this->response->error('用户不存在', 500);
             }
-            $photographer->avatar = (string)$request->avatar;
-            $photographer->save();
-            \DB::commit();//提交事务
+
+            //检查头像
+            CheckImgSecurity::dispatch($photographer, $request->avatar)->onConnection('redis')->onQueue('check');
+
 
             return $this->response->noContent();
         } catch (\Exception $e) {

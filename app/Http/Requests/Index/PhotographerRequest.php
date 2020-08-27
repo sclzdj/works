@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Index;
 
 use App\Http\Requests\BaseRequest;
+use App\Rules\ValidateWordSecurity;
+use App\Rules\ValidationName;
 
 class PhotographerRequest extends BaseRequest
 {
@@ -25,47 +27,50 @@ class PhotographerRequest extends BaseRequest
                 break;
             case 'savePhotographerWorkStore':
                 $rules = [
-//                    'name' => 'required|max:50',
+//                    'name' => ['required', new ValidationName],
 //                    'describe' => 'present|max:2000',
-//                    'is_business' => 'required|in:0,1',
+                    'is_business' => 'integer|in:0,1',
 //                    'location' => 'required|max:100',
 //                    'address' => 'required|max:2000',
-//                    'latitude' => 'required|max:100',
-//                    'longitude' => 'required|max:100',
-                    'customer_name' => 'required|max:50',
-                    'photographer_work_customer_industry_id' => 'required|exists:photographer_work_customer_industries,id',
-                    'project_amount' => 'required|integer|min:0',
-                    'hide_project_amount' => 'required|in:0,1',
-                    'sheets_number' => 'required|integer|min:0',
-                    'hide_sheets_number' => 'required|in:0,1',
-                    'shooting_duration' => 'required|integer|min:0',
-                    'hide_shooting_duration' => 'required|in:0,1',
-                    'photographer_work_category_id' => 'required|exists:photographer_work_categories,id',
+//                    'latitude' => 'string|max:100',
+//                    'longitude' => 'string|max:100',
+                    'customer_name' => ['required', new ValidationName, new ValidateWordSecurity],
+                    'photographer_work_customer_industry_id' => 'integer|exists:photographer_work_customer_industries,id',
+                    'project_amount' => 'integer|min:0',
+                    'hide_project_amount' => 'in:0,1',
+                    'sheets_number' => 'integer|min:0',
+                    'hide_sheets_number' => 'integer|in:0,1',
+                    'shooting_duration' => 'integer|min:0',
+                    'hide_shooting_duration' => 'integer|in:0,1',
+                    'photographer_work_category_id' => 'integer|exists:photographer_work_categories,id',
                     'tags' => 'array',
-                    'tags.*' => 'required|max:50',
+                    'tags.*' => 'array|max:50',
                 ];
                 break;
             case 'savePhotographerStore':
                 $rules = [
-                    'name' => 'required|max:10',
+                    'name' => ['required', new ValidationName, new ValidateWordSecurity],
                     'gender' => 'integer|in:0,1,2',
                     'province' => 'required|integer|exists:system_areas,id',
                     'city' => 'required|integer|exists:system_areas,id',
                     'area' => 'required|integer|exists:system_areas,id',
                     'photographer_rank_id' => 'required|exists:photographer_ranks,id',
-                    'wechat' => 'required|max:50',
-                    'mobile' => 'required|regex:/^1\d{10}$/',
-                    'sms_code' => 'required',
+//                    'wechat' => 'required|max:50',
+//                    'mobile' => 'required|regex:/^1\d{10}$/',
+//                    'sms_code' => 'required',
+                    'mobilecontact' => 'string|regex:/^1\d{10}$/',
+                    'email' => 'string|regex:/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/',
                     'auth_tags' => 'array',
-                    'auth_tags.*' => 'required|max:50',
+//                    'auth_tags.*' => 'required|max:50',
+                    'auth_tags.*' => ['required', 'max:50', new ValidateWordSecurity],
                     'award_tags' => 'array',
-                    'award_tags.*' => 'required|max:50',
+                    'award_tags.*' => ['required', 'max:50', new ValidateWordSecurity],
                     'educate_tags' => 'array',
-                    'educate_tags.*' => 'required|max:50',
+                    'educate_tags.*' => ['required', 'max:50', new ValidateWordSecurity],
                     'equipment_tags' => 'array',
-                    'equipment_tags.*' => 'required|max:50',
+                    'equipment_tags.*' => ['required', 'max:50', new ValidateWordSecurity],
                     'social_tags' => 'array',
-                    'social_tags.*' => 'required|max:50',
+                    'social_tags.*' => ['required', 'max:50', new ValidateWordSecurity],
                 ];
                 break;
             case 'photographerInfo':
@@ -172,7 +177,7 @@ class PhotographerRequest extends BaseRequest
             case 'savePhotographerStore':
                 $messages = [
                     'name.required' => '用户名称不能为空',
-                    'name.max' => '用户名称长度最大为10',
+                    'name.max' => '用户名称长度最大为32位',
                     'gender.integer' => '用户性别必须为数字',
                     'gender.in' => '用户性别错误',
                     'province.required' => '用户所在省份必须传递',
@@ -190,6 +195,7 @@ class PhotographerRequest extends BaseRequest
                     'wechat.max' => '用户微信号长度最大为50',
                     'mobile.required' => '用户手机号不能为空',
                     'mobile.regex' => '用户手机号格式错误',
+                    'mobilecontact.regex' => '用户手机号格式错误',
                     'sms_code.required' => '短信验证码不能为空',
                     'auth_tags.array' => '认证情况必须是数组',
                     'auth_tags.*.required' => '认证情况标签名称不能为空',

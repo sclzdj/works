@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Index;
 
 use App\Http\Requests\BaseRequest;
+use App\Rules\ValidateWordSecurity;
+use App\Rules\ValidationName;
 use Illuminate\Validation\Rule;
 
 class UserRequest extends BaseRequest
@@ -86,7 +88,7 @@ class UserRequest extends BaseRequest
 //                    'address' => 'required|max:2000',
 //                    'latitude' => 'required|max:100',
 //                    'longitude' => 'required|max:100',
-                    'customer_name' => 'required|max:50',
+                    'customer_name' => ['required', new ValidationName, new ValidateWordSecurity],
                     'photographer_work_customer_industry_id' => 'required|exists:photographer_work_customer_industries,id',
                     'project_amount' => 'required|integer|min:0',
                     'hide_project_amount' => 'required|in:0,1',

@@ -37,6 +37,7 @@ class PhotographerWorkSource extends Model
         'type',
         'origin',
         'status',
+        'review',
         'sort',
         'is_new_source',
     ];
@@ -79,6 +80,7 @@ class PhotographerWorkSource extends Model
             'is_newest_rich',
             'type',
             'origin',
+            'review',
             'created_at',
         ];
     }

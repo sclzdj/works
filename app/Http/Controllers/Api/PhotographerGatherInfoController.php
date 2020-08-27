@@ -57,12 +57,14 @@ class PhotographerGatherInfoController extends UserGuardController
     {
         $photographer = $this->_photographer();
         $brand_tags = $request->brand_tags;
-        $is_default = (int)$request->is_default;
+//        $is_default = (int)$request->is_default;
+        //暂时不需要客户填写默认资料
+        $is_default = 0;
         \DB::beginTransaction();//开启事务
         try {
-            if ($is_default) {
-                PhotographerGatherInfo::where(['photographer_id' => $photographer->id])->update(['is_default' => '0']);
-            }
+//            if ($is_default) {
+//                PhotographerGatherInfo::where(['photographer_id' => $photographer->id])->update(['is_default' => '0']);
+//            }
             $photographerGatherInfo = PhotographerGatherInfo::create();
             if ($brand_tags) {
                 foreach ($brand_tags as $brand_tag) {
@@ -127,6 +129,7 @@ class PhotographerGatherInfoController extends UserGuardController
             $photographerGatherInfo->photographer_rank_id = $request->photographer_rank_id;
             $photographerGatherInfo->start_year = $request->start_year;
             $photographerGatherInfo->is_default = $is_default;
+            $photographerGatherInfo->showtype = $request->showtype;
             $photographerGatherInfo->status = 200;
             $photographerGatherInfo->save();
             \DB::commit();//提交事务

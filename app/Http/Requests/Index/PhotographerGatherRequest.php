@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Index;
 
 use App\Http\Requests\BaseRequest;
+use App\Rules\ValidateWordSecurity;
+use App\Rules\ValidationName;
 
 class PhotographerGatherRequest extends BaseRequest
 {
@@ -23,16 +25,17 @@ class PhotographerGatherRequest extends BaseRequest
                 break;
             case 'store':
                 $rules = [
-                    'name' => 'required',
-                    'photographer_gather_info_id' => 'required|exists:photographer_gather_infos,id',
-                    'photographer_work_ids' => 'required|array',
+                    'name' => ['required', new ValidationName, new ValidateWordSecurity],
+                    //创建合集暂时不需要添加项目
+//                    'photographer_gather_info_id' => 'required|exists:photographer_gather_infos,id',
+//                    'photographer_work_ids' => 'required|array',
                 ];
                 break;
             case 'update':
                 $rules = [
                     'photographer_gather_id' => 'required',
                     'name' => 'required',
-                    'photographer_gather_info_id' => 'required|exists:photographer_gather_infos,id',
+//                    'photographer_gather_info_id' => 'required|exists:photographer_gather_infos,id',
                     'photographer_work_ids' => 'required|array',
                 ];
                 break;
@@ -45,7 +48,7 @@ class PhotographerGatherRequest extends BaseRequest
                 $rules = [
                     'photographer_rank_id' => 'required|exists:photographer_ranks,id',
                     'start_year' => 'required|digits:4',
-                    'is_default' => 'in:0,1',
+//                    'is_default' => 'in:0,1',
                     'brand_tags' => 'required|array',
                     'brand_tags.*' => 'required|max:50',
                 ];
@@ -55,7 +58,8 @@ class PhotographerGatherRequest extends BaseRequest
                     'photographer_gather_info_id' => 'required|exists:photographer_gather_infos,id',
                     'photographer_rank_id' => 'required|exists:photographer_ranks,id',
                     'start_year' => 'required|digits:4',
-                    'is_default' => 'in:0,1',
+//                    'is_default' => 'in:0,1',
+                    'showtype' => 'integer',
                     'brand_tags' => 'required|array',
                     'brand_tags.*' => 'required|max:50',
                 ];

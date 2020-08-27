@@ -32,7 +32,7 @@ class WechatServer
             );
             if ($response['code'] == 200) {
                 if (!isset($response['data']['errcode']) || $response['data']['errcode'] == 0) {
-                    $expiresAt = Carbon::now()->addSeconds($response['data']['expires_in'] - 1);
+                    $expiresAt = Carbon::now()->addSeconds($response['data']['expires_in'] - 60);
                     \Cache::put('wechat_mp_access_token', $response['data']['access_token'], $expiresAt);
 
                     return $response['data']['access_token'];
@@ -139,6 +139,57 @@ class WechatServer
             }
         } else {
             return $response;
+        }
+    }
+
+    /**
+     * 请求微信内容安全接口
+     */
+    public static function checkContentSecurity($content, $media=false){
+        $access_token = WechatServer::getMpAccessToken();
+        if (!$access_token) {
+            return ['code' => 500, 'msg' => 'access_token错误'];
+        }
+        if ($media){
+            $fileinfo = pathinfo($content);
+
+            if (array_key_exists('extension',$fileinfo)){
+                $tmpfile = '/tmp/' . $fileinfo['filename'] . '_' . uniqid() . '.' . $fileinfo['extension'];
+            }else{
+                $tmpfile = '/tmp/' . $fileinfo['basename'] . '_' . uniqid() . '.jpg';
+            }
+
+            file_put_contents($tmpfile, file_get_contents($content));
+
+            $data = [
+                'media' => new \CURLFile($tmpfile)
+            ];
+
+            $response = SystemServer::request(
+                'POST',
+                'https://api.weixin.qq.com/wxa/img_sec_check?access_token='.$access_token,
+                $data,
+                true,
+                [],
+                true
+            );
+        }else{
+            $data = [
+                'content' => $content
+            ];
+            $response = SystemServer::request(
+                'POST',
+                'https://api.weixin.qq.com/wxa/msg_sec_check?access_token='.$access_token,
+                $data
+            );
+
+        }
+
+
+        if (!isset($response['data']['errcode']) || $response['data']['errcode'] == 0) {
+            return true;
+        } else {
+            return false;
         }
     }
 }

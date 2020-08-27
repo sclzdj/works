@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Api\Auth\UserGuardController;
 use App\Http\Requests\Index\UserRequest;
 use App\Model\Index\Photographer;
+use App\Http\Requests\Index\DeliverRequest;
 use App\Servers\AliSendShortMessageServer;
 use App\Servers\ErrLogServer;
 use App\Servers\SystemServer;
@@ -523,6 +524,83 @@ class DeliverController extends UserGuardController
         DeliverWork::where('id', $workId)->increment('download_num', 1, ['is_download' => 1]);
 
         return $this->response->noContent();
+    }
+
+    /**
+     * 下载有水印的图片
+     * @param Request $request
+     */
+    public function downXacodeFile(DeliverRequest $request){
+        $this->notPhotographerIdentityVerify();
+
+        $photographerWorkSource_id = $request->photographer_work_source_id;
+        $photographerWork_id = $request->photographer_work_id;
+        DB::beginTransaction();
+        try{
+            if ($photographerWorkSource_id) {
+                $photographerWorkSource = PhotographerWorkSource::where(
+                    ['id' => $photographerWorkSource_id]
+                )->first();
+                if ($photographerWorkSource->type == 'image') {
+                    $photographerWorkSource->is_new_source = 0;
+                    $photographerWorkSource->save();
+                    $asynchronous_task[] = [
+                        'task_type' => 'editRunGenerateWatermark',
+                        'photographer_work_source_id' => $photographerWorkSource_id,
+                        'edit_node' => '用户下载',
+                    ];
+                }
+
+            }elseif ($photographerWork_id){
+                $photographer_work = PhotographerWork::where(['id' => $photographerWork_id])->first();
+                $photographerWorkSources = $photographer_work->photographerWorkSources()->where(
+                    ['status' => 200, 'type' => 'image']
+                )->orderBy('sort', 'asc')->get();
+
+                foreach ($photographerWorkSources as $photographerWorkSource) {
+                    if ($photographerWorkSource->type == 'image') {
+                        $photographerWorkSource->is_new_source = 0;
+                        $photographerWorkSource->save();
+                        $asynchronous_task[] = [
+                            'task_type' => 'editRunGenerateWatermark',
+                            'photographer_work_source_id' => $photographerWorkSource->id,
+                            'edit_node' => '用户下载',
+                        ];
+                    }
+                }
+
+            }
+
+        }catch (\Exception $e){
+            DB::rollBack();
+        }
+        foreach ($asynchronous_task as $task) {
+            PhotographerWorkSource::editRunGenerateWatermark(
+                $task['photographer_work_source_id'],
+                $task['edit_node']
+            );
+        }
+
+        DB::commit();
+        $rich_urls = [];
+        if ($photographerWorkSource_id) {
+            $rich_url = $photographerWorkSource = PhotographerWorkSource::where(
+                ['id' => $photographerWorkSource_id]
+            )->value('rich_url');
+            array_push($rich_urls, $rich_url);
+        }else{
+            $photographer_work = PhotographerWork::where(['id' => $photographerWork_id])->first();
+            $photographerWorkSources = $photographer_work->photographerWorkSources()->where(
+                ['status' => 200, 'type' => 'image']
+            )->orderBy('sort', 'asc')->get();
+            foreach ($photographerWorkSources as $photographerWorkSource) {
+                if ($photographerWorkSource->rich_url){
+                    array_push($rich_urls, $photographerWorkSource->rich_url);
+                }
+            }
+        }
+
+        return $this->responseParseArray($rich_urls);
     }
 
     /**

@@ -210,6 +210,8 @@ $api->version(
                 $api->post('deliver/works', 'DeliverController@createWork');
                 $api->get('deliver/works', 'DeliverController@getWorks');
                 $api->get('deliver/works/filelist', 'DeliverController@getWorkFileList');
+                $api->post('deliver/works/download', 'DeliverController@downXacodeFile');
+                $api->post('deliver/works/watermarkerrorfeedback', 'DeliverController@generateWatermarkErrorFeedback');
                 $api->post('deliver/works/obtaintopan', 'DeliverController@obtainToPan');
                 $api->post('deliver/works/obtaintolocal', 'DeliverController@obtainToLocal');
                 $api->post('deliver/works/obtainremind', 'DeliverController@obtainRemindBySms');

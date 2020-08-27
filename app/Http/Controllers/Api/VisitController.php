@@ -166,6 +166,17 @@ class VisitController extends UserGuardController
             $operate_record->share_type = $request->share_type;
             $operate_record->operate_type = 'share';
             $operate_record->save();
+            $operate_record = OperateRecord::create();
+            $operate_record->user_id = $user->id;
+            $operate_record->page_name = $request->page_name;
+            $operate_record->photographer_id = $request->photographer_id;
+            $operate_record->photographer_work_id = $request->photographer_work_id;
+            $operate_record->photographer_gather_id = $request->photographer_gather_id;
+            $operate_record->in_type = $request->in_type;
+            $operate_record->shared_user_id = $request->shared_user_id ?? 0;
+            $operate_record->operate_type = 'in';
+            $operate_record->save();
+
             if ($user->id != $photographer_user->id) {//如果不是自己访问，记录访客信息
                 $this->_visitorRecord(
                     $request,
