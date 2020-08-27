@@ -57,6 +57,7 @@ $api->version(
                 $api->get('visitorTags', 'SystemController@visitorTags');
                 $api->get('configs', 'SystemController@configs');
                 $api->get('baiduDlink', 'SystemController@baiduDlink');
+                $api->get('wordcheck', 'SystemController@checkWordSecurity');
                 //微信用户登录
                 $api->get('login', 'LoginController@mpLogin');
                 $api->post('login', 'LoginController@login');
@@ -88,6 +89,7 @@ $api->version(
                 $api->get('my/photographerStatistics', 'MyController@photographerStatistics');
                 $api->get('my/photographerShare' , 'MyController@photographerShare');
                 $api->get('my/photographerWorkShare' , 'MyController@photographerWorkShare');
+                $api->post('my/watermarkerrorfeedback', 'MyController@generateWatermarkErrorFeedback');
 
                 //用户合集
                 $api->get('my/photographerGathers', 'PhotographerGatherController@index');
@@ -211,7 +213,6 @@ $api->version(
                 $api->get('deliver/works', 'DeliverController@getWorks');
                 $api->get('deliver/works/filelist', 'DeliverController@getWorkFileList');
                 $api->post('deliver/works/download', 'DeliverController@downXacodeFile');
-                $api->post('deliver/works/watermarkerrorfeedback', 'DeliverController@generateWatermarkErrorFeedback');
                 $api->post('deliver/works/obtaintopan', 'DeliverController@obtainToPan');
                 $api->post('deliver/works/obtaintolocal', 'DeliverController@obtainToLocal');
                 $api->post('deliver/works/obtainremind', 'DeliverController@obtainRemindBySms');

@@ -596,28 +596,6 @@ class DeliverController extends UserGuardController
         return $this->responseParseArray($rich_urls);
     }
 
-
-    public function generateWatermarkErrorFeedback(Request $request){
-        $photographer = $this->_photographer();
-        $important = 0;
-        $user = User::where(['photographer_id' => $photographer->id])->first();
-        $data['attachment'] = json_encode([]);
-        $data['page'] = '其他';
-        $data['type'] = 1;
-        $data['content'] = '用户水印图片未生成成功';
-        $data['important'] = $important;
-        $data['created_at'] = date('Y-m-d H:i:s', time());
-        $data['updated_at'] = date('Y-m-d H:i:s', time());
-        $data['mobile_version'] = $request->input('mobile_version', '');
-        $data['system_version'] = $request->input('system_version', '');
-        $data['wechat_version'] = $request->input('wechat_version', '');
-        $data['language'] = 'zh_CN';
-        $data['user_id'] = $user->id;
-        $result = Question::insert($data);
-
-        return $this->response->noContent();
-    }
-
     /**
      * 短信提醒客户提取
      * @author jsyzchenchen@gmail.com
