@@ -33,9 +33,14 @@ class QiniuController extends UserGuardController
         $secretKey = config('custom.qiniu.secretKey');
         // 初始化签权对象
         $auth = new Auth($accessKey, $secretKey);
-        // 生成上传Token
-        $upToken = $auth->uploadToken($bucket);
 
+        $returnBody = '{"key":"$(key)","hash":"$(etag)","fsize":"$(fsize)","avinfo":$(avinfo),"exif":$(exif),"width":"$(imageInfo.width)","height":"$(imageInfo.height)","imageAve":$(imageAve)}';
+        $policy = array(
+            'returnBody' => $returnBody
+        );
+
+        // 生成上传Token
+        $upToken = $auth->uploadToken($bucket, null, 3600, $policy, true);
         return $this->responseParseArray(compact('upToken', 'domain'));
     }
 }

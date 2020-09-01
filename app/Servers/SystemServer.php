@@ -714,6 +714,8 @@ class SystemServer
         $localpic = '/tmp/' . md5($PhotographerWorkSource->deal_key) . '.jpg';
         SystemServer::resize_image($localtmppic, $localpic, 750, 1334);
         $flag = WechatServer::checkContentSecurity($localpic, true);
+        @unlink($localpic);
+        @unlink($localtmppic);
         if ($flag){
             $PhotographerWorkSource->review = 1;
         }else{
@@ -724,7 +726,7 @@ class SystemServer
             })->join('photographer_work_sources as pws', function ($join){
                 $join->on('pws.photographer_work_id', '=', 'pw.id');
             })->where(['pws.id' => $PhotographerWorkSource_id])->first();
-            
+
             SystemServer::noticeMessage($message, $user);
         }
 

@@ -1187,122 +1187,37 @@ class MyController extends UserGuardController
                         $photographer_work_source->save();
                         if ($photographer_work_source->type == 'image') {
                             $photographer_work_source->is_new_source = 1;
+                            $photographer_work_source->size = $v['fsize'];
+                            $photographer_work_source->width = $v['width'];
+                            $photographer_work_source->height =  $v['height'];
+                            $photographer_work_source->image_ave = $v['imageAve'];
+                            $photographer_work_source->exif = json_encode($v['exif']);
                             $photographer_work_source->save();
-                            $res = SystemServer::request('GET', $photographer_work_source->url.'?imageInfo');
-                            if ($res['code'] == 200) {
-                                if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
-                                    $photographer_work_source->size = $res['data']['size'];
-                                    $photographer_work_source->width = $res['data']['width'];
-                                    $photographer_work_source->height = $res['data']['height'];
-//                                $photographer_work_source->deal_size = $res['data']['size'];
-//                                $photographer_work_source->deal_width = $res['data']['width'];
-//                                $photographer_work_source->deal_height = $res['data']['height'];
-//                                $photographer_work_source->rich_size = $res['data']['size'];
-//                                $photographer_work_source->rich_width = $res['data']['width'];
-//                                $photographer_work_source->rich_height = $res['data']['height'];
-                                    $photographer_work_source->save();
-                                    /*平均色调*/
-                                    $res_ave = SystemServer::request(
-                                        'GET',
-                                        $photographer_work_source->url.'?imageAve'
-                                    );
-                                    if ($res_ave['code'] == 200) {
-                                        if (!isset($res_ave['data']['error']) || (isset($res_ave['data']['code']) && $res_ave['data']['code'] == 200)) {
-                                            if (isset($res_ave['data']['RGB'])) {
-                                                $photographer_work_source->image_ave = $res_ave['data']['RGB'];
-                                                $photographer_work_source->save();
-                                            }
-                                        }
-                                    }
-                                    /*平均色调 END*/
-                                    /*exif*/
-                                    PhotographerWorkSource::where('id', $photographer_work_source->id)->update(
-                                        [
-                                            'exif' => json_encode([]),
-                                        ]
-                                    );
-                                    $res_exif = SystemServer::request(
-                                        'GET',
-                                        $photographer_work_source->url.'?exif'
-                                    );
-                                    if ($res_exif['code'] == 200) {
-                                        if (!isset($res_exif['data']['error']) || (isset($res_exif['data']['code']) && $res_exif['data']['code'] == 200)) {
-                                            PhotographerWorkSource::where(
-                                                'id',
-                                                $photographer_work_source->id
-                                            )->update(
-                                                [
-                                                    'exif' => json_encode($res_exif['data']),
-                                                ]
-                                            );
-                                        }
-                                    }
-                                    /*exif END*/
-                                    $fops = ["imageMogr2/auto-orient/thumbnail/1200x|imageMogr2/auto-orient/colorspace/srgb|imageslim"];
-                                    $bucket = 'zuopin';
-                                    $asynchronous_task[] = [
-                                        'task_type' => 'qiniuPfop',
-                                        'bucket' => $bucket,
-                                        'key' => $photographer_work_source->key,
-                                        'fops' => $fops,
-                                        'pipeline' => null,
-                                        'notifyUrl' => config(
-                                                'app.url'
-                                            ).'/api/notify/qiniu/fopDeal?photographer_work_source_id='.$photographer_work_source->id,
-                                        'useHTTPS' => true,
-                                        'error_step' => '处理图片持久请求',
-                                        'error_msg' => '七牛持久化接口返回错误信息',
-                                        'error_request_data' => $request->all(),
-                                        'error_photographerWorkSource' => $photographer_work_source,
-                                    ];
-                                } else {
-                                    $asynchronous_task[] = [
-                                        'task_type' => 'error_qiniuNotifyFop',
-                                        'step' => '原始图片信息请求',
-                                        'msg' => '七牛图片信息接口返回错误信息',
-                                        'request_data' => $request->all(),
-                                        'photographerWorkSource' => $photographer_work_source,
-                                        'res' => $res['data'],
-                                    ];
-                                }
-                            } else {
-                                $asynchronous_task[] = [
-                                    'task_type' => 'error_qiniuNotifyFop',
-                                    'step' => '原始图片信息请求',
-                                    'msg' => '请求七牛图片信息接口报错：'.$res['msg'],
-                                    'request_data' => $request->all(),
-                                    'photographerWorkSource' => $photographer_work_source,
-                                    'res' => $res,
-                                ];
-                            }
+
+                            /*exif END*/
+                            $fops = ["imageMogr2/auto-orient/thumbnail/1200x|imageMogr2/auto-orient/colorspace/srgb|imageslim"];
+                            $bucket = 'zuopin';
+                            $asynchronous_task[] = [
+                                'task_type' => 'qiniuPfop',
+                                'bucket' => $bucket,
+                                'key' => $photographer_work_source->key,
+                                'fops' => $fops,
+                                'pipeline' => null,
+                                'notifyUrl' => config(
+                                        'app.url'
+                                    ).'/api/notify/qiniu/fopDeal?photographer_work_source_id='.$photographer_work_source->id,
+                                'useHTTPS' => true,
+                                'error_step' => '处理图片持久请求',
+                                'error_msg' => '七牛持久化接口返回错误信息',
+                                'error_request_data' => $request->all(),
+                                'error_photographerWorkSource' => $photographer_work_source,
+                            ];
+
                         } elseif ($photographer_work_source->type == 'video') {
-                            $res = SystemServer::request('GET', $photographer_work_source->url.'?avinfo');
-                            if ($res['code'] == 200) {
-                                if (!isset($res['data']['error']) || (isset($res['data']['code']) && $res['data']['code'] == 200)) {
-                                    $photographer_work_source->size = $res['data']['format']['size'];
-                                    $photographer_work_source->deal_size = $res['data']['format']['size'];
-                                    $photographer_work_source->rich_size = $res['data']['format']['size'];
-                                    $photographer_work_source->save();
-                                } else {
-                                    $asynchronous_task[] = [
-                                        'task_type' => 'error_qiniuNotifyFop',
-                                        'step' => '原始视频信息请求',
-                                        'msg' => '七牛视频信息接口返回错误信息',
-                                        'request_data' => $request->all(),
-                                        'photographerWorkSource' => $photographer_work_source,
-                                        'res' => $res['data'],
-                                    ];
-                                }
-                            } else {
-                                $asynchronous_task[] = [
-                                    'task_type' => 'error_qiniuNotifyFop',
-                                    'step' => '原始视频信息请求',
-                                    'msg' => '请求七牛视频信息接口报错：'.$res['msg'],
-                                    'request_data' => $request->all(),
-                                    'photographerWorkSource' => $photographer_work_source,
-                                    'res' => $res,
-                                ];
-                            }
+                            $photographer_work_source->size = $v['format']['size'];
+                            $photographer_work_source->deal_size = $v['format']['size'];
+                            $photographer_work_source->rich_size = $v['format']['size'];
+                            $photographer_work_source->save();
                         }
                     }
                 }

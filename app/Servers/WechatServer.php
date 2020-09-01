@@ -181,6 +181,7 @@ class WechatServer
                 [],
                 true
             );
+            @unlink($tmpfile);
         }else{
             $data = [
                 'content' => $content
