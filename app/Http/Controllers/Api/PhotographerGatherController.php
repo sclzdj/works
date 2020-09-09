@@ -54,18 +54,26 @@ class PhotographerGatherController extends BaseController
                 $photographerGather['id'],
                 false
             );
+
             //添加review
             $photographerGathers['data'][$k]['review'] = PhotographerGather::getPhotographerGatherReviewStatus($photographerGathers['data'][$k]['id']);
-            $photographerGatherWork = PhotographerGatherWork::where(
+            $photographerGathers['data'][$k]['workscount'] = PhotographerGatherWork::where(
                 ['photographer_gather_id' => $photographerGather['id']]
-            )->orderBy('sort', 'asc')->first();
-            if ($photographerGatherWork) {
-                $photographerWork = PhotographerWork::where(
-                    ['id' => $photographerGatherWork->photographer_work_id, 'status' => 200]
-                )->first();
-                if($photographerWork){
-                    $photographerWork = SystemServer::parsePhotographerWorkCover($photographerWork->toArray());
-                    $photographerGathers['data'][$k]['cover']=$photographerWork['cover'];
+            )->count();
+
+            $photographerGathers['data'][$k]['cover'] = [];
+            $photographerGatherWorks = PhotographerGatherWork::where(
+                ['photographer_gather_id' => $photographerGather['id']]
+            )->orderBy('sort', 'asc')->limit(3)->get();
+            if ($photographerGatherWorks) {
+                foreach ($photographerGatherWorks as $photographerGatherWork){
+                    $photographerWork = PhotographerWork::where(
+                        ['id' => $photographerGatherWork->photographer_work_id, 'status' => 200]
+                    )->first();
+                    if($photographerWork){
+                        $photographerWork = SystemServer::parsePhotographerWorkCover($photographerWork->toArray());
+                        array_push($photographerGathers['data'][$k]['cover'], $photographerWork['cover']);
+                    }
                 }
             }
         }

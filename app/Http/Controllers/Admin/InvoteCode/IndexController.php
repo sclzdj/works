@@ -196,4 +196,14 @@ class IndexController extends BaseController
 
         return substr(str_shuffle($strs), mt_rand(0, strlen($strs) - 11), $length);
     }
+
+    /**
+     * 创建邀请码
+     * @param number 创建的个数
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Request $request){
+        $menus = \App\Servers\NavigationServer::menus();
+        var_dump($menus);
+    }
 }

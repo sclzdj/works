@@ -86,6 +86,8 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::resource('works/helpNote', 'Works\HelpNoteController');//帮助管理
         Route::any('works/helpNoteSort', 'Works\HelpNoteController@sort');
         Route::resource('works/photographer', 'Works\PhotographerController');//用户管理
+        Route::get('works/photographerGuest', 'Works\PhotographerController@Guest');//用户管理
+        Route::get('works/photographerdownworks', 'Works\PhotographerController@downworks');//用户管理
         Route::get('works/photographerPoster', 'Works\PhotographerController@poster');
         Route::get('works/photographerGallery', 'Works\PhotographerController@gallery');
         Route::resource('works/photographerWork', 'Works\PhotographerWorkController');//项目管理
@@ -102,6 +104,7 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         // 邀请码管理
         Route::get('invotecode/lists' , 'InvoteCode\IndexController@lists');
         Route::resource('invotecode' , 'InvoteCode\IndexController');
+        Route::resource('invotecode/show' , 'InvoteCode\IndexController@show');
 
         // 大咖管理
         Route::get('works/star/lists', 'Works\StarController@lists');
@@ -123,6 +126,8 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
 
         // 目标管理
         Route::get('target/lists', 'Works\TargetUserController@lists');
+        Route::get('target/source' , 'Works\TargetUserController@sourcestore');
+        Route::get('target/fission' , 'Works\TargetUserController@fission');
         Route::resource('target' , 'Works\TargetUserController');
 
         // 邀请管理

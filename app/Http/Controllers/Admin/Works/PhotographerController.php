@@ -17,6 +17,7 @@ use App\Model\Index\PhotographerWork;
 use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\RandomPhotographer;
 use App\Model\Index\Star;
+use App\Model\Index\TargetUser;
 use App\Model\Index\User;
 use App\Model\Index\ViewRecord;
 use App\Model\Index\Visitor;
@@ -173,6 +174,20 @@ class PhotographerController extends BaseController
             $photographers[$k]['province'] = SystemArea::find($photographer->province);
             $photographers[$k]['city'] = SystemArea::find($photographer->city);
             $photographers[$k]['area'] = SystemArea::find($photographer->area);
+            $target = TargetUser::where(['user_id' => $photographers[$k]['user']->id])->leftJoin(
+                    'photographer_ranks',
+                    'target_users.rank_id',
+                    '=',
+                    'photographer_ranks.id'
+                )->first();
+            if ($target){
+                $photographers[$k]['target'] = $target;
+                if ($target->source == 3){
+                    $photographers[$k]['puser'] = User::where('id', $target->pid)->first();
+                }
+                $photographers[$k]['source'] = $target['source'];
+            }
+            $photographers[$k]['level'] = 0;
         }
         $provinces = SystemArea::select(SystemArea::allowFields())->where(['pid' => 0, 'level' => 1])->orderBy(
             'sort',
@@ -220,6 +235,80 @@ class PhotographerController extends BaseController
                 'photographerRanks'
             )
         );
+    }
+
+    public function upgrade(Request $request){
+        $photographer = $request->photographer_id;
+        Photographer::where(['id' => $photographer])->update(['is_upgrade' => 1]);
+
+        return response()->noContent();
+    }
+
+    public function downworks(Request $request){
+        $name = $request->name;
+        $where = [
+            ['name', 'like', '%' . $name . '%'],
+//            ['name', '=',  $name],
+            ['photographer_id', '=', $request->photographer_id]
+        ];
+        $works = PhotographerWork::where($where)->join(
+            'photographer_work_sources',
+            'photographer_work_sources.photographer_work_id',
+            '=',
+            'photographer_works.id'
+        )->select(
+            'photographer_works.name',
+            'photographer_work_sources.url'
+        )->get()->toArray();
+
+        foreach ($works as $work){
+            echo ($work['url']) . '<br/>';
+        }
+    }
+
+    public function Guest(Request $request){
+        $pageInfo = [
+            'pageSize' => $request['pageSize'] !== null ?
+                $request['pageSize'] :
+                SystemConfig::getVal('basic_page_size'),
+            'page' => $request['page'] !== null ?
+                $request['page'] :
+                1,
+        ];
+
+        $userid = $request['photographer_id'];
+//         $photographers = $Photographer->orderBy($orderBy['order_field'], $orderBy['order_type'])->groupBy(
+//            'photographers.id'
+//        )->paginate(
+//            $pageInfo['pageSize']
+//        );
+        $viewrecords = ViewRecord::where(['view_records.photographer_id' => $userid])->leftjoin(
+            'users',
+            'view_records.user_id',
+            '=',
+            'users.id'
+        )->leftjoin(
+            'photographer_works',
+            'users.photographer_id',
+            '=',
+            'photographer_works.photographer_id'
+        )->select(
+            \DB::raw('count(photographer_works.id) as works_count'),
+            'view_records.*',
+            'users.phoneNumber',
+            'users.id as uid',
+            'users.nickname'
+        )->groupBy(
+            'photographer_works.photographer_id'
+        )->paginate(
+            $pageInfo['pageSize']
+        )->toArray();
+
+        foreach ($viewrecords as $value){
+            var_dump($value);
+        }
+
+        exit();
     }
 
     /**

@@ -14,6 +14,7 @@ class TargetUser extends Model
      */
     protected $fillable = [
         'source',
+        'pid',
         'status',
         'invote_code_id',
         'user_id',

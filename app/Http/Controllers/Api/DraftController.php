@@ -850,6 +850,8 @@ class DraftController extends UserGuardController
         \DB::beginTransaction();//开启事务
         try {
             $photographer = $this->_photographer(null, $this->guard);
+            $photographer->is_setup = 1;
+            $photographer->save();
             $photographer_work = $photographer->photographerWorks()->where(
                 ['status' => 0]
             )->first();
