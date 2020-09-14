@@ -93,6 +93,7 @@ $api->version(
 
                 //用户合集
                 $api->get('my/photographerGathers', 'PhotographerGatherController@index');
+                $api->get('my/photographerGatherData', 'PhotographerGatherController@show');
                 $api->post('my/addPhotographerGather', 'PhotographerGatherController@store');
                 $api->post('my/savePhotographerGather', 'PhotographerGatherController@update');
                 //用户合集资料

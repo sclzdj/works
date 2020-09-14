@@ -3,11 +3,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Index\PhotographerGatherRequest;
+use App\Model\Admin\SystemConfig;
 use App\Model\Index\PhotographerGather;
 use App\Model\Index\PhotographerGatherInfo;
 use App\Model\Index\PhotographerGatherWork;
 use App\Model\Index\PhotographerInfoTag;
 use App\Model\Index\PhotographerWork;
+use App\Model\Index\PhotographerWorkCategory;
+use App\Model\Index\PhotographerWorkCustomerIndustry;
+use App\Model\Index\PhotographerWorkSource;
 use App\Servers\SystemServer;
 use App\Servers\WechatServer;
 use Illuminate\Http\Request;
@@ -54,13 +58,11 @@ class PhotographerGatherController extends BaseController
                 $photographerGather['id'],
                 false
             );
-
             //添加review
             $photographerGathers['data'][$k]['review'] = PhotographerGather::getPhotographerGatherReviewStatus($photographerGathers['data'][$k]['id']);
             $photographerGathers['data'][$k]['workscount'] = PhotographerGatherWork::where(
                 ['photographer_gather_id' => $photographerGather['id']]
             )->count();
-
             $photographerGathers['data'][$k]['cover'] = [];
             $photographerGatherWorks = PhotographerGatherWork::where(
                 ['photographer_gather_id' => $photographerGather['id']]
@@ -77,7 +79,6 @@ class PhotographerGatherController extends BaseController
                 }
             }
         }
-
         return $this->response->array($photographerGathers);
     }
 
@@ -162,6 +163,7 @@ class PhotographerGatherController extends BaseController
         if (\Auth::guard($this->guards['user'])->guest()) {
             return $this->response->errorUnauthorized();
         }
+
         $photographer = $this->_photographer(null, $this->guards['user']);
         $photographerGather = PhotographerGather::where(
             ['id' => $request->photographer_gather_id, 'photographer_id' => $photographer->id]
@@ -191,7 +193,7 @@ class PhotographerGatherController extends BaseController
 
                         return $this->response->error('ID为'.$photographer_work_id.'的项目不存在', 500);
                     }
-                    $photographerGatherWork = PhotographerGatherWork::create();
+                    $photographerGatherWork = new PhotographerGatherWork();
                     $photographerGatherWork->photographer_gather_id = $photographerGather->id;
                     $photographerGatherWork->photographer_work_id = $photographer_work_id;
                     $photographerGatherWork->sort = $k + 1;
@@ -210,5 +212,89 @@ class PhotographerGatherController extends BaseController
 
             return $this->response->error($e->getMessage(), 500);
         }
+    }
+
+    /**
+     * 合集用户展示
+     */
+    public function show(PhotographerGatherRequest $request){
+        if (\Auth::guard($this->guards['user'])->guest()) {
+            return $this->response->errorUnauthorized();
+        }
+
+        $pageInfo = [
+            'pageSize' => $request['pageSize'] !== null ?
+                $request['pageSize'] :
+                SystemConfig::getVal('basic_page_size'),
+            'page' => $request['page'] !== null ?
+                $request['page'] :
+                1
+        ];
+        $filter = [
+            'photographer_work_customer_industry_id' => $request['photographer_work_customer_industry_id'] !== null ?
+                $request['photographer_work_customer_industry_id'] :
+                '',
+            'sheets_number' => $request['sheets_number'] !== null ?
+                $request['sheets_number'] :
+                '',
+            'shooting_duration' => $request['shooting_duration'] !== null ?
+                $request['shooting_duration'] :
+                ''
+        ];
+
+        $where = ['photographer_gather_works.photographer_gather_id' => $request->photographer_gather_id];
+
+        if (!empty($filter['sheets_number'])) {
+            $where[] = ['photographer_works.sheets_number', 'in', [$filter['sheets_number'][0], $filter['sheets_number'][1]]];
+        }
+        if (!empty($filter['shooting_duration'])) {
+            $where[] = ['photographer_works.shooting_duration', 'in', [$filter['shooting_duration'][0], $filter['shooting_duration'][1]]];
+        }
+        if ($filter['photographer_work_customer_industry_id'] !== '') {
+            $where[] = ['photographer_works.photographer_work_customer_industry_id', '<>', 0];
+        }
+
+        $photographer = $this->_photographer(null, $this->guards['user'])->toArray();
+        $photographerGather = PhotographerGather::where(['id' => $request->photographer_gather_id])->first()->toArray();
+
+        $photographerWorks = PhotographerWork::where($where)->join(
+            'photographer_gather_works',
+            'photographer_gather_works.photographer_work_id',
+            '=',
+            'photographer_works.id'
+        )->select(
+            'photographer_works.id',
+            'photographer_works.name',
+            'photographer_works.sheets_number',
+            'photographer_works.shooting_duration',
+            'photographer_works.photographer_work_customer_industry_id',
+            'photographer_works.photographer_work_category_id'
+        )->paginate(
+            $pageInfo['pageSize']
+        )->toArray();
+
+        foreach ($photographerWorks['data'] as &$photographerWork){
+            $photographerWork = SystemServer::parsePhotographerWorkCover($photographerWork, false, true);
+            $photographerWork['industry_name'] = '';
+            if ($photographerWork['photographer_work_customer_industry_id']){
+                $PhotographerWorkCustomerIndustry = PhotographerWorkCustomerIndustry::where(['id' => $photographerWork['photographer_work_customer_industry_id']])->first()->toArray();
+                $photographerWork['industry_name']  = $PhotographerWorkCustomerIndustry['name'];
+            }
+
+            $photographerWork['category_name'] = '';
+            if ($photographerWork['photographer_work_category_id']){
+                $PhotographerWorkCategory = PhotographerWorkCategory::where(['id' => $photographerWork['photographer_work_category_id']])->first()->toArray();
+                $photographerWork['category_name']  = $PhotographerWorkCategory['name'];
+            }
+
+        }
+
+        $data = [
+            'photographer' => $photographer,
+            'photographerGather' => $photographerGather,
+            'photographerWorks' => $photographerWorks
+        ];
+
+        return $this->response->array($data);
     }
 }

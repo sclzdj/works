@@ -112,7 +112,8 @@ class PhotographerGather extends Model
                 ['review', '<>', 1],
             ];
 
-            $PhotographerWorkSources = PhotographerWorkSource::where($where)->orderBy('review', 'desc')->get();
+            $PhotographerWorkSources = PhotographerWorkSource::where($where)->orderBy('review', 'desc')->get()->toArray();
+
             if (!empty($PhotographerWorkSources)){
                 return $PhotographerWorkSources[0]['review'];
             }else{

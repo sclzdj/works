@@ -8,6 +8,7 @@ use App\Model\Index\Photographer;
 use App\Model\Index\PhotographerGather;
 use App\Model\Index\PhotographerGatherInfo;
 use App\Model\Index\PhotographerInfoTag;
+use App\Model\Index\PhotographerWork;
 use App\Model\Index\User;
 use App\Servers\SystemServer;
 use Illuminate\Http\Request;
@@ -151,8 +152,16 @@ class PhotographerGatherInfoController extends UserGuardController
     {
         $photographer = $this->_photographer();
         $photographerGatherInfo = PhotographerGatherInfo::where(
-            ['id' => $request->photographer_gather_info_id, 'photographer_id' => $photographer->id]
-        )->where(['status' => 200])->first();
+            ['photographer_gather_infos.id' => $request->photographer_gather_info_id, 'photographer_gather_infos.photographer_id' => $photographer->id]
+        )->join(
+            'photographer_gathers',
+            'photographer_gathers.photographer_gather_info_id',
+            '=',
+            'photographer_gather_infos.id'
+        )->select(
+            'photographer_gather_infos.*',
+            'photographer_gathers.id as photographer_gather_id'
+        )->where(['photographer_gather_infos.status' => 200])->first();
         if (!$photographerGatherInfo) {
             return $this->response->error('合集资料不存在', 500);
         }

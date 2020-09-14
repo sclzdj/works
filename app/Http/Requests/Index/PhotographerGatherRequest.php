@@ -23,9 +23,14 @@ class PhotographerGatherRequest extends BaseRequest
                 ];
                 $rules = array_merge($rules, $this->predefined['paginate']['rules']);
                 break;
+            case 'show':
+                $rules = [
+                    'photographer_gather_id' => 'integer|exists:photographer_gathers,id',
+                ];
+                break;
             case 'store':
                 $rules = [
-                    'name' => ['required', new ValidationName, new ValidateWordSecurity],
+//                    'name' => ['required', new ValidationName, new ValidateWordSecurity],
                     //创建合集暂时不需要添加项目
 //                    'photographer_gather_info_id' => 'required|exists:photographer_gather_infos,id',
 //                    'photographer_work_ids' => 'required|array',
@@ -33,10 +38,10 @@ class PhotographerGatherRequest extends BaseRequest
                 break;
             case 'update':
                 $rules = [
-                    'photographer_gather_id' => 'required',
-                    'name' => 'required',
+//                    'photographer_gather_id' => 'required',
+//                    'name' => 'required',
 //                    'photographer_gather_info_id' => 'required|exists:photographer_gather_infos,id',
-                    'photographer_work_ids' => 'required|array',
+//                    'photographer_work_ids' => 'required|array',
                 ];
                 break;
             case 'infoIndex':
@@ -46,22 +51,22 @@ class PhotographerGatherRequest extends BaseRequest
                 break;
             case 'infoStore':
                 $rules = [
-                    'photographer_rank_id' => 'required|exists:photographer_ranks,id',
-                    'start_year' => 'required|digits:4',
-//                    'is_default' => 'in:0,1',
-                    'brand_tags' => 'required|array',
-                    'brand_tags.*' => 'required|max:50',
+//                    'photographer_rank_id' => 'required|exists:photographer_ranks,id',
+//                    'start_year' => 'required|digits:4',
+////                    'is_default' => 'in:0,1',
+//                    'brand_tags' => 'required|array',
+//                    'brand_tags.*' => 'required|max:50',
                 ];
                 break;
             case 'infoUpdate':
                 $rules = [
-                    'photographer_gather_info_id' => 'required|exists:photographer_gather_infos,id',
-                    'photographer_rank_id' => 'required|exists:photographer_ranks,id',
-                    'start_year' => 'required|digits:4',
-//                    'is_default' => 'in:0,1',
-                    'showtype' => 'integer',
-                    'brand_tags' => 'required|array',
-                    'brand_tags.*' => 'required|max:50',
+//                    'photographer_gather_info_id' => 'required|exists:photographer_gather_infos,id',
+//                    'photographer_rank_id' => 'required|exists:photographer_ranks,id',
+//                    'start_year' => 'required|digits:4',
+////                    'is_default' => 'in:0,1',
+//                    'showtype' => 'integer',
+//                    'brand_tags' => 'required|array',
+//                    'brand_tags.*' => 'required|max:50',
                 ];
                 break;
             case 'infoSetDefault':
@@ -94,6 +99,11 @@ class PhotographerGatherRequest extends BaseRequest
                     'photographer_id.integer' => '用户id必须为数字',
                 ];
                 $messages = array_merge($messages, $this->predefined['paginate']['messages']);
+                break;
+            case 'show':
+                $messages = [
+                    'photographer_gather_id.integer' => '合集id不存在！',
+                ];
                 break;
             case 'store':
                 $messages = [
@@ -183,6 +193,7 @@ class PhotographerGatherRequest extends BaseRequest
             'infoStore' => ['POST|App\Http\Controllers\Api\PhotographerGatherInfoController@store'],
             'infoUpdate' => ['POST|App\Http\Controllers\Api\PhotographerGatherInfoController@update'],
             'infoSetDefault' => ['POST|App\Http\Controllers\Api\PhotographerGatherInfoController@setDefault'],
+            'show' => ['POST|App\Http\Controllers\Api\PhotographerGatherInfoController@show'],
             'info' => [
                 'GET|App\Http\Controllers\Api\PhotographerGatherInfoController@show',
                 'DELETE|App\Http\Controllers\Api\PhotographerGatherInfoController@destroy',

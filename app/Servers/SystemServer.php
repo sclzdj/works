@@ -175,6 +175,9 @@ class SystemServer
                                 $photographer_work_source,
                                 'imageMogr2/auto-orient/thumbnail/600x'
                             );
+                            if (!$thumb_url){
+                                $thumb_url = $photographer_work_source->url;
+                            }
                             if (!$isSimple) {
                                 $data['cover'] = $photographer_work_source->toArray();
                                 $data['cover']['thumb_url'] = $thumb_url;

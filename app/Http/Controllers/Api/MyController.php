@@ -639,21 +639,54 @@ class MyController extends UserGuardController
             },
             ['id', 'photographer_work_id', 'type', 'url', 'deal_url', 'deal_width', 'deal_height', 'image_ave']
         );
-        $photographerWorkSources = PhotographerWorkSource::select(
-            $fields
-        )->join(
-            'photographer_works',
-            'photographer_work_sources.photographer_work_id',
-            '=',
-            'photographer_works.id'
-        )->where(
-            [
-                'photographer_works.photographer_id' => $photographer->id,
-                'photographer_work_sources.status' => 200,
-                'photographer_works.status' => 200,
-                'photographer_work_sources.type' => 'image',
-            ]
-        );
+        if ($request->photographer_gather_id){
+            $photographerWorks = PhotographerWork::where(['photographer_gather_works.photographer_gather_id' => $request->photographer_gather_id])->join(
+                'photographer_gather_works',
+                'photographer_gather_works.photographer_work_id',
+                '=',
+                'photographer_works.id'
+            )->select(
+                'photographer_works.id'
+            )->get()->toArray();
+            $photographerWorksid = [];
+            foreach ($photographerWorks as $photographerWork){
+                array_push( $photographerWorksid, $photographerWork['id']);
+            }
+            $photographerWorkSources = PhotographerWorkSource::select(
+                $fields
+            )->join(
+                'photographer_works',
+                'photographer_work_sources.photographer_work_id',
+                '=',
+                'photographer_works.id'
+            )->where(
+                [
+                    'photographer_works.photographer_id' => $photographer->id,
+                    'photographer_work_sources.status' => 200,
+                    'photographer_works.status' => 200,
+                    'photographer_work_sources.type' => 'image',
+                ]
+            )->whereIn('photographer_works.id', $photographerWorksid);
+        }else{
+            $photographerWorkSources = PhotographerWorkSource::select(
+                $fields
+            )->join(
+                'photographer_works',
+                'photographer_work_sources.photographer_work_id',
+                '=',
+                'photographer_works.id'
+            )->where(
+                [
+                    'photographer_works.photographer_id' => $photographer->id,
+                    'photographer_work_sources.status' => 200,
+                    'photographer_works.status' => 200,
+                    'photographer_work_sources.type' => 'image',
+                ]
+            );
+        }
+
+
+
         if ($request->is_roof_order_by) {
             $photographerWorkSources = $photographerWorkSources->orderBy(
                 'photographer_works.roof',
