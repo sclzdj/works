@@ -16,7 +16,7 @@ class AddColumnToPhotographers extends Migration
         Schema::table('photographers', function (Blueprint $table) {
             //
             $table->integer('invite')->after('review')->default(0)->comment("邀请次数");
-            $table->integer('is_setup')->after('is_upgrade')->default(0)->comment("是否创建");
+            $table->integer('is_setup')->after('review')->default(0)->comment("是否创建");
             $table->integer('level')->after('is_setup')->default(0)->comment("用户等级");
         });
     }

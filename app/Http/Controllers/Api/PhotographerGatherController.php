@@ -3,15 +3,18 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Index\PhotographerGatherRequest;
+use App\Http\Requests\Index\PhotographerRequest;
 use App\Model\Admin\SystemConfig;
 use App\Model\Index\PhotographerGather;
 use App\Model\Index\PhotographerGatherInfo;
 use App\Model\Index\PhotographerGatherWork;
 use App\Model\Index\PhotographerInfoTag;
+use App\Model\Index\PhotographerRank;
 use App\Model\Index\PhotographerWork;
 use App\Model\Index\PhotographerWorkCategory;
 use App\Model\Index\PhotographerWorkCustomerIndustry;
 use App\Model\Index\PhotographerWorkSource;
+use App\Servers\ArrServer;
 use App\Servers\SystemServer;
 use App\Servers\WechatServer;
 use Illuminate\Http\Request;
@@ -243,21 +246,30 @@ class PhotographerGatherController extends BaseController
         ];
 
         $where = ['photographer_gather_works.photographer_gather_id' => $request->photographer_gather_id];
-
+        $where2 = "";
         if (!empty($filter['sheets_number'])) {
-            $where[] = ['photographer_works.sheets_number', 'in', [$filter['sheets_number'][0], $filter['sheets_number'][1]]];
+            $where2 .= 'photographer_works.sheets_number >= '. $filter['sheets_number'][0] . ' and  photographer_works.sheets_number <= ' . $filter['sheets_number'][1];
         }
         if (!empty($filter['shooting_duration'])) {
-            $where[] = ['photographer_works.shooting_duration', 'in', [$filter['shooting_duration'][0], $filter['shooting_duration'][1]]];
+            if ($where2){
+                $where2 .= ' and ';
+            }
+            $where2 .= ' photographer_works.shooting_duration >= '. $filter['shooting_duration'][0] . ' and  photographer_works.shooting_duration <= ' . $filter['shooting_duration'][1];
         }
         if ($filter['photographer_work_customer_industry_id'] !== '') {
             $where[] = ['photographer_works.photographer_work_customer_industry_id', '<>', 0];
         }
 
         $photographer = $this->_photographer(null, $this->guards['user'])->toArray();
-        $photographerGather = PhotographerGather::where(['id' => $request->photographer_gather_id])->first()->toArray();
+        $photographer['rank'] = "";
+        if ($photographer['photographer_rank_id'] != 0){
+            $rank = PhotographerRank::where(['id' => $photographer['photographer_rank_id']])->first();
+            $photographer['rank'] = $rank->name;
+        }
 
-        $photographerWorks = PhotographerWork::where($where)->join(
+        $photographerGather = PhotographerGather::where(['id' => $request->photographer_gather_id])->first()->toArray();
+        $photographerGather['review'] = PhotographerGather::getPhotographerGatherReviewStatus($photographerGather['id']);
+        $photographerWorks = PhotographerWork::where($where)->whereRaw($where2)->join(
             'photographer_gather_works',
             'photographer_gather_works.photographer_work_id',
             '=',
@@ -296,5 +308,81 @@ class PhotographerGatherController extends BaseController
         ];
 
         return $this->response->array($data);
+    }
+
+    public function  changesort(PhotographerGatherRequest $request){
+        PhotographerGather::where(['id' => $request->photographer_gather_id])->update(['sort' => $request->sort]);
+
+        return response()->noContent();
+    }
+
+    public function showAllSource(PhotographerGatherRequest $request){
+        $photographer = $this->_photographer(null, $this->guards['user']);
+
+        $photographerworks = \DB::table('photographer_gather_works')->where(['photographer_gather_id' => $request->photographer_gather_id])->get();
+
+        $PhotographerWorkSourcesArr = [];
+        foreach ($photographerworks as $photographerwork) {
+            $photographer_work = PhotographerWork::where(['id' => $photographerwork->photographer_work_id])->first();
+            $category = [];
+            if ($photographer_work->photographer_work_category_id){
+                $category = PhotographerWorkCategory::elderCategories($photographer_work->photographer_work_category_id);
+                $cg = PhotographerWorkCategory::select(PhotographerWorkCategory::allowFields())->find($photographer_work->photographer_work_category_id)->toArray();
+                array_push($category, $cg);
+            }
+
+
+
+            $work = [
+                'id' => $photographer_work->id,
+                'photographer_id' => $photographer->id,
+                'photographer_work_category_id' => $photographer_work->photographer_work_category_id,
+                'custom_name' => $photographer_work->custom_name,
+                'cover' => SystemServer::parsePhotographerWorkCover($photographer_work->toArray())['cover']['url'],
+                'category' => $category
+            ];
+
+            $where = [
+                'photographer_work_id' => $photographer_work->id
+            ];
+
+            $PhotographerWorkSources = PhotographerWorkSource::where($where)->get(['id', 'photographer_work_id', 'type', 'deal_width', 'deal_height', 'image_ave', 'url']);
+            if ($PhotographerWorkSources){
+                foreach ($PhotographerWorkSources->toArray() as  $source){
+
+                    $source['work'] = $work;
+                    array_push($PhotographerWorkSourcesArr, $source);
+                }
+            }
+
+        }
+
+        return $this->response->array($PhotographerWorkSourcesArr);
+    }
+
+
+    public function bindphotographerinfo(PhotographerGatherRequest $request){
+        PhotographerGather::where(['id' => $request->photographer_gather_id])->update(['photographer_gather_info_id' => $request->photographer_gather_info_id]);
+
+        return response()->noContent();
+    }
+
+    public function destory(PhotographerGatherRequest $request){
+        \DB::beginTransaction();//开启事务
+        try{
+            $PhotographerGather =  PhotographerGather::where(['id' => $request->photographer_gather_id])->first();
+            if ($PhotographerGather->photographer_gather_info_id){
+                PhotographerGatherInfo::where(['id' => $PhotographerGather->photographer_gather_info_id])->delete();
+            }
+
+            PhotographerGather::where(['id' => $request->photographer_gather_id])->delete();
+            PhotographerGatherWork::where(['photographer_gather_id' =>  $request->photographer_gather_id])->delete();
+
+        }catch (\Exception $e){
+            \DB::rollBack();
+        }
+        \DB::commit();
+
+        return response()->noContent();
     }
 }

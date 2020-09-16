@@ -19,6 +19,7 @@ class PhotographerGather extends Model
         'xacode',
         'xacode_hyaline',
         'status',
+        'sort',
     ];
 
     /**

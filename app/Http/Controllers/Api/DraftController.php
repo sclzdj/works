@@ -1010,6 +1010,7 @@ class DraftController extends UserGuardController
         $asynchronous_task = [];
         \DB::beginTransaction();//开启事务
         try {
+            $user = auth($this->guard)->user();
             $photographer = $this->_photographer(null, $this->guard);
             $photographer_work = $photographer->photographerWorks()->where(
                 ['status' => 0]
@@ -1081,6 +1082,92 @@ class DraftController extends UserGuardController
                     $photographer_work_tag->save();
                 }
             }
+
+            if (!$photographer->xacode) {
+                $xacode_res = WechatServer::generateXacode($scene, false);
+                if ($xacode_res['code'] != 200) {
+                    \DB::rollback();//回滚事务
+
+                    return $this->response->error($xacode_res['msg'], $xacode_res['code']);
+                }
+                $photographer->xacode = $xacode_res['xacode'];
+            }
+            if (!$photographer->xacode_hyaline) {
+                $xacode_res = WechatServer::generateXacode($scene);
+                if ($xacode_res['code'] != 200) {
+                    \DB::rollback();//回滚事务
+
+                    return $this->response->error($xacode_res['msg'], $xacode_res['code']);
+                }
+                $photographer->xacode_hyaline = $xacode_res['xacode'];
+            }
+            $photographer_work->status = 200;
+            $photographer_work->save();
+            $photographerWorkSources = $photographer_work->photographerWorkSources()->where(
+                ['status' => 200, 'type' => 'image']
+            )->orderBy('sort', 'asc')->get();
+            if ($photographerWorkSources) {
+                foreach ($photographerWorkSources as $photographerWorkSource) {
+                    $photographerWorkSource->is_new_source = 0;
+                    $photographerWorkSource->save();
+                    $asynchronous_task[] = [
+                        'task_type' => 'editRunGenerateWatermark',
+                        'photographer_work_source_id' => $photographerWorkSource->id,
+                        'edit_node' => '用户注册',
+                    ];
+                }
+            }
+            //把他作为别人的访客标为同行
+            Visitor::where(['user_id' => $user->id, 'visitor_tag_id' => 0])->update(['visitor_tag_id' => 4]);
+            if ($user->identity == 0){
+                if ($user->gh_openid != '') {
+                    $app = app('wechat.official_account');
+                    $template_id = 'rjph5uR7iIzT2rEn3LjnF65zEdKZYisUGoAVgpipxpk';
+                    $tmr = $app->template_message->send(
+                        [
+                            'touser' => $user->gh_openid,
+                            'template_id' => $template_id,
+                            'url' => config('app.url'),
+                            'miniprogram' => [
+                                'appid' => config('custom.wechat.mp.appid'),
+                                'pagepath' => 'pages/homePage/homePage',//注册成功分享页
+                            ],
+                            'data' => [
+                                'first' => '你的云作品已创建成功。',
+                                'keyword1' => $photographer->name,
+                                'keyword2' => SystemArea::where('id', $photographer->city)->value('short_name'),
+                                'keyword3' => PhotographerRank::where('id', $photographer->photographer_rank_id)->value(
+                                        'name'
+                                    ).'摄影师',
+                                'keyword4' => $photographer->wechat,
+                                'keyword5' => $photographer->mobile,
+                                'remark' => '云作品客服微信'.SystemConfig::getVal('customer_wechat', 'works'),
+                            ],
+                        ]
+                    );
+                    if ($tmr['errcode'] != 0) {
+                        ErrLogServer::SendWxGhTemplateMessage($template_id, $user->gh_openid, $tmr['errmsg'], $tmr);
+                    }
+                }
+                if ($photographer->mobile) {//发送短信
+                    $third_type = config('custom.send_short_message.third_type');
+                    $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
+                    if ($third_type == 'ali') {
+                        AliSendShortMessageServer::quickSendSms(
+                            $photographer->mobile,
+                            $TemplateCodes,
+                            'register_success',
+                            ['name' => $photographer->name]
+                        );
+                    }
+                }
+            }
+            $user->identity = 1;
+            $user->save();
+            $photographer->status = 200;
+            $photographer->save();
+
+
             \DB::commit();//提交事务
             foreach ($asynchronous_task as $task) {
                 if ($task['task_type'] == 'editRunGenerateWatermark') {

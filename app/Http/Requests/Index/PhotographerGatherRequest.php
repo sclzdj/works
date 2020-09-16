@@ -80,6 +80,11 @@ class PhotographerGatherRequest extends BaseRequest
                     'photographer_gather_info_id' => 'required|exists:photographer_gather_infos,id',
                 ];
                 break;
+            case 'getallsource':
+                $rules = [
+                    'photographer_gather_id' => 'required|exists:photographer_gathers,id',
+                ];
+                break;
         }
 
         return $rules;
@@ -130,6 +135,12 @@ class PhotographerGatherRequest extends BaseRequest
             case 'infoIndex':
                 $messages = [
 
+                ];
+                break;
+            case 'getallsource':
+                $messages = [
+                    'photographer_gather_id.required' => '合集id不能为空',
+                    'photographer_gather_id.exists' => '合集不存在',
                 ];
                 break;
             case 'infoStore':
@@ -193,7 +204,11 @@ class PhotographerGatherRequest extends BaseRequest
             'infoStore' => ['POST|App\Http\Controllers\Api\PhotographerGatherInfoController@store'],
             'infoUpdate' => ['POST|App\Http\Controllers\Api\PhotographerGatherInfoController@update'],
             'infoSetDefault' => ['POST|App\Http\Controllers\Api\PhotographerGatherInfoController@setDefault'],
-            'show' => ['POST|App\Http\Controllers\Api\PhotographerGatherInfoController@show'],
+            'show' => [
+                'POST|App\Http\Controllers\Api\PhotographerGatherInfoController@show',
+                'POST|App\Http\Controllers\Api\PhotographerGatherInfoController@modifyrank'
+            ],
+            'getallsource' => ['GET|App\Http\Controllers\Api\PhotographerGatherInfoController@getallsource'],
             'info' => [
                 'GET|App\Http\Controllers\Api\PhotographerGatherInfoController@show',
                 'DELETE|App\Http\Controllers\Api\PhotographerGatherInfoController@destroy',

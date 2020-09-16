@@ -29,6 +29,8 @@ Route::group(
         Route::any('system/file/ueditorUploadConfig', 'System\FileController@ueditorUploadConfig');
         Route::any('system/file/ueditorList', 'System\FileController@ueditorList');
         Route::any('system/file/ueditorCatchImage', 'System\FileController@ueditorCatchImage');
+
+        //裂变
     }
 );
 
@@ -93,7 +95,11 @@ $api->version(
 
                 //用户合集
                 $api->get('my/photographerGathers', 'PhotographerGatherController@index');
+                $api->post('my/photographerGathersbindphotographerinfo', 'PhotographerGatherController@bindphotographerinfo');
+                $api->get('my/getAllWorkSources', 'PhotographerGatherController@showAllSource');
                 $api->get('my/photographerGatherData', 'PhotographerGatherController@show');
+                $api->post('my/changephotographerGathersort', 'PhotographerGatherController@changesort');
+                $api->post('my/deletePhotographerGather', 'PhotographerGatherController@destory');
                 $api->post('my/addPhotographerGather', 'PhotographerGatherController@store');
                 $api->post('my/savePhotographerGather', 'PhotographerGatherController@update');
                 //用户合集资料
