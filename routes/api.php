@@ -60,6 +60,7 @@ $api->version(
                 $api->get('configs', 'SystemController@configs');
                 $api->get('baiduDlink', 'SystemController@baiduDlink');
                 $api->get('wordcheck', 'SystemController@checkWordSecurity');
+                $api->get('deleteUser', 'SystemController@deleteUser');
                 //微信用户登录
                 $api->get('login', 'LoginController@mpLogin');
                 $api->post('login', 'LoginController@login');

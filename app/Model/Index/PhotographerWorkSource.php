@@ -48,7 +48,7 @@ class PhotographerWorkSource extends Model
      * @var array
      */
     protected $hidden = [
-        'exif',
+//        'exif',
     ];
 
 
@@ -66,6 +66,7 @@ class PhotographerWorkSource extends Model
             'size',
             'width',
             'height',
+            'exif',
             'image_ave',
             'deal_key',
             'deal_url',

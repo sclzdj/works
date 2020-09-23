@@ -28,6 +28,7 @@ use App\Model\Index\Visitor;
 use App\Servers\ArrServer;
 use App\Servers\PhotographerServer;
 use App\Servers\SystemServer;
+use App\Servers\WechatServer;
 use Illuminate\Http\Request;
 use function Qiniu\base64_urlSafeEncode;
 
@@ -569,7 +570,15 @@ class PhotographerController extends BaseController
         $buckets = config('custom.qiniu.buckets');
         $domain = $buckets[$bucket]['domain'] ?? '';
 
-        $xacode = Photographer::getXacode($photographer_id);
+        if ($request->photographer_gather_id){
+            //10开头代表合集
+            $scene = '10/' . $photographer_id .  '/' . $request->photographer_gather_id;
+            $xacode = WechatServer::generateXacode($scene, false);
+            $xacode = Photographer::getXacode($photographer_id, true, $xacode['xacode']);
+        }else{
+            $xacode = Photographer::getXacode($photographer_id);
+        }
+
         if ($xacode) {
             $xacodeImgage = \Qiniu\base64_urlSafeEncode(
                 $xacode.'|imageMogr2/auto-orient/thumbnail/250x250!'
@@ -581,7 +590,6 @@ class PhotographerController extends BaseController
                 ).'?imageMogr2/auto-orient/thumbnail/250x250!|roundPic/radius/!50p'
             );
         }
-
         $photographer_city = (string)SystemArea::where('id', $photographer->city)->value('short_name');
         $photographer_rank = (string)PhotographerRank::where('id', $photographer->photographer_rank_id)->value('name');
         $photographer_works_count = $photographer->photographerWorks()->where('status', 200)->count();

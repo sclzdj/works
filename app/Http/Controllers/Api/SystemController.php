@@ -14,16 +14,30 @@ use App\Model\Admin\SystemArea;
 use App\Model\Admin\SystemConfig;
 use App\Model\Index\BaiduOauth;
 use App\Model\Index\CrowdFunding;
+use App\Model\Index\DeliverWork;
+use App\Model\Index\DeliverWorkFile;
+use App\Model\Index\DeliverWorkObtain;
+use App\Model\Index\DeliverWorkSyncPanJob;
 use App\Model\Index\HelpNote;
 use App\Model\Index\HelpTagNotes;
 use App\Model\Index\HelpTags;
+use App\Model\Index\OperateRecord;
 use App\Model\Index\Photographer;
+use App\Model\Index\PhotographerGather;
+use App\Model\Index\PhotographerGatherInfo;
+use App\Model\Index\PhotographerGatherWork;
 use App\Model\Index\PhotographerRank;
 use App\Model\Index\PhotographerWork;
 use App\Model\Index\PhotographerWorkCategory;
 use App\Model\Index\PhotographerWorkCustomerIndustry;
+use App\Model\Index\PhotographerWorkSource;
+use App\Model\Index\QuesionUser;
+use App\Model\Index\RecodeScence;
 use App\Model\Index\SmsCode;
+use App\Model\Index\TargetUser;
 use App\Model\Index\User;
+use App\Model\Index\ViewRecord;
+use App\Model\Index\Visitor;
 use App\Model\Index\VisitorTag;
 use App\Servers\AliSendShortMessageServer;
 use App\Servers\ErrLogServer;
@@ -417,5 +431,94 @@ class SystemController extends BaseController
         }
 
         return $this->response->noContent();
+    }
+
+    /**
+     * 删除用户
+     */
+    public function deleteUser(SystemRequest $request){
+        $userid = $request->userid;
+        \DB::beginTransaction();
+        try {
+            $user = User::where(['id' => $userid])->first();
+
+            $worksobj = PhotographerWork::where(['photographer_id' => $user['photographer_id']]);
+            $works = $worksobj->get();
+            //删除项目
+            if ($works){
+                $works = $works->pluck(['id']);
+                $workids = $works->toArray();
+                $whereraw = ' `id` in (' . implode(',' , $workids) . ')';
+                PhotographerWorkSource::whereRaw($whereraw)->delete();
+            }
+            //删除合集
+            $pgsobj = PhotographerGather::where(['photographer_id' => $user['photographer_id']]);
+            $pgs = $pgsobj->get();
+            if (!$pgs->isEmpty()){
+                $pgs = $pgs->pluck(['id']);
+                $pgsids = $pgs->toArray();
+                $whereraw = ' `photographer_gather_id` in (' . implode(',' , $pgsids) . ')';
+                //删除合集归属
+                PhotographerGatherWork::whereRaw($whereraw)->delete();
+
+                PhotographerGatherInfo::where(['photographer_id' => $user['photographer_id']])->delete();
+            }
+
+            //deliver
+            $dwobj = DeliverWork::where(['user_id' => $user['id']]);
+            $dw = $dwobj->get();
+            if (!$dw->isEmpty()){
+                $dw = $dw->pluck(['id']);
+                $dwids = $dw->toArray();
+                $whereraw = ' `work_id` in (' . implode(',' , $dwids) . ')';
+                DeliverWorkFile::whereRaw($whereraw)->delete();
+
+                DeliverWorkObtain::whereRaw($whereraw)->delete();
+
+                DeliverWorkSyncPanJob::where($whereraw)->delete();
+            }
+
+
+            $dwobj->delete();
+
+
+            $Orwhere = [];
+            $Orwhere[] = ['user_id','=', $user['id'], 'OR'];
+            $Orwhere[] = ['photographer_id' ,'=',  $user['photographer_id'], 'OR'];
+
+            OperateRecord::where($Orwhere)->delete();
+
+            RecodeScence::where(['user_id' => $user['id']])->delete();
+
+            Visitor::where($Orwhere)->delete();
+
+
+
+            ViewRecord::where($Orwhere)->delete();
+
+            TargetUser::where(['user_id' => $user['id']])->delete();
+
+            //删除百度授权
+            BaiduOauth::where(['user_id' => $user['id']])->delete();
+
+            //删除问题反馈
+            QuesionUser::where(['user_id' => $user['id']])->delete();
+
+            $pgsobj->delete();
+            $worksobj->delete();
+            Photographer::where(['id' => $user['photographer_id']])->delete();
+            User::where(['id' => $userid])->delete();
+//
+        }catch (\Exception $e){
+            \DB::rollBack();
+
+            return $this->response->error("删除失败!", 500);
+        }
+
+        \DB::commit();
+
+
+        return $this->response->noContent();
+
     }
 }

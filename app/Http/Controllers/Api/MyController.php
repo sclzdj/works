@@ -1024,7 +1024,7 @@ class MyController extends UserGuardController
                 return $this->response->error('用户不存在', 500);
             }
             //检查头像
-            CheckImgSecurity::dispatch($photographer, $request->avatar)->onConnection('redis')->onQueue('check');
+            CheckImgSecurity::dispatch($photographer, $request->avatar)->onConnection('redis')->onQueue('default2');
 
             $photographer->review = 0;
             $photographer->save();
@@ -1183,6 +1183,22 @@ class MyController extends UserGuardController
             $photographer_work->hide_shooting_duration = $request->hide_shooting_duration;
             $photographer_work->photographer_work_category_id = $request->photographer_work_category_id;
             $photographer_work->save();
+            //批量添加项目到合集中
+            if ($request->photographer_gather_id){
+                foreach($request->photographer_gather_id as $photographer_gather_id){
+                    $photographergather = PhotographerGather::where(['id' => $photographer_gather_id])->first();
+                    if ($photographergather){
+                        $flag = PhotographerGatherWork::where(['photographer_work_id' => $photographer_work->id, 'photographer_gather_id' => $photographergather->id])->first();
+                        if (!$flag){
+                            $pgw = new PhotographerGatherWork();
+                            $pgw->photographer_gather_id = $photographergather->id;
+                            $pgw->photographer_work_id = $photographer_work->id;
+                            $pgw->sort = 1;
+                            $pgw->save();
+                        }
+                    }
+                }
+            }
             PhotographerWorkTag::where(['photographer_work_id' => $photographer_work->id])->delete();
             if ($request->tags) {
                 foreach ($request->tags as $v) {
@@ -1775,6 +1791,7 @@ class MyController extends UserGuardController
         Request $request
     ) {
         $photographer_id = $request->input('photographer_id');
+        $photographer_gather_id = $request->input('photographer_gather_id');
         $photographer = Photographer::where('id', $photographer_id)->first();
 
         if (empty($photographer)) {
@@ -1787,7 +1804,7 @@ class MyController extends UserGuardController
 
         return [
             'result' => true,
-            'share_url' => $Photographer->generateShare($photographer_id),
+            'share_url' => $Photographer->generateShare($photographer_id, $photographer_gather_id),
         ];
     }
 

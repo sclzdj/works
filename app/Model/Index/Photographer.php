@@ -79,16 +79,18 @@ class Photographer extends Model
      * @param bool $is_hyaline 是否透明
      * @return string
      */
-    public static function getXacode($photographer_id, $is_hyaline = true)
+    public static function getXacode($photographer_id, $is_hyaline = true, $xacode="")
     {
         $photographer = self::find($photographer_id);
         if (!$photographer) {
             return '';
         }
-        if ($is_hyaline) {
-            $xacode = $photographer->xacode_hyaline;
-        } else {
-            $xacode = $photographer->xacode;
+        if (!$xacode){
+            if ($is_hyaline) {
+                $xacode = $photographer->xacode_hyaline;
+            } else {
+                $xacode = $photographer->xacode;
+            }
         }
         if ($xacode) {
             if ($photographer->avatar) {
@@ -495,7 +497,7 @@ class Photographer extends Model
      * @param $photographer_id
      * @return string
      */
-    public function generateShare($photographer_id)
+    public function generateShare($photographer_id, $photographer_gather_id=null)
     {
         $buckets = config('custom.qiniu.buckets');
         $domain = $buckets['zuopin']['domain'] ?? '';
@@ -508,18 +510,34 @@ class Photographer extends Model
         if (!$photographer || $photographer->status != 200) {
             return "";
         }
+        if (!$photographer_gather_id){
+            $workIds = $photographer->photographerWorks()
+                ->where('status', 200)->orderBy(
+                    'roof',
+                    'desc'
+                )->orderBy(
+                    'created_at',
+                    'desc'
+                )->orderBy(
+                    'id',
+                    'desc'
+                )->limit(3)->pluck('id');
 
-        $workIds = $photographer->photographerWorks()
-            ->where('status', 200)->orderBy(
-                'roof',
-                'desc'
-            )->orderBy(
-                'created_at',
-                'desc'
-            )->orderBy(
-                'id',
-                'desc'
-            )->limit(3)->pluck('id');
+            $projectSum = PhotographerWork::where(['status' => 200])
+                ->where('photographer_id', $photographer_id)
+                ->count();
+
+            $watername = $photographer->name;
+        }else{
+            $workIds = PhotographerGatherWork::where(['photographer_gather_id' => $photographer_gather_id])->orderBy('sort', 'id desc')->limit(3)->pluck('photographer_work_id');
+
+            $projectSum = PhotographerGatherWork::where(['photographer_gather_id' => $photographer_gather_id])->count();
+
+            $pg =  PhotographerGather::where(['id' => $photographer_gather_id])->first();
+            $watername = $pg->name;
+
+        }
+
 
         $resources = [];
 
@@ -557,11 +575,9 @@ class Photographer extends Model
             $blackBgs[2] = "https://file.zuopin.cloud/Fu2bJVMdZriF1vS1_f4mSvxGyXdk?imageMogr2/auto-orient/thumbnail/!195x195r";
         }
 
-        $projectSum = PhotographerWork::where(['status' => 200])
-            ->where('photographer_id', $photographer_id)
-            ->count();
 
-        $startPoint = $this->calcWaterText($photographer->name);
+
+        $startPoint = $this->calcWaterText($watername);
 
         $handleUrl = array();
         $handleUrl[] = $whiteBg;
@@ -569,7 +585,7 @@ class Photographer extends Model
         $handleUrl[] = "/image/" . \Qiniu\base64_urlSafeEncode($blackBgs[1]) . "/gravity/NorthWest/dx/405/dy/0";
         $handleUrl[] = "/image/" . \Qiniu\base64_urlSafeEncode($blackBgs[2]) . "/gravity/NorthWest/dx/405/dy/215";
         $handleUrl[] = "/text/" . \Qiniu\base64_urlSafeEncode(
-                $photographer->name
+                $watername
             ) . "/fontsize/700/fill/" . base64_urlSafeEncode("#969696") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthEast/dx/6/dy/0";
 
         $handleUrl[] = "/3/image/" . \Qiniu\base64_urlSafeEncode(

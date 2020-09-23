@@ -4,9 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\Auth\UserGuardController;
 use App\Http\Requests\Index\PhotographerRequest;
+use App\Jobs\AsynchronousTask;
+use App\Jobs\generateXacode;
 use App\Model\Admin\SystemArea;
 use App\Model\Admin\SystemConfig;
 use App\Model\Index\Photographer;
+use App\Model\Index\PhotographerGather;
+use App\Model\Index\PhotographerGatherWork;
 use App\Model\Index\PhotographerInfoTag;
 use App\Model\Index\PhotographerRank;
 use App\Model\Index\PhotographerWork;
@@ -891,9 +895,8 @@ class DraftController extends UserGuardController
                         $photographer_work_source->width = $v['width'];
                         $photographer_work_source->height =  $v['height'];
                         $photographer_work_source->image_ave = $v['imageAve'];
-                        $photographer_work_source->exif = json_encode($v['exif']);
+                        $photographer_work_source->exif = $v['exif'];
                         $photographer_work_source->save();
-
                         /*exif END*/
                         $fops = ["imageMogr2/auto-orient/thumbnail/1200x|imageMogr2/auto-orient/colorspace/srgb|imageslim"];
                         $bucket = 'zuopin';
@@ -924,40 +927,10 @@ class DraftController extends UserGuardController
             }
             $photographer_work->photographerWorkSources()->where(['status' => 300])->update(['status' => 400]);
             \DB::commit();//提交事务
-            foreach ($asynchronous_task as $task) {
-                if ($task['task_type'] == 'qiniuPfop') {
-                    $qrst = SystemServer::qiniuPfop(
-                        $task['bucket'],
-                        $task['key'],
-                        $task['fops'],
-                        $task['pipeline'],
-                        $task['notifyUrl'],
-                        $task['useHTTPS']
-                    );
-                    if ($qrst['err']) {
-                        ErrLogServer::qiniuNotifyFop(
-                            $task['error_step'],
-                            $task['error_msg'],
-                            $task['error_request_data'],
-                            $task['error_photographerWorkSource'],
-                            $qrst['err']
-                        );
-                    }
-                } elseif ($task['task_type'] == 'editRunGenerateWatermark') {
-                    PhotographerWorkSource::editRunGenerateWatermark(
-                        $task['photographer_work_source_id'],
-                        $task['edit_node']
-                    );
-                } elseif ($task['task_type'] == 'error_qiniuNotifyFop') {
-                    ErrLogServer::qiniuNotifyFop(
-                        $task['step'],
-                        $task['msg'],
-                        $task['request_data'],
-                        $task['photographerWorkSource'],
-                        $task['res']
-                    );
-                }
-            }
+
+            //TODO 异步任务
+            AsynchronousTask::dispatch($asynchronous_task)->onConnection('redis')->onQueue('default2');
+
             return $this->response->noContent();
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
@@ -1020,25 +993,11 @@ class DraftController extends UserGuardController
                 $photographer_work->photographer_id = $photographer->id;
                 $photographer_work->save();
             }
+
+            //TODO 使用队列
+            generateXacode::dispatch($photographer_work->id)->onConnection('redis')->onQueue('default2');
+
             $scene = '1/'.$photographer_work->id;
-            if (!$photographer_work->xacode) {
-                $xacode_res = WechatServer::generateXacode($scene, false);
-                if ($xacode_res['code'] != 200) {
-                    \DB::rollback();//回滚事务
-
-                    return $this->response->error($xacode_res['msg'], $xacode_res['code']);
-                }
-                $photographer_work->xacode = $xacode_res['xacode'];
-            }
-            if (!$photographer_work->xacode_hyaline) {
-                $xacode_res = WechatServer::generateXacode($scene);
-                if ($xacode_res['code'] != 200) {
-                    \DB::rollback();//回滚事务
-
-                    return $this->response->error($xacode_res['msg'], $xacode_res['code']);
-                }
-                $photographer_work->xacode_hyaline = $xacode_res['xacode'];
-            }
             $photographer_work->name = $request->name;
             $photographer_work->describe = $request->describe;
             $photographer_work->is_business = $request->is_business;
@@ -1057,6 +1016,19 @@ class DraftController extends UserGuardController
             $photographer_work->photographer_work_category_id = $request->photographer_work_category_id;
             $photographer_work->status = 200;
             $photographer_work->save();
+            //批量添加项目到合集中
+            if ($request->photographer_gather_id){
+                foreach($request->photographer_gather_id as $photographer_gather_id){
+                    $photographergather = PhotographerGather::where(['id' => $photographer_gather_id])->first();
+                    if ($photographergather){
+                        $pgw = new PhotographerGatherWork();
+                        $pgw->photographer_gather_id = $photographergather->id;
+                        $pgw->photographer_work_id = $photographer_work->id;
+                        $pgw->sort = 1;
+                        $pgw->save();
+                    }
+                }
+            }
             $photographerWorkSources = $photographer_work->photographerWorkSources()->where(
                 ['status' => 200]
             )->orderBy('sort', 'asc')->get();
@@ -1083,24 +1055,7 @@ class DraftController extends UserGuardController
                 }
             }
 
-            if (!$photographer->xacode) {
-                $xacode_res = WechatServer::generateXacode($scene, false);
-                if ($xacode_res['code'] != 200) {
-                    \DB::rollback();//回滚事务
 
-                    return $this->response->error($xacode_res['msg'], $xacode_res['code']);
-                }
-                $photographer->xacode = $xacode_res['xacode'];
-            }
-            if (!$photographer->xacode_hyaline) {
-                $xacode_res = WechatServer::generateXacode($scene);
-                if ($xacode_res['code'] != 200) {
-                    \DB::rollback();//回滚事务
-
-                    return $this->response->error($xacode_res['msg'], $xacode_res['code']);
-                }
-                $photographer->xacode_hyaline = $xacode_res['xacode'];
-            }
             $photographer_work->status = 200;
             $photographer_work->save();
             $photographerWorkSources = $photographer_work->photographerWorkSources()->where(
@@ -1166,25 +1121,10 @@ class DraftController extends UserGuardController
             $user->save();
             $photographer->status = 200;
             $photographer->save();
-
-
             \DB::commit();//提交事务
-            foreach ($asynchronous_task as $task) {
-                if ($task['task_type'] == 'editRunGenerateWatermark') {
-                    PhotographerWorkSource::editRunGenerateWatermark(
-                        $task['photographer_work_source_id'],
-                        $task['edit_node']
-                    );
-                } elseif ($task['task_type'] == 'error_qiniuNotifyFop') {
-                    ErrLogServer::qiniuNotifyFop(
-                        $task['step'],
-                        $task['msg'],
-                        $task['request_data'],
-                        $task['photographerWorkSource'],
-                        $task['res']
-                    );
-                }
-            }
+            //TODO 异步任务
+            AsynchronousTask::dispatch($asynchronous_task)->onConnection('redis')->onQueue('default2');
+
             return $this->responseParseArray(['photographer_work_id' => $photographer_work->id]);
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
