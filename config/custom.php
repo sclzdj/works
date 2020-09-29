@@ -69,6 +69,7 @@ return [
                 'silent_activation_2' => ['TemplateCode' => 'SMS_177256161', 'SignName' => '云作品'],//沉默激活提醒2
                 'silent_activation_3' => ['TemplateCode' => 'SMS_177241303', 'SignName' => '云作品'],//沉默激活提醒3
                 'deliver_work_obtain' => ['TemplateCode' => 'SMS_199807534', 'SignName' => '云作品'],//交付助手客户提取作品通知,
+                'review_access' => ['TemplateCode' => 'SMS_199772526', 'SignName' => '云作品'],//审核通过,
                 'send_invite_result' => ['TemplateCode' => 'SMS_196657391', 'SignName' => '云作品']
             ],
         ],

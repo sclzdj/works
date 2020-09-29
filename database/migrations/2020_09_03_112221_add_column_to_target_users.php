@@ -15,7 +15,7 @@ class AddColumnToTargetUsers extends Migration
     {
         Schema::table('target_users', function (Blueprint $table) {
             //
-            $table->integer('pid')->after('resource')->default(0)->comment("上级用户");
+            $table->integer('pid')->after('id')->default(0)->comment("上级用户");
         });
     }
 

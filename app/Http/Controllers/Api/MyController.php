@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Auth\UserGuardController;
 use App\Http\Requests\Index\PhotographerRequest;
 use App\Http\Requests\Index\UserRequest;
 use App\Jobs\AsyncDocPdfMakeJob;
+use App\Jobs\AsynchronousTask;
 use App\Jobs\CheckImgSecurity;
 use App\Libs\WXBizDataCrypt\WXBizDataCrypt;
 use App\Model\Admin\SystemConfig;
@@ -22,6 +23,7 @@ use App\Model\Index\PhotographerWorkCategory;
 use App\Model\Index\PhotographerWorkCustomerIndustry;
 use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\PhotographerWorkTag;
+use App\Model\Index\QiniuPfopRichSourceJob;
 use App\Model\Index\Question;
 use App\Model\Index\RandomPhotographer;
 use App\Model\Index\User;
@@ -469,6 +471,7 @@ class MyController extends UserGuardController
         );
         foreach ($photographer_works['data'] as $k => $v) {
             $photographer_works['data'][$k]['review'] = PhotographerWork::getPhotographerWorkReviewStatus($photographer_works['data'][$k]['id']);
+            $photographer_works['data'][$k]['gather_ids'] = PhotographerWork::getWorkGatherInfo($photographer_works['data'][$k]['id']);
             $photographer_works['data'][$k]['tags'] = $all_tags[$k];
         }
         $photographer_works['data'] = ArrServer::toNullStrData(
@@ -482,6 +485,47 @@ class MyController extends UserGuardController
         $photographer_works['data'] = SystemServer::parsePhotographerWorkCategory($photographer_works['data']);
 
         return $this->response->array($photographer_works);
+    }
+
+    public function photographerWorkInfo(){
+        $photographer = $this->_photographer(null, $this->guard);
+        $photographer_works = $photographer->photographerWorks();
+        $customer = $photographer->photographerWorks()->join(
+            'photographer_work_customer_industries',
+            'photographer_work_customer_industries.id',
+            '=',
+            'photographer_works.photographer_work_customer_industry_id'
+        )->select(
+            'photographer_work_customer_industries.name',
+            'photographer_work_customer_industries.pid',
+            'photographer_work_customer_industries.id'
+        )->groupBy('photographer_work_customer_industry_id')->get()->toArray();
+
+        $category = $photographer->photographerWorks()->join(
+            'photographer_work_categories',
+            'photographer_work_categories.id',
+            '=',
+            'photographer_works.photographer_work_category_id'
+        )->select(
+            'photographer_work_categories.name',
+            'photographer_work_categories.pid',
+            'photographer_work_categories.id'
+        )->groupBy('photographer_works.photographer_work_category_id')->get()->toArray();
+
+        $other = $photographer->photographerWorks()->select(
+            \DB::raw( 'max(`sheets_number`) as max_sheets_number'),
+            \DB::raw( 'min(`sheets_number`) as min_sheets_number'),
+            \DB::raw( 'max(`shooting_duration`) as max_shooting_duration'),
+            \DB::raw( 'min(`shooting_duration`) as min_shooting_duration'),
+            \DB::raw( 'max(`project_amount`) as max_project_amount'),
+            \DB::raw( 'min(`project_amount`) as min_project_amount')
+        )->get()->toArray();
+        $data = [
+            'customer_industry' => $customer,
+            'category' => $category,
+            'other' => $other
+        ];
+        return $this->response->array($data);
     }
 
     /**
@@ -533,6 +577,7 @@ class MyController extends UserGuardController
             $photographer_work['photographer']
         );
         $photographer_work['xacode'] = PhotographerWork::getXacode($photographer_work['id'], false);
+        $photographer_work['gather_ids'] = PhotographerWork::getWorkGatherInfo($photographer_work['id']);
 
         return $this->response->array($photographer_work);
     }
@@ -711,7 +756,7 @@ class MyController extends UserGuardController
         );
         foreach ($photographerWorkSources as $k => $photographerWorkSource) {
             $photographer_work = PhotographerWork::select(
-                ['id', 'photographer_id', 'photographer_id', 'photographer_work_category_id', 'customer_name']
+                ['id', 'photographer_id', 'photographer_id', 'photographer_work_category_id', 'name', 'customer_name']
             )->where(
                 ['id' => $photographerWorkSource->photographer_work_id]
             )->first()->toArray();
@@ -1163,7 +1208,7 @@ class MyController extends UserGuardController
                 return $this->response->error('用户项目不存在', 500);
             }
             $old_work_params = [
-                'customer_name' => $photographer_work->customer_name,
+                'name' => $photographer_work->name,
                 'source_count' => $photographer_work->photographerWorkSources()->where(['status' => 200])->count(),
             ];
             $photographer_work->name = $request->name;
@@ -1188,8 +1233,8 @@ class MyController extends UserGuardController
                 foreach($request->photographer_gather_id as $photographer_gather_id){
                     $photographergather = PhotographerGather::where(['id' => $photographer_gather_id])->first();
                     if ($photographergather){
-                        $flag = PhotographerGatherWork::where(['photographer_work_id' => $photographer_work->id, 'photographer_gather_id' => $photographergather->id])->first();
-                        if (!$flag){
+                        $pgw = PhotographerGatherWork::where(['photographer_work_id' => $photographer_work->id, 'photographer_gather_id' => $photographer_gather_id])->first();
+                        if (!$pgw){
                             $pgw = new PhotographerGatherWork();
                             $pgw->photographer_gather_id = $photographergather->id;
                             $pgw->photographer_work_id = $photographer_work->id;
@@ -1198,14 +1243,20 @@ class MyController extends UserGuardController
                         }
                     }
                 }
+                PhotographerGatherWork::where(['photographer_work_id' => $photographer_work->id])->whereRaw('photographer_gather_id not in ('. implode(',', $request->photographer_gather_id ) .')')->delete();
             }
-            PhotographerWorkTag::where(['photographer_work_id' => $photographer_work->id])->delete();
+
             if ($request->tags) {
-                foreach ($request->tags as $v) {
-                    $photographer_work_tag = PhotographerWorkTag::create();
-                    $photographer_work_tag->photographer_work_id = $photographer_work->id;
-                    $photographer_work_tag->name = $v;
-                    $photographer_work_tag->save();
+                try{
+                    $tags = json_decode($request->tags , true);
+                    foreach ($request->tags as $v) {
+                        $photographer_work_tag = PhotographerWorkTag::create();
+                        $photographer_work_tag->photographer_work_id = $photographer_work->id;
+                        $photographer_work_tag->name = $v;
+                        $photographer_work_tag->save();
+                    }
+                }catch (\Exception $e){
+
                 }
             }
             $photographer_work->photographerWorkSources()->where(['status' => 200])->update(['status' => 300]);
@@ -1343,12 +1394,10 @@ class MyController extends UserGuardController
             }
             $photographer_work->photographerWorkSources()->where(['status' => 300])->update(['status' => 400]);
             $new_work_params = [
-                'customer_name' => $photographer_work->customer_name,
+                'name' => $photographer_work->name,
                 'source_count' => $photographer_work->photographerWorkSources()->where(['status' => 200])->count(),
             ];
-            $photographerWorkSources = $photographer_work->photographerWorkSources()->where(
-                ['status' => 200, 'type' => 'image']
-            )->orderBy(
+            $photographerWorkSources = PhotographerWorkSource::where(['photographer_work_id' => $photographer_work->id, 'status' => 200])->orderBy(
                 'sort',
                 'asc'
             )->get();
@@ -1357,74 +1406,38 @@ class MyController extends UserGuardController
                 $old_work_params
             );
             foreach ($photographerWorkSources as $photographerWorkSource) {
-                if ($editIsRunGenerateWatermark || $photographerWorkSource->is_new_source) {
-                    $asynchronous_task[] = [
-                        'task_type' => 'editRunGenerateWatermark',
+                /*exif END*/
+                $fops = ["imageMogr2/auto-orient/thumbnail/1200x|imageMogr2/auto-orient/colorspace/srgb|imageslim"];
+                $bucket = 'zuopin';
+                $asynchronous_task[] = [
+                    'task_type' => 'qiniuPfop',
+                    'bucket' => $bucket,
+                    'key' => $photographerWorkSource->key,
+                    'fops' => $fops,
+                    'pipeline' => null,
+                    'notifyUrl' => config(
+                            'app.url'
+                        ).'/api/notify/qiniu/fopDeal?photographer_work_source_id='.$photographerWorkSource->id,
+                    'useHTTPS' => true,
+                    'error_step' => '处理图片持久请求',
+                    'error_msg' => '七牛持久化接口返回错误信息',
+                    'error_request_data' => $request->all(),
+                    'error_photographerWorkSource' => $photographerWorkSource,
+                ];
+                if ($photographerWorkSource->is_new_source) {
+                    $photographerWorkSource->is_new_source = 0;
+                    $photographerWorkSource->save();
+                }
+                $qiniuPfopRichSourceJob = QiniuPfopRichSourceJob::create(
+                    [
                         'photographer_work_source_id' => $photographerWorkSource->id,
                         'edit_node' => '修改项目',
-                    ];
-                    if ($photographerWorkSource->is_new_source) {
-                        $photographerWorkSource->is_new_source = 0;
-                        $photographerWorkSource->save();
-                    }
-                }
+                        'edit_at' => date('Y-m-d H:i:s'),
+                    ]
+                );
             }
             \DB::commit();//提交事务
-
-            foreach ($asynchronous_task as $task) {
-                if ($task['task_type'] == 'qiniuFetchBaiduPan') {
-                    $qiniuFetchBaiduPan = SystemServer::qiniuFetchBaiduPan(
-                        $task['asyncBaiduWorkSourceUpload_id'],
-                        $task['type'],
-                        $task['url'],
-                        $task['callbackurl']
-                    );
-                    if ($qiniuFetchBaiduPan['res']['statusCode'] != 200) {
-                        ErrLogServer::qiniuNotifyFetch(
-                            '系统请求七牛异步远程抓取接口时失败：'.$qiniuFetchBaiduPan['res']['error'],
-                            $qiniuFetchBaiduPan['res'],
-                            $task['asyncBaiduWorkSourceUpload']
-                        );
-                    } else {
-                        $qiniuFetchBaiduPan['res']['body'] = json_decode($qiniuFetchBaiduPan['res']['body'], true);
-                        AsyncBaiduWorkSourceUpload::where(
-                            ['id' => $qiniuFetchBaiduPan['asyncBaiduWorkSourceUpload_id']]
-                        )->update(['qiniu_fetch_id' => $qiniuFetchBaiduPan['res']['body']['id']]);
-                    }
-                } elseif ($task['task_type'] == 'qiniuPfop') {
-                    $qrst = SystemServer::qiniuPfop(
-                        $task['bucket'],
-                        $task['key'],
-                        $task['fops'],
-                        $task['pipeline'],
-                        $task['notifyUrl'],
-                        $task['useHTTPS']
-                    );
-                    if ($qrst['err']) {
-                        ErrLogServer::qiniuNotifyFop(
-                            $task['error_step'],
-                            $task['error_msg'],
-                            $task['error_request_data'],
-                            $task['error_photographerWorkSource'],
-                            $qrst['err']
-                        );
-                    }
-                } elseif ($task['task_type'] == 'editRunGenerateWatermark') {
-                    PhotographerWorkSource::editRunGenerateWatermark(
-                        $task['photographer_work_source_id'],
-                        $task['edit_node']
-                    );
-                } elseif ($task['task_type'] == 'error_qiniuNotifyFop') {
-                    ErrLogServer::qiniuNotifyFop(
-                        $task['step'],
-                        $task['msg'],
-                        $task['request_data'],
-                        $task['photographerWorkSource'],
-                        $task['res']
-                    );
-                }
-            }
-
+            AsynchronousTask::dispatch($asynchronous_task)->onConnection('redis')->onQueue('default2');
             return $this->response->noContent();
         } catch (\Exception $e) {
             \DB::rollback();//回滚事务
@@ -1816,6 +1829,7 @@ class MyController extends UserGuardController
     function photographerWorkShare(
         Request $request
     ) {
+        $photographer = $this->_photographer();
         $photographer_work_id = $request->input('photographer_work_id', 0);
         $PhotographerWork = new PhotographerWork();
         $buckets = config('custom.qiniu.buckets');
@@ -1827,7 +1841,7 @@ class MyController extends UserGuardController
         } else {
             return [
                 'result' => true,
-                'share_url' => $PhotographerWork->generateShare($photographer_work_id),
+                'share_url' => $PhotographerWork->generateShare($photographer_work_id, $photographer),
             ];
         }
     }

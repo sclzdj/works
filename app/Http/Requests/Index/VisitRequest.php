@@ -200,14 +200,14 @@ class VisitRequest extends BaseRequest
     public function scenes()
     {
         return [
-            'inRecord' => ['POST|App\Http\Controllers\Api\VisitController@inRecord'],
-            'shareRecord' => ['POST|App\Http\Controllers\Api\VisitController@shareRecord'],
-            'operateRecord' => ['POST|App\Http\Controllers\Api\VisitController@operateRecord'],
-            'setRemind' => ['POST|App\Http\Controllers\Api\VisitController@setRemind'],
-            'setTag' => ['POST|App\Http\Controllers\Api\VisitController@setTag'],
-            'visitors' => ['GET|App\Http\Controllers\Api\VisitController@visitors'],
-            'visitor' => ['GET|App\Http\Controllers\Api\VisitController@visitor'],
-            'visitorRecords' => ['POST|App\Http\Controllers\Api\VisitController@visitorRecords'],
+//            'inRecord' => ['POST|App\Http\Controllers\Api\VisitController@inRecord'],
+//            'shareRecord' => ['POST|App\Http\Controllers\Api\VisitController@shareRecord'],
+//            'operateRecord' => ['POST|App\Http\Controllers\Api\VisitController@operateRecord'],
+//            'setRemind' => ['POST|App\Http\Controllers\Api\VisitController@setRemind'],
+//            'setTag' => ['POST|App\Http\Controllers\Api\VisitController@setTag'],
+//            'visitors' => ['GET|App\Http\Controllers\Api\VisitController@visitors'],
+//            'visitor' => ['GET|App\Http\Controllers\Api\VisitController@visitor'],
+//            'visitorRecords' => ['POST|App\Http\Controllers\Api\VisitController@visitorRecords'],
         ];
     }
 }

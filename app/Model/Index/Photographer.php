@@ -540,7 +540,7 @@ class Photographer extends Model
 
 
         $resources = [];
-
+        $sourcecount = 0;
         foreach ($workIds as $workId) {
             $resource = PhotographerWorkSource::where(['status' => 200])
                 ->where('type', 'image')
@@ -552,6 +552,8 @@ class Photographer extends Model
                 ->first();
             $resources[] = $resource;
         }
+        
+        $sourcecount = PhotographerGather::getGatherWorkSourcescount($photographer_gather_id);
 
         if (empty($resources)) {
             return "";
@@ -584,17 +586,17 @@ class Photographer extends Model
         $handleUrl[] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode($blackBgs[0]) . "/gravity/NorthWest/dx/0/dy/0";
         $handleUrl[] = "/image/" . \Qiniu\base64_urlSafeEncode($blackBgs[1]) . "/gravity/NorthWest/dx/405/dy/0";
         $handleUrl[] = "/image/" . \Qiniu\base64_urlSafeEncode($blackBgs[2]) . "/gravity/NorthWest/dx/405/dy/215";
-        $handleUrl[] = "/text/" . \Qiniu\base64_urlSafeEncode(
-                $watername
-            ) . "/fontsize/700/fill/" . base64_urlSafeEncode("#969696") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthEast/dx/6/dy/0";
+//        $handleUrl[] = "/text/" . \Qiniu\base64_urlSafeEncode(
+//                $watername
+//            ) . "/fontsize/700/fill/" . base64_urlSafeEncode("#969696") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthEast/dx/6/dy/0";
 
-        $handleUrl[] = "/3/image/" . \Qiniu\base64_urlSafeEncode(
-                "https://file.zuopin.cloud/FvHauIYQj3IAF-2t4Q6KSDBNXO58"
-            ) . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthEast/dx/" . $startPoint . "/dy/10";
+//        $handleUrl[] = "/3/image/" . \Qiniu\base64_urlSafeEncode(
+//                "https://file.zuopin.cloud/FvHauIYQj3IAF-2t4Q6KSDBNXO58"
+//            ) . "/font/" . base64_urlSafeEncode("微软雅黑") . "/gravity/SouthEast/dx/" . $startPoint . "/dy/10";
 
         $handleUrl[] = "/text/" . \Qiniu\base64_urlSafeEncode(
-                $projectSum . '个项目'
-            ) . "/fontsize/700/fill/" . base64_urlSafeEncode("#969696") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthEast/dx/" . ($startPoint + 30) . "/dy/0";
+                $projectSum . '个项目 · ' . $sourcecount . '个作品'
+            ) . "/fontsize/700/fill/" . base64_urlSafeEncode("#969696") . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/SouthEast/dx/6/dy/0/3";
 
 
         return implode("", $handleUrl);

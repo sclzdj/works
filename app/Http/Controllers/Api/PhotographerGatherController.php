@@ -63,6 +63,7 @@ class PhotographerGatherController extends BaseController
             );
             //添加review
             $photographerGathers['data'][$k]['review'] = PhotographerGather::getPhotographerGatherReviewStatus($photographerGathers['data'][$k]['id']);
+            $photographerGathers['data'][$k]['count'] = PhotographerGather::getGatherWorkSourcescount($photographerGathers['data'][$k]['id']);
             $photographerGathers['data'][$k]['workscount'] = PhotographerGatherWork::where(
                 ['photographer_gather_id' => $photographerGather['id']]
             )->count();
@@ -319,11 +320,13 @@ class PhotographerGatherController extends BaseController
         )->select(
             'photographer_works.id',
             'photographer_works.name',
+            'photographer_works.customer_name',
+            'photographer_gather_works.sort',
             'photographer_works.sheets_number',
             'photographer_works.shooting_duration',
             'photographer_works.photographer_work_customer_industry_id',
             'photographer_works.photographer_work_category_id'
-        )->paginate(
+        )->orderBy('photographer_gather_works.id', 'desc')->paginate(
             $pageInfo['pageSize']
         )->toArray();
 
@@ -390,12 +393,14 @@ class PhotographerGatherController extends BaseController
                     'photographer_id' => $photographer->id,
                     'photographer_work_category_id' => $photographer_work->photographer_work_category_id,
                     'custom_name' => $photographer_work->custom_name,
+                    'name' => $photographer_work->name,
                     'cover' => SystemServer::parsePhotographerWorkCover($photographer_work->toArray())['cover']['url'],
                     'category' => $category
                 ];
 
                 $where = [
-                    'photographer_work_id' => $photographer_work->id
+                    'photographer_work_id' => $photographer_work->id,
+                    'status' => 200
                 ];
 
                 $PhotographerWorkSources = PhotographerWorkSource::where($where)->get(['id', 'photographer_work_id', 'type', 'deal_width', 'deal_url', 'rich_url','deal_height', 'image_ave', 'url']);

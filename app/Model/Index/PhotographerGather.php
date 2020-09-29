@@ -109,7 +109,7 @@ class PhotographerGather extends Model
         $photographerworks = \DB::table('photographer_gather_works')->where(['photographer_gather_id' => $photographer_gather_id])->get();
         foreach ($photographerworks as $photographerwork){
             $where = [
-                'photographer_work_id'  =>  $photographerwork->id,
+                'photographer_work_id'  =>  $photographerwork->photographer_work_id,
                 ['review', '<>', 1],
             ];
 
@@ -122,5 +122,19 @@ class PhotographerGather extends Model
             }
         }
 
+    }
+
+    /**
+     *  获取合集中所有作品数量
+     */
+    public static function getGatherWorkSourcescount($photographer_gather_id){
+        $count = 0;
+        $photographerworks = \DB::table('photographer_gather_works')->where(['photographer_gather_id' => $photographer_gather_id])->get();
+
+        foreach ($photographerworks as $photographerwork){
+            $count += PhotographerWorkSource::where(['photographer_work_id' => $photographerwork->photographer_work_id, 'status' => 200])->count();
+        }
+
+        return $count;
     }
 }

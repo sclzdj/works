@@ -1047,11 +1047,16 @@ class DraftController extends UserGuardController
             }
             PhotographerWorkTag::where(['photographer_work_id' => $photographer_work->id])->delete();
             if ($request->tags) {
-                foreach ($request->tags as $v) {
-                    $photographer_work_tag = PhotographerWorkTag::create();
-                    $photographer_work_tag->photographer_work_id = $photographer_work->id;
-                    $photographer_work_tag->name = $v;
-                    $photographer_work_tag->save();
+                try{
+                    $tags = json_decode($request->tags, true);
+                    foreach ($tags as $v) {
+                        $photographer_work_tag = PhotographerWorkTag::create();
+                        $photographer_work_tag->photographer_work_id = $photographer_work->id;
+                        $photographer_work_tag->name = $v;
+                        $photographer_work_tag->save();
+                    }
+                }catch (\Exception $e){
+
                 }
             }
 
@@ -1131,5 +1136,66 @@ class DraftController extends UserGuardController
 
             return $this->response->error($e->getMessage(), 500);
         }
+    }
+
+    public function fuckitback(){
+        $sources = PhotographerWorkSource::whereRaw(' DATEDIFF(updated_at,created_at)  > 1')->whereBetween('created_at',['2020-09-01 01:06:45','2020-09-23 01:06:45'])->get()->toArray();
+        $asynchronous_task = [];
+        foreach ($sources as $source){
+            /*exif END*/
+            $fops = ["imageMogr2/auto-orient/thumbnail/1200x|imageMogr2/auto-orient/colorspace/srgb|imageslim"];
+            $bucket = 'zuopin';
+            $asynchronous_task[] = [
+                'task_type' => 'qiniuPfop',
+                'bucket' => $bucket,
+                'key' => $source['key'],
+                'fops' => $fops,
+                'pipeline' => null,
+                'notifyUrl' => 'https://zuopin.cloud/api/notify/qiniu/fopDeal?photographer_work_source_id='.$source['id'],
+                'useHTTPS' => true,
+                'error_step' => '处理图片持久请求',
+                'error_msg' => '七牛持久化接口返回错误信息',
+                'error_request_data' => '',
+                'error_photographerWorkSource' => '',
+            ];
+        }
+        var_dump($sources);
+
+        foreach ($asynchronous_task as $task) {
+            if ($task['task_type'] == 'qiniuPfop') {
+                $qrst = SystemServer::qiniuPfop(
+                    $task['bucket'],
+                    $task['key'],
+                    $task['fops'],
+                    $task['pipeline'],
+                    $task['notifyUrl'],
+                    $task['useHTTPS']
+                );
+                if ($qrst['err']) {
+                    ErrLogServer::qiniuNotifyFop(
+                        $task['error_step'],
+                        $task['error_msg'],
+                        $task['error_request_data'],
+                        $task['error_photographerWorkSource'],
+                        $qrst['err']
+                    );
+                }
+            } elseif ($task['task_type'] == 'editRunGenerateWatermark') {
+                PhotographerWorkSource::editRunGenerateWatermark(
+                    $task['photographer_work_source_id'],
+                    $task['edit_node']
+                );
+            } elseif ($task['task_type'] == 'error_qiniuNotifyFop') {
+                ErrLogServer::qiniuNotifyFop(
+                    $task['step'],
+                    $task['msg'],
+                    $task['request_data'],
+                    $task['photographerWorkSource'],
+                    $task['res']
+                );
+            }
+        }
+//        AsynchronousTask::dispatch($asynchronous_task)->onConnection('redis')->onQueue('default2');
+
     }
 }

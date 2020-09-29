@@ -140,11 +140,18 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
     Route::get('login', 'Auth\LoginController@showLoginForm');//账号登录
     Route::post('login', 'Auth\LoginController@login');
     Route::post('logout', 'Auth\LoginController@logout');//账号退出
+    //操作
+    Route::post('api/staff/notice', 'Api\StaffController@Notice');
 
     //用户管理
-    Route::get('usermanage/photographers', 'Api\UserManagerController@photographers');
-    Route::get('usermanage/Guest', 'Api\UserManagerController@Guest');
-    Route::get('usermanage/targetuserlist', 'Api\UserManagerController@targetuserlist');
+    Route::get('api/usermanage/photographers', 'Api\UserManagerController@photographers');
+    Route::get('api/usermanage/Guest', 'Api\UserManagerController@Guest');
+    Route::get('api/usermanage/targetuserlist', 'Api\UserManagerController@targetuserlist');
+    Route::get('api/usermanage/users', 'Api\UserManagerController@users');
+
+    //来源管理
+    Route::get('api/sources', 'Api\SourceController@index');
+    Route::post('api/sources/add', 'Api\SourceController@add');
 });
 
 Auth::routes();

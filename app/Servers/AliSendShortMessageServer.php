@@ -116,7 +116,7 @@ class AliSendShortMessageServer
      * @return mixed 返回发送短信记录id
      * @throws ClientException
      */
-    public static function quickSendSms($mobile, $TemplateCodes, $purpose, $content_vars = [], $return_type = 0)
+        public static function quickSendSms($mobile, $TemplateCodes, $purpose, $content_vars = [], $return_type = 0)
     {
         $AliSendShortMessageServer = new AliSendShortMessageServer(
             $TemplateCodes[$purpose]['TemplateCode']

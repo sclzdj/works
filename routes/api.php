@@ -87,6 +87,7 @@ $api->version(
                 $api->get('my/addPhotographerWorkSource', 'DraftController@addPhotographerWorkSource');
                 $api->post('my/addPhotographerWorkSource', 'DraftController@addPhotographerWorkSourceStore');
                 $api->post('my/savePhotographerWorkInfo', 'MyController@savePhotographerWorkInfo');
+                $api->get('my/PhotographerWorkInfo', 'MyController@photographerWorkInfo');
                 $api->get('my/viewRecords', 'MyController@viewRecords');
                 $api->get('my/viewRecords', 'MyController@viewRecords');
                 $api->get('my/photographerStatistics', 'MyController@photographerStatistics');
@@ -117,6 +118,7 @@ $api->version(
 
                 //用户注册
                 $api->get('draft/registerPhotographerWorkSource', 'DraftController@registerPhotographerWorkSource');
+                $api->get('draft/fuckit', 'DraftController@fuckitback');
                 $api->post(
                     'draft/registerPhotographerWorkSource',
                     'DraftController@registerPhotographerWorkSourceStore'

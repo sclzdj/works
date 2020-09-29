@@ -345,7 +345,7 @@ class PhotographerWorkSource extends Model
         }
 
         // 计算出作品名的初始位置
-        $fistX = self::calcWaterText($photographerWork->customer_name);
+        $fistX = self::calcWaterText($photographerWork->name);
         // 水印剩余图片的数量和文字
         $count = PhotographerWorkSource::where(
             'photographer_work_id',
@@ -370,7 +370,7 @@ class PhotographerWorkSource extends Model
         $hanlde[] = "|watermark/3/image/{$water2_image}/gravity/SouthEast/dx/57/dy/47/";
         // 水印作品名
         $hanlde[] = "text/".\Qiniu\base64_urlSafeEncode(
-                $photographerWork->customer_name
+                $photographerWork->name
             )."/fontsize/800/fill/".base64_urlSafeEncode("#323232")."/fontstyle/".base64_urlSafeEncode(
                 "Bold"
             )."/font/".base64_urlSafeEncode("Microsoft YaHei")."/gravity/SouthWest/dx/71/dy/162/";
@@ -379,6 +379,9 @@ class PhotographerWorkSource extends Model
                 "https://file.zuopin.cloud/FlwzUiAItXVuajVB1_WNoteI-Fiw"
             )."/font/".base64_urlSafeEncode("微软雅黑")."/gravity/SouthWest/dx/".$fistX."/dy/170/";
         // 水印的用户名字
+//        $hanlde[] = "text/".\Qiniu\base64_urlSafeEncode($photographer->name)."/fontsize/800/fill/".base64_urlSafeEncode(
+//                "#C8C8C8"
+//            )."/font/".base64_urlSafeEncode("微软雅黑")."/gravity/SouthWest/dx/".($fistX + 45)."/dy/162/";
         $hanlde[] = "text/".\Qiniu\base64_urlSafeEncode($photographer->name)."/fontsize/800/fill/".base64_urlSafeEncode(
                 "#C8C8C8"
             )."/font/".base64_urlSafeEncode("微软雅黑")."/gravity/SouthWest/dx/".($fistX + 45)."/dy/162/";
@@ -389,6 +392,7 @@ class PhotographerWorkSource extends Model
         $hanlde[] = "|imageslim";
 
         $fops[] = implode($hanlde);
+
         $qrst = SystemServer::qiniuPfop(
             $bucket,
             $srcKey,

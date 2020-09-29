@@ -541,7 +541,7 @@ class PhotographerController extends BaseController
      * @param PhotographerRequest $request
      * @return mixed|void
      */
-    public function poster2(PhotographerRequest $request)
+    public function poster2 (PhotographerRequest $request)
     {
         $photographer_id = $request->input('photographer_id');
         $response = [];
@@ -1006,7 +1006,7 @@ class PhotographerController extends BaseController
             'id',
             $photographer_work->photographer_work_category_id
         )->first();
-        $workName = $photographer_work->customer_name;
+        $workName = $photographer_work->name;
         $name = "{$photographer->name}";
         $datas = [
             '##money##' => "{$photographer_work->project_amount}",
@@ -1074,7 +1074,7 @@ class PhotographerController extends BaseController
             )."/font/".base64_urlSafeEncode("Microsoft YaHei")."/gravity/SouthWest/dx/202/dy/252/";
 
 
-        $handle[] = "text/".\Qiniu\base64_urlSafeEncode("微信扫一扫  看项目金额")."/fontsize/800/fill/".base64_urlSafeEncode(
+        $handle[] = "text/".\Qiniu\base64_urlSafeEncode("微信扫一扫  看项目详情")."/fontsize/800/fill/".base64_urlSafeEncode(
                 "#FFFFFF"
             )."/font/".base64_urlSafeEncode("Microsoft YaHei")."/gravity/South/dx/0/dy/75/";
 
@@ -1535,7 +1535,7 @@ class PhotographerController extends BaseController
             'id',
             $photographer_work->photographer_work_category_id
         )->first();
-        $workName = $photographer_work->customer_name;
+        $workName = $photographer_work->name;
         $name = "{$photographer->name}";
         $datas = [
             '##money##' => "{$photographer_work->project_amount}",
@@ -1555,7 +1555,6 @@ class PhotographerController extends BaseController
                 ]
             );
         }
-
         if ($photographer_work_source['deal_width'] > $photographer_work_source['deal_height']) {
 
             if ($photographer_work_source['width'] < 2133 && $photographer_work_source['height'] < 1200) {
@@ -1590,8 +1589,11 @@ class PhotographerController extends BaseController
             )."/fontsize/1200/fill/".base64_urlSafeEncode("#FFFFFF")."/font/".base64_urlSafeEncode(
                 "Microsoft YaHei"
             )."/gravity/NorthWest/dx/80/dy/70/";
-
-        $handle[] = "text/".\Qiniu\base64_urlSafeEncode($photographer_work_category->name."摄影项目").
+        $category_name = "";
+        if ($photographer_work_category){
+            $category_name = $photographer_work_category->name;
+        }
+        $handle[] = "text/".\Qiniu\base64_urlSafeEncode($category_name."摄影项目").
             "/fontsize/800/fill/".base64_urlSafeEncode("#FFFFFF")."/font/".base64_urlSafeEncode("Microsoft YaHei").
             "/gravity/NorthWest/dx/80/dy/200/";
 
@@ -1651,7 +1653,7 @@ class PhotographerController extends BaseController
             $height += 150;
         }
         $height += 90;
-        $handle[] = "text/".\Qiniu\base64_urlSafeEncode("微信扫一扫, 看项目金额。")."/fontsize/800/fill/".base64_urlSafeEncode(
+        $handle[] = "text/".\Qiniu\base64_urlSafeEncode("微信扫一扫, 看项目详情。")."/fontsize/800/fill/".base64_urlSafeEncode(
                 "#FFFFFF"
             )."/font/".base64_urlSafeEncode("Microsoft YaHei")."/gravity/NorthWest/dx/80/dy/".$height."/";
 
