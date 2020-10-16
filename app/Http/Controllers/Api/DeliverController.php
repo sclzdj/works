@@ -84,10 +84,15 @@ class DeliverController extends UserGuardController
 
         $dirs = array();
         $choiceFileList = array();
+        $largeFileList = array();
         $fileTotalSize = 0;
         foreach ($fileList as $file) {
             if (isset($file["is_choice"]) && $file["is_choice"] == 1) {
                 $choiceFileList[] = $file;
+            }
+
+            if ($file['size'] > 20971520) {//大于20M
+                $largeFileList[] = $file;
             }
 
             $fileTotalSize += intval($file['size']);
@@ -245,6 +250,12 @@ class DeliverController extends UserGuardController
         if ($res === false) {
             Log::warning("photographerWorkSourceDeal failed");
             return $this->response->error("photographerWorkSourceDeal failed", 400);
+        }
+
+        //超过20M的图片处理
+        if (!empty($largeFileList)) {
+            Log::info("handleLargeFile, largeFileList:" . json_encode($largeFileList));
+            $this->handleLargeFile($largeFileList);
         }
 
         //发送短信
@@ -756,6 +767,24 @@ class DeliverController extends UserGuardController
             }
         }
 
+        return true;
+    }
+
+    /**
+     * 处理大于20M的文件，异步将文件大小控制到20M以内，并且替换原图
+     * @param $fileList
+     * @return bool
+     * @author jsyzchenchen@gmail.com
+     * @date 2020/10/16
+     */
+    private function handleLargeFile($fileList)
+    {
+        $bucket = 'zuopin';
+        $fops = 'imageslim|imageMogr2/size-limit/20480k!';
+        foreach ($fileList as $file) {
+            $saveasKey = \Qiniu\base64_urlSafeEncode($bucket . ":" . $file['object_key']);
+            SystemServer::qiniuPfop($bucket, $file['object_key'], $fops . '|saveas/' . $saveasKey, null, null, true, true);
+        }
         return true;
     }
 
