@@ -11,6 +11,7 @@ use App\Model\Index\InvoteCode;
 use App\Model\Index\Photographer;
 use App\Model\Index\PhotographerRank;
 use App\Model\Index\PhotographerWork;
+use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\Sources;
 use App\Model\Index\TargetUser;
 use App\Model\Index\User;
@@ -41,34 +42,11 @@ class UserManagerController extends BaseController
                 1,
         ];
 
+        list($where, $whereraw) = $this->filters($request);
         $filter = [
-            'mobile' => $request['mobile'] !== null ?
-                $request['mobile'] :
-                '',
-            'name' => $request['name'] !== null ?
-                $request['name'] :
-                '',
-            'level' => $request['level'] !== null ?
-                $request['level'] :
-                '',
             'photographer_rank_id' => $request['photographer_rank_id'] !== null ?
                 $request['photographer_rank_id'] :
-                '',
-            'userid' => $request['userid'] !== null ?
-                $request['userid'] :
-                '',
-            'username' => $request['username'] !== null ?
-                $request['username'] :
-                '',
-            'photographerid' => $request['photographerid'] !== null ?
-                $request['photographerid'] :
-                '',
-            'photographername' => $request['photographername'] !== null ?
-                $request['photographername'] :
-                '',
-            'source' => $request['source'] !== null ?
-                $request['source'] :
-                '',
+                ''
         ];
         $orderBy = [
             'order_field' => $request['order_field'] !== null ?
@@ -76,45 +54,23 @@ class UserManagerController extends BaseController
                 'photographers.created_at',
             'order_type' => $request['order_type'] !== null ?
                 $request['order_type'] :
-                'desc',
+                '',
         ];
-        $where = [];
-        if ($filter['mobile'] !== '') {
-            $where[] = ['users.phoneNumber', '=', $filter['mobile']];
-        }
-        if ($filter['userid'] !== '') {
-            $where[] = ['users.id', '=', $filter['userid']];
-        }
-        if ($filter['username'] !== '') {
-            $where[] = ['users.nickname', 'like', '%'.$filter['username'].'%'];
-        }
-        if ($filter['photographerid'] !== '') {
-            $where[] = ['photographers.id', '=', $filter['photographerid']];
-        }
-        if ($filter['photographername'] !== '') {
-            $where[] = ['photographers.name', 'like', '%'.$filter['photographername'].'%'];
-        }
-        $whereraw = "1 = 1";
-        if ($filter['level'] !== '') {
-            $whereraw .= ' and photographers.level in ('. $filter['level'] .')';
-        }
+        $orderBy = $orderBy['order_field'] . ' ' . $orderBy['order_type'];
 
-        if ($filter['source'] !== '') {
-            $where[] = ['target_users.source', '=', $filter['source']];
-        }
-
+        $where[] = ['users.identity', '=', 1];
 
 
         $Photographer = Photographer::select(
-            \DB::raw('photographers.*,target_users.source,photographer_ranks.name as rank_name,target_users.rank_id,target_users.works_info'),
+            \DB::raw('photographers.*,target_users.source,photographer_ranks.name as rank_name,target_users.rank_id,target_users.works_info,target_users.reason'),
             \DB::raw('(( SELECT count(*) FROM photographer_works WHERE photographer_works.photographer_id = users.photographer_id )) AS works_count'),
             \DB::raw('((select count(*) from visitors where visitors.photographer_id=users.photographer_id)) as vistors')
-        )->join(
+        )->leftjoin(
             'users',
             'users.photographer_id',
             '=',
             'photographers.id'
-        )->join(
+        )->leftjoin(
             'target_users',
             'target_users.user_id',
             '=',
@@ -129,7 +85,7 @@ class UserManagerController extends BaseController
             'photographers.id',
             '=',
             'photographer_works.photographer_id'
-        )->where($where)->whereRaw($whereraw)->where(['photographers.status' => 200, 'photographer_works.status' => 200]);
+        )->where($where)->whereRaw($whereraw);
 
         if ($filter['photographer_rank_id'] !== '') {
             $photographerRanks = PhotographerRank::where(['pid' => $filter['photographer_rank_id']])->orderBy(
@@ -140,7 +96,7 @@ class UserManagerController extends BaseController
             $photographerRankIds[] = $filter['photographer_rank_id'];
             $Photographer = $Photographer->whereIn('photographer_rank_id', $photographerRankIds);
         }
-        $photographers = $Photographer->orderBy($orderBy['order_field'], $orderBy['order_type'])->groupBy(
+        $photographers = $Photographer->orderByRaw(\DB::raw($orderBy))->groupBy(
             'photographers.id'
         )->paginate(
             $pageInfo['pageSize']
@@ -177,22 +133,7 @@ class UserManagerController extends BaseController
         return $this->responseParseArray($photographers);
     }
 
-    /**
-     * 游客
-     * @param PhotographerRequest $request
-     * @return mixed
-     */
-    public function users(PhotographerRequest $request){
-
-        $pageInfo = [
-            'pageSize' => $request['pageSize'] !== null ?
-                $request['pageSize'] :
-                SystemConfig::getVal('basic_page_size'),
-            'page' => $request['page'] !== null ?
-                $request['page'] :
-                1,
-        ];
-
+    private function filters($request){
         $filter = [
             'mobile' => $request['mobile'] !== null ?
                 $request['mobile'] :
@@ -200,7 +141,12 @@ class UserManagerController extends BaseController
             'name' => $request['name'] !== null ?
                 $request['name'] :
                 '',
-
+            'nickname' => $request['nickname'] !== null ?
+                $request['nickname'] :
+                '',
+            'level' => $request['level'] !== null ?
+                $request['level'] :
+                '',
             'photographer_rank_id' => $request['photographer_rank_id'] !== null ?
                 $request['photographer_rank_id'] :
                 '',
@@ -216,16 +162,23 @@ class UserManagerController extends BaseController
             'photographername' => $request['photographername'] !== null ?
                 $request['photographername'] :
                 '',
+            'source' => $request['source'] !== null ?
+                $request['source'] :
+                '',
+            'status' => $request['status'] !== null ?
+                $request['status'] :
+                '',
+            'auth' => $request['auth'] !== null ?
+                $request['auth'] :
+                '',
+            'is_wx_authorize' => $request['is_wx_authorize'] !== null ?
+                $request['is_wx_authorize'] :
+                '',
+            'is_wx_get_phone_number' => $request['is_wx_get_phone_number'] !== null ?
+                $request['is_wx_get_phone_number'] :
+                '',
+        ];
 
-        ];
-        $orderBy = [
-            'order_field' => $request['order_field'] !== null ?
-                $request['order_field'] :
-                'users.created_at',
-            'order_type' => $request['order_type'] !== null ?
-                $request['order_type'] :
-                'desc',
-        ];
         $where = [];
         if ($filter['mobile'] !== '') {
             $where[] = ['users.phoneNumber', '=', $filter['mobile']];
@@ -242,6 +195,62 @@ class UserManagerController extends BaseController
         if ($filter['photographername'] !== '') {
             $where[] = ['photographers.name', 'like', '%'.$filter['photographername'].'%'];
         }
+        if ($filter['auth'] !== '') {
+            $opera = '=';
+            if ($filter['auth'] == 1){
+                $opera = '<>';
+            }
+            $where[] = ['users.openid', $opera,  ''];
+        }
+        if ($filter['is_wx_authorize'] !== '') {
+            $where[] = ['users.is_wx_authorize', '=',  $filter['is_wx_authorize']];
+        }
+        if ($filter['is_wx_get_phone_number'] !== '') {
+            $where[] = ['users.is_wx_get_phone_number', '=',  $filter['is_wx_get_phone_number']];
+        }
+        $whereraw = "1 = 1";
+        if ($filter['level'] !== '') {
+            $whereraw .= ' and photographers.level in ('. $filter['level'] .')';
+        }
+
+        if ($filter['source'] !== '') {
+            $whereraw .= ' and target_users.source in ('. $filter['source'] .')';
+        }
+        if ($filter['status'] !== '') {
+            $whereraw .= ' and target_users.status in ('. $filter['status'] .')';
+        }
+
+        return [$where, $whereraw];
+    }
+
+    /**
+     * 游客
+     * @param PhotographerRequest $request
+     * @return mixed
+     */
+    public function users(PhotographerRequest $request){
+
+        $pageInfo = [
+            'pageSize' => $request['pageSize'] !== null ?
+                $request['pageSize'] :
+                SystemConfig::getVal('basic_page_size'),
+            'page' => $request['page'] !== null ?
+                $request['page'] :
+                1,
+        ];
+        list($where, $whereraw) = $this->filters($request);
+
+        $orderBy = [
+            'order_field' => $request['order_field'] !== null ?
+                $request['order_field'] :
+                'users.created_at',
+            'order_type' => $request['order_type'] !== null ?
+                $request['order_type'] :
+                '',
+        ];
+        $orderBy = $orderBy['order_field'] . ' ' . $orderBy['order_type'];
+
+        $where[] = ['users.identity', '=', 0];
 
         $users = User::select(
             \DB::raw('(( SELECT count(*) FROM photographer_works WHERE photographer_works.photographer_id = users.photographer_id )) AS works_count'),
@@ -252,14 +261,20 @@ class UserManagerController extends BaseController
             'users.nickname',
             'photographers.name',
             'photographers.updated_at',
+            'photographers.xacode',
             'photographers.created_at',
             'users.avatar'
-        )->join(
+        )->leftjoin(
+            'target_users',
+            'target_users.user_id',
+            '=',
+            'users.id'
+        )->leftjoin(
             'photographers',
             'photographers.id',
             '=',
             'users.photographer_id'
-        )->where($where)->orderBy($orderBy['order_field'], $orderBy['order_type'])->paginate(
+        )->where($where)->whereRaw($whereraw)->orderByRaw($orderBy)->paginate(
             $pageInfo['pageSize']
         );
 
@@ -320,61 +335,7 @@ class UserManagerController extends BaseController
                 1,
         ];
 
-
-        $where = [];
-
-        $filter = [
-//            'id' => $request['id'] !== null ?
-//                $request['id'] :
-//                '',
-            'nickname' => $request['nickname'] !== null ?
-                $request['nickname'] :
-                '',
-            'user_id' => $request['userid'] !== null ?
-                $request['userid'] :
-                '',
-            'name' => $request['name'] !== null ?
-                $request['name'] :
-                '',
-            'photographer_id' => $request['photographerid'] !== null ?
-                $request['photographerid'] :
-                '',
-            'source' => $request['source'] !== null ?
-                $request['source'] :
-                '',
-            'status' => $request['status'] !== null ?
-                $request['status'] :
-                '',
-            'mobile' => $request['mobile'] !== null ?
-                $request['mobile'] :
-                '',
-        ];
-        if ($filter['name'] !== '') {
-            $where[] = ['photographers.name', 'like', '%'.$filter['name'].'%'];
-        }
-        if ($filter['nickname'] !== '') {
-            $where[] = ['users.nickname', 'like', '%'.$filter['nickname'].'%'];
-        }
-        if ($filter['user_id'] !== '') {
-            $where[] = ['users.user_id', '=', $filter['user_id']];
-        }
-        if ($filter['photographer_id'] !== '') {
-            $where[] = ['users.photographer_id', '=', $filter['name']];
-        }
-        if ($filter['mobile'] !== '') {
-            $where[] = ['users.phoneNumber', '=', '%'.$filter['mobile'].'%'];
-        }
-
-        if ($filter['source'] != '') {
-            $where[] = ['target_users.source', '=',  $filter['source']];
-        }
-        if ($filter['status'] != '') {
-            $where[] = ['target_users.status', '=',  $filter['status']];
-        }
-
-        if (!empty($filter['phone'])) {
-            $where[] = ['users.phoneNumber', 'like', '%' . $filter['phone'] . '%'];
-        }
+        list($where, $whereraw) = $this->filters($request);
 
         $orderBy = [
             'order_field' => $request['order_field'] !== null ?
@@ -382,10 +343,11 @@ class UserManagerController extends BaseController
                 'target_users.created_at',
             'order_type' => $request['order_type'] !== null ?
                 $request['order_type'] :
-                'desc',
+                '',
         ];
+        $orderBy = $orderBy['order_field'] . ' ' . $orderBy['order_type'];
 
-        $data = TargetUser::where($where)
+        $data = TargetUser::where($where)->whereRaw($whereraw)
             ->leftJoin('invote_codes', 'invote_codes.id', '=', 'target_users.invote_code_id')
             ->leftJoin('users', 'users.id', '=', 'target_users.user_id')
             ->leftJoin('photographer_ranks', 'photographer_ranks.id', '=', 'target_users.rank_id')
@@ -396,16 +358,17 @@ class UserManagerController extends BaseController
                 'invote_codes.type as invote_type',
                 'users.nickname', 'users.phoneNumber',
                 'users.city',
+                'photographers.xacode',
                 'users.avatar',
                 'users.province', 'users.gender', 'users.photographer_id',
                 'photographer_ranks.name as rank_name',
                 \DB::raw('((select count(photographer_works.id) from photographer_works where photographer_works.photographer_id=users.photographer_id)) as works_count'),
                 \DB::raw('((select count(*) from visitors where visitors.photographer_id=users.photographer_id)) as vistors')
-            )->groupBy('users.photographer_id')->orderBy($orderBy['order_field'], $orderBy['order_type'])->paginate(
+            )->groupBy('users.photographer_id')->orderByRaw($orderBy)->paginate(
                 $pageInfo['pageSize']
             );;
 
-//            var_dump($data);exit();
+
 
         foreach ($data as &$datum) {
             if ($datum['status'] == 0 && $datum['works_info']) {
@@ -413,20 +376,20 @@ class UserManagerController extends BaseController
                 $img = array_column($workinfo, 'url');
                 $datum['works_info'] = json_encode($img);
             }
-            if (!$datum['is_invite']){
-                $datum['status'] = 0; #未受邀
-            }else{
-                $datum['status'] = 1; #已受邀
-            }
-            $pw = PhotographerWork::where(['photographer_id' => $datum['photographer_id']])->first();
-            if ($pw){
-                $datum['status'] = 2; #有作品 已创建
-            }else{
-                $invote = InvoteCode::where(['user_id' => $datum['user_id']])->first();
-                if ($invote){
-                    $datum['status'] = 3; #已升级
-                }
-            }
+//            if (!$datum['is_invite']){
+//                $datum['status'] = 0; #未受邀
+//            }else{
+//                $datum['status'] = 1; #已受邀
+//            }
+//            $pw = PhotographerWork::where(['photographer_id' => $datum['photographer_id']])->first();
+//            if ($pw){
+//                $datum['status'] = 2; #有作品 已创建
+//            }else{
+//                $invote = InvoteCode::where(['user_id' => $datum['user_id']])->first();
+//                if ($invote){
+//                    $datum['status'] = 3; #已升级
+//                }
+//            }
         }
 
 
@@ -461,6 +424,56 @@ class UserManagerController extends BaseController
         Photographer::where(['id' => $photographer_id])->increment('invite', 3);
 
         return response()->noContent();
+    }
+
+    /**
+     * 获取用户状态数量
+    */
+    public function usertypecount(){
+        $list = TargetUser::select(
+            \DB::raw('status,count(*) as count')
+        )->groupBy('status')->get();
+        return $this->responseParseArray($list);
+
+    }
+
+    public function getContact(){
+//        \DB::enableQueryLog(); //        dd(\DB::getQueryLog());exit();
+        $workids = PhotographerWork::where(['status' => 200])->whereRaw(
+            \DB::raw('photographer_id not in (2,3,5849,5013,7083)')
+        )->get()->pluck(['id'])->toArray();
+//        dd(\DB::getQueryLog());exit();
+        $errorArr = [];
+        foreach ($workids as $work){
+            $work = PhotographerWork::where(['id' => $work])->first();
+            $sources = $work->photographerWorkSources()->get();
+            $errorArr[$work->id] = [];
+            if ($sources){
+                foreach ($sources as $source){
+                    if ($source->key == ''){
+                        continue;
+                    }
+                    $dusources = PhotographerWorkSource::where(['key' => $source->key])->where( 'photographer_work_id', '<>', $work->id)->get();
+                    if ($dusources){
+                        foreach ($dusources as $dusource){
+                            $duwork = PhotographerWork::where(['id' => $dusource->photographer_work_id])->first();
+                            if ($duwork->status == 200){
+                                if (!array_key_exists($dusource->photographer_work_id, $errorArr)){
+                                    array_push($errorArr[$work->id], $dusource->photographer_work_id);
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+            if (count($errorArr[$work->id]) == 0){
+                unset($errorArr[$work->id]);
+            }else{
+                $errorArr[$work->id]= array_unique($errorArr[$work->id]);
+            }
+        }
+        print_r($errorArr);
     }
 
 }

@@ -71,6 +71,7 @@ $api->version(
                 $api->post('my/saveInfo', 'MyController@saveInfo');
                 $api->post('my/saveMobile', 'MyController@saveMobile');
                 $api->get('my/info', 'MyController@info');
+                $api->get('my/userinfo', 'MyController@userinfo');
                 $api->post('my/photographerInfo', 'MyController@savePhotographerInfo');
                 $api->post('my/photographerAvatar', 'MyController@savePhotographerAvatar');
                 $api->post('my/photographerBgImg', 'MyController@savePhotographerBgImg');
@@ -78,7 +79,7 @@ $api->version(
                 $api->get('my/photographerWorks', 'MyController@photographerWorks');
                 $api->get('my/photographerWork', 'MyController@photographerWork');
                 $api->get('my/photographerWorkSources', 'MyController@photographerWorkSources');
-                $api->get('my/photographerWorkSourcesSimple', 'MyController@photographerWorkSourcesSimple');
+                $api->get('my/photographerWorkSourcesSimple', 'MyController@my/photographerWorks');
                 $api->get('my/setRoof', 'MyController@setRoof');
                 $api->delete('my/photographerWork', 'MyController@photographerWorkDelete');
                 $api->get('my/identity', 'MyController@identity');
@@ -97,6 +98,7 @@ $api->version(
 
                 //用户合集
                 $api->get('my/photographerGathers', 'PhotographerGatherController@index');
+                $api->get('my/photographerGatherSimple', 'PhotographerGatherController@InfoSimple');
                 $api->post('my/photographerGathersbindphotographerinfo', 'PhotographerGatherController@bindphotographerinfo');
                 $api->get('my/getAllWorkSources', 'PhotographerGatherController@showAllSource');
                 $api->get('my/photographerGatherData', 'PhotographerGatherController@show');
@@ -106,7 +108,7 @@ $api->version(
                 $api->post('my/savePhotographerGather', 'PhotographerGatherController@update');
                 //用户合集资料
                 $api->get('my/photographerGatherInfos', 'PhotographerGatherInfoController@index');
-                $api->post('my/addPhotographerGatherInfo', 'PhotographerGatherInfoController@store');
+                $api->post('my/addPhotographerGatherInfo', 'my/refreshPhotographerGatherInfoController@store');
                 $api->post('my/savePhotographerGatherInfo', 'PhotographerGatherInfoController@update');
                 $api->get('my/photographerGatherInfo', 'PhotographerGatherInfoController@show');
                 $api->delete('my/photographerGatherInfo', 'PhotographerGatherInfoController@destroy');
@@ -144,6 +146,14 @@ $api->version(
                 $api->get('photographer/randomWorkPoster2', 'PhotographerController@randomWorkPoster2');
                 $api->get('photographer/workResourcePoster', 'PhotographerController@workResourcePoster');
 
+                //裂变邀请
+                $api->get('invite/getinvite', 'InviteController@getinvite');
+                $api->post('invite/accept', 'InviteController@accept');
+                $api->get('invite/manage', 'InviteController@manage');
+                $api->get('invite/favors', 'InviteController@favors');
+                $api->get('invite/lists', 'InviteController@lists');
+                $api->get('invite/famoususers', 'InviteController@famoususerslist');
+                $api->post('invite/plzfavors', 'InviteController@plzfavors');
 
                 $api->get('templates/list', 'PhotographerController@getTemplates');
                 $api->get('photographer/rankingList', 'PhotographerController@rankingList');

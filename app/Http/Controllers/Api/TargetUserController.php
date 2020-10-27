@@ -27,14 +27,14 @@ class TargetUserController extends BaseController
 //        $user = auth($this->guard)->user();
         try {
 
-            $codeInfo = InvoteCode::where('user_id', $request['user_id'])->first();
-            if (!empty($codeInfo)) {
-                $data = [
-                    'result' => false,
-                    'msg' => '用户绑定了创建码，不再是目标用户'
-                ];
-                return $this->responseParseArray($data);
-            }
+//            $codeInfo = InvoteCode::where('user_id', $request['user_id'])->first();
+//            if (!empty($codeInfo)) {
+//                $data = [
+//                    'result' => false,
+//                    'msg' => '用户绑定了创建码，不再是目标用户'
+//                ];
+//                return $this->responseParseArray($data);
+//            }
 
             $target_user = (new TargetUser())->where('user_id', $request['user_id'])->first();
 //            $Photographer = Photographer::where('id', $request['user_id'])->first();

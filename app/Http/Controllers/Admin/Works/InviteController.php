@@ -8,6 +8,8 @@ use App\Model\Index\HelpTags;
 use App\Model\Index\Invite;
 use App\Model\Index\InvoteCode;
 use App\Model\Index\Photographer;
+use App\Model\Index\PhotographerWork;
+use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\Question;
 use App\Model\Index\Star;
 use Illuminate\Http\Request;
@@ -79,7 +81,7 @@ class InviteController extends BaseController
                 'users.nickname', 'users.id as user_id', 'users.photographer_id',
                 \DB::raw('(select COUNT(*) FROM photographer_works WHERE `photographer_id` = users.photographer_id and status = 200) as `photographer_works_count`'),
                 \DB::raw('(select COUNT(*) FROM photographer_work_sources
-                 WHERE `photographer_work_id` in (select id FROM photographer_works WHERE `photographer_id` = users.photographer_id and status = 200) and status = 200) 
+                 WHERE `photographer_work_id` in (select id FROM photographer_works WHERE `photographer_id` = users.photographer_id and status = 200) and status = 200)
                  as `photographer_works_resource_count`'),
                 \DB::raw("(select count(*) from visitors where `photographer_id` = users.photographer_id  ) as photographer_works_visit_count")
             ])
@@ -153,4 +155,11 @@ class InviteController extends BaseController
 
     }
 
+    public function getsuggestwork(Request $request){
+        $works = PhotographerWork::where(['status' => 200])->get()->toArray();
+//        $source
+        foreach ($works as $work){
+//            PhotographerWorkSource
+        }
+    }
 }

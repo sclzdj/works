@@ -36,7 +36,7 @@ class VisitRequest extends BaseRequest
                 break;
             case 'operateRecord':
                 $rules = [
-                    'operate_type' => 'required|in:copy_wx,view_project_amount',
+                    'operate_type' => 'required|in:copy_wx,view_project_amount,copy_email,save_work_source,aboutme',
                     'page_name' => 'required|in:photographer_home,photographer_work',
                     'photographer_id' => 'required|integer',
                     'photographer_work_id' => 'required_if:page_name,photographer_work|integer',

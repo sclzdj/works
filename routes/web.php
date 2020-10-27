@@ -134,6 +134,7 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::get('invite/lists', 'Works\InviteController@lists');
         Route::resource('invite' , 'Works\InviteController');
 
+        Route::get('getsuggestwork', 'Works\InviteController@getsuggestwork');
 
     });
     //这下面写不需要登录的路由
@@ -148,6 +149,8 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
     Route::get('api/usermanage/Guest', 'Api\UserManagerController@Guest');
     Route::get('api/usermanage/targetuserlist', 'Api\UserManagerController@targetuserlist');
     Route::get('api/usermanage/users', 'Api\UserManagerController@users');
+    Route::get('api/usermanage/usertypecount', 'Api\UserManagerController@usertypecount');
+    Route::get('api/usermanage/getContact', 'Api\UserManagerController@getContact');
 
     //来源管理
     Route::get('api/sources', 'Api\SourceController@index');

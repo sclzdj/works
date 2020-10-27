@@ -70,7 +70,7 @@ class PhotographerGatherController extends BaseController
             $photographerGathers['data'][$k]['cover'] = [];
             $photographerGatherWorks = PhotographerGatherWork::where(
                 ['photographer_gather_id' => $photographerGather['id']]
-            )->orderBy('sort', 'asc')->limit(3)->get();
+            )->orderBy('sort', 'desc')->limit(3)->get();
             if ($photographerGatherWorks) {
                 foreach ($photographerGatherWorks as $photographerGatherWork){
                     $photographerWork = PhotographerWork::where(
@@ -85,6 +85,54 @@ class PhotographerGatherController extends BaseController
         }
         return $this->response->array($photographerGathers);
     }
+
+    public function InfoSimple(PhotographerGatherRequest $request){
+        if ($request->photographer_id > 0) {
+            $photographer = $this->_photographer($request->photographer_id);
+        } else {
+            $photographer = $this->_photographer(null, $this->guards['user']);
+        }
+
+        $photographerGathers = PhotographerGather::select(PhotographerGather::allowFields());
+        $photographerGathers = $photographerGathers->where(['photographer_id'=>$photographer->id,'status' => 200])->orderBy(
+            'created_at',
+            'desc'
+        )->paginate(
+            $request->pageSize
+        );
+        $photographerGathers = SystemServer::parsePaginate($photographerGathers->toArray());
+        foreach ($photographerGathers['data'] as $k => $photographerGather) {
+            $photographerGathers['data'][$k]['xacode'] = PhotographerGather::getXacode(
+                $photographerGather['id'],
+                false
+            );
+            //添加review
+            $photographerGathers['data'][$k]['review'] = PhotographerGather::getPhotographerGatherReviewStatus($photographerGathers['data'][$k]['id']);
+            $photographerGathers['data'][$k]['count'] = PhotographerGather::getGatherWorkSourcescount($photographerGathers['data'][$k]['id']);
+            $photographerGathers['data'][$k]['workscount'] = PhotographerGatherWork::where(
+                ['photographer_gather_id' => $photographerGather['id']]
+            )->count();
+            $photographerGathers['data'][$k]['cover'] = [];
+            $photographerGatherWorks = PhotographerGatherWork::where(
+                ['photographer_gather_id' => $photographerGather['id']]
+            )->orderBy('sort', 'desc')->limit(3)->get();
+            if ($photographerGatherWorks) {
+                foreach ($photographerGatherWorks as $photographerGatherWork){
+                    $photographerWork = PhotographerWork::where(
+                        ['id' => $photographerGatherWork->photographer_work_id, 'status' => 200]
+                    )->first();
+                    if($photographerWork){
+                        $photographerWork = SystemServer::parsePhotographerWorkCover($photographerWork->toArray());
+                        array_push($photographerGathers['data'][$k]['cover'], $photographerWork['cover']);
+                    }
+                }
+            }
+        }
+
+        return $this->response->array($photographerGathers);
+
+    }
+
 
     /**
      * 新增合集
@@ -170,27 +218,23 @@ class PhotographerGatherController extends BaseController
 
         $photographer = $this->_photographer(null, $this->guards['user']);
         $photographerGather = PhotographerGather::where(
-            ['id' => $request->photographer_gather_id, 'photographer_id' => $photographer->id]
+            ['photographer_id' => $photographer->id, 'id' => $request->photographer_gather_id] #,
         )->where(['status' => 200])->first();
         if (!$photographerGather) {
             return $this->response->error('合集不存在', 500);
         }
-//        $photographerGatherInfo = PhotographerGatherInfo::where(
-//            ['id' => $request->photographer_gather_info_id, 'photographer_id' => $photographer->id]
-//        )->where(['status' => 200])->first();
-//        if (!$photographerGatherInfo) {
-//            return $this->response->error('合集资料不存在', 500);
-//        }
+
         $photographer_work_ids = $request->photographer_work_ids;
         \DB::beginTransaction();//开启事务
         try {
             PhotographerGatherWork::where(
                 ['photographer_gather_id' => $photographerGather->id]
             )->delete();
+            $photographer_work_ids = array_unique($photographer_work_ids);
             if ($photographer_work_ids) {
                 foreach ($photographer_work_ids as $k => $photographer_work_id) {
                     $photographerWork = PhotographerWork::where(
-                        ['photographer_id' => $photographer->id, 'id' => $photographer_work_id, 'status' => 200]
+                        [ 'id' => $photographer_work_id, 'status' => 200, 'photographer_id' => $photographer->id,]
                     )->first();
                     if (!$photographerWork) {
                         \DB::rollback();//回滚事务
@@ -377,6 +421,7 @@ class PhotographerGatherController extends BaseController
                     }
                 }
             }
+
             foreach ($worksids as $worksid) {
                 $photographer_work = PhotographerWork::where(['id' => $worksid])->first();
                 $category = [];
@@ -386,7 +431,12 @@ class PhotographerGatherController extends BaseController
                     array_push($category, $cg);
                 }
 
+                $cover = "";
+                try {
+                    $cover = SystemServer::parsePhotographerWorkCover($photographer_work->toArray());
+                }catch (\Exception $e){
 
+                }
 
                 $work = [
                     'id' => $photographer_work->id,
@@ -394,7 +444,7 @@ class PhotographerGatherController extends BaseController
                     'photographer_work_category_id' => $photographer_work->photographer_work_category_id,
                     'custom_name' => $photographer_work->custom_name,
                     'name' => $photographer_work->name,
-                    'cover' => SystemServer::parsePhotographerWorkCover($photographer_work->toArray())['cover']['url'],
+                    'cover' => $cover,
                     'category' => $category
                 ];
 
@@ -408,6 +458,7 @@ class PhotographerGatherController extends BaseController
                     foreach ($PhotographerWorkSources->toArray() as  $source){
 
                         $source['work'] = $work;
+                        $source['thumb_url'] = $source['url'] . '?imageMogr2/auto-orient/thumbnail/600x';
                         array_push($PhotographerWorkSourcesArr, $source);
                     }
                 }

@@ -4,6 +4,8 @@ namespace App\Servers;
 
 use App\Model\Admin\SystemArea;
 use App\Model\Admin\SystemConfig;
+use App\Model\Index\InviteList;
+use App\Model\Index\InviteSetting;
 use App\Model\Index\Photographer;
 use App\Model\Index\PhotographerRank;
 use App\Model\Index\PhotographerWork;
@@ -764,5 +766,20 @@ class SystemServer
                 ],
             ]
         );
+    }
+
+    /*
+     *  梳理邀请人的云朵和金钱数量
+     * */
+    static public function cloudMoneyChange($photographer_id){
+        $settings = InviteSetting::first();
+        $invitecount = InviteList::where(['parent_photographer_id' => $photographer_id])->count();
+        $cloudmedal = json_decode($settings->cloudmedal, true);
+        foreach ($cloudmedal as $name => $cloud){
+            if ($cloud['number'] > $invitecount){
+                break;
+            }
+        }
+        return $cloud;
     }
 }

@@ -60,6 +60,7 @@ class Photographer extends Model
             'wechat',
             'mobile',
             'mobilecontact',
+            'invite_times',
             'email',
             'created_at',
         ];
@@ -552,7 +553,7 @@ class Photographer extends Model
                 ->first();
             $resources[] = $resource;
         }
-        
+
         $sourcecount = PhotographerGather::getGatherWorkSourcescount($photographer_gather_id);
 
         if (empty($resources)) {

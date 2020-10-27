@@ -202,6 +202,71 @@ class MyController extends UserGuardController
     }
 
     /**
+     * 我的用户信息(统一班)
+    */
+    public function userinfo(){
+        $info = auth($this->guard)->user()->toArray();
+        $identity = [
+            'identity' => $info['identity'],
+            'is_wx_authorize' => $info['is_wx_authorize'],
+            'is_wx_get_phone_number' => $info['is_wx_get_phone_number'],
+            'is_formal_photographer' => $info['is_formal_photographer'],
+        ];
+
+        $info = ArrServer::inData($info, User::allowFields());
+
+
+        $this->notPhotographerIdentityVerify();
+        $photographer = $this->_photographer(null, $this->guard);
+        if (!$photographer || $photographer->status != 200) {
+            $photographer = [];
+        }else{
+            $photographer = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
+            $photographer = SystemServer::parseRegionName($photographer);
+            $photographer = SystemServer::parsePhotographerRank($photographer);
+            $photographer['xacode'] = Photographer::getXacode($photographer['id'], false);
+            $photographer_info_tags = PhotographerInfoTag::where(
+                [
+                    'photographer_id' => $photographer['id'],
+                ]
+            )->get();
+            $photographer['auth_tags'] = [];
+            $photographer['award_tags'] = [];
+            $photographer['educate_tags'] = [];
+            $photographer['equipment_tags'] = [];
+            $photographer['social_tags'] = [];
+            foreach ($photographer_info_tags as $photographer_info_tag) {
+                switch ($photographer_info_tag->type) {
+                    case 'auth':
+                        $photographer['auth_tags'][] = $photographer_info_tag->name;
+                        break;
+                    case 'award':
+                        $photographer['award_tags'][] = $photographer_info_tag->name;
+                        break;
+                    case 'educate':
+                        $photographer['educate_tags'][] = $photographer_info_tag->name;
+                        break;
+                    case 'equipment':
+                        $photographer['equipment_tags'][] = $photographer_info_tag->name;
+                        break;
+                    case 'social':
+                        $photographer['social_tags'][] = $photographer_info_tag->name;
+                        break;
+                }
+            }
+
+        }
+
+        $data = [
+            'info' => $info,
+            'identity' => $identity,
+            'photographer' => $photographer
+        ];
+
+        return $this->responseParseArray($data);
+    }
+
+    /**
      * 微信用户身份
      * @return mixed
      */
@@ -282,6 +347,7 @@ class MyController extends UserGuardController
     {
         $this->notPhotographerIdentityVerify();
         $photographer = $this->_photographer(null, $this->guard);
+//        $photographer = $this->_photographer(6674, $this->guard);
         if (!$photographer || $photographer->status != 200) {
             return $this->response->error('用户不存在', 500);
         }
@@ -499,7 +565,7 @@ class MyController extends UserGuardController
             'photographer_work_customer_industries.name',
             'photographer_work_customer_industries.pid',
             'photographer_work_customer_industries.id'
-        )->groupBy('photographer_work_customer_industry_id')->get()->toArray();
+        )->where(['photographer_works.status' => 200])->groupBy('photographer_work_customer_industry_id')->get()->toArray();
 
         $category = $photographer->photographerWorks()->join(
             'photographer_work_categories',
@@ -510,7 +576,7 @@ class MyController extends UserGuardController
             'photographer_work_categories.name',
             'photographer_work_categories.pid',
             'photographer_work_categories.id'
-        )->groupBy('photographer_works.photographer_work_category_id')->get()->toArray();
+        )->where(['photographer_works.status' => 200])->groupBy('photographer_works.photographer_work_category_id')->get()->toArray();
 
         $other = $photographer->photographerWorks()->select(
             \DB::raw( 'max(`sheets_number`) as max_sheets_number'),
@@ -519,7 +585,7 @@ class MyController extends UserGuardController
             \DB::raw( 'min(`shooting_duration`) as min_shooting_duration'),
             \DB::raw( 'max(`project_amount`) as max_project_amount'),
             \DB::raw( 'min(`project_amount`) as min_project_amount')
-        )->get()->toArray();
+        )->where(['photographer_works.status' => 200])->get()->toArray();
         $data = [
             'customer_industry' => $customer,
             'category' => $category,
@@ -547,9 +613,9 @@ class MyController extends UserGuardController
         if (!$photographer || $photographer->status != 200) {
             return $this->response->error('用户不存在', 500);
         }
-        if ($photographer_work->photographer_id != $photographer->id) {
-            return $this->response->error('用户项目不存在', 500);
-        }
+//        if ($photographer_work->photographer_id != $photographer->id) {
+//            return $this->response->error('用户项目不存在', 500);
+//        }
         $photographer_work_sources = $photographer_work->photographerWorkSources()->select(
             PhotographerWorkSource::allowFields()
         )->where('status', 200)->orderBy('sort', 'asc')->get();
@@ -682,7 +748,7 @@ class MyController extends UserGuardController
             function ($v) {
                 return 'photographer_work_sources.'.$v;
             },
-            ['id', 'photographer_work_id', 'type', 'url', 'deal_url', 'deal_width', 'deal_height', 'image_ave']
+            ['id', 'photographer_work_id', 'type', 'url', 'deal_url', 'rich_url', 'deal_width', 'deal_height', 'image_ave']
         );
         if ($request->photographer_gather_id){
             $photographerWorks = PhotographerWork::where(['photographer_gather_works.photographer_gather_id' => $request->photographer_gather_id])->join(
@@ -1189,12 +1255,12 @@ class MyController extends UserGuardController
             $fsids_count = count($request->fsids);
         }
         $count = $sources_count + $fsids_count;
-        if ($count < 1) {
-            return $this->response->error('资源和网盘文件总和至少为1个', 500);
-        }
-        if ($count > 18) {
-            return $this->response->error('资源和网盘文件总和至多为18个', 500);
-        }
+//        if ($count < 1) {
+//            return $this->response->error('资源和网盘文件总和至少为1个', 500);
+//        }
+//        if ($count > 18) {
+//            return $this->response->error('资源和网盘文件总和至多为18个', 500);
+//        }
         $this->notPhotographerIdentityVerify();
         $asynchronous_task = [];
         \DB::beginTransaction();//开启事务
@@ -1235,10 +1301,16 @@ class MyController extends UserGuardController
                     if ($photographergather){
                         $pgw = PhotographerGatherWork::where(['photographer_work_id' => $photographer_work->id, 'photographer_gather_id' => $photographer_gather_id])->first();
                         if (!$pgw){
+                            $lastpgw = PhotographerGatherWork::where(['photographer_gather_id' => $photographer_gather_id])->select(
+                                \DB::raw("MAX(sort) as maxsort")
+                            )->first();
                             $pgw = new PhotographerGatherWork();
                             $pgw->photographer_gather_id = $photographergather->id;
                             $pgw->photographer_work_id = $photographer_work->id;
-                            $pgw->sort = 1;
+                            $pgw->sort = $lastpgw->maxsort;
+                            if ($lastpgw){
+                                $pgw->sort = $lastpgw->maxsort + 1;
+                            }
                             $pgw->save();
                         }
                     }
@@ -1247,6 +1319,7 @@ class MyController extends UserGuardController
             }
 
             if ($request->tags) {
+                PhotographerWorkTag::where(['photographer_work_id' => $photographer_work->id])->delete();
                 try{
                     $tags = json_decode($request->tags , true);
                     foreach ($request->tags as $v) {

@@ -24,6 +24,19 @@ class StaffController extends BaseController{
     public function  Notice(Request $request){
         $user = User::where('id', $request->user_id)->first();
         $targetuser = TargetUser::where(['user_id' => $user['id']])->first();
+        $template_id = '1RgjtVQuWZAkw_fsN_bA8jLAGS3Wv_NvDb_66fScnb8';
+        $template_id = '1RgjtVQuWZAkw_fsN_bA8jLAGS3Wv_NvDb_66fScnb8';
+        $data =  [
+            'first' => '内测申请审核结果提醒',
+            'keyword1' => '审核通过',
+            'keyword2' => date('Y-m-d H:i:s'),
+            'remark' => $user->nickname . '，你已通过云作品的内测申请审核！微信中打开云作品小程序，即可开始创建。',
+        ];
+        $miniprogram = [
+            'appid' => config('wechat.payment.default.app_id'),
+        ];
+        $purpose = 'review_success';
+        $targetuser->status = 1;
         if ($targetuser['status'] == 0){
             $template_id = '1RgjtVQuWZAkw_fsN_bA8jLAGS3Wv_NvDb_66fScnb8';
             $data =  [
@@ -36,7 +49,7 @@ class StaffController extends BaseController{
                 'appid' => config('wechat.payment.default.app_id'),
             ];
             $purpose = 'review_success';
-
+            $targetuser->status = 1;
         }elseif ($targetuser['status'] == 1){
             $photographer = Photographer::where(['id' => $user['photographer_id']])->first();
             $template_id = 'rjph5uR7iIzT2rEn3LjnF65zEdKZYisUGoAVgpipxpk';
@@ -56,8 +69,10 @@ class StaffController extends BaseController{
                 'remark' => '云作品客服微信'.SystemConfig::getVal('customer_wechat', 'works'),
             ];
             $purpose = 'register_success';
-        }
+            $targetuser->status = 2;
 
+        }
+        $targetuser->save();
 
         if ($user->gh_openid) {
             $app = app('wechat.official_account');

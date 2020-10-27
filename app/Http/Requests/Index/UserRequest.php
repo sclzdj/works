@@ -29,6 +29,12 @@ class UserRequest extends BaseRequest
                     'password' => 'required',
                 ];
                 break;
+            case 'accept':
+                $rules = [
+                    'photographer_id' => 'required|integer|exists:photographers,id',
+                    'user_id' => 'required',
+                ];
+                break;
             case 'save_info':
                 $rules = [
                     'encryptedData' => 'required',
@@ -157,6 +163,13 @@ class UserRequest extends BaseRequest
                     'username.required' => '微信用户名不能为空',
                     'username.alpha_dash' => '微信用户名格式错误',
                     'password.required' => '密码必须传递',
+                ];
+                break;
+            case 'accept':
+                $messages = [
+                    'photographer_id.required' => '摄影师id不能为空',
+                    'photographer_id.exists' => '摄影师不存在',
+                    'user_id.required' => '邀请人用户id不能为空',
                 ];
                 break;
             case 'save_info':
@@ -305,6 +318,7 @@ class UserRequest extends BaseRequest
         return [
             'mp_login' => ['GET|App\Http\Controllers\Api\LoginController@mpLogin'],
             'login' => ['POST|App\Http\Controllers\Api\LoginController@login'],
+            'accept' => ['POST|App\Http\Controllers\Api\InviteController@accept'],
             'save_info' => ['POST|App\Http\Controllers\Api\MyController@saveInfo'],
             'saveMobile' => ['POST|App\Http\Controllers\Api\MyController@saveMobile'],
             'photographerWorks' => ['GET|App\Http\Controllers\Api\MyController@photographerWorks'],

@@ -287,6 +287,7 @@ class PhotographerController extends BaseController
     /**
      * 用户项目信息
      * @param PhotographerRequest $request
+     * TODO 这里可以看到任何人的项目，需要逻辑判断
      */
     public function work(PhotographerRequest $request)
     {
