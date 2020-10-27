@@ -587,7 +587,7 @@ class SystemServer
      * @param $notifyUrl
      * @param $useHTTPS
      */
-    static public function qiniuPfop($bucket, $key, $fops, $pipeline, $notifyUrl, $useHTTPS = true, $force = true)
+    static public function qiniuPfop($bucket, $key, $fops, $pipeline = null, $notifyUrl = null, $useHTTPS = true, $force = true)
     {
         $accessKey = config('custom.qiniu.accessKey');
         $secretKey = config('custom.qiniu.secretKey');
