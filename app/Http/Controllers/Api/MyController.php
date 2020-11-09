@@ -625,10 +625,17 @@ class MyController extends UserGuardController
             PhotographerWorkTag::allowFields()
         )->get()->toArray();
         $photographer_work = ArrServer::inData($photographer_work->toArray(), PhotographerWork::allowFields());
-        $photographer_work = ArrServer::toNullStrData(
-            $photographer_work,
-            ['sheets_number', 'shooting_duration']
-        );
+//        $photographer_work = ArrServer::toNullStrData(
+//            $photographer_work,
+//            ['sheets_number', 'shooting_duration']
+//        );
+//        if ($photographer_work['sheets_number'] === null){
+//            $photographer_work['sheets_number'] = '';
+//        }
+//        if ($photographer_work['shooting_duration'] === null){
+//            $photographer_work['shooting_duration'] = '';
+//        }
+
         $photographer_work = SystemServer::parsePhotographerWorkCover($photographer_work);
         $photographer_work = SystemServer::parsePhotographerWorkCustomerIndustry($photographer_work);
         $photographer_work = SystemServer::parsePhotographerWorkCategory($photographer_work);
@@ -1316,6 +1323,8 @@ class MyController extends UserGuardController
                     }
                 }
                 PhotographerGatherWork::where(['photographer_work_id' => $photographer_work->id])->whereRaw('photographer_gather_id not in ('. implode(',', $request->photographer_gather_id ) .')')->delete();
+            }else{
+                PhotographerGatherWork::where(['photographer_work_id' => $photographer_work->id])->delete();
             }
 
             if ($request->tags) {
@@ -1387,9 +1396,9 @@ class MyController extends UserGuardController
                             ];
 
                         } elseif ($photographer_work_source->type == 'video') {
-                            $photographer_work_source->size = $v['format']['size'];
-                            $photographer_work_source->deal_size = $v['format']['size'];
-                            $photographer_work_source->rich_size = $v['format']['size'];
+                            $photographer_work_source->size = $v['fsize'];
+                            $photographer_work_source->deal_size = $v['fsize'];;
+                            $photographer_work_source->rich_size = $v['fsize'];;
                             $photographer_work_source->save();
                         }
                     }

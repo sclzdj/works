@@ -157,15 +157,7 @@ class VisitController extends UserGuardController
 
                 return $this->response->noContent();
             }
-            $operate_record = OperateRecord::create();
-            $operate_record->user_id = $user->id;
-            $operate_record->page_name = $request->page_name;
-            $operate_record->photographer_id = $request->photographer_id;
-            $operate_record->photographer_work_id = $request->photographer_work_id;
-            $operate_record->photographer_gather_id = $request->photographer_gather_id;
-            $operate_record->share_type = $request->share_type;
-            $operate_record->operate_type = 'share';
-            $operate_record->save();
+
             $operate_record = OperateRecord::create();
             $operate_record->user_id = $user->id;
             $operate_record->page_name = $request->page_name;
@@ -176,6 +168,17 @@ class VisitController extends UserGuardController
             $operate_record->shared_user_id = $request->shared_user_id ?? 0;
             $operate_record->operate_type = 'in';
             $operate_record->save();
+
+            $operate_record = OperateRecord::create();
+            $operate_record->user_id = $user->id;
+            $operate_record->page_name = $request->page_name;
+            $operate_record->photographer_id = $request->photographer_id;
+            $operate_record->photographer_work_id = $request->photographer_work_id;
+            $operate_record->photographer_gather_id = $request->photographer_gather_id;
+            $operate_record->share_type = $request->share_type;
+            $operate_record->operate_type = 'share';
+            $operate_record->save();
+
 
             if ($user->id != $photographer_user->id) {//如果不是自己访问，记录访客信息
                 $this->_visitorRecord(
@@ -239,14 +242,7 @@ class VisitController extends UserGuardController
 
                 return $this->response->noContent();
             }
-            $operate_record = OperateRecord::create();
-            $operate_record->user_id = $user->id;
-            $operate_record->operate_type = $request->operate_type;
-            $operate_record->page_name = $request->page_name;
-            $operate_record->photographer_id = $request->photographer_id;
-            $operate_record->photographer_work_id = $request->photographer_work_id;
-            $operate_record->photographer_gather_id = $request->photographer_gather_id;
-            $operate_record->save();
+
 
 
             $operate_record = OperateRecord::create();
@@ -259,6 +255,15 @@ class VisitController extends UserGuardController
             $operate_record->operate_type = 'in';
             $operate_record->save();
 
+            $operate_record = OperateRecord::create();
+            $operate_record->user_id = $user->id;
+            $operate_record->operate_type = $request->operate_type;
+            $operate_record->page_name = $request->page_name;
+            $operate_record->photographer_id = $request->photographer_id;
+            $operate_record->photographer_work_id = $request->photographer_work_id;
+            $operate_record->photographer_gather_id = $request->photographer_gather_id;
+            $operate_record->operate_type = $request->operate_type;
+            $operate_record->save();
             if ($user->id != $photographer_user->id) {//如果不是自己访问，记录访客信息
                 $this->_visitorRecord(
                     $request,
@@ -365,30 +370,9 @@ class VisitController extends UserGuardController
                 $visit_send_message['is_remind'] = 1;
             }
         }
-        switch ($request->operate_type){
-            case 'copy_email':
-                $keyword2_text = '复制了我的邮箱';
-                break;
-            case 'save_work_source':
-                $work_name = "";
-                $work = PhotographerWork::where(['id' => $request->photographer_work_id])->first();
-                if ($work){
-                    $work_name = $work->name;
-                }
-                $keyword2_text = '保存了项目「'.$work_name.'」中的作品';
-                break;
-            case 'aboutme':
-                $gather_name = "";
-                $gather = PhotographerGather::where(['id' => $request->photographer_gather_id])->first();
-                if ($gather){
-                    $gather_name = $gather->name;
-                }
-                $keyword2_text = '查看了合集「'.$gather_name.'」中的履历';
-                break;
-        }
-//        $visit_send_message['is'] = true;
         if ($visit_send_message['is'] && $photographer_user->gh_openid != '') {
             $describes = [];
+
             foreach ($operate_records as $operate_record) {
                 if ($operate_record->operate_type == 'in') {
                     $first_in_operate_record = OperateRecord::where(
@@ -1010,6 +994,14 @@ class VisitController extends UserGuardController
             $describe = '复制了我的微信号';
         } elseif ($operateRecord->operate_type == 'view_project_amount') {
             $describe = '查看了项目「'.$photographer_work_name.'」的金额';
+        }
+        elseif ($operateRecord->operate_type == 'copy_email') {
+            $describe = '复制了我的邮箱';
+        }
+        elseif ($operateRecord->operate_type == 'save_work_source') {
+            $describe = '保存了项目「'.$photographer_work_name.'」中的作品';
+        }elseif ($operateRecord->operate_type == 'aboutme'){
+            $describe = '查看了合集「'.$photographer_gather_name.'」中的履历';
         }
 
         return $describe;

@@ -1,4 +1,5 @@
 /node_modules
+vendor/
 public/logs/
 storage/framework/data/
 /public/hot

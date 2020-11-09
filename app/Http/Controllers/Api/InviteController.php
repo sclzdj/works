@@ -11,6 +11,7 @@ use App\Model\Index\InviteFavour;
 use App\Model\Index\InviteList;
 use App\Model\Index\InviteReward;
 use App\Model\Index\InviteSetting;
+use App\Model\Index\Photographer;
 use App\Model\Index\User;
 use App\Servers\SystemServer;
 use Illuminate\Http\Request;
@@ -61,12 +62,15 @@ class InviteController extends BaseController
         \DB::beginTransaction();
         try {
             $guest->status = 1;
+            //设定用户来源为5 用户页点击
+            $guest->source = 5;
             $photographer->decrement('invite_times');
             #邀请列表每次邀请一个人添加一条记录
             $invite = InviteList::create();
             $invite->photographer_id = $guest->photographer_id;
             $invite->parent_photographer_id = $photographer->id;
             $invite->created_at = date('Y-m-d H:i:s');
+            $invite->save();
 
             #邀请奖励，邀请一个人添加相应奖励
             $reword = InviteReward::where(['photographer_id' => $photographer->id])->first();
@@ -74,10 +78,18 @@ class InviteController extends BaseController
                 $reword = InviteReward::create();
                 $reword->cloud = 1;
                 $reword->cloud_count = 1;
-                $reword->save();
+                //设置勋章为白云勋章
+                $reword->medal = 'baicloud';
+
+            }else{
+                $medal = InviteSetting::getMedal($photographer->id);
+                $reword->medal = $medal['medal'];
+
+                $reword->increment('cloud');
+                $reword->increment('cloud_count');
+
             }
-            $reword->increment('cloud');
-            $reword->increment('cloud_count');
+            $reword->save();
 
             #检查请求邀请表是否有数据,有的话把状态改为1  已邀请
             $invitefavor = InviteFavour::where(['favour_photographer_id' => $photographer->id])->where(['request_photographer_id' => $guest->photographer_id])->where(['status' => 0])->first();
@@ -88,8 +100,8 @@ class InviteController extends BaseController
             $invitefavor->save();
 
 
-            $reword->save();
-            $invite->save();
+
+
             $guest->save();
             $photographer->save();
         }catch (\Exception $e){
@@ -111,10 +123,9 @@ class InviteController extends BaseController
     public function manage(UserRequest $request){
         $photographer = $this->_photographer($request->photographer_id);
 
-        $famoususer = FamousUsers::where(['photographer_id' => $photographer->id])->first();
         $title = "云作品内测用户";
-        if ($famoususer){
-            $rank = FamousRank::join('photographer_ranks', 'photographer_ranks.id', '=', 'famoususer_rank.photographer_rank_id')->join('famoususers','famoususers.id',  '=', 'famoususer_rank.famoususer_id')->where(['famoususers.id' => $famoususer->id])->select('photographer_ranks.name')->first();
+        if ($photographer['famoususer_id']){
+            $rank = FamousRank::join('photographer_ranks', 'photographer_ranks.id', '=', 'famoususer_rank.photographer_rank_id')->where(['photographer_id' => $photographer->id])->select('photographer_ranks.name')->first();
             $title = $rank->name . '摄影领域KOL';
         }
 
@@ -221,19 +232,19 @@ class InviteController extends BaseController
         ];
 
         $rank = $request->rank;
-        $famous = FamousUsers::join(
-            'photographers',
-            'photographers.id',
+        $famous = Photographer::join(
+            'famoususers',
+            'famoususers.id',
             '=',
-            'famoususers.photographer_id'
+            'photographers.famoususer_id'
         );
         $where = [];
         if ($rank){
             $famous->join(
                 'famoususer_rank',
-                'famoususer_rank.famoususer_id',
+                'famoususer_rank.photographer_id',
                 '=',
-                'famoususers.id'
+                'photographers.id'
             );
             $where[] = ['famoususer_rank.photographer_rank_id', '=', $rank];
         }

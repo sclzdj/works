@@ -62,7 +62,7 @@
 <body>
 <div class='topDiv'>
 <div class="big-box">
-<embed src="{{asset('images/baidu.svg')}}" class='baidu-cloud'  />
+<embed src="{{asset('images/baidu-cloud.png')}}" class='baidu-cloud'  />
     <div class="bind-success-text">百度网盘绑定成功</div>
 </div>
 </div>

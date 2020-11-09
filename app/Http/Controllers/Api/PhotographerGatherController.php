@@ -171,7 +171,7 @@ class PhotographerGatherController extends BaseController
 //                    $photographerGatherWork->save();
 //                }
 //            }
-            $scene = '2/'.$photographerGather->id;
+            $scene = '2/'. $photographer->id . '/' . $photographerGather->id;
             if (!$photographerGather->xacode) {
                 $xacode_res = WechatServer::generateXacode($scene, false);
                 if ($xacode_res['code'] != 200) {

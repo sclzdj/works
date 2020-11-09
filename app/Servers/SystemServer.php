@@ -15,6 +15,7 @@ use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\SmsCode;
 use App\Model\Index\User;
 use App\Model\Index\VisitorTag;
+use EasyWeChat\Factory;
 use Intervention\Image\Facades\Image;
 use Qiniu\Auth;
 use Qiniu\Config;
@@ -781,5 +782,44 @@ class SystemServer
             }
         }
         return $cloud;
+    }
+
+    /**
+     * 提现
+     */
+
+    static public function withdrawal($order_no, $openid, $money, $body){
+        $config = [
+            // 必要配置
+            'app_id'             => config('wechat.payment.default.app_id'),//微信appid
+            'mch_id'             => config('wechat.payment.default.mch_id'),//商户id
+            'key'                => config('wechat.payment.default.key'),  // API 密钥
+
+            // 如需使用敏感接口（如退款、发送红包等）需要配置 API 证书路径(登录商户平台下载 API 证书)
+
+            'cert_path'          => '/home/www/ssl/apiclient_cert.pem', // XXX: 绝对路径！！！！
+            'key_path'           => '/home/www/ssl/apiclient_key.pem',      // XXX: 绝对路径！！！！
+        ];
+
+        $app = Factory::payment($config);
+
+        $result=$app->transfer->toBalance([
+            'partner_trade_no' => $order_no, //特别注意这里，参数跟用户支付给企业out_trade_no区分开来,这里可以使用随机字符串作为订单号，跟红包和支付一个概念。
+            'openid' =>  $openid, //收款人的openid
+            'check_name' => 'NO_CHECK',  //文档中有三种校验实名的方法 NO_CHECK不校验 OPTION_CHECK参数校验 FORCE_CHECK强制校验
+            're_user_name'=>'',     //OPTION_CHECK FORCE_CHECK 校验实名的时候必须提交
+            'amount' => 1,  //单位为分
+            'desc' => $body,
+            'spbill_create_ip' => '121.40.187.134',  //发起交易的服务器IP地址
+        ]);
+        var_dump($result);exit();
+        if($result['result_code']=='SUCCESS'){
+            //这里写支付成功相关逻辑，更新数据库订单状态为已付款，给用户推送到账模板消息，短信通知用户等
+            return true;
+        }else{
+            //支付失败相关回调处理
+            return false;
+        }
+
     }
 }

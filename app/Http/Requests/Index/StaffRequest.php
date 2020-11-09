@@ -1,5 +1,5 @@
 <?php
-namespace App\Http\Requests\Admin;
+namespace App\Http\Requests\Index;
 
 use App\Http\Requests\BaseRequest;
 

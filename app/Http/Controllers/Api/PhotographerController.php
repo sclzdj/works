@@ -310,10 +310,10 @@ class PhotographerController extends BaseController
             PhotographerWorkTag::allowFields()
         )->get()->toArray();
         $photographer_work = ArrServer::inData($photographer_work->toArray(), PhotographerWork::allowFields());
-        $photographer_work = ArrServer::toNullStrData(
-            $photographer_work,
-            ['sheets_number', 'shooting_duration']
-        );
+//        $photographer_work = ArrServer::toNullStrData(
+//            $photographer_work,
+//            ['sheets_number', 'shooting_duration']
+//        );
         $photographer_work = SystemServer::parsePhotographerWorkCover($photographer_work);
         $photographer_work = SystemServer::parsePhotographerWorkCustomerIndustry($photographer_work);
         $photographer_work = SystemServer::parsePhotographerWorkCategory($photographer_work);

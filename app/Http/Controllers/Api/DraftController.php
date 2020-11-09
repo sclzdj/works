@@ -1125,6 +1125,7 @@ class DraftController extends UserGuardController
             $user->identity = 1;
             $user->save();
 
+            $photographer->status = 200;
             $photographer->save();
             \DB::commit();//提交事务
             //TODO 异步任务
@@ -1138,23 +1139,24 @@ class DraftController extends UserGuardController
         }
     }
 
-    public function fuckitback(){
-
+    public function fuckitback(Request $request){
+        $xacode = Photographer::getXacode($request->id, false);
+        var_dump($xacode);
 //        \DB::enableQueryLog();
-        $sources = PhotographerWorkSource::where('image_ave', '=', '0x798868')->get();
-        foreach ($sources as $source){
-            $res_ave = SystemServer::request('GET', $source->url.'?imageAve');
-
-            if ($res_ave['code'] == 200) {
-                if (!isset($res_ave['data']['error']) || (isset($res_ave['data']['code']) && $res_ave['data']['code'] == 200)) {
-                    if (isset($res_ave['data']['RGB'])) {
-                        $source->image_ave = $res_ave['data']['RGB'];
-                        $source->save();
-                        echo "source id: " . $source->id . ' imageave ' .   $res_ave['data']['RGB']. "\n<br/>";
-                    }
-                }
-            }
-        }
+//        $sources = PhotographerWorkSource::where('image_ave', '=', '0x798868')->get();
+//        foreach ($sources as $source){
+//            $res_ave = SystemServer::request('GET', $source->url.'?imageAve');
+//
+//            if ($res_ave['code'] == 200) {
+//                if (!isset($res_ave['data']['error']) || (isset($res_ave['data']['code']) && $res_ave['data']['code'] == 200)) {
+//                    if (isset($res_ave['data']['RGB'])) {
+//                        $source->image_ave = $res_ave['data']['RGB'];
+//                        $source->save();
+//                        echo "source id: " . $source->id . ' imageave ' .   $res_ave['data']['RGB']. "\n<br/>";
+//                    }
+//                }
+//            }
+//        }
 ////        dd(\DB::getQueryLog());
 //        var_dump($sources);
 //        $asynchronous_task = [];

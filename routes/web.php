@@ -143,6 +143,13 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
     Route::post('logout', 'Auth\LoginController@logout');//账号退出
     //操作
     Route::post('api/staff/notice', 'Api\StaffController@Notice');
+    Route::post('api/staff/addinvitetimes', 'Api\StaffController@addinvitetimes');
+    Route::post('api/staff/deletefamous', 'Api\StaffController@deletefamous');
+    Route::get('api/staff/searchphotographer', 'Api\StaffController@searchphotographer');
+    Route::post('api/staff/addfamoususers', 'Api\StaffController@addfamoususers');
+    Route::post('api/staff/modifysettings', 'Api\StaffController@modifysettings');
+    Route::post('api/staff/modifyfamoussort', 'Api\StaffController@modifyfamoussort');
+    Route::post('api/staff/withdrawal', 'Api\StaffController@withdrawal');
 
     //用户管理
     Route::get('api/usermanage/photographers', 'Api\UserManagerController@photographers');
@@ -151,6 +158,12 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
     Route::get('api/usermanage/users', 'Api\UserManagerController@users');
     Route::get('api/usermanage/usertypecount', 'Api\UserManagerController@usertypecount');
     Route::get('api/usermanage/getContact', 'Api\UserManagerController@getContact');
+    Route::get('api/usermanage/inviteusers', 'Api\UserManagerController@inviteusers');
+    Route::get('api/usermanage/allinviters', 'Api\UserManagerController@allinviters');
+    Route::get('api/usermanage/getfamousranks', 'Api\UserManagerController@getfamousranks');
+    Route::get('api/usermanage/famousinvites', 'Api\UserManagerController@famousinvites');
+    Route::get('api/usermanage/clouds', 'Api\UserManagerController@clouds');
+    Route::get('api/usermanage/getsettings', 'Api\UserManagerController@getsettings');
 
     //来源管理
     Route::get('api/sources', 'Api\SourceController@index');
