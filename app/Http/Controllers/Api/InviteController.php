@@ -12,6 +12,7 @@ use App\Model\Index\InviteList;
 use App\Model\Index\InviteReward;
 use App\Model\Index\InviteSetting;
 use App\Model\Index\Photographer;
+use App\Model\Index\TargetUser;
 use App\Model\Index\User;
 use App\Servers\SystemServer;
 use Illuminate\Http\Request;
@@ -46,7 +47,7 @@ class InviteController extends BaseController
      */
     public function accept(UserRequest $request){
         $photographer = $this->_photographer($request->photographer_id);
-        $guest = User::where(['id' => $request->user_id])->first();
+        $guest = User::where(['photographer_id' => $request->request_photographer_id])->first();
 
         if ($photographer['invite_times'] == 0){
             return $this->response->error('手慢了', 500);
@@ -89,6 +90,7 @@ class InviteController extends BaseController
                 $reword->increment('cloud_count');
 
             }
+
             $reword->save();
 
             #检查请求邀请表是否有数据,有的话把状态改为1  已邀请
@@ -96,9 +98,8 @@ class InviteController extends BaseController
             if ($invitefavor){
                 $invitefavor->status = 1;
                 $invitefavor->final_photographer_id =  $photographer->id;
+                $invitefavor->save();
             }
-            $invitefavor->save();
-
 
 
 
@@ -129,11 +130,18 @@ class InviteController extends BaseController
             $title = $rank->name . '摄影领域KOL';
         }
 
+        $target = TargetUser::join('users', 'users.id', '=', 'target_users.user_id')->where(['users.photographer_id' => $photographer->id])->first();
+        $apply = 0;
+        if ($target){
+            $apply = 1;
+        }
         $settings = InviteSetting::first();
         $photographerfields = [
             'photographer_id' => $photographer->id,
+            'name' => $photographer->name,
             'avatar' => $photographer->avatar,
             'title' => $title,
+            'apply' => $apply,
             'invite_times' => $photographer['invite_times']
         ];
 
@@ -180,7 +188,16 @@ class InviteController extends BaseController
         ];
 
         $photographer = $this->_photographer($request->photographer_id);
-        $invitefavor = InviteFavour::where(['favour_photographer_id' => $photographer->id])->paginate(
+        $invitefavor = InviteFavour::join(
+            'photographers',
+            'photographers.id',
+            '=',
+            'invite_favour.request_photographer_id'
+        )->select(
+            'invite_favour.*',
+            'photographers.name',
+            'photographers.avatar'
+        )->where(['favour_photographer_id' => $photographer->id])->paginate(
             $pageInfo['pageSize']
         );
 
@@ -201,15 +218,20 @@ class InviteController extends BaseController
                 $request['page'] :
                 1,
         ];
-        $lists = InviteList::leftjoin(
-            'invite_favour',
-            'invite_favour.final_photographer_id',
+
+        $lists = InviteList::join(
+            'photographers',
+            'photographers.id',
             '=',
-            'invite_list.parent_photographer_id'
+            'invite_list.photographer_id'
         )->select(
-            'invite_list.*',
-            \DB::raw('if(isnull(invite_favour.id), 0.5, 1) as cloud')
-        )->where(['parent_photographer_id' => $photographer->id])->paginate(
+            'photographers.name',
+            'photographers.avatar',
+            'photographers.status',
+            'invite_list.photographer_id',
+            'invite_list.parent_photographer_id',
+            \DB::raw("(select if((select favour_photographer_id from invite_favour where invite_favour.request_photographer_id=photographer_id and invite_favour.final_photographer_id=parent_photographer_id)=parent_photographer_id, 1, 0.5)) as cloud")
+        )->where(['invite_list.parent_photographer_id' => $request->photographer_id])->paginate(
             $pageInfo['pageSize']
         );
 
@@ -231,6 +253,8 @@ class InviteController extends BaseController
                 1,
         ];
 
+        $orderbyRaw = 'invitecount desc';
+
         $rank = $request->rank;
         $famous = Photographer::join(
             'famoususers',
@@ -247,14 +271,16 @@ class InviteController extends BaseController
                 'photographers.id'
             );
             $where[] = ['famoususer_rank.photographer_rank_id', '=', $rank];
+            $orderbyRaw = 'famoususer_rank.sort, invitecount desc';
         }
         $users = $famous->select(
             'photographers.name',
             'photographers.id',
             'famoususers.id as famoususers_id',
             'photographers.avatar',
+            \DB::raw("(select if((select id from invite_favour where favour_photographer_id=photographers.id and request_photographer_id=$request->photographer_id)<>0, 1, 0)) as favour_status"),
             \DB::raw('(select count(*) from invite_list where parent_photographer_id = photographers.id) as invitecount')
-        )->where(['famoususers.status' => 1])->where($where)->orderBy('invitecount', 'desc')->paginate(
+        )->where(['famoususers.status' => 1])->where($where)->orderByRaw($orderbyRaw)->paginate(
                 $pageInfo['pageSize']
             );
 
@@ -279,13 +305,32 @@ class InviteController extends BaseController
             return $this->response->error("每天只能求带5次", 500);
         }
 
-        $favor = new TargetUser();
+        $favor = new InviteFavour();
         $favor->favour_photographer_id = $favour_photographer;
         $favor->request_photographer_id = $request_photographer;
 
         $favor->save();
 
         return $this->response->noContent();
+    }
+
+    /**
+     * @param $request
+     *  大咖领域
+     */
+    public function getfamousranks(){
+        $lists = \DB::select('
+SELECT `famoususer_rank`.`photographer_rank_id`, `photographer_ranks`.`name`
+FROM
+	`famoususer_rank`
+	INNER JOIN `photographer_ranks` ON `photographer_ranks`.`id` = `famoususer_rank`.`photographer_rank_id`
+GROUP BY
+	`famoususer_rank`.`photographer_rank_id`
+	 ');
+        $data = [];
+
+
+        return $this->responseParseArray($lists);
     }
 
 }

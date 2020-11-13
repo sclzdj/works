@@ -83,6 +83,9 @@ class User extends Authenticatable implements JWTSubject
             'country',
             'province',
             'city',
+            'photographer_id',
+            'openid',
+            'gh_openid',
             'created_at',
         ];
     }

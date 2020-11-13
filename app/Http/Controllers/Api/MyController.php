@@ -219,7 +219,9 @@ class MyController extends UserGuardController
         $this->notPhotographerIdentityVerify();
         $photographer = $this->_photographer(null, $this->guard);
         if (!$photographer || $photographer->status != 200) {
-            $photographer = [];
+            $photographer = [
+                'id' => $photographer->id
+            ];
         }else{
             $photographer = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
             $photographer = SystemServer::parseRegionName($photographer);

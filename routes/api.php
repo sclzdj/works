@@ -153,6 +153,7 @@ $api->version(
                 $api->get('invite/favors', 'InviteController@favors');
                 $api->get('invite/lists', 'InviteController@lists');
                 $api->get('invite/famoususers', 'InviteController@famoususerslist');
+                $api->get('invite/getfamousranks', 'InviteController@getfamousranks');
                 $api->post('invite/plzfavors', 'InviteController@plzfavors');
 
                 $api->get('templates/list', 'PhotographerController@getTemplates');

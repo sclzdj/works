@@ -32,7 +32,7 @@ class UserRequest extends BaseRequest
             case 'accept':
                 $rules = [
                     'photographer_id' => 'required|integer|exists:photographers,id',
-                    'user_id' => 'required',
+                    'request_photographer_id' => 'required',
                 ];
                 break;
             case 'save_info':
@@ -169,7 +169,7 @@ class UserRequest extends BaseRequest
                 $messages = [
                     'photographer_id.required' => '摄影师id不能为空',
                     'photographer_id.exists' => '摄影师不存在',
-                    'user_id.required' => '邀请人用户id不能为空',
+                    'request_photographer_id.required' => '受邀者用户id不能为空',
                 ];
                 break;
             case 'save_info':
