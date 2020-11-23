@@ -39,6 +39,7 @@ class PhotographerGatherInfoController extends UserGuardController
                     'type' => 'brand',
                 ]
             )->get();
+            $photographerGatherInfos[$k]['count'] = PhotographerGather::where(['photographer_gather_info_id' => $photographerGatherInfo['id'], 'status' => 200])->count();
             $photographerGatherInfos[$k]['brand_tags'] = [];
             foreach ($brand_tags as $brand_tag) {
                 $photographerGatherInfos[$k]['brand_tags'][] = $brand_tag['name'];
@@ -201,13 +202,23 @@ class PhotographerGatherInfoController extends UserGuardController
             ['photographer_gather_info_id' => $photographerGatherInfo->id]
         )->whereIn('status', [0, 200])->get()->toArray();
         if ($photographerGathers) {
-            return $this->response->error('有合集正在使用该资料，不可删除', 500);
+            PhotographerGather::where(
+                ['photographer_gather_info_id' => $photographerGatherInfo->id]
+            )->whereIn('status', [0, 200])->update(['photographer_gather_info_id' => 0]);
+//            return $this->response->error('有合集正在使用该资料，不可删除', 500);
         }
         \DB::beginTransaction();//开启事务
         try {
             PhotographerGatherInfo::where(
                 ['id' => $request->photographer_gather_info_id, 'photographer_id' => $photographer->id]
             )->update(['status' => 400]);
+
+            if ($photographerGatherInfo->is_default == 1){
+                $lastinfo = PhotographerGatherInfo::where(['photographer_id' => $photographer->id])->orderBy('id', 'desc')->first();
+                $lastinfo->is_default = 1;
+                $photographerGatherInfo->is_default = 0;
+            }
+
             \DB::commit();//提交事务
 
             return $this->response()->noContent();

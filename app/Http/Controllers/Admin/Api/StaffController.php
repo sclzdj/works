@@ -302,4 +302,14 @@ class StaffController extends BaseController{
 
         return response()->noContent();
     }
+
+
+    public function getxacode(Request $request){
+
+        $code = Photographer::getXacode($request->id, false);
+
+        return $this->response->array($code);
+    }
+
+
 }

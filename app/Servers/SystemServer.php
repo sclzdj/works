@@ -7,6 +7,8 @@ use App\Model\Admin\SystemConfig;
 use App\Model\Index\InviteList;
 use App\Model\Index\InviteSetting;
 use App\Model\Index\Photographer;
+use App\Model\Index\PhotographerGather;
+use App\Model\Index\PhotographerGatherInfo;
 use App\Model\Index\PhotographerRank;
 use App\Model\Index\PhotographerWork;
 use App\Model\Index\PhotographerWorkCategory;

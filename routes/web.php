@@ -150,6 +150,7 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
     Route::post('api/staff/modifysettings', 'Api\StaffController@modifysettings');
     Route::post('api/staff/modifyfamoussort', 'Api\StaffController@modifyfamoussort');
     Route::post('api/staff/withdrawal', 'Api\StaffController@withdrawal');
+    Route::get('api/staff/getxacode', 'Api\StaffController@getxacode');
 
     //用户管理
     Route::get('api/usermanage/photographers', 'Api\UserManagerController@photographers');

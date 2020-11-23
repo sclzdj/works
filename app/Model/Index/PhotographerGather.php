@@ -42,6 +42,7 @@ class PhotographerGather extends Model
             'photographer_id',
             'photographer_gather_info_id',
             'name',
+            'type',
             'created_at',
         ];
     }

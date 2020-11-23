@@ -16,6 +16,7 @@ use App\Model\Index\DocPdf;
 use App\Model\Index\DocPdfPhotographerWork;
 use App\Model\Index\Photographer;
 use App\Model\Index\PhotographerGather;
+use App\Model\Index\PhotographerGatherFilterRecord;
 use App\Model\Index\PhotographerGatherWork;
 use App\Model\Index\PhotographerInfoTag;
 use App\Model\Index\PhotographerWork;
@@ -342,6 +343,26 @@ class MyController extends UserGuardController
     }
 
     /**
+     * 我的用户项目id
+     * @param UserRequest $request
+     */
+    public function photographerWorksIds(UserRequest $request){
+        $this->notPhotographerIdentityVerify();
+        $photographer = $this->_photographer(null, $this->guard);
+//        $photographer = $this->_photographer(6674, $this->guard);
+        if (!$photographer || $photographer->status != 200) {
+            return $this->response->error('用户不存在', 500);
+        }
+        $photographer_works = $photographer->photographerWorks();
+        $ids = [];
+        if ($photographer_works){
+            $ids = $photographer_works->get()->pluck('id');
+        }
+
+        return $this->responseParseArray($ids);
+    }
+
+    /**
      * 我的用户项目列表
      * @param UserRequest $request
      */
@@ -516,41 +537,48 @@ class MyController extends UserGuardController
                 'desc'
             );
         }
-        $photographer_works = $photographer_works->orderBy(
-            'photographer_works.created_at',
-            'desc'
-        )->orderBy(
-            'photographer_works.id',
-            'desc'
-        )->paginate(
-            $request->pageSize
-        );
-        $all_tags = [];
-        foreach ($photographer_works as $k => $photographer_work) {
-            $photographer_work_tags = $photographer_work->photographerWorkTags()->select(
-                PhotographerWorkTag::allowFields()
-            )->get()->toArray();
-            $all_tags[] = $photographer_work_tags;
+        if ($request->only_id){
+
+            $photographer_works = $photographer_works->pluck('id');
+        }else{
+            $photographer_works = $photographer_works->orderBy(
+                'photographer_works.created_at',
+                'desc'
+            )->orderBy(
+                'photographer_works.id',
+                'desc'
+            )->paginate(
+                $request->pageSize
+            );
+            $all_tags = [];
+            foreach ($photographer_works as $k => $photographer_work) {
+                $photographer_work_tags = $photographer_work->photographerWorkTags()->select(
+                    PhotographerWorkTag::allowFields()
+                )->get()->toArray();
+                $all_tags[] = $photographer_work_tags;
+            }
+            $photographer_works = SystemServer::parsePaginate($photographer_works->toArray());
+            $photographer_works['data'] = ArrServer::inData(
+                $photographer_works['data'],
+                PhotographerWork::allowFields()
+            );
+            foreach ($photographer_works['data'] as $k => $v) {
+                $photographer_works['data'][$k]['review'] = PhotographerWork::getPhotographerWorkReviewStatus($photographer_works['data'][$k]['id']);
+                $photographer_works['data'][$k]['gather_ids'] = PhotographerWork::getWorkGatherInfo($photographer_works['data'][$k]['id']);
+                $photographer_works['data'][$k]['tags'] = $all_tags[$k];
+            }
+            $photographer_works['data'] = ArrServer::toNullStrData(
+                $photographer_works['data'],
+                ['sheets_number', 'shooting_duration']
+            );
+            $photographer_works['data'] = SystemServer::parsePhotographerWorkCover($photographer_works['data']);
+            $photographer_works['data'] = SystemServer::parsePhotographerWorkCustomerIndustry(
+                $photographer_works['data']
+            );
+            $photographer_works['data'] = SystemServer::parsePhotographerWorkCategory($photographer_works['data']);
+
         }
-        $photographer_works = SystemServer::parsePaginate($photographer_works->toArray());
-        $photographer_works['data'] = ArrServer::inData(
-            $photographer_works['data'],
-            PhotographerWork::allowFields()
-        );
-        foreach ($photographer_works['data'] as $k => $v) {
-            $photographer_works['data'][$k]['review'] = PhotographerWork::getPhotographerWorkReviewStatus($photographer_works['data'][$k]['id']);
-            $photographer_works['data'][$k]['gather_ids'] = PhotographerWork::getWorkGatherInfo($photographer_works['data'][$k]['id']);
-            $photographer_works['data'][$k]['tags'] = $all_tags[$k];
-        }
-        $photographer_works['data'] = ArrServer::toNullStrData(
-            $photographer_works['data'],
-            ['sheets_number', 'shooting_duration']
-        );
-        $photographer_works['data'] = SystemServer::parsePhotographerWorkCover($photographer_works['data']);
-        $photographer_works['data'] = SystemServer::parsePhotographerWorkCustomerIndustry(
-            $photographer_works['data']
-        );
-        $photographer_works['data'] = SystemServer::parsePhotographerWorkCategory($photographer_works['data']);
+
 
         return $this->response->array($photographer_works);
     }
@@ -1949,6 +1977,11 @@ class MyController extends UserGuardController
         Question::insert($data);
 
         return $this->response->noContent();
+    }
+
+    public function filterrecord(UserRequest $request){
+//        $record = new PhotographerGatherFilterRecord();
+//        $record-
     }
 
 }

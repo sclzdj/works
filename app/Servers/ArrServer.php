@@ -198,4 +198,20 @@ class ArrServer
 
         return $arr;
     }
+
+    static  public function decodedata($arr, $fields){
+        if (!is_array($arr)) {
+            return $arr;
+        }
+
+        try {
+            foreach ($fields as $field){
+                $arr[$field] = json_decode($arr[$field], true);
+            }
+        }catch (\Exception $e){
+            return false;
+        }
+
+        return $arr;
+    }
 }

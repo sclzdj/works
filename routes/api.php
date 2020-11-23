@@ -77,6 +77,7 @@ $api->version(
                 $api->post('my/photographerBgImg', 'MyController@savePhotographerBgImg');
                 $api->get('my/photographerInfo', 'MyController@photographerInfo');
                 $api->get('my/photographerWorks', 'MyController@photographerWorks');
+                $api->get('my/photographerWorksIds', 'MyController@photographerWorksIds');
                 $api->get('my/photographerWork', 'MyController@photographerWork');
                 $api->get('my/photographerWorkSources', 'MyController@photographerWorkSources');
                 $api->get('my/photographerWorkSourcesSimple', 'MyController@photographerWorkSourcesSimple');
@@ -84,7 +85,7 @@ $api->version(
                 $api->delete('my/photographerWork', 'MyController@photographerWorkDelete');
                 $api->get('my/identity', 'MyController@identity');
                 $api->get('my/addPhotographerWork', 'DraftController@addPhotographerWork');
-                $api->Post('my/addPhotographerWork', 'DraftController@addPhotographerWorkStore');
+                $api->Post('my/addPhotographerWork', 'DraftController@my/photographerGathersbindphotographerinfo');
                 $api->get('my/addPhotographerWorkSource', 'DraftController@addPhotographerWorkSource');
                 $api->post('my/addPhotographerWorkSource', 'DraftController@addPhotographerWorkSourceStore');
                 $api->post('my/savePhotographerWorkInfo', 'MyController@savePhotographerWorkInfo');
@@ -98,6 +99,8 @@ $api->version(
 
                 //用户合集
                 $api->get('my/photographerGathers', 'PhotographerGatherController@index');
+                $api->get('my/photographerGathersfilterecord', 'PhotographerGatherController@filterecord');
+                $api->get('my/photographerGatherWorksInfo', 'PhotographerGatherController@getGatherWorksInfo');
                 $api->get('my/photographerGatherSimple', 'PhotographerGatherController@InfoSimple');
                 $api->post('my/photographerGathersbindphotographerinfo', 'PhotographerGatherController@bindphotographerinfo');
                 $api->get('my/getAllWorkSources', 'PhotographerGatherController@showAllSource');
@@ -106,12 +109,13 @@ $api->version(
                 $api->post('my/deletePhotographerGather', 'PhotographerGatherController@destory');
                 $api->post('my/addPhotographerGather', 'PhotographerGatherController@store');
                 $api->post('my/savePhotographerGather', 'PhotographerGatherController@update');
+                $api->post('my/savePhotographerGatherFilterRecord', 'PhotographerGatherController@savefilterecord');
                 //用户合集资料
                 $api->get('my/photographerGatherInfos', 'PhotographerGatherInfoController@index');
                 $api->post('my/addPhotographerGatherInfo', 'PhotographerGatherInfoController@store');
                 $api->post('my/savePhotographerGatherInfo', 'PhotographerGatherInfoController@update');
                 $api->get('my/photographerGatherInfo', 'PhotographerGatherInfoController@show');
-                $api->delete('my/photographerGatherInfo', 'PhotographerGatherInfoController@destroy');
+                $api->delete('my/addPhotographerGather', 'PhotographerGatherInfoController@destroy');
                 $api->post('my/copyPhotographerGatherInfo', 'PhotographerGatherInfoController@copy');
                 $api->post('my/setDefaultPhotographerGatherInfo', 'PhotographerGatherInfoController@setDefault');
 
