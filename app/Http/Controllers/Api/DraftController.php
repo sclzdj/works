@@ -1029,22 +1029,9 @@ class DraftController extends UserGuardController
                     }
                 }
             }
-//            $photographerWorkSources = $photographer_work->photographerWorkSources()->where(
-//                ['status' => 200]
-//            )->orderBy('sort', 'asc')->get();
-//            if ($photographerWorkSources) {
-//                foreach ($photographerWorkSources as $photographerWorkSource) {
-//                    if ($photographerWorkSource->type == 'image') {
-//                        $photographerWorkSource->is_new_source = 0;
-//                        $photographerWorkSource->save();
-//                        $asynchronous_task[] = [
-//                            'task_type' => 'editRunGenerateWatermark',
-//                            'photographer_work_source_id' => $photographerWorkSource->id,
-//                            'edit_node' => '添加项目',
-//                        ];
-//                    }
-//                }
-//            }
+            //智能合集操作， 将类别、行业添加到相应的合集中
+            PhotographerGather::autoGatherWork($photographer->id, $photographer_work);
+
             if ($request->tags) {
                 PhotographerWorkTag::where(['photographer_work_id' => $photographer_work->id])->delete();
                 try{

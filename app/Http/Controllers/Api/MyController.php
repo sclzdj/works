@@ -1356,6 +1356,8 @@ class MyController extends UserGuardController
             }else{
                 PhotographerGatherWork::where(['photographer_work_id' => $photographer_work->id])->delete();
             }
+            //智能合集
+            PhotographerGather::autoGatherWork($photographer->id, $photographer_work);
 
             if ($request->tags) {
                 PhotographerWorkTag::where(['photographer_work_id' => $photographer_work->id])->delete();

@@ -138,4 +138,41 @@ class PhotographerGather extends Model
 
         return $count;
     }
+
+    /**
+     * 自动插入智能合集
+     * @param $photographer_id
+     * @param $photographer_work
+     */
+    public static function autoGatherWork($photographer_id, $photographer_work){
+        $gathers = PhotographerGather::where(['photographer_id' => $photographer_id, 'status' => 200, 'type' => 2])->get();
+        if ($gathers){
+            $gathers = $gathers->toArray();
+            foreach ($gathers as $gather){
+                $works = PhotographerGatherWork::join('photographer_works', 'photographer_works.id','=','photographer_gather_works.photographer_work_id')->select('photographer_works.id as photographer_work_id', 'photographer_works.photographer_work_customer_industry_id', 'photographer_works.photographer_work_category_id')->where(['photographer_gather_id' => $gather['id']])->groupBy('photographer_works.photographer_work_customer_industry_id', 'photographer_works.photographer_work_category_id')->get();
+                if ($works){
+                    foreach ($works as $work){
+                        if ($photographer_work->photographer_work_customer_industry_id == $work->photographer_work_customer_industry_id or $photographer_work->photographer_work_category_id == $work->photographer_work_category_id){
+                            $pgw = PhotographerGatherWork::where(['photographer_work_id' => $photographer_work->id, 'photographer_gather_id' => $gather['id']])->first();
+                            if (!$pgw){
+                                $lastpgw = PhotographerGatherWork::where(['photographer_gather_id' => $gather['id']])->select(
+                                    \DB::raw("MAX(sort) as maxsort")
+                                )->first();
+                                $pgw = new PhotographerGatherWork();
+                                $pgw->photographer_gather_id = $gather['id'];
+                                $pgw->photographer_work_id =  $photographer_work->id;
+                                $pgw->sort = 1;
+                                if ($lastpgw){
+                                    $pgw->sort = $lastpgw->maxsort + 1;
+                                }
+                                $pgw->save();
+                                break;
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+    }
 }

@@ -85,7 +85,7 @@ $api->version(
                 $api->delete('my/photographerWork', 'MyController@photographerWorkDelete');
                 $api->get('my/identity', 'MyController@identity');
                 $api->get('my/addPhotographerWork', 'DraftController@addPhotographerWork');
-                $api->Post('my/addPhotographerWork', 'DraftController@my/photographerGathersbindphotographerinfo');
+                $api->Post('my/addPhotographerWork', 'DraftController@addPhotographerWorkStore');
                 $api->get('my/addPhotographerWorkSource', 'DraftController@addPhotographerWorkSource');
                 $api->post('my/addPhotographerWorkSource', 'DraftController@addPhotographerWorkSourceStore');
                 $api->post('my/savePhotographerWorkInfo', 'MyController@savePhotographerWorkInfo');
