@@ -30,7 +30,7 @@ class PhotographerGatherInfoController extends UserGuardController
         $photographer = $this->_photographer();
         $photographerGatherInfos = PhotographerGatherInfo::where(
             ['photographer_id' => $photographer->id]
-        )->where(['status' => 200])->get()->toArray();
+        )->where(['status' => 200])->orderBy('sort', 'desc')->orderBy('created_at', 'desc')->get()->toArray();
         foreach ($photographerGatherInfos as $k => $photographerGatherInfo) {
             $brand_tags = PhotographerInfoTag::where(
                 [
@@ -83,6 +83,15 @@ class PhotographerGatherInfoController extends UserGuardController
             $photographerGatherInfo->start_year = $request->start_year;
             $photographerGatherInfo->is_default = $is_default;
             $photographerGatherInfo->status = 200;
+
+            $lastpgw = PhotographerGatherInfo::where(['photographer_id' => $photographer->id])->where('photographer_rank_id', '<>', '')->select(
+                \DB::raw("MAX(sort) as maxsort")
+            )->first();
+            $photographerGatherInfo->sort = 1;
+            if ($lastpgw){
+                $photographerGatherInfo->sort = $lastpgw->maxsort + 1;
+            }
+
             $photographerGatherInfo->save();
             \DB::commit();//提交事务
 
@@ -270,6 +279,7 @@ class PhotographerGatherInfoController extends UserGuardController
             $new_photographerGatherInfo->start_year = $photographerGatherInfo->start_year;
             $new_photographerGatherInfo->is_default = 0;
             $new_photographerGatherInfo->status = 200;
+            $new_photographerGatherInfo->sort = $photographerGatherInfo->sort;
             $new_photographerGatherInfo->save();
             \DB::commit();//提交事务
             $new_photographerGatherInfo = PhotographerGatherInfo::find($new_photographerGatherInfo->id)->toArray();

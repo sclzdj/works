@@ -814,7 +814,6 @@ class SystemServer
             'desc' => $body,
             'spbill_create_ip' => '121.40.187.134',  //发起交易的服务器IP地址
         ]);
-        var_dump($result);exit();
         if($result['result_code']=='SUCCESS'){
             //这里写支付成功相关逻辑，更新数据库订单状态为已付款，给用户推送到账模板消息，短信通知用户等
             return true;

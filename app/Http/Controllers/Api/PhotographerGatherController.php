@@ -358,6 +358,7 @@ class PhotographerGatherController extends BaseController
 
         }
         $photographerGather['review'] = PhotographerGather::getPhotographerGatherReviewStatus($photographerGather['id']);
+        $photographerGather['works_count'] = PhotographerGather::getGatherWorkSourcescount($photographerGather['id']);
         $photographerWorks = PhotographerWork::where($where);
         if ($where2){
             $photographerWorks = PhotographerWork::where($where)->whereRaw($where2);
