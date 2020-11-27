@@ -375,6 +375,7 @@ class UserManagerController extends BaseController
 //        )->paginate(
 //            $pageInfo['pageSize']
 //        );
+        #TODO  做错了 是users
         $viewrecords = ViewRecord::where(['view_records.photographer_id' => $userid])->leftjoin(
             'users',
             'view_records.user_id',
@@ -430,7 +431,10 @@ class UserManagerController extends BaseController
             ->leftJoin('users', 'users.id', '=', 'target_users.user_id')
             ->leftJoin('photographer_ranks', 'photographer_ranks.id', '=', 'target_users.rank_id')
             ->leftJoin('photographers', 'photographers.id', '=', 'users.photographer_id')
-            ->select('target_users.*', 'invote_codes.code', 'invote_codes.type as invote_type',
+            ->select(
+                'target_users.*',
+                'users.status as user_status',
+                'invote_codes.code', 'invote_codes.type as invote_type',
                 'invote_codes.status as invote_status',
                 'photographers.name',
                 'invote_codes.type as invote_type',
@@ -592,7 +596,6 @@ class UserManagerController extends BaseController
         $orderBy = $this->orderby($request, 'photographers.created_at desc');
 
         list($where, $whereraw) = $this->filters($request);
-
         $lists = Photographer::join(
             'users',
             'users.photographer_id',
@@ -626,7 +629,7 @@ class UserManagerController extends BaseController
             \DB::raw('((select count(photographer_works.id) from photographer_works where photographer_works.photographer_id=users.photographer_id)) as works_count'),
             \DB::raw('((select count(*) from invite_list where invite_list.parent_photographer_id=photographers.id)) as invite_count'),
             \DB::raw('((select count(*) from visitors where visitors.photographer_id=users.photographer_id)) as vistors')
-        )->where(['users.status' => 2])->where($where)->whereRaw($whereraw)->groupBy('users.photographer_id')->orderByRaw($orderBy)->paginate(
+        )->where($where)->whereRaw($whereraw)->groupBy('users.photographer_id')->orderByRaw($orderBy)->paginate(
             $pageInfo['pageSize']
         );
 
@@ -681,14 +684,7 @@ class UserManagerController extends BaseController
 
     public function getfamousranks(){
         $lists = \DB::select('SELECT a.*,photographer_ranks.name as pid_name FROM (
-SELECT `famoususer_rank`.`photographer_rank_id`, `photographer_ranks`.`name`, `photographer_ranks`.`pid`,
-( count(*)) AS rank_count
-FROM
-	`famoususer_rank`
-	INNER JOIN `photographer_ranks` ON `photographer_ranks`.`id` = `famoususer_rank`.`photographer_rank_id`
-GROUP BY
-	`famoususer_rank`.`photographer_rank_id`
-	)a INNER JOIN `photographer_ranks` ON a.pid = photographer_ranks.id ');
+SELECT  `photographer_ranks`.*,(select count(*) from `famoususer_rank` where photographer_rank_id=photographer_ranks.id) as rank_count FROM  `photographer_ranks` )a INNER JOIN `photographer_ranks` ON a.pid = photographer_ranks.id ');
         $data = [];
         foreach ($lists as $list){
             $flag = false;
@@ -696,7 +692,7 @@ GROUP BY
                 if ($list->pid_name == $datum['pid_name']){
                     $flag = true;
                     $tmp  =  [
-                        'photographer_rank_id' => $list->photographer_rank_id,
+                        'photographer_rank_id' => $list->id,
                         'name' => $list->name,
                         'rank_count' => $list->rank_count
                     ];
@@ -710,7 +706,7 @@ GROUP BY
                     'pid' => $list->pid,
                     'child' => [
                         [
-                            'photographer_rank_id' => $list->photographer_rank_id,
+                            'photographer_rank_id' => $list->id,
                             'name' => $list->name,
                             'rank_count' => $list->rank_count
                         ]

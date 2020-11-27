@@ -855,6 +855,11 @@ class DraftController extends UserGuardController
         try {
             $photographer = $this->_photographer(null, $this->guard);
             $photographer->is_setup = 1;
+            $user = User::where(['photographer_id' => $photographer->id])->first();
+            if ($user->status < 2){
+                $user->status = 2;
+                $user->save();
+            }
             $photographer->save();
             $photographer_work = $photographer->photographerWorks()->where(
                 ['status' => 0]
@@ -1127,8 +1132,34 @@ class DraftController extends UserGuardController
     }
 
     public function fuckitback(Request $request){
-        $xacode = Photographer::getXacode($request->id, false);
-        var_dump($xacode);
+//        $xacode = Photographer::getXacode($request->id, false);
+//        var_dump($xacode);
+        $d1 = \DB::select("SELECT photographer_works.photographer_id from photographer_works WHERE photographer_works.`status`=200 GROUP BY photographer_works.photographer_id  ");
+        $d2 = \DB::select("SELECT
+	photographers.id as photographer_id
+FROM
+	`photographers`
+	LEFT JOIN `photographer_works` ON `photographers`.`id` = `photographer_works`.`photographer_id`
+WHERE
+	(
+		`photographers`.`status` = 200 AND `photographer_works`.`status` = 200)
+GROUP BY
+	`photographers`.`id`  ");
+        $d1arr = [];
+        foreach ($d1 as $key => $value){
+            array_push($d1arr, $value->photographer_id);
+        }
+        $d2arr = [];
+        foreach ($d2 as $key => $value){
+            array_push($d2arr, $value->photographer_id);
+        }
+        foreach ($d1arr as $key =>  $value){
+            if (in_array($value, $d2arr)){
+                unset($d1arr[$key]);
+            }
+        }
+        echo implode(',', $d1arr);
+
 //        \DB::enableQueryLog();
 //        $sources = PhotographerWorkSource::where('image_ave', '=', '0x798868')->get();
 //        foreach ($sources as $source){

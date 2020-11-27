@@ -60,6 +60,7 @@ class MyController extends UserGuardController
         \DB::beginTransaction();//开启事务
         try {
             $user = auth($this->guard)->user();
+            $photographer = $this->_photographer(null, $this->guard);
             $appid = config('custom.wechat.mp.appid');
             $sessionKey = $user->session_key;
             $encryptedData = $request->encryptedData;
@@ -94,13 +95,16 @@ class MyController extends UserGuardController
                                 $avatar = $domain.'/'.$ret['key'];
                             }
                             $user->avatar = $avatar;
+                            $photographer->avatar = $avatar;
                         }
+                        $photographer->name = $data['nickName'];
                         $user->gender = $data['gender'];
                         $user->country = $data['country'];
                         $user->province = $data['province'];
                         $user->unionid = $data['unionId'];
                         $user->city = $data['city'];
                         $user->is_wx_authorize = 1;
+                        $photographer->save();
                         $user->save();
                         \DB::commit();//提交事务
 
@@ -139,6 +143,7 @@ class MyController extends UserGuardController
         \DB::beginTransaction();//开启事务
         try {
             $user = auth($this->guard)->user();
+            $photographer = $this->_photographer(null, $this->guard);
             $appid = config('custom.wechat.mp.appid');
             $sessionKey = $user->session_key;
             $encryptedData = $request->encryptedData;
@@ -151,6 +156,8 @@ class MyController extends UserGuardController
                 $user->purePhoneNumber = $data['purePhoneNumber'];
                 $user->countryCode = $data['countryCode'];
                 $user->is_wx_get_phone_number = 1;
+                $photographer->mobile = $data['purePhoneNumber'];
+                $photographer->save();
                 $user->save();
                 \DB::commit();//提交事务
 
@@ -370,7 +377,6 @@ class MyController extends UserGuardController
     {
         $this->notPhotographerIdentityVerify();
         $photographer = $this->_photographer(null, $this->guard);
-//        $photographer = $this->_photographer(6674, $this->guard);
         if (!$photographer || $photographer->status != 200) {
             return $this->response->error('用户不存在', 500);
         }

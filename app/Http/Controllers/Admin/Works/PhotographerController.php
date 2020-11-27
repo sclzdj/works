@@ -159,11 +159,13 @@ class PhotographerController extends BaseController
             $photographerRankIds[] = $filter['photographer_rank_id'];
             $Photographer = $Photographer->whereIn('photographer_rank_id', $photographerRankIds);
         }
+        \DB::enableQueryLog();
         $photographers = $Photographer->orderBy($orderBy['order_field'], $orderBy['order_type'])->groupBy(
             'photographers.id'
         )->paginate(
             $pageInfo['pageSize']
         );
+        dd(\DB::getQueryLog());
         foreach ($photographers as $k => $photographer) {
             $photographers[$k]['user'] = User::where('photographer_id', $photographer->id)->first();
             if (!$photographers[$k]['user']) {

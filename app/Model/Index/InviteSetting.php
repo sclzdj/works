@@ -37,7 +37,11 @@ class InviteSetting extends Model
         }catch (\Exception $exception){
             return false;
         }
+        $tmp = [];
         foreach ($medaljson as $key => $value){
+            if ($value['number'] < $num){
+//                $tmp
+            }
             if ($value['number'] > $num){
                 return [
                     'medal' => $key,

@@ -33,7 +33,6 @@ class StaffController extends BaseController{
 //        \DB::enableQueryLog();
         $user = User::where(['id' => $request->user_id])->first();
         $template_id = '1RgjtVQuWZAkw_fsN_bA8jLAGS3Wv_NvDb_66fScnb8';
-        $template_id = '1RgjtVQuWZAkw_fsN_bA8jLAGS3Wv_NvDb_66fScnb8';
         $data =  [
             'first' => '内测申请审核结果提醒',
             'keyword1' => '审核通过',
@@ -44,8 +43,8 @@ class StaffController extends BaseController{
             'appid' => config('wechat.payment.default.app_id'),
         ];
         $purpose = 'review_success';
-        $user->status = 1;
-        if ($user['status'] == 0){
+        \DB::beginTransaction();
+        if ($user->status == 0){
             $template_id = '1RgjtVQuWZAkw_fsN_bA8jLAGS3Wv_NvDb_66fScnb8';
             $data =  [
                 'first' => '内测申请审核结果提醒',
@@ -58,7 +57,7 @@ class StaffController extends BaseController{
             ];
             $purpose = 'review_success';
             $user->status = 1;
-        }elseif ($user['status'] == 1){
+        }elseif ($user->status == 1){
             $photographer = Photographer::where(['id' => $user['photographer_id']])->first();
             $template_id = 'rjph5uR7iIzT2rEn3LjnF65zEdKZYisUGoAVgpipxpk';
             $miniprogram = [
@@ -79,31 +78,39 @@ class StaffController extends BaseController{
             $purpose = 'register_success';
             $user->status = 2;
 
+        }elseif ($user->status == 2){
+            $photographer = Photographer::where(['id' => $user->photographer_id])->first();
+            $settings = InviteSetting::first();
+            $photographer->invite_times = $settings->times;
+            $user->status = 3;
+            $photographer->save();
         }
+    #发送模板消息
+//        if ($user->gh_openid) {
+//            $app = app('wechat.official_account');
+//            $tmr = $app->template_message->send(
+//                [
+//                    'touser' => $user->gh_openid,
+//                    'template_id' => $template_id,
+//                    'url' => config('app.url'),
+//                    'miniprogram' => $miniprogram,
+//                    'data' => $data,
+//                ]
+//            );
+//        }
+//    发送短信息
+//        $TemplateCodes = config('custom.send_short_message.ali.TemplateCodes');
+//        $sendePhone = AliSendShortMessageServer::quickSendSms(
+//            $user->purePhoneNumber,
+//            $TemplateCodes,
+//            $purpose,
+//            [
+//                'name' => $user->nickname,
+//            ]
+//        );
 
-        if ($user->gh_openid) {
-            $app = app('wechat.official_account');
-            $tmr = $app->template_message->send(
-                [
-                    'touser' => $user->gh_openid,
-                    'template_id' => $template_id,
-                    'url' => config('app.url'),
-                    'miniprogram' => $miniprogram,
-                    'data' => $data,
-                ]
-            );
-        }
-
-        $TemplateCodes = config('custom.send_short_message.ali.TemplateCodes');
-        $sendePhone = AliSendShortMessageServer::quickSendSms(
-            $user->purePhoneNumber,
-            $TemplateCodes,
-            $purpose,
-            [
-                'name' => $user->nickname,
-            ]
-        );
-
+        $user->save();
+        \DB::commit();
         return response()->noContent();
     }
 
@@ -122,8 +129,10 @@ class StaffController extends BaseController{
                 $fuser->save();
             }
             $settings = InviteSetting::find(1);
+            //转为普通邀请者
+            User::where(['photographer_id' => $photographer->id])->update(['status' => 3]);
             $photographer->invite_times = $settings->times;
-
+            $photographer->save();
         }catch (\Exception $exception){
             \DB::rollBack();
             return $this->response->error('删除失败', 500);
@@ -135,7 +144,8 @@ class StaffController extends BaseController{
     }
 
     public function addinvitetimes(Request $request){
-        Photographer::where(['id' => $request->photographer_id])->increment('invite_times');
+        $settings = InviteSetting::first();
+        Photographer::where(['id' => $request->photographer_id])->increment('invite_times', $settings->times);
         return response()->noContent();
     }
 
@@ -151,7 +161,7 @@ class StaffController extends BaseController{
             'users.photographer_id',
             'photographers.name',
             'photographers.id'
-        )->where(['users.status' => 2])->whereRaw($whereRaw)->get();
+        )->where(['users.status' => 3])->whereRaw($whereRaw)->get();
 
         return $this->responseParseArray($lists);
 
@@ -188,8 +198,9 @@ class StaffController extends BaseController{
             $rank->sort = $lastsort + 1;
             $rank->save();
 
-
+            $photographer->invite_times = 9999;
             $photographer->famoususer_id = $famous->id;
+            User::where(['photographer_id' => $photographer->id])->update(['status' => 4]);
             $photographer->save();
         }catch (\Exception $exception){
 

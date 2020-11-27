@@ -51,7 +51,7 @@ class PhotographerGatherController extends BaseController
             );
         }
         $photographerGathers = $photographerGathers->where(['photographer_id'=>$photographer->id,'status' => 200])->orderBy(
-            'created_at',
+            'updated_at',
             'desc'
         )->paginate(
             $request->pageSize
@@ -257,6 +257,7 @@ class PhotographerGatherController extends BaseController
             $photographerGather->name = $request->name;
 //            $photographerGather->photographer_gather_info_id = $request->photographer_gather_info_id;
             $photographerGather->status = 200;
+            $photographerGather->updated_at = date('Y-m-d H:i:s');
             $photographerGather->save();
             \DB::commit();//提交事务
 
@@ -333,7 +334,10 @@ class PhotographerGatherController extends BaseController
             $photographer['rank'] = $rank->name;
         }
 
-        $photographerGather = PhotographerGather::where(['id' => $request->photographer_gather_id])->first()->toArray();
+        $photographerGather = PhotographerGather::where(['id' => $request->photographer_gather_id])->first();
+        $photographerGather->updated_at = date('Y-m-d H:i:s');
+        $photographerGather->save();
+        $photographerGather = $photographerGather->toArray();
         $photographerGather['gatherinfo'] = [];
         if ($photographerGather['photographer_gather_info_id'] != 0){
 

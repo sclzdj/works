@@ -83,6 +83,8 @@ class User extends Authenticatable implements JWTSubject
             'country',
             'province',
             'city',
+            'is_invite',
+            'status',
             'photographer_id',
             'openid',
             'gh_openid',

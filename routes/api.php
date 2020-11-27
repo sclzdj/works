@@ -155,6 +155,7 @@ $api->version(
                 $api->post('invite/accept', 'InviteController@accept');
                 $api->get('invite/manage', 'InviteController@manage');
                 $api->get('invite/favors', 'InviteController@favors');
+                $api->get('invite/getinviteinfo', 'InviteController@getinviteinfo');
                 $api->get('invite/lists', 'InviteController@lists');
                 $api->get('invite/famoususers', 'InviteController@famoususerslist');
                 $api->get('invite/getfamousranks', 'InviteController@getfamousranks');

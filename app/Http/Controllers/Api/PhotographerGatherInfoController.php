@@ -30,7 +30,7 @@ class PhotographerGatherInfoController extends UserGuardController
         $photographer = $this->_photographer();
         $photographerGatherInfos = PhotographerGatherInfo::where(
             ['photographer_id' => $photographer->id]
-        )->where(['status' => 200])->orderBy('sort', 'desc')->orderBy('created_at', 'desc')->get()->toArray();
+        )->where(['status' => 200])->orderBy('sort', 'desc')->orderBy('created_at')->get()->toArray();
         foreach ($photographerGatherInfos as $k => $photographerGatherInfo) {
             $brand_tags = PhotographerInfoTag::where(
                 [
