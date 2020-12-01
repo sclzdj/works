@@ -16,6 +16,7 @@ use App\Model\Index\PhotographerRank;
 use App\Model\Index\PhotographerWork;
 use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\PhotographerWorkTag;
+use App\Model\Index\TargetUser;
 use App\Model\Index\User;
 use App\Model\Index\Visitor;
 use App\Servers\AliSendShortMessageServer;
@@ -1132,105 +1133,20 @@ class DraftController extends UserGuardController
     }
 
     public function fuckitback(Request $request){
-//        $xacode = Photographer::getXacode($request->id, false);
-//        var_dump($xacode);
-        $d1 = \DB::select("SELECT photographer_works.photographer_id from photographer_works WHERE photographer_works.`status`=200 GROUP BY photographer_works.photographer_id  ");
-        $d2 = \DB::select("SELECT
-	photographers.id as photographer_id
-FROM
-	`photographers`
-	LEFT JOIN `photographer_works` ON `photographers`.`id` = `photographer_works`.`photographer_id`
-WHERE
-	(
-		`photographers`.`status` = 200 AND `photographer_works`.`status` = 200)
-GROUP BY
-	`photographers`.`id`  ");
-        $d1arr = [];
-        foreach ($d1 as $key => $value){
-            array_push($d1arr, $value->photographer_id);
-        }
-        $d2arr = [];
-        foreach ($d2 as $key => $value){
-            array_push($d2arr, $value->photographer_id);
-        }
-        foreach ($d1arr as $key =>  $value){
-            if (in_array($value, $d2arr)){
-                unset($d1arr[$key]);
+        $targets = TargetUser::get();
+        foreach ($targets as $target){
+            $user = User::where(['id' => $target->user_id])->first();
+            if ($user){
+                $user->source = $target->source;
+                $user->save();
             }
         }
-        echo implode(',', $d1arr);
+
+
 
 //        \DB::enableQueryLog();
-//        $sources = PhotographerWorkSource::where('image_ave', '=', '0x798868')->get();
-//        foreach ($sources as $source){
-//            $res_ave = SystemServer::request('GET', $source->url.'?imageAve');
-//
-//            if ($res_ave['code'] == 200) {
-//                if (!isset($res_ave['data']['error']) || (isset($res_ave['data']['code']) && $res_ave['data']['code'] == 200)) {
-//                    if (isset($res_ave['data']['RGB'])) {
-//                        $source->image_ave = $res_ave['data']['RGB'];
-//                        $source->save();
-//                        echo "source id: " . $source->id . ' imageave ' .   $res_ave['data']['RGB']. "\n<br/>";
-//                    }
-//                }
-//            }
-//        }
 ////        dd(\DB::getQueryLog());
-//        var_dump($sources);
-//        $asynchronous_task = [];
-//        foreach ($sources as $source){
-//            /*exif END*/
-//            $fops = ["imageMogr2/auto-orient/thumbnail/1200x|imageMogr2/auto-orient/colorspace/srgb|imageslim"];
-//            $bucket = 'zuopin';
-//            $asynchronous_task[] = [
-//                'task_type' => 'qiniuPfop',
-//                'bucket' => $bucket,
-//                'key' => $source['key'],
-//                'fops' => $fops,
-//                'pipeline' => null,
-//                'notifyUrl' => 'https://zuopin.cloud/api/notify/qiniu/fopDeal?photographer_work_source_id='.$source['id'],
-//                'useHTTPS' => true,
-//                'error_step' => '处理图片持久请求',
-//                'error_msg' => '七牛持久化接口返回错误信息',
-//                'error_request_data' => '',
-//                'error_photographerWorkSource' => '',
-//            ];
-//        }
 //
-//        foreach ($this->asynchronous_task as $task) {
-//            if ($task['task_type'] == 'qiniuPfop') {
-//                $qrst = SystemServer::qiniuPfop(
-//                    $task['bucket'],
-//                    $task['key'],
-//                    $task['fops'],
-//                    $task['pipeline'],
-//                    $task['notifyUrl'],
-//                    $task['useHTTPS']
-//                );
-//                if ($qrst['err']) {
-//                    ErrLogServer::qiniuNotifyFop(
-//                        $task['error_step'],
-//                        $task['error_msg'],
-//                        $task['error_request_data'],
-//                        $task['error_photographerWorkSource'],
-//                        $qrst['err']
-//                    );
-//                }
-//            } elseif ($task['task_type'] == 'editRunGenerateWatermark') {
-//                PhotographerWorkSource::editRunGenerateWatermark(
-//                    $task['photographer_work_source_id'],
-//                    $task['edit_node']
-//                );
-//            } elseif ($task['task_type'] == 'error_qiniuNotifyFop') {
-//                ErrLogServer::qiniuNotifyFop(
-//                    $task['step'],
-//                    $task['msg'],
-//                    $task['request_data'],
-//                    $task['photographerWorkSource'],
-//                    $task['res']
-//                );
-//            }
-//        }
 
     }
 }

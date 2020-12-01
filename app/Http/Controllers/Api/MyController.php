@@ -512,7 +512,7 @@ class MyController extends UserGuardController
         if ($request->photographer_gather_id !== null && $request->photographer_gather_id > 0) {
             $photographer_work_ids = [];
             $photographerGather = PhotographerGather::where(
-                ['id' => $request->photographer_gather_id, 'photographer_id' => $photographer->id, 'status' => 200]
+                ['id' => $request->photographer_gather_id, 'status' => 200]
             )->first();
             if ($photographerGather) {
                 $photographerGatherWorks = PhotographerGatherWork::where(

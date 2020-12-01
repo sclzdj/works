@@ -20,6 +20,7 @@ use App\Model\Index\Sources;
 use App\Model\Index\TargetUser;
 use App\Model\Index\User;
 use App\Model\Index\ViewRecord;
+use App\Model\Index\Visitor;
 use App\Model\Index\WithdrwalRecord;
 use App\Servers\ArrServer;
 use Illuminate\Http\Request;
@@ -62,12 +63,12 @@ class UserManagerController extends BaseController
                 '',
         ];
         $orderBy = $orderBy['order_field'] . ' ' . $orderBy['order_type'];
+        $orderBy .= ',photographers.created_at desc';
 
         $where[] = ['users.identity', '=', 1];
 
-
         $Photographer = Photographer::select(
-            \DB::raw('photographers.*,target_users.source,photographer_ranks.name as rank_name,target_users.rank_id,target_users.works_info,target_users.reason'),
+            \DB::raw('photographers.*,users.source,photographer_ranks.name as rank_name,target_users.rank_id,target_users.works_info,target_users.reason'),
             \DB::raw('(( SELECT count(*) FROM photographer_works WHERE photographer_works.photographer_id = users.photographer_id )) AS works_count'),
             \DB::raw('((select count(*) from visitors where visitors.photographer_id=users.photographer_id)) as vistors')
         )->leftjoin(
@@ -328,7 +329,7 @@ class UserManagerController extends BaseController
         ];
         $orderBy = $orderBy['order_field'] . ' ' . $orderBy['order_type'];
 
-        $where[] = ['users.identity', '=', 0];
+//        $where[] = ['users.identity', '=', 0];
 
         $users = User::select(
             \DB::raw('(( SELECT count(*) FROM photographer_works WHERE photographer_works.photographer_id = users.photographer_id )) AS works_count'),
@@ -343,11 +344,6 @@ class UserManagerController extends BaseController
             'photographers.created_at',
             'users.avatar'
         )->leftjoin(
-            'target_users',
-            'target_users.user_id',
-            '=',
-            'users.id'
-        )->leftjoin(
             'photographers',
             'photographers.id',
             '=',
@@ -359,6 +355,10 @@ class UserManagerController extends BaseController
         return $this->responseParseArray($users);
     }
 
+    /***访客记录
+     * @param Request $request
+     * @return mixed
+     */
     public function Guest(Request $request){
         $pageInfo = [
             'pageSize' => $request['pageSize'] !== null ?
@@ -375,10 +375,9 @@ class UserManagerController extends BaseController
 //        )->paginate(
 //            $pageInfo['pageSize']
 //        );
-        #TODO  做错了 是users
-        $viewrecords = ViewRecord::where(['view_records.photographer_id' => $userid])->leftjoin(
+        $viewrecords = Visitor::where(['visitors.photographer_id' => $userid])->leftjoin(
             'users',
-            'view_records.user_id',
+            'visitors.user_id',
             '=',
             'users.id'
         )->leftjoin(
@@ -389,7 +388,7 @@ class UserManagerController extends BaseController
         )->select(
 //            \DB::raw('count(photographer_works.id) as works_count'),
             \DB::raw('(( SELECT count(*) FROM photographer_works WHERE photographer_works.photographer_id = users.photographer_id )) AS works_count'),
-            'view_records.*',
+            'visitors.*',
             'users.phoneNumber',
             'users.id as uid',
             'users.nickname'
