@@ -1858,6 +1858,24 @@ class PhotographerController extends BaseController
         return $this->responseParseArray($data);
     }
 
+    public function getTemplateData(){
+        $data = Templates::orderBy('number', 'asc')->get();
+        $arr = [];
+        foreach ($data as $datum){
+            $tmp = [
+                'purpose' => $datum->purpose,
+                'text' => [
+                    'text1' => $datum->text1,
+                    'text2' => $datum->text2,
+                    'text3' => $datum->text3,
+                    'text4' => $datum->text4
+                ]
+            ];
+            array_push($arr, $tmp);
+        }
+        return $this->responseParseArray($arr);
+    }
+
     /**
      * 人脉排行榜
      * @param PhotographerRequest $request

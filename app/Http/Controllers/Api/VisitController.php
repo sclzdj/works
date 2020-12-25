@@ -255,22 +255,24 @@ class VisitController extends UserGuardController
             $operate_record->operate_type = 'in';
             $operate_record->save();
 
-            $operate_record = OperateRecord::create();
-            $operate_record->user_id = $user->id;
-            $operate_record->operate_type = $request->operate_type;
-            $operate_record->page_name = $request->page_name;
-            $operate_record->photographer_id = $request->photographer_id;
-            $operate_record->photographer_work_id = $request->photographer_work_id;
-            $operate_record->photographer_gather_id = $request->photographer_gather_id;
-            $operate_record->operate_type = $request->operate_type;
-            $operate_record->save();
+            $operate_record2 = OperateRecord::create();
+            $operate_record2->user_id = $user->id;
+            $operate_record2->operate_type = $request->operate_type;
+            $operate_record2->page_name = $request->page_name;
+            $operate_record2->photographer_id = $request->photographer_id;
+            $operate_record2->photographer_work_id = $request->photographer_work_id;
+            $operate_record2->photographer_gather_id = $request->photographer_gather_id;
+            $operate_record2->operate_type = $request->operate_type;
+            $operate_record2->save();
+
+
             if ($user->id != $photographer_user->id) {//如果不是自己访问，记录访客信息
                 $this->_visitorRecord(
                     $request,
                     $user,
                     $photographer_user,
                     $photographer,
-                    [$operate_record]
+                    [$operate_record2]
                 );
             }
             \DB::commit();//提交事务
@@ -302,6 +304,7 @@ class VisitController extends UserGuardController
         $visitor = Visitor::where(
             ['photographer_id' => $request->photographer_id, 'user_id' => $user->id]
         )->first();
+
         if (!$visitor) {
             $visitors = Visitor::where(['photographer_id' => $request->photographer_id])->orderBy(
                 'created_at',
@@ -379,18 +382,27 @@ class VisitController extends UserGuardController
                         [
                             'user_id' => $operate_record->user_id,
                             'photographer_id' => $operate_record->photographer_id,
-                            'operate_type' => 'in',
+//                            'operate_type' => 'in',
                         ]
-                    )->orderBy('created_at', 'asc')->first();
+                    )->orderBy('created_at', 'desc')->first();
+                    //这里$first_in_operate_record 应该为$last_in_operate_record
                     if ($first_in_operate_record->id != $operate_record->id) {
                         continue;
                     }
                 }
                 $describes[] = $this->_makeDescribe($operate_record->id);
             }
+
             $first_text = $photographer->name.'，人脉有新动态，请及时查看。';
             $keyword1_text = $user->nickname;
-            $keyword2_text = implode('并', $describes);
+            //为什么这么做，没办法兄弟 ，你可以认为这是一坨屎
+            $count = OperateRecord::where(['photographer_id' => $operate_record['photographer_id'], 'user_id'=>$operate_record['user_id'], 'in_type' => 'xacard_in'])->count();
+            if ($count > 1){
+                $keyword2_text = implode('', $describes);
+            }else{
+                $keyword2_text = implode('并', $describes);
+            }
+
             $keyword3_text = $user->purePhoneNumber;
             $miniprogram_pagepath = 'pages/visitorDetails/visitorDetails?id='.$visitor->id;//访客详情页
             if ($visit_send_message['is_remind'] == 0) {
@@ -545,7 +557,8 @@ class VisitController extends UserGuardController
             [['visitors.photographer_id', '=', $photographer->id], ['visitor_tag_id', '!=', 0]]
         )->get();
         $visitor_tag_ids = ArrServer::ids($visitors, 'visitor_tag_id');
-        $tags = VisitorTag::select(['id', 'name'])->whereIn('id', $visitor_tag_ids)->orderBy(
+//        $tags = VisitorTag::select(['id', 'name'])->whereIn('id', $visitor_tag_ids)->orderBy(
+        $tags = VisitorTag::select(['id', 'name'])->orderBy(
             'sort',
             'asc'
         )->get()->toArray();
@@ -818,6 +831,17 @@ class VisitController extends UserGuardController
                         PhotographerWork::allowFields()
                     )->where(['id' => $record['photographer_work_id']])->first()->toArray();
                 }
+                $records[$_k]['photographer_gather'] = [];
+                if ($record['page_name'] == 'photographer_gather') {
+
+                    $photographerGather = PhotographerGather::select(
+                        PhotographerGather::allowFields()
+                    )->where(['id' => $record['photographer_gather_id']])->first();
+                    if ($photographerGather){
+                        $records[$_k]['photographer_gather'] = $photographerGather->toArray();
+                    }
+
+                }
                 $records[$_k]['shared_user'] = [];
                 if ($record['in_type'] == 'share_in') {
                     $records[$_k]['shared_user'] = User::select(User::allowFields())->where(
@@ -940,14 +964,19 @@ class VisitController extends UserGuardController
                 }
             } elseif ($operateRecord->in_type == 'xacard_in') {
                 $auth_id = auth($this->guard)->id();
-                if ($operateRecord->shared_user_id == $auth_id) {
-                    $describe = '通过我分享的小程序卡片进入';
-                } else {
-                    if ($is_special) {
-                        $describe = '通过XX分享的小程序卡片进入';
+                $count = OperateRecord::where(['photographer_id' => $operateRecord['photographer_id'], 'user_id'=>$operateRecord['user_id'], 'in_type' => 'xacard_in'])->count();
+                if ($count == 1){
+                    if ($operateRecord->shared_user_id == $auth_id) {
+                        $describe = '通过我分享的小程序卡片进入';
                     } else {
-                        $describe = '通过@'.$shared_user_nickname.'分享的小程序卡片进入';
+                        if ($is_special) {
+                            $describe = '通过XX分享的小程序卡片进入';
+                        } else {
+                            $describe = '通过'.$shared_user_nickname.'分享的小程序卡片进入';
+                        }
                     }
+                }else{
+                    $describe = $visitor_nickname ;
                 }
             } elseif ($operateRecord->in_type == 'ranking_list_in') {
                 $describe = '通过「人脉排行榜」进入';
@@ -956,7 +985,7 @@ class VisitController extends UserGuardController
             } elseif ($operateRecord->in_type == 'view_history_in') {
                 $describe = '通过「最近浏览」进入';
             } elseif ($operateRecord->in_type == 'routine_in') {
-                $describe = '通过普通方式进入';
+                $describe = '通过其他方式进入';
             }
         } elseif ($operateRecord->operate_type == 'share') {
             if ($operateRecord->page_name == 'photographer_home') {

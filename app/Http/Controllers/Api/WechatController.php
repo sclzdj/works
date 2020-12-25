@@ -4,6 +4,10 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use Log;
 use Cookie;
+use Overtrue\Wechat\Payment;
+use Overtrue\Wechat\Payment\Order;
+use Overtrue\Wechat\Payment\Business;
+use Overtrue\Wechat\Payment\UnifiedOrder;
 
 /**
  * 微信控制器
@@ -72,5 +76,14 @@ class WechatController extends BaseController
 
         echo $contents;
         exit();
+    }
+
+    public function payment(){
+        $business = new Business(
+            APP_ID,
+            APP_KEY,
+            MCH_ID,
+            MCH_KEY
+        );
     }
 }

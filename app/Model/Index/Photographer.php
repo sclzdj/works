@@ -58,6 +58,8 @@ class Photographer extends Model
             'area',
             'photographer_rank_id',
             'wechat',
+            'level',
+            'vip_expiretime',
             'mobile',
             'mobilecontact',
             'invite_times',

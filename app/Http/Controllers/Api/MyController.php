@@ -223,9 +223,11 @@ class MyController extends UserGuardController
 
         $info = ArrServer::inData($info, User::allowFields());
 
-
         $this->notPhotographerIdentityVerify();
         $photographer = $this->_photographer(null, $this->guard);
+        $photographer->updated_at = date('Y-m-d H:i:s');
+        $photographer->save();
+        User::where(['photographer_id' => $photographer->id])->update(['updated_at' => date('Y-m-d H:i:s')]);
         if (!$photographer || $photographer->status != 200) {
             $photographer = [
                 'id' => $photographer->id
@@ -386,6 +388,7 @@ class MyController extends UserGuardController
             $whereRaw2 = ["%{$keywords}%", "%{$keywords}%", "%{$keywords}%", "%{$keywords}%", "%{$keywords}%"];
         }
         $photographer_works = $photographer->photographerWorks();
+        $photographer_works2 = $photographer->photographerWorks();
         if ($request->photographer_work_category_ids !== null && $request->photographer_work_category_ids !== '') {
             $photographer_work_category_ids = explode(',', $request->photographer_work_category_ids);
             $exist_zero = in_array(0, $photographer_work_category_ids);
@@ -415,6 +418,10 @@ class MyController extends UserGuardController
             }
             if ($filter_photographer_work_category_ids) {
                 $photographer_works = $photographer_works->whereIn(
+                    'photographer_works.photographer_work_category_id',
+                    $filter_photographer_work_category_ids
+                );
+                $photographer_works2 = $photographer_works2->whereIn(
                     'photographer_works.photographer_work_category_id',
                     $filter_photographer_work_category_ids
                 );
@@ -454,11 +461,30 @@ class MyController extends UserGuardController
                     'photographer_works.photographer_work_customer_industry_id',
                     $filter_photographer_work_customer_industry_ids
                 );
+                $photographer_works2 = $photographer_works2->whereIn(
+                    'photographer_works.photographer_work_customer_industry_id',
+                    $filter_photographer_work_customer_industry_ids
+                );
             }
         }
         if ($request->is_business !== null && $request->is_business !== '') {
             $photographer_works = $photographer_works->where(
                 ['photographer_works.is_business' => $request->is_business]
+            );
+        }
+
+        if ($request->sheets_number_min !== null && $request->sheets_number_min !== '') {
+            $photographer_works = $photographer_works->where(
+                'photographer_works.sheets_number',
+                '>=',
+                $request->sheets_number_min
+            );
+        }
+        if ($request->sheets_number_max !== null && $request->sheets_number_max !== '') {
+            $photographer_works = $photographer_works->where(
+                'photographer_works.sheets_number',
+                '<=',
+                $request->sheets_number_max
             );
         }
         if ($request->project_amount_min !== null && $request->project_amount_min !== '') {
@@ -473,20 +499,6 @@ class MyController extends UserGuardController
                 'photographer_works.project_amount',
                 '<=',
                 $request->project_amount_max
-            );
-        }
-        if ($request->sheets_number_min !== null && $request->sheets_number_min !== '') {
-            $photographer_works = $photographer_works->where(
-                'photographer_works.sheets_number',
-                '>=',
-                $request->sheets_number_min
-            );
-        }
-        if ($request->sheets_number_max !== null && $request->sheets_number_max !== '') {
-            $photographer_works = $photographer_works->where(
-                'photographer_works.sheets_number',
-                '<=',
-                $request->sheets_number_max
             );
         }
         if ($request->shooting_duration_min !== null && $request->shooting_duration_min !== '') {
@@ -509,6 +521,18 @@ class MyController extends UserGuardController
                 $whereRaw2
             );
         }
+        $raw = false;
+        if ($request->sheets_number_null != null) {
+            $photographer_works2 = $photographer_works2->whereNull('photographer_works.sheets_number');
+        }
+        if ($request->project_amount_null != null) {
+            $photographer_works2 = $photographer_works2->whereNull('photographer_works.project_amount');
+        }
+        if ($request->shooting_duration_null != null) {
+            $photographer_works2 = $photographer_works2->whereNull('photographer_works.shooting_duration');
+
+        }
+
         if ($request->photographer_gather_id !== null && $request->photographer_gather_id > 0) {
             $photographer_work_ids = [];
             $photographerGather = PhotographerGather::where(
@@ -543,10 +567,17 @@ class MyController extends UserGuardController
                 'desc'
             );
         }
+        if ($raw){
+            $photographer_works = $photographer_works->whereRaw(
+                ' 1=1 OR `id` in (' . implode(',', $photographer_works2->pluck('id')->toArray()) . ')'
+            );
+        }
+
         if ($request->only_id){
 
             $photographer_works = $photographer_works->pluck('id');
         }else{
+//            \DB::enableQueryLog();
             $photographer_works = $photographer_works->orderBy(
                 'photographer_works.created_at',
                 'desc'
@@ -556,6 +587,7 @@ class MyController extends UserGuardController
             )->paginate(
                 $request->pageSize
             );
+//            dd(\DB::getQueryLog());
             $all_tags = [];
             foreach ($photographer_works as $k => $photographer_work) {
                 $photographer_work_tags = $photographer_work->photographerWorkTags()->select(

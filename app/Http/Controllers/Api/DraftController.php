@@ -1115,6 +1115,10 @@ class DraftController extends UserGuardController
                     }
                 }
             }
+            if ($user->status == 1){
+                $user->status = 2;
+            }
+
             $user->identity = 1;
             $user->save();
 

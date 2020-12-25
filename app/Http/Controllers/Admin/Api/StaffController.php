@@ -57,12 +57,13 @@ class StaffController extends BaseController{
             ];
             $purpose = 'review_success';
             $user->status = 1;
+            $user->is_invite = 1;
         }elseif ($user->status == 1){
             $photographer = Photographer::where(['id' => $user['photographer_id']])->first();
             $template_id = 'rjph5uR7iIzT2rEn3LjnF65zEdKZYisUGoAVgpipxpk';
             $miniprogram = [
                 'appid' => config('custom.wechat.mp.appid'),
-                'pagepath' => 'pages/homePage/homePage',//注册成功分享页
+                'pagepath' => 'pages/homePage/home Page',//注册成功分享页
             ];
             $data =  [
                 'first' => '你的云作品已创建成功。',
@@ -79,9 +80,23 @@ class StaffController extends BaseController{
             $user->status = 2;
 
         }elseif ($user->status == 2){
+            //升级
             $photographer = Photographer::where(['id' => $user->photographer_id])->first();
             $settings = InviteSetting::first();
             $photographer->invite_times = $settings->times;
+
+            $count = User::where(['status' => 3])->count();
+            $reword = InviteReward::create();
+            $reword->cloud = 1;
+            $reword->photographer_id = $photographer->id;
+            $reword->cloud_count = 1;
+            //设置勋章为白云勋章
+            $reword->medal = 'baicloud';
+            $reword->baicloud_time = date('Y-m-d H:i:s');
+
+            $reword->invite_rank = $count + 1;
+            $reword->save();
+
             $user->status = 3;
             $photographer->save();
         }

@@ -88,13 +88,31 @@ class InviteController extends BaseController
             if (!$reword){
                 $reword = InviteReward::create();
                 $reword->cloud = 1;
+                $reword->photographer_id = $photographer->id;
                 $reword->cloud_count = 1;
                 //设置勋章为白云勋章
                 $reword->medal = 'baicloud';
-
+                $reword->baicloud_time = date('Y-m-d H:i:s');
             }else{
                 $medal = InviteSetting::getMedal($photographer->id);
-                $reword->medal = $medal['medal'];
+
+                if ($medal){
+                    if ($reword->medal != $medal['medal']){
+                        if ($medal['medal'] == 'baicloud'){
+                            $reword->baicloud_time = date('Y-m-d H:i:s');
+                        }
+                        if ($medal['medal'] == 'qincloud'){
+                            $reword->qincloud_time = date('Y-m-d H:i:s');
+                        }
+                        if ($medal['medal'] == 'juancloud'){
+                            $reword->juancloud_time = date('Y-m-d H:i:s');
+                        }
+                        if ($medal['medal'] == 'jicloud'){
+                            $reword->jicloud_time = date('Y-m-d H:i:s');
+                        }
+                    }
+                }
+
 
                 $reword->increment('cloud');
                 $reword->increment('cloud_count');
@@ -125,6 +143,31 @@ class InviteController extends BaseController
 
         return $this->response->noContent();
 
+    }
+
+
+    public function updatealert(Request $request){
+        $photographer = $this->_photographer($request->photographer_id);
+        $medal = $request->medal;
+
+        $reword = InviteReward::where(['photographer_id' => $photographer->id])->first();
+        if ($medal == 'baicloud'){
+
+            $reword->baicloud_alert = 1;
+        }
+        if ($medal == 'qincloud'){
+            $reword->qincloud_alert = 1;
+        }
+        if ($medal == 'juancloud'){
+            $reword->juancloud_alert = 1;
+        }
+        if ($medal == 'jicloud'){
+            $reword->jicloud_alert = 1;
+        }
+        $reword->save();
+
+
+        return $this->response->noContent();
     }
 
     /**
@@ -168,15 +211,14 @@ class InviteController extends BaseController
         }
         $freemoney = $reword->cloud * $cloud['money'];
 
-
+        $count = User::where(['identity' => 1])->count();
         $data = [
             'photographer' => $photographerfields,
             'expiretime' => $settings->expiretime,
             'invitecount' => $invitecount,
-            'reward' => [
-                'cloud' => $reword->cloud,
-                'freemoney' => $freemoney
-            ]
+            'reward' => $reword->toArray(),
+            'user_count' => $count,
+            'freemoney' => $freemoney
         ];
 
         return $this->responseParseArray($data);

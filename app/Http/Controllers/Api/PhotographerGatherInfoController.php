@@ -25,9 +25,17 @@ class PhotographerGatherInfoController extends UserGuardController
      * 合集资料列表
      * @return mixed
      */
-    public function index()
+    public function index(Request $request)
     {
-        $photographer = $this->_photographer();
+
+        if ($request->photographer_id > 0) {
+            $photographer = $this->_photographer($request->photographer_id);
+        } else {
+            $photographer = $this->_photographer(null, $this->guards['user']);
+        }
+        if (!$photographer || $photographer->status != 200) {
+            return $this->response->error('用户不存在', 500);
+        }
         $photographerGatherInfos = PhotographerGatherInfo::where(
             ['photographer_id' => $photographer->id]
         )->where(['status' => 200])->orderBy('sort', 'desc')->orderBy('created_at')->get()->toArray();

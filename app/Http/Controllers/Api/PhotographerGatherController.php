@@ -302,6 +302,8 @@ class PhotographerGatherController extends BaseController
 
         $where = ['photographer_gather_works.photographer_gather_id' => $request->photographer_gather_id];
         $where2 = "";
+        $where3 = "";
+        $raw = false;
         if (!empty($filter['sheets_number'])) {
             $where2 .= 'photographer_works.sheets_number >= '. $filter['sheets_number'][0] . ' and  photographer_works.sheets_number <= ' . $filter['sheets_number'][1];
         }
@@ -316,16 +318,45 @@ class PhotographerGatherController extends BaseController
             if ($where2){
                 $where2 .= ' and ';
             }
+            if ($where3) {
+                $where3 .= ' and ';
+            }
             $where2 .= ' photographer_works.photographer_work_customer_industry_id in ('.$photographer_work_category_ids.') ';
+            $where3 .= ' photographer_works.photographer_work_customer_industry_id in ('.$photographer_work_category_ids.') ';
         }
         if ($filter['photographer_work_category_ids']){
             $photographer_work_category_ids = implode(',', $filter['photographer_work_category_ids']);
             if ($where2){
                 $where2 .= ' and ';
             }
+            if ($where3) {
+                $where3 .= ' and ';
+            }
             $where2 .= ' photographer_works.photographer_work_category_id in ('.$photographer_work_category_ids.') ';
+            $where3 .= ' photographer_works.photographer_work_category_id in ('.$photographer_work_category_ids.') ';
         }
 
+        if ($request->sheets_number_null){
+            $raw = true;
+            if ($where3) {
+                $where3 .= ' and ';
+            }
+            $where3 .= ' photographer_works.sheets_number is null ';
+        }
+        if ($request->shooting_duration_null){
+            $raw = true;
+            if ($where3) {
+                $where3 .= ' and ';
+            }
+            $where3 .= ' photographer_works.shooting_duration is null ';
+        }
+        if ($request->project_amount_null){
+            $raw = true;
+            if ($where3) {
+                $where3 .= ' and ';
+            }
+            $where3 .= ' photographer_works.project_amount is null ';
+        }
 
         $photographer = $this->_photographer(null, $this->guards['user'])->toArray();
         $photographer['rank'] = "";
@@ -367,6 +398,23 @@ class PhotographerGatherController extends BaseController
         if ($where2){
             $photographerWorks = PhotographerWork::where($where)->whereRaw($where2);
         }
+        if ($raw){
+            $photographerWorks2 = PhotographerWork::where($where)->whereRaw($where3)->join(
+                'photographer_gather_works',
+                'photographer_gather_works.photographer_work_id',
+                '=',
+                'photographer_works.id'
+            )->select(
+                'photographer_works.id'
+            )->pluck('id')->toArray();
+            if ($photographerWorks2){
+                $photographerWorks = $photographerWorks->whereRaw(
+                    ' 1=1 OR `photographer_works`.`id` in (' . implode(',', $photographerWorks2) . ')'
+                );
+            }
+
+
+        }
         $photographerWorks = $photographerWorks->join(
             'photographer_gather_works',
             'photographer_gather_works.photographer_work_id',
@@ -381,7 +429,7 @@ class PhotographerGatherController extends BaseController
             'photographer_works.shooting_duration',
             'photographer_works.photographer_work_customer_industry_id',
             'photographer_works.photographer_work_category_id'
-        )->orderBy('photographer_gather_works.id', 'desc')->paginate(
+        )->groupBy('photographer_works.id')->orderBy('photographer_gather_works.id', 'desc')->paginate(
             $pageInfo['pageSize']
         )->toArray();
 
@@ -406,6 +454,17 @@ class PhotographerGatherController extends BaseController
             'photographerGather' => $photographerGather,
             'photographerWorks' => $photographerWorks
         ];
+
+        return $this->response->array($data);
+    }
+
+    public function getGatherWorksIdForGuest(PhotographerGatherRequest $request){
+        $photographerGatherid = $request->photographer_gather_id;
+        $gathers = PhotographerGatherWork::where(['photographer_gather_id' => $photographerGatherid])->get();
+        $data = [];
+        if ($gathers){
+            $data = $gathers->pluck(['photographer_work_id']);
+        }
 
         return $this->response->array($data);
     }
@@ -605,7 +664,9 @@ class PhotographerGatherController extends BaseController
             \DB::raw('(MIN(sheets_number)) as min_sheets_number'),
             \DB::raw('(MAX(sheets_number)) as max_sheets_number'),
             \DB::raw('(MIN(shooting_duration)) as min_shooting_duration'),
-            \DB::raw('(MAX(shooting_duration)) as max_shooting_duration')
+            \DB::raw('(MAX(shooting_duration)) as max_shooting_duration'),
+            \DB::raw('(MIN(project_amount)) as min_project_amount'),
+            \DB::raw('(MAX(project_amount)) as max_project_amount')
         )->where(['photographer_gather_works.photographer_gather_id' => $gather_id])->where(['photographer_works.status' => 200])->first()->toArray();
 
 

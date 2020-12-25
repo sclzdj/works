@@ -115,9 +115,12 @@ $api->version(
                 $api->post('my/addPhotographerGatherInfo', 'PhotographerGatherInfoController@store');
                 $api->post('my/savePhotographerGatherInfo', 'PhotographerGatherInfoController@update');
                 $api->get('my/photographerGatherInfo', 'PhotographerGatherInfoController@show');
-                $api->delete('my/addPhotographerGather', 'PhotographerGatherInfoController@destroy');
+                $api->delete('my/photographerGatherInfo', 'PhotographerGatherInfoController@destroy');
                 $api->post('my/copyPhotographerGatherInfo', 'PhotographerGatherInfoController@copy');
                 $api->post('my/setDefaultPhotographerGatherInfo', 'PhotographerGatherInfoController@setDefault');
+
+                //分享给别人
+                $api->get('guest/getGatherWorksIdForGuest', 'PhotographerGatherController@getGatherWorksIdForGuest');
 
                 // 用户作品 成片个数 拍摄时长 项目金额
                 $api->get('my/photographerWorkHide' , 'MyController@photographerWorkHide');
@@ -160,8 +163,10 @@ $api->version(
                 $api->get('invite/famoususers', 'InviteController@famoususerslist');
                 $api->get('invite/getfamousranks', 'InviteController@getfamousranks');
                 $api->post('invite/plzfavors', 'InviteController@plzfavors');
+                $api->post('invite/updatealert', 'InviteController@updatealert');
 
                 $api->get('templates/list', 'PhotographerController@getTemplates');
+                $api->get('templates/data', 'PhotographerController@getTemplateData');
                 $api->get('photographer/rankingList', 'PhotographerController@rankingList');
                 //游客
                 $api->get('randomPhotographers', 'MyController@randomPhotographers');
@@ -203,6 +208,12 @@ $api->version(
                 $api->post('invote/used', 'InvoteCodeController@used');
                 $api->post('invote/query', 'InvoteCodeController@query');
                 $api->post('invote/update', 'InvoteCodeController@update');
+
+                //支付相关
+                $api->post('payment/pay', 'PayMentController@pay');
+                $api->any('payment/notify', 'PayMentController@notify');
+                $api->get('payment/getorder', 'PayMentController@getorder');
+
                 // 众筹相关
                 $api->get('crowdfunding/getData', 'CrowdFundingController@getData');
                 $api->post('crowdfunding/order', 'CrowdFundingController@order');

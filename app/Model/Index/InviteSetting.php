@@ -50,6 +50,8 @@ class InviteSetting extends Model
             }
         }
 
+        return $tmp;
+
 
     }
 

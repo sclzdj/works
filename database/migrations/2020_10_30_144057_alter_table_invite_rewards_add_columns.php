@@ -15,8 +15,8 @@ class AlterTableInviteRewardsAddColumns extends Migration
     {
         //
         Schema::table('invite_rewards', function (Blueprint $table) {
-            $table->decimal("money")->default(0.00)->comment("当前拥有的金币");
-            $table->decimal("money_count")->default(0.00)->comment("总共拥有的金币");
+//            $table->decimal("money")->default(0.00)->comment("当前拥有的金币");
+//            $table->decimal("money_count")->default(0.00)->comment("总共拥有的金币");
             $table->decimal("withdrawal_money")->default(0.00)->comment("要提现的金币");
             $table->decimal("withdrawal_money_count")->default(0.00)->comment("总共提现的金币");
             $table->decimal("withdrawal_cloud")->default(0.00)->comment("要提现的云朵");

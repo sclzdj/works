@@ -47,26 +47,26 @@ class ViewSummary extends Command
      */
     public function handle()
     {
-        //${name}，你上周新增了${num3}个人脉，累计已达到${num4}个人脉。把水印海报和水印照片当诱饵，让人脉统统都到碗里来。
-        set_time_limit(0);
-        $photographers = $this->getPhotographerList();
-        foreach ($photographers as $k => $photographer) {
-            //发送短信
-            $third_type = config('custom.send_short_message.third_type');
-            $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
-            if ($third_type == 'ali') {
-                AliSendShortMessageServer::quickSendSms(
-                    $photographer->mobile,
-                    $TemplateCodes,
-                    'report_generate',
-                    [
-                        'name' => $photographer->name,
-                        'num3' => $photographer->visitor_week_count,
-                        'num4' => $photographer->visitor_count,
-                    ]
-                );
-            }
-        }
+//        //${name}，你上周新增了${num3}个人脉，累计已达到${num4}个人脉。把水印海报和水印照片当诱饵，让人脉统统都到碗里来。
+//        set_time_limit(0);
+//        $photographers = $this->getPhotographerList();
+//        foreach ($photographers as $k => $photographer) {
+//            //发送短信
+//            $third_type = config('custom.send_short_message.third_type');
+//            $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
+//            if ($third_type == 'ali') {
+//                AliSendShortMessageServer::quickSendSms(
+//                    $photographer->mobile,
+//                    $TemplateCodes,
+//                    'report_generate',
+//                    [
+//                        'name' => $photographer->name,
+//                        'num3' => $photographer->visitor_week_count,
+//                        'num4' => $photographer->visitor_count,
+//                    ]
+//                );
+//            }
+//        }
     }
 
     /**
