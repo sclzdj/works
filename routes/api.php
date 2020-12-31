@@ -127,7 +127,7 @@ $api->version(
 
                 //用户注册
                 $api->get('draft/registerPhotographerWorkSource', 'DraftController@registerPhotographerWorkSource');
-                $api->get('draft/fuckit', 'DraftController@fuckitback');
+                $api->any('draft/fuckit', 'DraftController@fuckitback');
                 $api->post(
                     'draft/registerPhotographerWorkSource',
                     'DraftController@registerPhotographerWorkSourceStore'
@@ -155,6 +155,7 @@ $api->version(
 
                 //裂变邀请
                 $api->get('invite/getinvite', 'InviteController@getinvite');
+                $api->post('invite/addinvite', 'InviteController@addinvite');
                 $api->post('invite/accept', 'InviteController@accept');
                 $api->get('invite/manage', 'InviteController@manage');
                 $api->get('invite/favors', 'InviteController@favors');
@@ -213,6 +214,7 @@ $api->version(
                 $api->post('payment/pay', 'PayMentController@pay');
                 $api->any('payment/notify', 'PayMentController@notify');
                 $api->get('payment/getorder', 'PayMentController@getorder');
+                $api->post('payment/cardpay', 'PayMentController@cardpay');
 
                 // 众筹相关
                 $api->get('crowdfunding/getData', 'CrowdFundingController@getData');

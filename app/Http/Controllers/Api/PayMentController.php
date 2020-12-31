@@ -4,10 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\Auth\UserGuardController;
 use App\Http\Requests\Index\PhotographerRequest;
+use App\Model\Index\InviteList;
+use App\Model\Index\InviteReward;
 use App\Model\Index\OrderInfo;
+use App\Model\Index\PayCard;
 use App\Model\Index\Photographer;
 use App\Model\Index\Settings;
 use App\Model\Index\User;
+use Dompdf\Exception;
 use EasyWeChat\Factory;
 
 
@@ -39,14 +43,16 @@ class PayMentController extends BaseController {
         $settings = Settings::first();
         $payinfo = json_decode($settings->payinfo, true);
 
-        $now = date("y-m-d h:i:s");
-        if (strtotime($now) < strtotime($payinfo['discount_expiretime'])){
-            $money = $payinfo['discount'];
-        }else{
-            $money = $payinfo['money'];
-        }
+        $money = $this->activity($user->id);
+//        if ($money)
+//        $now = date("y-m-d h:i:s");
+//        if (strtotime($now) < strtotime($payinfo['discount_expiretime'])){
+//            $money = $payinfo['discount'];
+//        }else{
+//            $money = $payinfo['money'];
+//        }
 
-        $money = 0.01;
+//        $money = 0.01;
 
         $orderinfo = OrderInfo::create();
         $orderinfo->pay_id = $user->id;
@@ -75,8 +81,34 @@ class PayMentController extends BaseController {
         return $this->responseParseArray($result);
     }
 
+    /***
+     * 这是一个活动，具有时效性。
+     */
+    private function activity($user_id){
+        $settings = Settings::find(1);
+        $info = json_decode($settings->activity1, true);
+        $money = null;
+        $now = date('Y-m-d');
+        if (strtotime($now) < strtotime($info['expire_time'])){
+            $money = 9;
+        }
+        if ($now == $info['expire_time']){
+            $order = OrderInfo::where(['pay_id' => $user_id])->orderBy('id','desc')->first();
+            if ($order){
+                $money = 140;
+            }else{
+                $money = 149;
+            }
+        }
+
+        if (strtotime($now) > strtotime($info['expire_time'])){
+            $money = 299;
+        }
+
+        return $money;
+    }
+
     public function notify(\Request $request){
-//        $notify = $this->getNotify();
         $data = file_get_contents("php://input");
         file_put_contents('/tmp/notify', $data);
 
@@ -91,7 +123,7 @@ class PayMentController extends BaseController {
                 $fail('Order not exist.');
             }
 
-            // 支付成功后的业务逻辑
+
             if($message['result_code'] === 'SUCCESS')
             {
                 \DB::beginTransaction();
@@ -100,13 +132,40 @@ class PayMentController extends BaseController {
                     $order->status = 1;
                     $order->save();
 
-                    $photographer = Photographer::where(['id' => $order->pay_id])->first();
+
+                    $photographer = Photographer::join('users', 'users.photographer_id', '=', 'photographers.id')->where(['users.id' => $order->pay_id])->select('photographers.*')->first();
 
                     if ($photographer){
                         $photographer->level = 1;
                         $photographer->vip_expiretime = date('Y-m-d H:i:s',strtotime('+1year'));
                         $photographer->save();
+                    }else{
+                        $fail('photographer not exist.');
+                        throw new Exception("回调失败");
+
                     }
+                    //如果不是正式用户改为正式用户，支付时新用户没有被用户邀请就自动归为官方邀请
+                    $user = User::where(['id' => $order->pay_id])->first();
+                    if ($user){
+                        $user->identity = 1;
+                        $user->save();
+
+                    }else{
+                        $fail('user  not exist.');
+                        throw new Exception("回调失败");
+
+                    }
+
+                    //如果有邀请人，则返现
+                    if ($message['total_fee'] / 100 >= 140) {
+
+                    }
+                    $invite = InviteList::where(['photographer_id' => $photographer->id ])->first();
+                    if ($invite){
+                        $reward = InviteReward::where(['photographer_id' => $invite->parent_photographer_id])->first();
+
+                    }
+
                 }catch (\Exception $e){
                     \DB::rollBack();
 
@@ -123,11 +182,6 @@ class PayMentController extends BaseController {
     }
 
 
-    public function getorder(PhotographerRequest $request){
-
-    }
-
-
     // 给小程序做支付签名
     private function generateSign($result)
     {
@@ -140,5 +194,47 @@ class PayMentController extends BaseController {
         ksort($params);
         $params['key'] = $this->config['key'];
         return strtoupper(call_user_func_array('MD5', [urldecode(http_build_query($params))]));
+    }
+
+    public function cardpay(PhotographerRequest $request){
+        $user = User::where(['photographer_id' => $request->user_id])->first();
+        $photographer = Photographer::where(['id' => $user->photographer_id])->first();
+        $code  = $request->code;
+        $card = PayCard::where(['code' => $code])->first();
+        if (!$card){
+            return $this->response->error('卡密不存在', 500);
+        }
+
+        if ($card->photographer_id !== 0){
+            return $this->response->error('卡密已经被使用过了', 500);
+        }
+
+        \DB::beginTransaction();
+        try {
+            $card->photographer_id = $photographer->id;
+            $card->save();
+            $photographer->level = 3;
+            $photographer->vip_expiretime = date('Y-m-d H:i:s',strtotime('+1year'));
+            $photographer->save();
+
+            //如果不是正式用户改为正式用户，支付时新用户没有被用户邀请就自动归为官方邀请
+            if ($user){
+                $user->identity = 1;
+                if ($user->status == 0){
+                    $user->status = 1;
+                }
+                $user->save();
+            }
+
+        }catch (\Exception $e){
+            \DB::rollBack();
+            return $this->response->error('兑换失败', 500);
+        }
+
+        \DB::commit();
+
+        return $this->response->noContent();
+
+
     }
 }

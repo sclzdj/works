@@ -1136,15 +1136,42 @@ class DraftController extends UserGuardController
         }
     }
 
-    public function fuckitback(Request $request){
-        $targets = TargetUser::get();
-        foreach ($targets as $target){
-            $user = User::where(['id' => $target->user_id])->first();
-            if ($user){
-                $user->source = $target->source;
-                $user->save();
-            }
+    function getRandomString($len, $chars=null)
+    {
+        if (is_null($chars)) {
+            $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         }
+        mt_srand(10000000*(double)microtime());
+        for ($i = 0, $str = '', $lc = strlen($chars)-1; $i < $len; $i++) {
+            $str .= $chars[mt_rand(0, $lc)];
+        }
+        return $str;
+    }
+    public function fuckitback(Request $request){
+//        $targets = TargetUser::get();
+//        foreach ($targets as $target){
+//            $user = User::where(['id' => $target->user_id])->first();
+//            if ($user){
+//                $user->source = $target->source;
+//                $user->save();
+//            }
+//        }
+
+        \DB::beginTransaction();
+        try{
+            for ($i = 0; $i < 1200 ; $i++){
+                \DB::table('pay_card')->insertGetId([
+                    'code' =>  strtoupper($this->getRandomString(6)),
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
+            }
+        }catch (\Exception $e){
+            \DB::rollBack();
+        }
+        \DB::commit();
+
+
 
 
 

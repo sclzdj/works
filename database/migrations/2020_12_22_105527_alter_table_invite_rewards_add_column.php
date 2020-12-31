@@ -19,7 +19,7 @@ class AlterTableInviteRewardsAddColumn extends Migration
             $table->dateTime('baicloud_time')->nullable(true)->comment('白云获得时间');
             $table->integer('baicloud_alert')->default(0)->comment('白云弹窗');
             $table->dateTime('qincloud_time')->nullable(true)->comment('轻云获得时间');
-            $table->integer('qinccloud_alert')->default(0)->comment('轻云弹窗');
+            $table->integer('qincloud_alert')->default(0)->comment('轻云弹窗');
             $table->dateTime('juancloud_time')->nullable(true)->comment('卷云获得时间');
             $table->integer('juancloud_alert')->default(0)->comment('卷云弹窗');
             $table->dateTime('jicloud_time')->nullable(true)->comment('积云获得时间');

@@ -230,6 +230,8 @@ class MyController extends UserGuardController
         User::where(['photographer_id' => $photographer->id])->update(['updated_at' => date('Y-m-d H:i:s')]);
         if (!$photographer || $photographer->status != 200) {
             $photographer = [
+                'level' => $photographer['level'],
+                'vip_expiretime' => $photographer['vip_expiretime'],
                 'id' => $photographer->id
             ];
         }else{

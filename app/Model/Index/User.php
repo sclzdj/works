@@ -139,7 +139,7 @@ class User extends Authenticatable implements JWTSubject
         }
 
         $photographerGather->photographer_id = $photographer->id;
-        $photographerGather->name = '未命名';
+        $photographerGather->name = '全部项目';
         $photographerGather->status = 200;
         $photographerGather->type = 2;
         $photographerGather->save();

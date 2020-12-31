@@ -57,6 +57,7 @@ class StaffController extends BaseController{
             ];
             $purpose = 'review_success';
             $user->status = 1;
+//            $user->source =
             $user->is_invite = 1;
         }elseif ($user->status == 1){
             $photographer = Photographer::where(['id' => $user['photographer_id']])->first();
@@ -77,7 +78,8 @@ class StaffController extends BaseController{
                 'remark' => '云作品客服微信'.SystemConfig::getVal('customer_wechat', 'works'),
             ];
             $purpose = 'register_success';
-            $user->status = 2;
+//            $user->status = 2;
+//            $user->identity = 1;
 
         }elseif ($user->status == 2){
             //升级

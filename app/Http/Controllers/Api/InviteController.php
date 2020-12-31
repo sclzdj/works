@@ -41,6 +41,14 @@ class InviteController extends BaseController
         return $this->responseParseArray($times);
     }
 
+    public function addinvite(Request $request){
+        $photographer = $this->_photographer($request->photographer_id);
+        $photographer->invite_times = $request->invite_times;
+        $photographer->save();
+
+        return $this->response->noContent();
+    }
+
     public function getinviteinfo(Request $request){
         $user = InviteList::join('photographers', 'invite_list.parent_photographer_id', '=', 'photographers.id')->select(
            'photographers.*'
@@ -71,8 +79,8 @@ class InviteController extends BaseController
         \DB::beginTransaction();
         try {
             $guest->status = 1;
-            //设定用户来源为5 用户页点击
-            $guest->source = 5;
+            //设定用户来源为3 用户邀请
+            $guest->source = 3;
             if (!$photographer->famoususer_id){
                 $photographer->decrement('invite_times');
             }
