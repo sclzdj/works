@@ -43,8 +43,27 @@ class InviteController extends BaseController
 
     public function addinvite(Request $request){
         $photographer = $this->_photographer($request->photographer_id);
-        $photographer->invite_times = $request->invite_times;
-        $photographer->save();
+        \DB::beginTransaction();
+        try {
+            $photographer->invite_times = $request->invite_times;
+            $photographer->save();
+
+            $reword = InviteReward::where(['photographer_id' => $photographer->id])->first();
+            if (!$reword) {
+                $reword = InviteReward::create();
+                $reword->photographer_id = $photographer->id;
+                //设置勋章为白云勋章
+                $reword->medal = 'baicloud';
+                $reword->baicloud_time = date('Y-m-d H:i:s');
+                $reword->save();
+            }
+
+        }catch (\Exception $e){
+            \DB::rollBack();
+            $this->response()->error('添加错误！', 500);
+        }
+
+        \DB::commit();
 
         return $this->response->noContent();
     }
@@ -95,9 +114,7 @@ class InviteController extends BaseController
             $reword = InviteReward::where(['photographer_id' => $photographer->id])->first();
             if (!$reword){
                 $reword = InviteReward::create();
-                $reword->cloud = 1;
                 $reword->photographer_id = $photographer->id;
-                $reword->cloud_count = 1;
                 //设置勋章为白云勋章
                 $reword->medal = 'baicloud';
                 $reword->baicloud_time = date('Y-m-d H:i:s');

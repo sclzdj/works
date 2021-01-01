@@ -11,8 +11,10 @@ use App\Model\Index\PayCard;
 use App\Model\Index\Photographer;
 use App\Model\Index\Settings;
 use App\Model\Index\User;
+use App\Servers\SystemServer;
 use Dompdf\Exception;
 use EasyWeChat\Factory;
+use EasyWeChat\Kernel\Support\XML;
 
 
 class PayMentController extends BaseController {
@@ -38,7 +40,7 @@ class PayMentController extends BaseController {
             return $this->response->error('用户不存在', 500);
         }
         $miniProgram = Factory::payment($this->config);
-        $order_trade_no = substr(uniqid(), 0, 5) . time() . $user->id;
+        $order_trade_no = date('YmdHis') . SystemServer::getRandomString(6);
 
         $settings = Settings::first();
         $payinfo = json_decode($settings->payinfo, true);
@@ -104,7 +106,7 @@ class PayMentController extends BaseController {
         if (strtotime($now) > strtotime($info['expire_time'])){
             $money = 299;
         }
-
+//        $money = 140;
         return $money;
     }
 
@@ -113,6 +115,12 @@ class PayMentController extends BaseController {
         file_put_contents('/tmp/notify', $data);
 
         $payment = Factory::payment($this->config);
+//        $message = isset($GLOBALS['HTTP_RAW_POST_DATA']) ? $GLOBALS['HTTP_RAW_POST_DATA'] : '';
+//        if(empty($message)) $message = file_get_contents("php://input");
+//        if(empty($message))  return false;
+//
+//        // 将xml数据解析位数组
+//        $message = XML::parse($message);
 
         $response = $payment->handlePaidNotify(function ($message, $fail)
         {
@@ -122,7 +130,6 @@ class PayMentController extends BaseController {
             if (!$order) {
                 $fail('Order not exist.');
             }
-
 
             if($message['result_code'] === 'SUCCESS')
             {
@@ -157,13 +164,20 @@ class PayMentController extends BaseController {
                     }
 
                     //如果有邀请人，则返现
-                    if ($message['total_fee'] / 100 >= 140) {
-
-                    }
                     $invite = InviteList::where(['photographer_id' => $photographer->id ])->first();
                     if ($invite){
-                        $reward = InviteReward::where(['photographer_id' => $invite->parent_photographer_id])->first();
-
+                        if ($message['total_fee'] / 100 >= 140) {
+                            $count = OrderInfo::where(['pay_id' => $user->id, 'status' => 1])->whereRaw('money >= 140')->count();
+                            //只有一次付了140之后才会返现，之后就不会返现
+                            if ($count == 1){
+                                $reward = InviteReward::where(['photographer_id' => $invite->parent_photographer_id])->first();
+                                if ($reward){
+                                    $reward->money = $reward->money + 50;
+                                    $reward->money_count = $reward->money_count + 50;
+                                    $reward->save();
+                                }
+                            }
+                        }
                     }
 
                 }catch (\Exception $e){
@@ -197,7 +211,7 @@ class PayMentController extends BaseController {
     }
 
     public function cardpay(PhotographerRequest $request){
-        $user = User::where(['photographer_id' => $request->user_id])->first();
+        $user = User::where(['id' => $request->user_id])->first();
         $photographer = Photographer::where(['id' => $user->photographer_id])->first();
         $code  = $request->code;
         $card = PayCard::where(['code' => $code])->first();
