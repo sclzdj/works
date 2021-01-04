@@ -64,6 +64,7 @@ class Photographer extends Model
             'mobilecontact',
             'invite_times',
             'email',
+            'share_xacode',
             'created_at',
         ];
     }

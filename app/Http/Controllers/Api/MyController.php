@@ -226,6 +226,12 @@ class MyController extends UserGuardController
         $this->notPhotographerIdentityVerify();
         $photographer = $this->_photographer(null, $this->guard);
         $photographer->updated_at = date('Y-m-d H:i:s');
+        if (!$photographer->share_xacode){
+            $page = 'pages/registGuid/index';
+            $xacode = WechatServer::generateXacode($photographer->id, false, $page);
+            $photographer->share_xacode = $xacode['xacode'];
+        }
+
         $photographer->save();
         User::where(['photographer_id' => $photographer->id])->update(['updated_at' => date('Y-m-d H:i:s')]);
         if (!$photographer || $photographer->status != 200) {

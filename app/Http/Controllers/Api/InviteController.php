@@ -170,6 +170,36 @@ class InviteController extends BaseController
 
     }
 
+    public function manage2(Request $request){
+        $photographer = $this->_photographer($request->photographer_id);
+        $frontuser = InviteList::join('users', 'users.photographer_id', '=', 'invite_list.photographer_id')->join('order_info', 'order_info.pay_id', '=', 'users.id')->join('photographers', 'photographers.id', '=', 'users.photographer_id')->select(
+            'photographers.id',
+            'photographers.name',
+            'photographers.avatar'
+        )->where(['order_info.money' => 9, 'order_info.status' => 1])->where(['invite_list.parent_photographer_id' => $photographer->id])->get();
+
+        $payuser = InviteList::join('users', 'users.photographer_id', '=', 'invite_list.photographer_id')->join('order_info', 'order_info.pay_id', '=', 'users.id')->join('photographers', 'photographers.id', '=', 'users.photographer_id')->select(
+            'photographers.id',
+            'photographers.name',
+            'photographers.avatar'
+        )->whereRaw('order_info.money >= 140 and order_info.status=1')->where(['invite_list.parent_photographer_id' => $photographer->id])->get();
+
+        $nopayuser = InviteList::join('users', 'users.photographer_id', '=', 'invite_list.photographer_id')->leftjoin('order_info', 'order_info.pay_id', '=', 'users.id')->join('photographers', 'photographers.id', '=', 'users.photographer_id')->select(
+            'photographers.id',
+            'photographers.name',
+            'photographers.avatar'
+        )->where(['users.identity' => 0])->where(['invite_list.parent_photographer_id' => $photographer->id])->get();
+
+        $data = [
+            'frontusercount' => $frontuser->count(),
+            'frontuser' => $frontuser,
+            'payusermoney' => $payuser->count() * 50,
+            'payuser' => $payuser,
+            'nopayuser' => $nopayuser
+        ];
+        return $this->responseParseArray($data);
+    }
+
 
     public function updatealert(Request $request){
         $photographer = $this->_photographer($request->photographer_id);
@@ -388,6 +418,17 @@ class InviteController extends BaseController
 
         $favor->save();
 
+        return $this->response->noContent();
+    }
+
+    public function withdrawal(UserRequest $request){
+        $photographer = $this->_photographer($request->photographer_id);
+        $invite = InviteReward::where(['photographer_id' => $photographer->id])->first();
+        if (!$invite){
+            return $this->response->error('没有邀请奖励!', 500);
+        }
+        $invite->is_withdrawal = 1;
+        $invite->save();
         return $this->response->noContent();
     }
 

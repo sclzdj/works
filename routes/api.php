@@ -158,6 +158,7 @@ $api->version(
                 $api->post('invite/addinvite', 'InviteController@addinvite');
                 $api->post('invite/accept', 'InviteController@accept');
                 $api->get('invite/manage', 'InviteController@manage');
+                $api->get('invite/manage2', 'InviteController@manage2');
                 $api->get('invite/favors', 'InviteController@favors');
                 $api->get('invite/getinviteinfo', 'InviteController@getinviteinfo');
                 $api->get('invite/lists', 'InviteController@lists');
@@ -165,6 +166,7 @@ $api->version(
                 $api->get('invite/getfamousranks', 'InviteController@getfamousranks');
                 $api->post('invite/plzfavors', 'InviteController@plzfavors');
                 $api->post('invite/updatealert', 'InviteController@updatealert');
+                $api->post('invite/withdrawal', 'InviteController@withdrawal');
 
                 $api->get('templates/list', 'PhotographerController@getTemplates');
                 $api->get('templates/data', 'PhotographerController@getTemplateData');
@@ -215,6 +217,7 @@ $api->version(
                 $api->any('payment/notify', 'PayMentController@notify');
                 $api->get('payment/getorder', 'PayMentController@getorder');
                 $api->post('payment/cardpay', 'PayMentController@cardpay');
+                $api->post('payment/cardcheck', 'PayMentController@cardcheck');
 
                 // 众筹相关
                 $api->get('crowdfunding/getData', 'CrowdFundingController@getData');

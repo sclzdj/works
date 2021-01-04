@@ -98,9 +98,8 @@ class WechatServer
      * @param bool $is_hyaline
      * @return array
      */
-    public static function generateXacode($scene, $is_hyaline = true)
+    public static function generateXacode($scene, $is_hyaline = true, $page="pages/authorization/step1/index")
     {
-        $page = "pages/authorization/step1/index";
         $response = WechatServer::getxacodeunlimit($scene, $page, $is_hyaline, 420);
         if ($response['code'] == 200) {
             $bucket = 'zuopin';

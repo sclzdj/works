@@ -149,7 +149,7 @@ class User extends Authenticatable implements JWTSubject
         $photographerGatherWork->photographer_work_id = $photographer_work->id;
         $photographerGatherWork->sort = 1;
         $photographerGatherWork->save();
-
+        $photographer->save();
 
         return [
             'photographer_id' => $photographer->id,

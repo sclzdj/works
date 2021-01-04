@@ -144,7 +144,14 @@ class PayMentController extends BaseController {
 
                     if ($photographer){
                         $photographer->level = 1;
-                        $photographer->vip_expiretime = date('Y-m-d H:i:s',strtotime('+1year'));
+                        if ($message['total_fee'] = 900){
+                            $settings = Settings::find(1);
+                            $info = json_decode($settings->activity1, true);
+                            $photographer->vip_expiretime = $info['expire_time'];
+                        }else{
+                            $photographer->vip_expiretime = date('Y-m-d H:i:s',strtotime('+1year'));
+                        }
+
                         $photographer->save();
                     }else{
                         $fail('photographer not exist.');
@@ -154,6 +161,9 @@ class PayMentController extends BaseController {
                     //如果不是正式用户改为正式用户，支付时新用户没有被用户邀请就自动归为官方邀请
                     $user = User::where(['id' => $order->pay_id])->first();
                     if ($user){
+                        if ($user->status == 0){
+                            $user->status = 1;
+                        }
                         $user->identity = 1;
                         $user->save();
 
@@ -210,17 +220,30 @@ class PayMentController extends BaseController {
         return strtoupper(call_user_func_array('MD5', [urldecode(http_build_query($params))]));
     }
 
+    public function cardcheck(PhotographerRequest $request){
+        $card = PayCard::where(['code' => $request->code])->first();
+        if (!$card){
+            return $this->response->error('优惠码错误', 401);
+        }
+
+        if ($card->photographer_id !== 0){
+            return $this->response->error('优惠码已失效', 401);
+        }
+
+        return $this->response->noContent();
+    }
+
     public function cardpay(PhotographerRequest $request){
         $user = User::where(['id' => $request->user_id])->first();
         $photographer = Photographer::where(['id' => $user->photographer_id])->first();
         $code  = $request->code;
         $card = PayCard::where(['code' => $code])->first();
         if (!$card){
-            return $this->response->error('卡密不存在', 500);
+            return $this->response->error('优惠码错误', 401);
         }
 
         if ($card->photographer_id !== 0){
-            return $this->response->error('卡密已经被使用过了', 500);
+            return $this->response->error('优惠码已失效', 401);
         }
 
         \DB::beginTransaction();
