@@ -14,6 +14,7 @@ use App\Model\Index\AsyncBaiduWorkSourceUpload;
 use App\Model\Index\AsyncDocPdfMake;
 use App\Model\Index\DocPdf;
 use App\Model\Index\DocPdfPhotographerWork;
+use App\Model\Index\InviteList;
 use App\Model\Index\Photographer;
 use App\Model\Index\PhotographerGather;
 use App\Model\Index\PhotographerGatherFilterRecord;
@@ -225,6 +226,9 @@ class MyController extends UserGuardController
 
         $this->notPhotographerIdentityVerify();
         $photographer = $this->_photographer(null, $this->guard);
+
+        $invite = InviteList::where(['invite_list.photographer_id' => $photographer->id])->join('photographers', 'photographers.id', '=', 'invite_list.parent_photographer_id')->join('users', 'users.photographer_id', '=', 'invite_list.parent_photographer_id')->select('invite_list.photographer_id','photographers.name','photographers.avatar','users.id as user_id')->first();
+
         $photographer->updated_at = date('Y-m-d H:i:s');
         if (!$photographer->share_xacode){
             $page = 'pages/registGuid/index';
@@ -280,7 +284,8 @@ class MyController extends UserGuardController
         $data = [
             'info' => $info,
             'identity' => $identity,
-            'photographer' => $photographer
+            'photographer' => $photographer,
+            'parent_photographer' => $invite
         ];
 
         return $this->responseParseArray($data);

@@ -138,10 +138,6 @@ class InviteController extends BaseController
                     }
                 }
 
-
-                $reword->increment('cloud');
-                $reword->increment('cloud_count');
-
             }
 
             $reword->save();
@@ -175,19 +171,22 @@ class InviteController extends BaseController
         $frontuser = InviteList::join('users', 'users.photographer_id', '=', 'invite_list.photographer_id')->join('order_info', 'order_info.pay_id', '=', 'users.id')->join('photographers', 'photographers.id', '=', 'users.photographer_id')->select(
             'photographers.id',
             'photographers.name',
-            'photographers.avatar'
+            'photographers.avatar',
+            'users.purePhoneNumber'
         )->where(['order_info.money' => 9, 'order_info.status' => 1])->where(['invite_list.parent_photographer_id' => $photographer->id])->get();
 
         $payuser = InviteList::join('users', 'users.photographer_id', '=', 'invite_list.photographer_id')->join('order_info', 'order_info.pay_id', '=', 'users.id')->join('photographers', 'photographers.id', '=', 'users.photographer_id')->select(
             'photographers.id',
             'photographers.name',
-            'photographers.avatar'
+            'photographers.avatar',
+            'users.purePhoneNumber'
         )->whereRaw('order_info.money >= 140 and order_info.status=1')->where(['invite_list.parent_photographer_id' => $photographer->id])->get();
 
         $nopayuser = InviteList::join('users', 'users.photographer_id', '=', 'invite_list.photographer_id')->leftjoin('order_info', 'order_info.pay_id', '=', 'users.id')->join('photographers', 'photographers.id', '=', 'users.photographer_id')->select(
             'photographers.id',
             'photographers.name',
-            'photographers.avatar'
+            'photographers.avatar',
+            'users.purePhoneNumber'
         )->where(['users.identity' => 0])->where(['invite_list.parent_photographer_id' => $photographer->id])->get();
 
         $data = [

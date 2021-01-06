@@ -145,6 +145,24 @@ class PhotographerGather extends Model
      * @param $photographer_work
      */
     public static function autoGatherWork($photographer_id, $photographer_work){
+        $Allgather = PhotographerGather::where(['photographer_id' => $photographer_id, 'status' => 200, 'type' => 3])->first();
+        if ($Allgather){
+            $pgw = PhotographerGatherWork::where(['photographer_work_id' => $photographer_work->id, 'photographer_gather_id' => $Allgather->id])->first();
+            if (!$pgw){
+                $lastpgw = PhotographerGatherWork::where(['photographer_gather_id' => $Allgather->id])->select(
+                    \DB::raw("MAX(sort) as maxsort")
+                )->first();
+                $pgw = new PhotographerGatherWork();
+                $pgw->photographer_gather_id = $Allgather->id;
+                $pgw->photographer_work_id =  $photographer_work->id;
+                $pgw->sort = 1;
+                if ($lastpgw){
+                    $pgw->sort = $lastpgw->maxsort + 1;
+                }
+                $pgw->save();
+            }
+        }
+
         $gathers = PhotographerGather::where(['photographer_id' => $photographer_id, 'status' => 200, 'type' => 2])->get();
         if ($gathers){
             $gathers = $gathers->toArray();

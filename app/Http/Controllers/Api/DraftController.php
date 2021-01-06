@@ -1139,26 +1139,26 @@ class DraftController extends UserGuardController
 
     public function fuckitback(Request $request){
 
-//        \DB::beginTransaction();
-//        try{
-//            for ($i = 0; $i < 1200 ; $i++){
-//                \DB::table('pay_card')->insertGetId([
-//                    'code' =>  strtoupper(SystemServer::getRandomString(6)),
-//                    'created_at' => date('Y-m-d H:i:s'),
-//                    'updated_at' => date('Y-m-d H:i:s')
-//                ]);
-//            }
-//        }catch (\Exception $e){
-//            \DB::rollBack();
-//        }
-//        \DB::commit();
+        \DB::beginTransaction();
+        try{
+            for ($i = 0; $i < 1200 ; $i++){
+                \DB::table('pay_card')->insertGetId([
+                    'code' =>  strtoupper(SystemServer::getRandomString(6)),
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
+            }
+        }catch (\Exception $e){
+            \DB::rollBack();
+        }
+        \DB::commit();
 
 
-        $scene = '3';
-        $page = 'pages/registGuid/index';
-        $xacode = WechatServer::generateXacode($scene, false, $page);
-//        $xacode = Photographer::getXacode(5849, true, $xacode['xacode']);
-        var_dump($xacode);exit();
+//        $scene = '3';
+//        $page = 'pages/registGuid/index';
+//        $xacode = WechatServer::generateXacode($scene, false, $page);
+////        $xacode = Photographer::getXacode(5849, true, $xacode['xacode']);
+//        var_dump($xacode);exit();
 
 //        \DB::enableQueryLog();
 ////        dd(\DB::getQueryLog());

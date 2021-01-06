@@ -37,24 +37,20 @@ class generateXacode implements ShouldQueue
         //
         \DB::beginTransaction();
         try{
-            $scene = '1/'.$this->photographerWork->id;
+            $scene = '1/'.$this->photographerWork->id . '/' . $this->photographerWork->photographer_id;
             if (!$this->photographerWork->xacode) {
                 $xacode_res = WechatServer::generateXacode($scene, false);
-                file_put_contents('/tmp/log', implode(', ' , $xacode_res) . "\r\n", FILE_APPEND);
                 if ($xacode_res['code'] != 200) {
                     \DB::rollback();//回滚事务
 
-                    file_put_contents('/tmp/log',"generateXacode work failed " . $this->photographerWork->id . "\r\n", FILE_APPEND);
                 }
                 $this->photographerWork->xacode = $xacode_res['xacode'];
             }
             if (!$this->photographerWork->xacode_hyaline) {
                 $xacode_res = WechatServer::generateXacode($scene);
-                file_put_contents('/tmp/log', implode(', ' , $xacode_res) . "\r\n", FILE_APPEND);
                 if ($xacode_res['code'] != 200) {
                     \DB::rollback();//回滚事务
 
-                    file_put_contents('/tmp/log',"generateXacode work failed " . $this->photographerWork->id . "\r\n", FILE_APPEND);
                 }
                 $this->photographerWork->xacode_hyaline = $xacode_res['xacode'];
             }
@@ -65,7 +61,7 @@ class generateXacode implements ShouldQueue
         $this->photographerWork->save();
 
         \DB::commit();
-        file_put_contents('/tmp/log',"generateXacode work ok " . $this->photographerWork->id . "\r\n", FILE_APPEND);
+
 
 
     }
