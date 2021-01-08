@@ -404,7 +404,7 @@ class VisitController extends UserGuardController
             }
 
             $keyword3_text = $user->purePhoneNumber;
-            $miniprogram_pagepath = 'pages/visitorDetails/visitorDetails?id='.$visitor->id;//访客详情页
+            $miniprogram_pagepath = 'subPage/visitorDetails/visitorDetails?id='.$visitor->id;//访客详情页
             if ($visit_send_message['is_remind'] == 0) {
                 if ($visit_send_message['num'] == 1) {
                     $first_text = '谁看过你？嘿嘿，再来两位告诉你！';

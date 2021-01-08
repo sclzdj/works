@@ -46,15 +46,10 @@ class PayMentController extends BaseController {
         $payinfo = json_decode($settings->payinfo, true);
 
         $money = $this->activity($user->id);
-//        if ($money)
-//        $now = date("y-m-d h:i:s");
-//        if (strtotime($now) < strtotime($payinfo['discount_expiretime'])){
-//            $money = $payinfo['discount'];
-//        }else{
-//            $money = $payinfo['money'];
-//        }
-
-//        $money = 0.01;
+        if ($money === 0){
+            $this->vipstaff($user->id);
+            return $this->response()->noContent();
+        }
 
         $orderinfo = OrderInfo::create();
         $orderinfo->pay_id = $user->id;
@@ -63,9 +58,9 @@ class PayMentController extends BaseController {
         $orderinfo->save();
 
         $result = $miniProgram->order->unify([
-            'body' => '购买云作品',
+            'body' => '云作品个人账号（1年）',
             'out_trade_no' => $order_trade_no,
-            'total_fee' => 1,
+            'total_fee' => $money * 100,
             'notify_url' => config('app.url') . '/api/payment/notify', // 支付结果通知网址，如果不设置则会使用配置里的默认地址
             'trade_type' => 'JSAPI', // 请对应换成你的支付方式对应的值类型
             'openid' => $user->openid,
@@ -89,30 +84,37 @@ class PayMentController extends BaseController {
     private function activity($user_id){
         $settings = Settings::find(1);
         $info = json_decode($settings->activity1, true);
-        $money = null;
+        $money = 299;
         $now = date('Y-m-d');
-        if (strtotime($now) < strtotime($info['expire_time'])){
-            $money = 9;
+        $user = User::where(['id' => $user_id])->first();
+        if (strtotime($now) < strtotime($info['expire_time2'])){
+            $money = 199;
         }
-        if ($now == $info['expire_time']){
-            $order = OrderInfo::where(['pay_id' => $user_id])->orderBy('id','desc')->first();
-            if ($order){
-                $money = 140;
+
+        $paycard = PayCard::where(['photographer_id' =>  $user->photographer_id])->first();
+        if ($paycard){
+            if (strtotime($now) < strtotime($info['expire_time2'])){
+                $money -= 149;
             }else{
-                $money = 149;
+                $money -= 249;
             }
         }
 
-        if (strtotime($now) > strtotime($info['expire_time'])){
-            $money = 299;
+        $invite = InviteList::where(['photographer_id' => $user->photographer_id])->first();
+        if ($invite){
+            $order = OrderInfo::where(['pay_id' => $user->id, 'status' => 1])->first();
+            if (!$order){
+                $money = $money - 50;
+            }
         }
-//        $money = 140;
+
+
         return $money;
     }
 
     public function notify(\Request $request){
         $data = file_get_contents("php://input");
-        file_put_contents('/tmp/notify', $data);
+        file_put_contents('/tmp/notify', $data, FILE_APPEND);
 
         $payment = Factory::payment($this->config);
 //        $message = isset($GLOBALS['HTTP_RAW_POST_DATA']) ? $GLOBALS['HTTP_RAW_POST_DATA'] : '';
@@ -139,18 +141,12 @@ class PayMentController extends BaseController {
                     $order->status = 1;
                     $order->save();
 
-
                     $photographer = Photographer::join('users', 'users.photographer_id', '=', 'photographers.id')->where(['users.id' => $order->pay_id])->select('photographers.*')->first();
 
                     if ($photographer){
                         $photographer->level = 1;
-                        if ($message['total_fee'] = 900){
-                            $settings = Settings::find(1);
-                            $info = json_decode($settings->activity1, true);
-                            $photographer->vip_expiretime = $info['expire_time'];
-                        }else{
-                            $photographer->vip_expiretime = date('Y-m-d H:i:s',strtotime('+1year'));
-                        }
+
+                        $photographer->vip_expiretime = date('Y-m-d H:i:s',strtotime('+1year'));
 
                         $photographer->save();
                     }else{
@@ -233,6 +229,36 @@ class PayMentController extends BaseController {
         return $this->response->noContent();
     }
 
+    private function vipstaff($user_id){
+        $user = User::where(['id' => $user_id])->first();
+        $photographer = Photographer::where(['id' => $user->photographer_id])->first();
+        $now = date('Y-m-d');
+        if (strtotime($now) < strtotime($photographer->vip_expiretime)){
+            return false;
+        }
+        \DB::beginTransaction();
+        try {
+            $photographer->level = 3;
+            $photographer->vip_expiretime = date('Y-m-d H:i:s', strtotime('+1year'));
+            $photographer->save();
+
+            //如果不是正式用户改为正式用户，支付时新用户没有被用户邀请就自动归为官方邀请
+            if ($user) {
+                $user->identity = 1;
+                if ($user->status == 0) {
+                    $user->status = 1;
+                }
+                $user->save();
+            }
+        }catch (\Exception $exception){
+            \DB::rollBack();
+            return false;
+        }
+
+        \DB::commit();
+        return true;
+    }
+
     public function cardpay(PhotographerRequest $request){
         $user = User::where(['id' => $request->user_id])->first();
         $photographer = Photographer::where(['id' => $user->photographer_id])->first();
@@ -246,21 +272,16 @@ class PayMentController extends BaseController {
             return $this->response->error('优惠码已失效', 401);
         }
 
+        $data['pay'] = 1;
         \DB::beginTransaction();
         try {
             $card->photographer_id = $photographer->id;
             $card->save();
-            $photographer->level = 3;
-            $photographer->vip_expiretime = date('Y-m-d H:i:s',strtotime('+1year'));
-            $photographer->save();
 
-            //如果不是正式用户改为正式用户，支付时新用户没有被用户邀请就自动归为官方邀请
-            if ($user){
-                $user->identity = 1;
-                if ($user->status == 0){
-                    $user->status = 1;
-                }
-                $user->save();
+            $invite = InviteList::where(['photographer_id' => $photographer->id ])->first();
+            if ($invite){
+                $data['pay'] = 0;
+                $this->vipstaff($user->id);
             }
 
         }catch (\Exception $e){
@@ -270,7 +291,8 @@ class PayMentController extends BaseController {
 
         \DB::commit();
 
-        return $this->response->noContent();
+
+        return $this->responseParseArray($data);
 
 
     }

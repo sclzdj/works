@@ -15,6 +15,7 @@ use App\Model\Index\AsyncDocPdfMake;
 use App\Model\Index\DocPdf;
 use App\Model\Index\DocPdfPhotographerWork;
 use App\Model\Index\InviteList;
+use App\Model\Index\PayCard;
 use App\Model\Index\Photographer;
 use App\Model\Index\PhotographerGather;
 use App\Model\Index\PhotographerGatherFilterRecord;
@@ -210,6 +211,17 @@ class MyController extends UserGuardController
         return $this->responseParseArray($info);
     }
 
+    public function getphotographerinfo(Request $request){
+        $user = User::where(['id' =>  $request->user_id])->first();
+        if (!$user){
+            return $this->response()->error('摄影师信息错误', 500);
+        }
+        $data = [
+            'photographer_id' => $user->photographer_id
+        ];
+        return $this->responseParseArray($data);
+    }
+
     /**
      * 我的用户信息(统一班)
     */
@@ -237,12 +249,20 @@ class MyController extends UserGuardController
         }
 
         $photographer->save();
+        $paycard = PayCard::where(['photographer_id' => $photographer->id])->first();
+        if ($paycard){
+
+            $paycard = $paycard['code'];
+        }else{
+            $paycard = 0;
+        }
         User::where(['photographer_id' => $photographer->id])->update(['updated_at' => date('Y-m-d H:i:s')]);
         if (!$photographer || $photographer->status != 200) {
             $photographer = [
                 'level' => $photographer['level'],
                 'vip_expiretime' => $photographer['vip_expiretime'],
-                'id' => $photographer->id
+                'id' => $photographer->id,
+                'paycard' => $paycard,
             ];
         }else{
             $photographer = ArrServer::inData($photographer->toArray(), Photographer::allowFields());
@@ -280,7 +300,7 @@ class MyController extends UserGuardController
             }
 
         }
-
+        $photographer['paycard'] = $paycard;
         $data = [
             'info' => $info,
             'identity' => $identity,

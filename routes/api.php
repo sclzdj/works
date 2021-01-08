@@ -47,6 +47,7 @@ $api->version(
             function ($api) {
                 //系统通用
                 $api->post('sendSmsCode', 'SystemController@sendSmsCode');
+                $api->any('settings', 'SystemController@settings');
                 $api->get('getHelpNotes', 'SystemController@getHelpNotes');
                 $api->get('getHelpTags', 'SystemController@getHelpTags');
                 $api->get('getRegion', 'SystemController@getRegion');
@@ -96,6 +97,7 @@ $api->version(
                 $api->get('my/photographerShare' , 'MyController@photographerShare');
                 $api->get('my/photographerWorkShare' , 'MyController@photographerWorkShare');
                 $api->post('my/watermarkerrorfeedback', 'MyController@generateWatermarkErrorFeedback');
+                $api->get('my/getphotographerinfo', 'MyController@getphotographerinfo');
 
                 //用户合集
                 $api->get('my/photographerGathers', 'PhotographerGatherController@index');

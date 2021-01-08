@@ -120,7 +120,6 @@ class User extends Authenticatable implements JWTSubject
         //再预设一个项目
         $photographer_work = PhotographerWork::create();
         $photographer_work->photographer_id = $photographer->id;
-        $photographer_work->status = 200;
         $photographer_work->save();
 
         $photographerGather = PhotographerGather::create();

@@ -275,9 +275,10 @@ class StaffController extends BaseController{
     }
 
     public function withdrawal(Request $request){
+
         $photographers = Photographer::where(['id' => $request->photographer_id])->first();
         if (!$photographers){
-            return $this->response->error('删除失败', 500);
+            return $this->response->error('没有用户', 500);
         }
 
         $invite_reward = InviteReward::join(
@@ -289,33 +290,29 @@ class StaffController extends BaseController{
             'invite_rewards.*',
             'users.openid'
         )->where(['invite_rewards.photographer_id' => $photographers->id])->first();
+        if ($invite_reward->is_withdrawal != 1){
+            return $this->response->error('用户没有提现的请求', 500);
+        }
+
+        $order_trade_no = date('YmdHis') . SystemServer::getRandomString(6);
 
 
-        $medal = InviteSetting::getMedal($request->photographer_id);
-        $money = $invite_reward->cloud * $medal['value']['money'];
-
-        $order_no = date('YmdHis') . uniqid();
-
-
-//        $flag = SystemServer::withdrawal($order_no, $invite_reward['openid'], $money, '云朵提现');
-//        if (!$flag){
-//            echo "failed";
-//            \DB::rollBack();
-//        }
+        $flag = SystemServer::withdrawal($order_trade_no, $invite_reward->openid, $invite_reward->money, '邀请奖励提现');
+        if (!$flag){
+            return $this->response->error('提现失败', 500);
+        }
         \DB::beginTransaction();
         try{
-
-            $cloud =  $invite_reward->cloud;
-            $invite_reward->withdrawal_cloud_count = $invite_reward->withdrawal_cloud_count + $invite_reward->cloud;
+            $money  = $invite_reward->money;
             $invite_reward->withdrawal_money_count = $invite_reward->withdrawal_money_count + $money;
-            $invite_reward->cloud = 0;
             $invite_reward->is_withdrawal = 0;
+            $invite_reward->money = 0;
             $invite_reward->save();
 
             $withdrawal = WithdrwalRecord::create();
+            $withdrawal->order_no = $order_trade_no;
             $withdrawal->photographer_id = $request->photographer_id;
             $withdrawal->money = $money;
-            $withdrawal->cloud = $cloud;
             $withdrawal->save();
 
 

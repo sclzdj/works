@@ -810,7 +810,7 @@ class SystemServer
             'openid' =>  $openid, //收款人的openid
             'check_name' => 'NO_CHECK',  //文档中有三种校验实名的方法 NO_CHECK不校验 OPTION_CHECK参数校验 FORCE_CHECK强制校验
             're_user_name'=>'',     //OPTION_CHECK FORCE_CHECK 校验实名的时候必须提交
-            'amount' => 1,  //单位为分
+            'amount' => $money * 100,  //单位为分
             'desc' => $body,
             'spbill_create_ip' => '121.40.187.134',  //发起交易的服务器IP地址
         ]);
@@ -839,5 +839,10 @@ class SystemServer
             $str .= $chars[mt_rand(0, $lc)];
         }
         return $str;
+    }
+
+    public function QiniuImageCensor($picurl){
+        $apiurl = 'http://ai.qiniuapi.com/v3/image/censor';
+
     }
 }
