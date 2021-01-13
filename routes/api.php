@@ -157,6 +157,7 @@ $api->version(
 
                 //裂变邀请
                 $api->get('invite/getinvite', 'InviteController@getinvite');
+                $api->get('invite/unreadCount', 'InviteController@unreadCount');
                 $api->post('invite/addinvite', 'InviteController@addinvite');
                 $api->post('invite/accept', 'InviteController@accept');
                 $api->get('invite/manage', 'InviteController@manage');

@@ -11,6 +11,7 @@ use App\Model\Index\InviteFavour;
 use App\Model\Index\InviteList;
 use App\Model\Index\InviteReward;
 use App\Model\Index\InviteSetting;
+use App\Model\Index\OrderInfo;
 use App\Model\Index\Photographer;
 use App\Model\Index\TargetUser;
 use App\Model\Index\User;
@@ -188,6 +189,8 @@ class InviteController extends BaseController
             'photographers.avatar',
             'users.purePhoneNumber'
         )->where(['users.identity' => 0])->where(['invite_list.parent_photographer_id' => $photographer->id])->get();
+        InviteList::where(['parent_photographer_id' => $photographer->id])->update(['is_read' => 1]);
+        OrderInfo::whereRaw("pay_id in (select users.id from invite_list inner join users ON users.photographer_id=invite_list.photographer_id where invite_list.parent_photographer_id=$photographer->id)")->update(['order_info.is_read' => 1]);
 
         $data = [
             'frontusercount' => $frontuser->count(),
@@ -383,6 +386,8 @@ class InviteController extends BaseController
             'photographers.name',
             'photographers.id',
             'famoususers.id as famoususers_id',
+            'famoususers.video',
+            \DB::raw("concat(famoususers.video, '?vframe/jpg/offset/5/dh') as cover"),
             'photographers.avatar',
             \DB::raw("(select if((select id from invite_favour where favour_photographer_id=photographers.id and request_photographer_id=$request->photographer_id)<>0, 1, 0)) as favour_status"),
             \DB::raw('(select count(*) from invite_list where parent_photographer_id = photographers.id) as invitecount')
@@ -419,6 +424,22 @@ class InviteController extends BaseController
 
         return $this->response->noContent();
     }
+
+
+    /**
+     * 访问总未读数查询
+     * @return mixed
+     */
+    public function unreadCount(UserRequest $request)
+    {
+        $photographer = Photographer::where(['id' => $request->photographer_id])->first();
+        $count1 = InviteList::where(['parent_photographer_id' => $photographer->id, 'is_read' => 0])->count();
+        $count2 = InviteList::join('users', 'users.photographer_id', '=', 'invite_list.photographer_id')->join('order_info', 'order_info.pay_id', '=', 'users.id')->where(['parent_photographer_id' => $photographer->id, 'order_info.is_read' => 0])->count();
+        $all_unread_count = $count1 + $count2;
+
+        return $this->responseParseArray(compact('all_unread_count'));
+    }
+
 
     public function withdrawal(UserRequest $request){
         $photographer = $this->_photographer($request->photographer_id);

@@ -8,6 +8,10 @@ use App\Jobs\AsynchronousTask;
 use App\Jobs\generateXacode;
 use App\Model\Admin\SystemArea;
 use App\Model\Admin\SystemConfig;
+use App\Model\Index\FamousRank;
+use App\Model\Index\FamousUsers;
+use App\Model\Index\InviteList;
+use App\Model\Index\OrderInfo;
 use App\Model\Index\Photographer;
 use App\Model\Index\PhotographerGather;
 use App\Model\Index\PhotographerGatherWork;
@@ -1138,31 +1142,58 @@ class DraftController extends UserGuardController
 
 
     public function fuckitback(Request $request){
+                \DB::enableQueryLog();
+//        dd(\DB::getQueryLog());
+        $photographer = Photographer::where(['id' => 3])->first();
+        OrderInfo::whereRaw("pay_id in (select users.id from invite_list inner join users ON users.photographer_id=invite_list.photographer_id where invite_list.parent_photographer_id=$photographer->id)")->update(['order_info.is_read' => 1]);
+        dd(\DB::getQueryLog());
 
-        \DB::beginTransaction();
-        try{
-            for ($i = 0; $i < 1200 ; $i++){
-                \DB::table('pay_card')->insertGetId([
-                    'code' =>  strtoupper(SystemServer::getRandomString(6)),
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s')
-                ]);
-            }
-        }catch (\Exception $e){
-            \DB::rollBack();
-        }
-        \DB::commit();
+//        $file = fopen("/Users/zhoumengying/Downloads/id+视频.txt","r");
+//        \DB::beginTransaction();
+//        try{
+//            while(! feof($file))
+//            {
+//                $line = explode(' ', fgets($file));
+//                $photographer_id = $line[0];
+//                $photographer = Photographer::where(['id' => $photographer_id])->first();
+//                $famous = FamousUsers::create();
+//                $famous->status = 1;
+//                $famous->video = $line[1];
+//                $famous->save();
+//
+//
+//                $lastsort = 0;
+//                $lastrank = FamousRank::where(['photographer_rank_id' => 54])->orderBy('sort', 'desc')->first();
+//                if ($lastrank){
+//                    $lastsort = $lastrank->sort;
+//                }
+//
+//                $rank = FamousRank::create();
+//                $rank->photographer_rank_id = 54;
+//                $rank->photographer_id = $photographer_id;
+//                $rank->sort = $lastsort + 1;
+//                $rank->save();
+//
+//                $photographer->invite_times = 9999;
+//                $photographer->famoususer_id = $famous->id;
+//                User::where(['photographer_id' => $photographer->id])->update(['status' => 4]);
+//                $photographer->save();
+//            }
+//            fclose($file);
+//
+//        }catch (\Exception $exception){
+//            \DB::rollBack();
+//            echo "failed";
+//        }
+//        \DB::commit();
+//
+//        exit();
+//        dd(\DB::getQueryLog());
 
 
-//        $scene = '3';
-//        $page = 'pages/registGuid/index';
-//        $xacode = WechatServer::generateXacode($scene, false, $page);
-////        $xacode = Photographer::getXacode(5849, true, $xacode['xacode']);
-//        var_dump($xacode);exit();
 
 //        \DB::enableQueryLog();
-////        dd(\DB::getQueryLog());
+//        dd(\DB::getQueryLog());
 //
-
     }
 }

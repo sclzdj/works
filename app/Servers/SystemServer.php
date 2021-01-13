@@ -841,8 +841,25 @@ class SystemServer
         return $str;
     }
 
-    public function QiniuImageCensor($picurl){
+    static public function QiniuImageCensor($picurl){
         $apiurl = 'http://ai.qiniuapi.com/v3/image/censor';
-
+        $accessKey = config('custom.qiniu.accessKey');
+        $secretKey = config('custom.qiniu.secretKey');
+        // 初始化签权对象
+        $auth = new Auth($accessKey, $secretKey);
+        $header = [
+            'Content-Type' => 'application/json',
+            'Authorization' => $auth
+        ];
+        $data = [
+            'data.uri' => 'https://file.zuopin.cloud/FhB1vq_1Xgp9ZxeVS403F3X0u3BL',
+            'params.scenes' => [
+                'pulp',
+                'terror',
+                'politician'
+            ]
+        ];
+        $body = SystemServer::request('POST', $apiurl, $data, true, $header);
+        var_dump($body);exit();
     }
 }

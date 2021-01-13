@@ -527,7 +527,8 @@ class SystemController extends BaseController
         $settings = Settings::find(1);
         $activity1 = json_decode($settings, true);
         $data = [
-            'activity1_time' => json_decode($activity1['activity1'], true)
+            'activity1_time' => json_decode($activity1['activity1'], true),
+            'online' => $settings->online
         ];
         return $this->responseParseArray($data);
     }
