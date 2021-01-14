@@ -11,6 +11,7 @@ use App\Model\Index\PayCard;
 use App\Model\Index\Photographer;
 use App\Model\Index\Settings;
 use App\Model\Index\User;
+use App\Servers\AliSendShortMessageServer;
 use App\Servers\SystemServer;
 use Dompdf\Exception;
 use EasyWeChat\Factory;
@@ -169,6 +170,44 @@ class PayMentController extends BaseController {
 
                     }
 
+
+                    $app = app('wechat.official_account');
+                    $template_id = 'F_Y4Hlb5pt2_pg17JHOD_Tz0eNjQOwQMs0Bng276aAc';
+                    if ($user->gh_openid){
+                        $tmr = $app->template_message->send(
+                            [
+                                'touser' => $user->gh_openid,
+                                'template_id' => $template_id,
+                                'url' => config('app.url'),
+                                'miniprogram' => [
+                                    'appid' => config('custom.wechat.mp.appid'),
+                                    'pagepath' => 'pages/homePage/homePage',
+                                ],
+                                'data' => [
+                                    'first' => $user->nickname. '，你的云作品个人账号已开通！',
+                                    'keyword1' =>  $user->nickname,
+                                    'keyword2' => '云作品个人账号',
+                                    'keyword3' => $message['total_fee'] / 100  . '元',
+                                    'keyword4' => date('Y/m/d H:i:s'),
+                                    'remark' => '如需帮助，请通过小程序或公众号与我们互动。',
+                                ],
+                            ]
+                        );
+                    }
+
+                    if ($photographer->mobile){
+                        $third_type = config('custom.send_short_message.third_type');
+                        $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
+                        if ($third_type == 'ali') {
+                            AliSendShortMessageServer::quickSendSms(
+                                $photographer->mobile,
+                                $TemplateCodes,
+                                'pay_success',
+                                ['name' => $photographer->name]
+                            );
+                        }
+                    }
+
                     //如果有邀请人，则返现
                     $invite = InviteList::where(['photographer_id' => $photographer->id ])->first();
                     if ($invite){
@@ -182,6 +221,32 @@ class PayMentController extends BaseController {
                                     $reward->money_count = $reward->money_count + 50;
                                     $reward->save();
                                 }
+                                $parent_user = User::where(['photographer_id' => $invite->parent_photographer_id])->first();
+
+                                $app = app('wechat.official_account');
+                                $template_id = '-uxhn8yaCAsPThvkA3E4gd6V0QBWxZ6LID__mi3_GIk';
+                                if ($parent_user->gh_openid){
+                                    $tmr = $app->template_message->send(
+                                        [
+                                            'touser' => $parent_user->gh_openid,
+                                            'template_id' => $template_id,
+                                            'url' => config('app.url'),
+                                            'miniprogram' => [
+                                                'appid' => config('custom.wechat.mp.appid'),
+                                                'pagepath' => '/subPage/manage/manage',
+                                            ],
+                                            'data' => [
+                                                'first' => $user->nickname. '接受了你的邀请，购买了云作品。！',
+                                                'keyword1' => $user->nickname,
+                                                'keyword2' =>  date('Y/m/d H:i:s'),
+                                                'keyword3' => '50元',
+                                                'keyword4' => '云作品个人账号',
+                                                'remark' => '点击查看详情',
+                                            ],
+                                        ]
+                                    );
+                                }
+
                             }
                         }
                     }

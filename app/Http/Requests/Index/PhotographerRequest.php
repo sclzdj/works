@@ -31,7 +31,7 @@ class PhotographerRequest extends BaseRequest
                 break;
             case 'savePhotographerWorkStore':
                 $rules = [
-                    'name' => ['required', new ValidationName, 'max:32'],
+//                    'name' => ['required', new ValidationName, 'max:32'],
 //                    'describe' => 'present|max:2000',
                     'is_business' => 'integer|in:0,1',
 //                    'location' => 'required|max:100',

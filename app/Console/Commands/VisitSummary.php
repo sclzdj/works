@@ -70,34 +70,34 @@ class VisitSummary extends Command
                         $firstText = '很遗憾，爱你的人还是那些。';
                     }
                 }
-                $app = app('wechat.official_account');
-                $template_id = 'Y1ZVLPbeqVAEQPnsBzRSAonF2gWXx7vzzyun34BEcdc';
-                $tmr = $app->template_message->send(
-                    [
-                        'touser' => $photographer->gh_openid,
-                        'template_id' => $template_id,
-                        'url' => config('app.url'),
-                        'miniprogram' => [
-                            'appid' => config('custom.wechat.mp.appid'),
-                            'pagepath' => 'pages/visitorHistory/visitorHistory',//访客列表页
-                        ],
-                        'data' => [
-                            'first' => $firstText,
-                            'keyword1' => '云作品日报',
-                            'keyword2' => date('Y/m/d').' 10:00',
-//                            'keyword3' =>$photographer->name,
-                            'remark' => '昨天新增'.$photographer->visitor_yesterday_count.'人看过',
-                        ],
-                    ]
-                );
-                if ($tmr['errcode'] != 0) {
-                    ErrLogServer::SendWxGhTemplateMessageCommand(
-                        $template_id,
-                        $photographer->gh_openid,
-                        $tmr['errmsg'],
-                        $tmr
-                    );
-                }
+//                $app = app('wechat.official_account');
+//                $template_id = 'Y1ZVLPbeqVAEQPnsBzRSAonF2gWXx7vzzyun34BEcdc';
+//                $tmr = $app->template_message->send(
+//                    [
+//                        'touser' => $photographer->gh_openid,
+//                        'template_id' => $template_id,
+//                        'url' => config('app.url'),
+//                        'miniprogram' => [
+//                            'appid' => config('custom.wechat.mp.appid'),
+//                            'pagepath' => 'pages/visitorHistory/visitorHistory',//访客列表页
+//                        ],
+//                        'data' => [
+//                            'first' => $firstText,
+//                            'keyword1' => '云作品日报',
+//                            'keyword2' => date('Y/m/d').' 10:00',
+////                            'keyword3' =>$photographer->name,
+//                            'remark' => '昨天新增'.$photographer->visitor_yesterday_count.'人看过',
+//                        ],
+//                    ]
+//                );
+//                if ($tmr['errcode'] != 0) {
+//                    ErrLogServer::SendWxGhTemplateMessageCommand(
+//                        $template_id,
+//                        $photographer->gh_openid,
+//                        $tmr['errmsg'],
+//                        $tmr
+//                    );
+//                }
             }
         }
     }

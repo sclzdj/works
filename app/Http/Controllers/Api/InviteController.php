@@ -15,6 +15,7 @@ use App\Model\Index\OrderInfo;
 use App\Model\Index\Photographer;
 use App\Model\Index\TargetUser;
 use App\Model\Index\User;
+use App\Servers\AliSendShortMessageServer;
 use App\Servers\SystemServer;
 use Illuminate\Http\Request;
 
@@ -44,8 +45,13 @@ class InviteController extends BaseController
 
     public function addinvite(Request $request){
         $photographer = $this->_photographer($request->photographer_id);
+        $user = User::where(['photographer_id' => $photographer->id])->first();
         \DB::beginTransaction();
         try {
+            if ($user->status < 3){
+                $user->status = 3;
+                $user->save();
+            }
             $photographer->invite_times = $request->invite_times;
             $photographer->save();
 
@@ -65,6 +71,42 @@ class InviteController extends BaseController
         }
 
         \DB::commit();
+
+        $app = app('wechat.official_account');
+        $template_id = 'P6LeOUTLcrmuYw6w8NU2JSsOQPssXdR9wiq83eDwHPU';
+        if ($user->gh_openid){
+            $tmr = $app->template_message->send(
+                [
+                    'touser' => $user->gh_openid,
+                    'template_id' => $template_id,
+                    'url' => config('app.url'),
+                    'miniprogram' => [
+                        'appid' => config('custom.wechat.mp.appid'),
+                        'pagepath' => '/subPage/manage/manage',
+                    ],
+                    'data' => [
+                        'first' => '邀请朋友功能已开通！',
+                        'keyword1' => $photographer->name,
+                        'keyword2' => '邀请朋友使用云作品',
+                        'keyword3' =>  date('Y/m/d H:i:s'),
+                        'remark' => '邀请1人赚50，邀请3人可回本，点击开始邀请',
+                    ],
+                ]
+            );
+        }
+
+        if ($photographer->mobile){
+            $third_type = config('custom.send_short_message.third_type');
+            $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
+            if ($third_type == 'ali') {
+                AliSendShortMessageServer::quickSendSms(
+                    $photographer->mobile,
+                    $TemplateCodes,
+                    'success_invite_qualif'
+                );
+            }
+        }
+
 
         return $this->response->noContent();
     }
@@ -89,7 +131,7 @@ class InviteController extends BaseController
             return $this->response->error('手慢了', 500);
         }
 
-        if ($guest['status'] != 0){
+        if ($guest->status != 0){
             return $this->response->error('你已经是云作品的用户了', 500);
         }
 
@@ -163,6 +205,19 @@ class InviteController extends BaseController
 
         \DB::commit();
 
+        if ($photographer->mobile){
+            $third_type = config('custom.send_short_message.third_type');
+            $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
+            if ($third_type == 'ali') {
+                AliSendShortMessageServer::quickSendSms(
+                    $photographer->mobile,
+                    $TemplateCodes,
+                    'invite_success',
+                    ['new' => $guest->nickname]
+                );
+            }
+        }
+
         return $this->response->noContent();
 
     }
@@ -175,13 +230,14 @@ class InviteController extends BaseController
             'photographers.avatar',
             'users.purePhoneNumber'
         )->where(['order_info.money' => 9, 'order_info.status' => 1])->where(['invite_list.parent_photographer_id' => $photographer->id])->get();
-
+//        \DB::enableQueryLog();
         $payuser = InviteList::join('users', 'users.photographer_id', '=', 'invite_list.photographer_id')->join('order_info', 'order_info.pay_id', '=', 'users.id')->join('photographers', 'photographers.id', '=', 'users.photographer_id')->select(
             'photographers.id',
             'photographers.name',
             'photographers.avatar',
             'users.purePhoneNumber'
         )->whereRaw('order_info.money >= 140 and order_info.status=1')->where(['invite_list.parent_photographer_id' => $photographer->id])->get();
+//        dd(\DB::getQueryLog());
 
         $nopayuser = InviteList::join('users', 'users.photographer_id', '=', 'invite_list.photographer_id')->leftjoin('order_info', 'order_info.pay_id', '=', 'users.id')->join('photographers', 'photographers.id', '=', 'users.photographer_id')->select(
             'photographers.id',
@@ -443,12 +499,47 @@ class InviteController extends BaseController
 
     public function withdrawal(UserRequest $request){
         $photographer = $this->_photographer($request->photographer_id);
+        $user = User::where(['photographer_id' => $photographer->id])->first();
         $invite = InviteReward::where(['photographer_id' => $photographer->id])->first();
         if (!$invite){
             return $this->response->error('没有邀请奖励!', 500);
         }
         $invite->is_withdrawal = 1;
         $invite->save();
+
+        $app = app('wechat.official_account');
+        $template_id = 'Uae2KCcaaqlA8NgTBk9D3xQrRoX_LQln8qRD7PIEKTw';
+        if ($user->gh_openid){
+            $tmr = $app->template_message->send(
+                [
+                    'touser' => $user->gh_openid,
+                    'template_id' => $template_id,
+                    'url' => config('app.url'),
+                    'miniprogram' => [
+                        'appid' => config('custom.wechat.mp.appid'),
+                        'pagepath' => '/subPage/manage/manage',
+                    ],
+                    'data' => [
+                        'first' => '提现申请已提交！',
+                        'keyword1' => date('Y/m/d H:i:s'),
+                        'keyword2' => $invite->money,
+                        'remark' => '预计3个工作日内完成审核。',
+                    ],
+                ]
+            );
+        }
+
+        if ($photographer->mobile){
+            $third_type = config('custom.send_short_message.third_type');
+            $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
+            if ($third_type == 'ali') {
+                AliSendShortMessageServer::quickSendSms(
+                    $photographer->mobile,
+                    $TemplateCodes,
+                    'withdrawal_reply'
+                );
+            }
+        }
         return $this->response->noContent();
     }
 

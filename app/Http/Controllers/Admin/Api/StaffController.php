@@ -61,7 +61,7 @@ class StaffController extends BaseController{
             $user->is_invite = 1;
         }elseif ($user->status == 1){
             $photographer = Photographer::where(['id' => $user['photographer_id']])->first();
-            $template_id = 'rjph5uR7iIzT2rEn3LjnF65zEdKZYisUGoAVgpipxpk';
+//            $template_id = 'rjph5uR7iIzT2rEn3LjnF65zEdKZYisUGoAVgpipxpk';
             $miniprogram = [
                 'appid' => config('custom.wechat.mp.appid'),
                 'pagepath' => 'pages/homePage/home Page',//注册成功分享页
@@ -77,7 +77,7 @@ class StaffController extends BaseController{
                 'keyword5' => $photographer->mobile,
                 'remark' => '云作品客服微信'.SystemConfig::getVal('customer_wechat', 'works'),
             ];
-            $purpose = 'register_success';
+//            $purpose = 'register_success';
 //            $user->status = 2;
 //            $user->identity = 1;
 
@@ -277,6 +277,7 @@ class StaffController extends BaseController{
     public function withdrawal(Request $request){
 
         $photographers = Photographer::where(['id' => $request->photographer_id])->first();
+        $user = User::where(['photographer_id' => $photographers->id])->first();
         if (!$photographers){
             return $this->response->error('没有用户', 500);
         }
@@ -301,9 +302,9 @@ class StaffController extends BaseController{
         if (!$flag){
             return $this->response->error('提现失败', 500);
         }
+        $money  = $invite_reward->money;
         \DB::beginTransaction();
         try{
-            $money  = $invite_reward->money;
             $invite_reward->withdrawal_money_count = $invite_reward->withdrawal_money_count + $money;
             $invite_reward->is_withdrawal = 0;
             $invite_reward->money = 0;
@@ -324,6 +325,42 @@ class StaffController extends BaseController{
         }
 
         \DB::commit();
+
+
+        $app = app('wechat.official_account');
+        $template_id = 'UcZqXgLXfWL1P5CBT-nOrQrtl4gPl5phZBfIleaK5MY';
+        if ($user->gh_openid){
+            $tmr = $app->template_message->send(
+                [
+                    'touser' => $user->gh_openid,
+                    'template_id' => $template_id,
+                    'url' => config('app.url'),
+                    'miniprogram' => [
+                        'appid' => config('custom.wechat.mp.appid'),
+                        'pagepath' => '/subPage/manage/manage',
+                    ],
+                    'data' => [
+                        'first' => '提现已成功！',
+                        'keyword1' => $money .'元',
+                        'keyword2' => date('Y/m/d H:i:s'),
+                        'keyword3' => '成功',
+                        'remark' => '请打开微信零钱查看。',
+                    ],
+                ]
+            );
+        }
+
+        if ($photographers->mobile){
+            $third_type = config('custom.send_short_message.third_type');
+            $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
+            if ($third_type == 'ali') {
+                AliSendShortMessageServer::quickSendSms(
+                    $photographers->mobile,
+                    $TemplateCodes,
+                    'withdrawal_success'
+                );
+            }
+        }
 
         return response()->noContent();
     }

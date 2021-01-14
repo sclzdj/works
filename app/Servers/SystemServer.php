@@ -751,24 +751,24 @@ class SystemServer
     static public  function noticeMessage($message, $user, $type='wechat'){
         $app = app('wechat.official_account');
 
-        $tmr = $app->template_message->send(
-            [
-                'touser' => $user->gh_openid,
-                'template_id' => 'eQ4Aj2Sb7VvVF-0is1Pg7wO1QU43UcVkJ36wHlhCTFE',
-                'miniprogram' => [
-                    'appid' => config('wechat.payment.default.app_id'),
-                    'pagepath' => 'pages/web/web',
-                ],
-                'url' => config('app.url'),
-                'data' => [
-                    'first' => $message,
-                    'keyword1' => $user->nickname,
-                    'keyword2' => $user->phoneNumber,
-                    'keyword3' => '200',
-                    'remark' => '云作品客服微信'.SystemConfig::getVal('customer_wechat', 'works'),
-                ],
-            ]
-        );
+//        $tmr = $app->template_message->send(
+//            [
+//                'touser' => $user->gh_openid,
+//                'template_id' => 'eQ4Aj2Sb7VvVF-0is1Pg7wO1QU43UcVkJ36wHlhCTFE',
+//                'miniprogram' => [
+//                    'appid' => config('wechat.payment.default.app_id'),
+//                    'pagepath' => 'pages/web/web',
+//                ],
+//                'url' => config('app.url'),
+//                'data' => [
+//                    'first' => $message,
+//                    'keyword1' => $user->nickname,
+//                    'keyword2' => $user->phoneNumber,
+//                    'keyword3' => '200',
+//                    'remark' => '云作品客服微信'.SystemConfig::getVal('customer_wechat', 'works'),
+//                ],
+//            ]
+//        );
     }
 
     /*

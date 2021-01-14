@@ -311,54 +311,7 @@ class VisitController extends UserGuardController
                 'desc'
             )->take(3)->get();
             $visitors_count = count($visitors);
-            if ($visitors_count >= 2) {
-                $is_formal_photographer_old = $photographer_user->is_formal_photographer;
-                $photographer_user->is_formal_photographer = 1;
-                $photographer_user->save();
-                if ($is_formal_photographer_old == 0) {
-                    if ($photographer_user->gh_openid != '') {
-                        $app = app('wechat.official_account');
-                        $template_id = 'tHdD0AN6uWc0DSNn-68ftEZ48AYavkydeCpvN6GCO9U';
-                        $tmr = $app->template_message->send(
-                            [
-                                'touser' => $photographer_user->gh_openid,
-                                'template_id' => $template_id,
-                                'url' => config('app.url'),
-                                'miniprogram' => [
-                                    'appid' => config('custom.wechat.mp.appid'),
-                                    'pagepath' => 'pages/visitorHistory/visitorHistory',
-                                ],
-                                'data' => [
-                                    'first' => '快打开云作品，看看你的前3位访客吧！',
-                                    'keyword1' => '已开启',
-                                    'keyword2' => '访客通讯录',
-                                    'remark' => '',
-                                ],
-                            ]
-                        );
-                        if ($tmr['errcode'] != 0) {
-                            ErrLogServer::SendWxGhTemplateMessage(
-                                $template_id,
-                                $photographer_user->gh_openid,
-                                $tmr['errmsg'],
-                                $tmr
-                            );
-                        }
-                    }
-                    if ($photographer->mobile) {//发送短信
-                        $third_type = config('custom.send_short_message.third_type');
-                        $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
-                        if ($third_type == 'ali') {
-                            AliSendShortMessageServer::quickSendSms(
-                                $photographer->mobile,
-                                $TemplateCodes,
-                                'service_open',
-                                ['name' => $photographer->name]
-                            );
-                        }
-                    }
-                }
-            }
+
             $visitor = Visitor::create(['photographer_id' => $request->photographer_id, 'user_id' => $user->id]);
             if ($user->identity == 1) {
                 $visitor->visitor_tag_id = 4;//如果访客也为用户标记为同行
@@ -405,20 +358,16 @@ class VisitController extends UserGuardController
 
             $keyword3_text = $user->purePhoneNumber;
             $miniprogram_pagepath = 'subPage/visitorDetails/visitorDetails?id='.$visitor->id;//访客详情页
+            $keyword1_text = $user->nickname;
             if ($visit_send_message['is_remind'] == 0) {
                 if ($visit_send_message['num'] == 1) {
-                    $first_text = '谁看过你？嘿嘿，再来两位告诉你！';
-                    $keyword1_text = '神秘人物1';
-                    $keyword3_text = '***********';
-                    $miniprogram_pagepath = 'pages/homePage/homePage';//注册成功分享页
-                } elseif ($visit_send_message['num'] == 2) {
-                    $first_text = '叮咚！又来一位，距离真相只有一步之遥。';
-                    $keyword1_text = '神秘人物2';
-                    $keyword3_text = '***********';
+                    $first_text = '叮咚！你的第一位访客来了。';
+                    $remark = '今后，我们不会主动向你推送来访提醒。你可以为指定访客开启强提醒，通过云作品微信公众号接收Ta的行踪。';
                     $miniprogram_pagepath = 'pages/homePage/homePage';//注册成功分享页
                 }
             } elseif ($visit_send_message['is_remind'] == 1) {
-                $first_text = '你有一则强提醒，请密切关注！';
+                $first_text = '你特别关注的访客有新动态！';
+                $remark = '点击查看详情';
             }
             $app = app('wechat.official_account');
             $template_id = 'RlRlrXRWpeONZZvu-HT1xQ1EhTvDbucp6Z60AgcQdGs';
@@ -436,8 +385,8 @@ class VisitController extends UserGuardController
                         'keyword1' => $keyword1_text,
                         'keyword2' => $keyword2_text,
                         'keyword3' => $keyword3_text,
-                        'keyword4' => date('Y.m.d H:i'),
-                        'remark' => '点击查看详情',
+                        'keyword4' => date('Y/m/d H:i:s'),
+                        'remark' => $remark,
                     ],
                 ]
             );
@@ -454,9 +403,10 @@ class VisitController extends UserGuardController
             $purpose = '';
             if ($visit_send_message['is_remind'] == 0) {
                 if ($visit_send_message['num'] == 1) {
-                    $purpose = 'visit_remind_1';
+                    //此处更换模板消息
+                    $purpose = 'visit_remind_3';
                 } elseif ($visit_send_message['num'] == 2) {
-                    $purpose = 'visit_remind_2';
+//                    $purpose = 'visit_remind_2';
                 }
             }
             if ($purpose) {

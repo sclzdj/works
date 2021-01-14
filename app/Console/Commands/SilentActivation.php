@@ -58,13 +58,13 @@ class SilentActivation extends Command
 //        $day_30 = date('Y-m-d H:i:s', $now_time - 60 * 60 * 36);
         foreach ($photographers as $k => $photographer) {
             if (!$photographer->max_created_at || strtotime($photographer->max_created_at) < strtotime($day_30)) {
-                $purpose = 'silent_activation_3';
+//                $purpose = 'silent_activation_3';
                 $content_vars = ['name' => $photographer->name];
             } elseif (strtotime($photographer->max_created_at) < strtotime($day_20)) {
-                $purpose = 'silent_activation_2';
+//                $purpose = 'silent_activation_2';
                 $content_vars = ['name' => $photographer->name, 'num' => 20];
             } elseif (strtotime($photographer->max_created_at) < strtotime($day_10)) {
-                $purpose = 'silent_activation_1';
+//                $purpose = 'silent_activation_1';
                 $content_vars = ['name' => $photographer->name, 'num' => 10];
             } else {
                 continue;
@@ -72,14 +72,14 @@ class SilentActivation extends Command
             //发送短信
             $third_type = config('custom.send_short_message.third_type');
             $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
-            if ($third_type == 'ali') {
-                AliSendShortMessageServer::quickSendSms(
-                    $photographer->mobile,
-                    $TemplateCodes,
-                    $purpose,
-                    $content_vars
-                );
-            }
+//            if ($third_type == 'ali') {
+//                AliSendShortMessageServer::quickSendSms(
+//                    $photographer->mobile,
+//                    $TemplateCodes,
+//                    $purpose,
+//                    $content_vars
+//                );
+//            }
         }
     }
 
