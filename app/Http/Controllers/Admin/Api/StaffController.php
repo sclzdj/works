@@ -279,7 +279,7 @@ class StaffController extends BaseController{
         $photographers = Photographer::where(['id' => $request->photographer_id])->first();
         $user = User::where(['photographer_id' => $photographers->id])->first();
         if (!$photographers){
-            return $this->response->error('没有用户', 500);
+            return abort(400, '没有用户');
         }
 
         $invite_reward = InviteReward::join(
@@ -292,22 +292,22 @@ class StaffController extends BaseController{
             'users.openid'
         )->where(['invite_rewards.photographer_id' => $photographers->id])->first();
         if ($invite_reward->is_withdrawal != 1){
-            return $this->response->error('用户没有提现的请求', 500);
+            return abort(400, '用户没有提现的请求');
         }
 
         $order_trade_no = date('YmdHis') . SystemServer::getRandomString(6);
 
 
-        $flag = SystemServer::withdrawal($order_trade_no, $invite_reward->openid, $invite_reward->money, '邀请奖励提现');
+        $flag = SystemServer::withdrawal($order_trade_no, $invite_reward->openid, $invite_reward->withdrawal_money, '邀请奖励提现');
         if (!$flag){
-            return $this->response->error('提现失败', 500);
+            return abort(400, '提现失败');
         }
-        $money  = $invite_reward->money;
+        $money  = $invite_reward->withdrawal_money;
         \DB::beginTransaction();
         try{
             $invite_reward->withdrawal_money_count = $invite_reward->withdrawal_money_count + $money;
             $invite_reward->is_withdrawal = 0;
-            $invite_reward->money = 0;
+            $invite_reward->withdrawal_money = 0;
             $invite_reward->save();
 
             $withdrawal = WithdrwalRecord::create();
@@ -320,7 +320,7 @@ class StaffController extends BaseController{
         }catch (\Exception $exception){
             \DB::rollBack();
 
-            return $this->response->error('提现失败', 500);
+            return abort(400, '提现失败');
 
         }
 

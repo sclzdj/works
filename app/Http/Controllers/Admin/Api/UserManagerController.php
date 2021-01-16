@@ -625,7 +625,7 @@ class UserManagerController extends BaseController
             \DB::raw('((select count(photographer_works.id) from photographer_works where photographer_works.photographer_id=users.photographer_id)) as works_count'),
             \DB::raw('((select name from photographers where id=invite_list.parent_photographer_id)) as parent_photographers_name'),
             \DB::raw('((select count(*) from visitors where visitors.photographer_id=users.photographer_id)) as vistors')
-        )->where($where)->whereRaw($whereraw)->groupBy('users.photographer_id')->orderByRaw($orderBy)->paginate(
+        )->where(['users.identity' => 0])->where($where)->whereRaw($whereraw)->groupBy('users.photographer_id')->orderByRaw($orderBy)->paginate(
             $pageInfo['pageSize']
         );
 
@@ -686,7 +686,6 @@ class UserManagerController extends BaseController
         list($where, $whereraw) = $this->filters($request);
 
         $orderBy = 'famoususer_rank.sort,famoususers.created_at desc' ;
-
         $lists = Photographer::join(
             'users',
             'users.photographer_id',
@@ -779,10 +778,10 @@ SELECT  `photographer_ranks`.*,(select count(*) from `famoususer_rank` where pho
         )->select(
             'invite_rewards.photographer_id',
             'invite_rewards.medal',
-            'invite_rewards.cloud',
-            'invite_rewards.cloud_count',
             'invite_rewards.money',
             'invite_rewards.money_count',
+            'invite_rewards.withdrawal_money',
+            'invite_rewards.withdrawal_money_count',
             'invite_rewards.is_withdrawal',
             'users.id as user_id',
             'users.phoneNumber',
@@ -799,7 +798,6 @@ SELECT  `photographer_ranks`.*,(select count(*) from `famoususer_rank` where pho
         foreach ($lists as &$list){
             $records = WithdrwalRecord::where(['photographer_id' => $list['photographer_id']])->select(
                 'money',
-                'cloud',
                 'updated_at'
             )->get();
             $list['withdrawl'] = $records;

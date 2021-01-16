@@ -42,9 +42,10 @@ class BaiduController extends Controller
             return abort(400, '缺少expires_in参数');
         }
         \DB::beginTransaction();//开启事务
-        try {
+//        try {
             $wx_user = session('wechat.oauth_user.default'); // 拿到授权用户资料
             $gh_openid = $wx_user->getId();
+            file_put_contents('/tmp/log', $gh_openid . "\r\n", FILE_APPEND);
             //获取unionid必须把授权配置项改为snsapi_userinfo
             //$wx_user=$wx_user->toArray();
             //$unionid=$user['original']['unionid'];die($unionid);
@@ -65,10 +66,10 @@ class BaiduController extends Controller
             \DB::commit();//提交事务
 
             return view('/index/oauth/baidu/pan_store');
-        } catch (\Exception $e) {
-            \DB::rollback();//回滚事务
-
-            return abort(500, $e->getMessage());
-        }
+//        } catch (\Exception $e) {
+//            \DB::rollback();//回滚事务
+//
+//            return abort(500, $e->getMessage());
+//        }
     }
 }

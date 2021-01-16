@@ -404,7 +404,7 @@ class VisitController extends UserGuardController
             if ($visit_send_message['is_remind'] == 0) {
                 if ($visit_send_message['num'] == 1) {
                     //此处更换模板消息
-                    $purpose = 'visit_remind_3';
+//                    $purpose = 'visit_remind_3';
                 } elseif ($visit_send_message['num'] == 2) {
 //                    $purpose = 'visit_remind_2';
                 }

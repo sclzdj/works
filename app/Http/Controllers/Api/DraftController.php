@@ -1176,31 +1176,8 @@ class DraftController extends UserGuardController
 
 
     public function fuckitback(Request $request){
-        $user = User::where(['photographer_id' => '5849'])->first();
-        $money = 100;
-
-        $app = app('wechat.official_account');
-        $template_id = 'UcZqXgLXfWL1P5CBT-nOrQrtl4gPl5phZBfIleaK5MY';
-        if ($user->gh_openid){
-            $tmr = $app->template_message->send(
-                [
-                    'touser' => $user->gh_openid,
-                    'template_id' => $template_id,
-                    'url' => config('app.url'),
-                    'miniprogram' => [
-                        'appid' => config('custom.wechat.mp.appid'),
-                        'pagepath' => 'pages/homePage/homePage',
-                    ],
-                    'data' => [
-                        'first' => '提现已成功！',
-                        'keyword1' => $money .'元',
-                        'keyword2' => date('Y/m/d H:i:s'),
-                        'keyword3' => '成功',
-                        'remark' => '请打开微信零钱查看。',
-                    ],
-                ]
-            );
-        }
+        $user = User::where(['gh_openid' => 'ooxiwjRg9alYBcTmmCWhtkoQegk'])->first();
+        var_dump($user);exit();
 //        $file = fopen("/Users/zhoumengying/Downloads/id+视频.txt","r");
 //        \DB::beginTransaction();
 //        try{

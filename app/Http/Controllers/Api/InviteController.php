@@ -60,6 +60,7 @@ class InviteController extends BaseController
                 $reword = InviteReward::create();
                 $reword->photographer_id = $photographer->id;
                 //设置勋章为白云勋章
+                //设置勋章为白云勋章
                 $reword->medal = 'baicloud';
                 $reword->baicloud_time = date('Y-m-d H:i:s');
                 $reword->save();
@@ -205,19 +206,6 @@ class InviteController extends BaseController
 
         \DB::commit();
 
-        if ($photographer->mobile){
-            $third_type = config('custom.send_short_message.third_type');
-            $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
-            if ($third_type == 'ali') {
-                AliSendShortMessageServer::quickSendSms(
-                    $photographer->mobile,
-                    $TemplateCodes,
-                    'invite_success',
-                    ['new' => $guest->nickname]
-                );
-            }
-        }
-
         return $this->response->noContent();
 
     }
@@ -230,28 +218,44 @@ class InviteController extends BaseController
             'photographers.avatar',
             'users.purePhoneNumber'
         )->where(['order_info.money' => 9, 'order_info.status' => 1])->where(['invite_list.parent_photographer_id' => $photographer->id])->get();
-//        \DB::enableQueryLog();
+
         $payuser = InviteList::join('users', 'users.photographer_id', '=', 'invite_list.photographer_id')->join('order_info', 'order_info.pay_id', '=', 'users.id')->join('photographers', 'photographers.id', '=', 'users.photographer_id')->select(
+            'photographers.id',
+            'order_info.money',
+            'photographers.name',
+            'photographers.avatar',
+            'users.purePhoneNumber'
+        )->whereRaw('order_info.status=1')->where(['invite_list.parent_photographer_id' => $photographer->id])->get();
+        $payuser_count = $payuser->count();
+
+        $cardpay_user = InviteList::join('pay_card', 'pay_card.photographer_id', '=', 'invite_list.photographer_id')->join('users', 'users.photographer_id', '=', 'invite_list.photographer_id')->join('photographers', 'photographers.id', '=', 'invite_list.photographer_id')->select(
             'photographers.id',
             'photographers.name',
             'photographers.avatar',
             'users.purePhoneNumber'
-        )->whereRaw('order_info.money >= 140 and order_info.status=1')->where(['invite_list.parent_photographer_id' => $photographer->id])->get();
-//        dd(\DB::getQueryLog());
+        )->where(['invite_list.parent_photographer_id' => $photographer->id])->get();
+//        if ($payuser and $cardpay_user){
+//            $payuser = $payuser->toArray();
+//            $cardpay_user = $cardpay_user->toArray();
+//            $payuser = array_merge($payuser, $cardpay_user);
+//        }
 
-        $nopayuser = InviteList::join('users', 'users.photographer_id', '=', 'invite_list.photographer_id')->leftjoin('order_info', 'order_info.pay_id', '=', 'users.id')->join('photographers', 'photographers.id', '=', 'users.photographer_id')->select(
+
+        $nopayuser = InviteList::join('users', 'users.photographer_id', '=', 'invite_list.photographer_id')->join('photographers', 'photographers.id', '=', 'users.photographer_id')->select(
             'photographers.id',
             'photographers.name',
             'photographers.avatar',
             'users.purePhoneNumber'
         )->where(['users.identity' => 0])->where(['invite_list.parent_photographer_id' => $photographer->id])->get();
+
         InviteList::where(['parent_photographer_id' => $photographer->id])->update(['is_read' => 1]);
         OrderInfo::whereRaw("pay_id in (select users.id from invite_list inner join users ON users.photographer_id=invite_list.photographer_id where invite_list.parent_photographer_id=$photographer->id)")->update(['order_info.is_read' => 1]);
 
         $data = [
             'frontusercount' => $frontuser->count(),
             'frontuser' => $frontuser,
-            'payusermoney' => $payuser->count() * 50,
+            'payusermoney' => $payuser_count * 50,
+            'cardpay_user' => $cardpay_user,
             'payuser' => $payuser,
             'nopayuser' => $nopayuser
         ];
@@ -442,8 +446,8 @@ class InviteController extends BaseController
             'photographers.name',
             'photographers.id',
             'famoususers.id as famoususers_id',
+            'famoususers.cover',
             'famoususers.video',
-            \DB::raw("concat(famoususers.video, '?vframe/jpg/offset/5/dh') as cover"),
             'photographers.avatar',
             \DB::raw("(select if((select id from invite_favour where favour_photographer_id=photographers.id and request_photographer_id=$request->photographer_id)<>0, 1, 0)) as favour_status"),
             \DB::raw('(select count(*) from invite_list where parent_photographer_id = photographers.id) as invitecount')
@@ -505,6 +509,8 @@ class InviteController extends BaseController
             return $this->response->error('没有邀请奖励!', 500);
         }
         $invite->is_withdrawal = 1;
+        $invite->withdrawal_money = $invite->money;
+        $invite->money = 0.00;
         $invite->save();
 
         $app = app('wechat.official_account');
