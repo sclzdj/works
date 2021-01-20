@@ -207,15 +207,19 @@ class BaiduServer
             $splitFileList[] = $filename;
         }
 
-        $fp   = fopen($filename,"rb");           //要分割的文件
-        $splitFilename = storage_path("app") . "/split_256KB_{$fileMd5}";
-        $handle = fopen($splitFilename, "wb");
-        fwrite($handle, fread($fp, 262144));//切割的块大小，固定为256KB
-        fclose($handle);
-        unset($handle);
-        fclose($fp);
-        $sliceMd5 = md5_file($splitFilename);
-        @unlink($splitFilename);
+        if ($fileSize < 262144) {
+            $sliceMd5 = $fileMd5;
+        } else {
+            $fp   = fopen($filename,"rb");           //要分割的文件
+            $splitFilename = storage_path("app") . "/split_256KB_{$fileMd5}";
+            $handle = fopen($splitFilename, "wb");
+            fwrite($handle, fread($fp, 262144));//切割的块大小，固定为256KB
+            fclose($handle);
+            unset($handle);
+            fclose($fp);
+            $sliceMd5 = md5_file($splitFilename);
+            @unlink($splitFilename);
+        }
 
         //1.预上传，拿到uploadid
         $url = self::XPAN_API_URL_PREFIX . self::FILE_PRECREATE_URL . 'access_token=' . $accessToken;
