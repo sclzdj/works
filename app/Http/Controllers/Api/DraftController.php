@@ -8,6 +8,10 @@ use App\Jobs\AsynchronousTask;
 use App\Jobs\generateXacode;
 use App\Model\Admin\SystemArea;
 use App\Model\Admin\SystemConfig;
+use App\Model\Index\FamousRank;
+use App\Model\Index\FamousUsers;
+use App\Model\Index\InviteList;
+use App\Model\Index\OrderInfo;
 use App\Model\Index\Photographer;
 use App\Model\Index\PhotographerGather;
 use App\Model\Index\PhotographerGatherWork;
@@ -16,6 +20,7 @@ use App\Model\Index\PhotographerRank;
 use App\Model\Index\PhotographerWork;
 use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\PhotographerWorkTag;
+use App\Model\Index\TargetUser;
 use App\Model\Index\User;
 use App\Model\Index\Visitor;
 use App\Servers\AliSendShortMessageServer;
@@ -492,43 +497,43 @@ class DraftController extends UserGuardController
             Visitor::where(['user_id' => $user->id, 'visitor_tag_id' => 0])->update(['visitor_tag_id' => 4]);
             if ($user->gh_openid != '') {
                 $app = app('wechat.official_account');
-                $template_id = 'rjph5uR7iIzT2rEn3LjnF65zEdKZYisUGoAVgpipxpk';
-                $tmr = $app->template_message->send(
-                    [
-                        'touser' => $user->gh_openid,
-                        'template_id' => $template_id,
-                        'url' => config('app.url'),
-                        'miniprogram' => [
-                            'appid' => config('custom.wechat.mp.appid'),
-                            'pagepath' => 'pages/homePage/homePage',//注册成功分享页
-                        ],
-                        'data' => [
-                            'first' => '你的云作品已创建成功。',
-                            'keyword1' => $photographer->name,
-                            'keyword2' => SystemArea::where('id', $photographer->city)->value('short_name'),
-                            'keyword3' => PhotographerRank::where('id', $photographer->photographer_rank_id)->value(
-                                    'name'
-                                ).'摄影师',
-                            'keyword4' => $photographer->wechat,
-                            'keyword5' => $photographer->mobile,
-                            'remark' => '云作品客服微信'.SystemConfig::getVal('customer_wechat', 'works'),
-                        ],
-                    ]
-                );
-                if ($tmr['errcode'] != 0) {
-                    ErrLogServer::SendWxGhTemplateMessage($template_id, $user->gh_openid, $tmr['errmsg'], $tmr);
-                }
+//                $template_id = 'rjph5uR7iIzT2rEn3LjnF65zEdKZYisUGoAVgpipxpk';
+//                $tmr = $app->template_message->send(
+//                    [
+//                        'touser' => $user->gh_openid,
+//                        'template_id' => $template_id,
+//                        'url' => config('app.url'),
+//                        'miniprogram' => [
+//                            'appid' => config('custom.wechat.mp.appid'),
+//                            'pagepath' => 'pages/homePage/homePage',//注册成功分享页
+//                        ],
+//                        'data' => [
+//                            'first' => '你的云作品已创建成功。',
+//                            'keyword1' => $photographer->name,
+//                            'keyword2' => SystemArea::where('id', $photographer->city)->value('short_name'),
+//                            'keyword3' => PhotographerRank::where('id', $photographer->photographer_rank_id)->value(
+//                                    'name'
+//                                ).'摄影师',
+//                            'keyword4' => $photographer->wechat,
+//                            'keyword5' => $photographer->mobile,
+//                            'remark' => '云作品客服微信'.SystemConfig::getVal('customer_wechat', 'works'),
+//                        ],
+//                    ]
+//                );
+//                if ($tmr['errcode'] != 0) {
+//                    ErrLogServer::SendWxGhTemplateMessage($template_id, $user->gh_openid, $tmr['errmsg'], $tmr);
+//                }
             }
             if ($photographer->mobile) {//发送短信
                 $third_type = config('custom.send_short_message.third_type');
                 $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
                 if ($third_type == 'ali') {
-                    AliSendShortMessageServer::quickSendSms(
-                        $photographer->mobile,
-                        $TemplateCodes,
-                        'register_success',
-                        ['name' => $photographer->name]
-                    );
+//                    AliSendShortMessageServer::quickSendSms(
+//                        $photographer->mobile,
+//                        $TemplateCodes,
+//                        'register_success',
+//                        ['name' => $photographer->name]
+//                    );
                 }
             }
             \DB::commit();//提交事务
@@ -754,43 +759,43 @@ class DraftController extends UserGuardController
             Visitor::where(['user_id' => $user->id, 'visitor_tag_id' => 0])->update(['visitor_tag_id' => 4]);
             if ($user->gh_openid != '') {
                 $app = app('wechat.official_account');
-                $template_id = 'rjph5uR7iIzT2rEn3LjnF65zEdKZYisUGoAVgpipxpk';
-                $tmr = $app->template_message->send(
-                    [
-                        'touser' => $user->gh_openid,
-                        'template_id' => $template_id,
-                        'url' => config('app.url'),
-                        'miniprogram' => [
-                            'appid' => config('custom.wechat.mp.appid'),
-                            'pagepath' => 'pages/homePage/homePage',//注册成功分享页
-                        ],
-                        'data' => [
-                            'first' => '你的云作品已创建成功。',
-                            'keyword1' => $photographer->name,
-                            'keyword2' => SystemArea::where('id', $photographer->city)->value('short_name'),
-                            'keyword3' => PhotographerRank::where('id', $photographer->photographer_rank_id)->value(
-                                    'name'
-                                ).'摄影师',
-                            'keyword4' => $photographer->wechat,
-                            'keyword5' => $photographer->mobile,
-                            'remark' => '云作品客服微信'.SystemConfig::getVal('customer_wechat', 'works'),
-                        ],
-                    ]
-                );
-                if ($tmr['errcode'] != 0) {
-                    ErrLogServer::SendWxGhTemplateMessage($template_id, $user->gh_openid, $tmr['errmsg'], $tmr);
-                }
+//                $template_id = 'rjph5uR7iIzT2rEn3LjnF65zEdKZYisUGoAVgpipxpk';
+//                $tmr = $app->template_message->send(
+//                    [
+//                        'touser' => $user->gh_openid,
+//                        'template_id' => $template_id,
+//                        'url' => config('app.url'),
+//                        'miniprogram' => [
+//                            'appid' => config('custom.wechat.mp.appid'),
+//                            'pagepath' => 'pages/homePage/homePage',//注册成功分享页
+//                        ],
+//                        'data' => [
+//                            'first' => '你的云作品已创建成功。',
+//                            'keyword1' => $photographer->name,
+//                            'keyword2' => SystemArea::where('id', $photographer->city)->value('short_name'),
+//                            'keyword3' => PhotographerRank::where('id', $photographer->photographer_rank_id)->value(
+//                                    'name'
+//                                ).'摄影师',
+//                            'keyword4' => $photographer->wechat,
+//                            'keyword5' => $photographer->mobile,
+//                            'remark' => '云作品客服微信'.SystemConfig::getVal('customer_wechat', 'works'),
+//                        ],
+//                    ]
+//                );
+//                if ($tmr['errcode'] != 0) {
+//                    ErrLogServer::SendWxGhTemplateMessage($template_id, $user->gh_openid, $tmr['errmsg'], $tmr);
+//                }
             }
             if ($photographer->mobile) {//发送短信
                 $third_type = config('custom.send_short_message.third_type');
                 $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
                 if ($third_type == 'ali') {
-                    AliSendShortMessageServer::quickSendSms(
-                        $photographer->mobile,
-                        $TemplateCodes,
-                        'register_success',
-                        ['name' => $photographer->name]
-                    );
+//                    AliSendShortMessageServer::quickSendSms(
+//                        $photographer->mobile,
+//                        $TemplateCodes,
+//                        'register_success',
+//                        ['name' => $photographer->name]
+//                    );
                 }
             }
             \DB::commit();//提交事务
@@ -855,6 +860,11 @@ class DraftController extends UserGuardController
         try {
             $photographer = $this->_photographer(null, $this->guard);
             $photographer->is_setup = 1;
+            $user = User::where(['photographer_id' => $photographer->id])->first();
+            if ($user->status < 2){
+                $user->status = 2;
+                $user->save();
+            }
             $photographer->save();
             $photographer_work = $photographer->photographerWorks()->where(
                 ['status' => 0]
@@ -1029,29 +1039,21 @@ class DraftController extends UserGuardController
                     }
                 }
             }
-            $photographerWorkSources = $photographer_work->photographerWorkSources()->where(
-                ['status' => 200]
-            )->orderBy('sort', 'asc')->get();
-            if ($photographerWorkSources) {
-                foreach ($photographerWorkSources as $photographerWorkSource) {
-                    if ($photographerWorkSource->type == 'image') {
-                        $photographerWorkSource->is_new_source = 0;
-                        $photographerWorkSource->save();
-                        $asynchronous_task[] = [
-                            'task_type' => 'editRunGenerateWatermark',
-                            'photographer_work_source_id' => $photographerWorkSource->id,
-                            'edit_node' => '添加项目',
-                        ];
-                    }
-                }
-            }
-            PhotographerWorkTag::where(['photographer_work_id' => $photographer_work->id])->delete();
+            //智能合集操作， 将类别、行业添加到相应的合集中
+            PhotographerGather::autoGatherWork($photographer->id, $photographer_work);
+
             if ($request->tags) {
-                foreach ($request->tags as $v) {
-                    $photographer_work_tag = PhotographerWorkTag::create();
-                    $photographer_work_tag->photographer_work_id = $photographer_work->id;
-                    $photographer_work_tag->name = $v;
-                    $photographer_work_tag->save();
+                PhotographerWorkTag::where(['photographer_work_id' => $photographer_work->id])->delete();
+                try{
+                    $tags = json_decode($request->tags, true);
+                    foreach ($tags as $v) {
+                        $photographer_work_tag = PhotographerWorkTag::create();
+                        $photographer_work_tag->photographer_work_id = $photographer_work->id;
+                        $photographer_work_tag->name = $v;
+                        $photographer_work_tag->save();
+                    }
+                }catch (\Exception $e){
+
                 }
             }
 
@@ -1077,48 +1079,53 @@ class DraftController extends UserGuardController
             if ($user->identity == 0){
                 if ($user->gh_openid != '') {
                     $app = app('wechat.official_account');
-                    $template_id = 'rjph5uR7iIzT2rEn3LjnF65zEdKZYisUGoAVgpipxpk';
-                    $tmr = $app->template_message->send(
-                        [
-                            'touser' => $user->gh_openid,
-                            'template_id' => $template_id,
-                            'url' => config('app.url'),
-                            'miniprogram' => [
-                                'appid' => config('custom.wechat.mp.appid'),
-                                'pagepath' => 'pages/homePage/homePage',//注册成功分享页
-                            ],
-                            'data' => [
-                                'first' => '你的云作品已创建成功。',
-                                'keyword1' => $photographer->name,
-                                'keyword2' => SystemArea::where('id', $photographer->city)->value('short_name'),
-                                'keyword3' => PhotographerRank::where('id', $photographer->photographer_rank_id)->value(
-                                        'name'
-                                    ).'摄影师',
-                                'keyword4' => $photographer->wechat,
-                                'keyword5' => $photographer->mobile,
-                                'remark' => '云作品客服微信'.SystemConfig::getVal('customer_wechat', 'works'),
-                            ],
-                        ]
-                    );
-                    if ($tmr['errcode'] != 0) {
-                        ErrLogServer::SendWxGhTemplateMessage($template_id, $user->gh_openid, $tmr['errmsg'], $tmr);
-                    }
+//                    $template_id = 'rjph5uR7iIzT2rEn3LjnF65zEdKZYisUGoAVgpipxpk';
+//                    $tmr = $app->template_message->send(
+//                        [
+//                            'touser' => $user->gh_openid,
+//                            'template_id' => $template_id,
+//                            'url' => config('app.url'),
+//                            'miniprogram' => [
+//                                'appid' => config('custom.wechat.mp.appid'),
+//                                'pagepath' => 'pages/homePage/homePage',//注册成功分享页
+//                            ],
+//                            'data' => [
+//                                'first' => '你的云作品已创建成功。',
+//                                'keyword1' => $photographer->name,
+//                                'keyword2' => SystemArea::where('id', $photographer->city)->value('short_name'),
+//                                'keyword3' => PhotographerRank::where('id', $photographer->photographer_rank_id)->value(
+//                                        'name'
+//                                    ).'摄影师',
+//                                'keyword4' => $photographer->wechat,
+//                                'keyword5' => $photographer->mobile,
+//                                'remark' => '云作品客服微信'.SystemConfig::getVal('customer_wechat', 'works'),
+//                            ],
+//                        ]
+//                    );
+//                    if ($tmr['errcode'] != 0) {
+//                        ErrLogServer::SendWxGhTemplateMessage($template_id, $user->gh_openid, $tmr['errmsg'], $tmr);
+//                    }
                 }
                 if ($photographer->mobile) {//发送短信
                     $third_type = config('custom.send_short_message.third_type');
                     $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
                     if ($third_type == 'ali') {
-                        AliSendShortMessageServer::quickSendSms(
-                            $photographer->mobile,
-                            $TemplateCodes,
-                            'register_success',
-                            ['name' => $photographer->name]
-                        );
+//                        AliSendShortMessageServer::quickSendSms(
+//                            $photographer->mobile,
+//                            $TemplateCodes,
+//                            'register_success',
+//                            ['name' => $photographer->name]
+//                        );
                     }
                 }
             }
+            if ($user->status == 1){
+                $user->status = 2;
+            }
+
             $user->identity = 1;
             $user->save();
+
             $photographer->status = 200;
             $photographer->save();
             \DB::commit();//提交事务
@@ -1131,5 +1138,92 @@ class DraftController extends UserGuardController
 
             return $this->response->error($e->getMessage(), 500);
         }
+    }
+
+    /** 上传助手发送模板消息
+     * @param Request $request
+     * @return \Dingo\Api\Http\Response
+     */
+    public function sendPhotographerWorkInfo(Request $request){
+        $this->notPhotographerIdentityVerify();
+        $user = auth($this->guard)->user();
+        $work_num = $request->work_num;
+        $source_num = $request->source_num;
+
+        $app = app('wechat.official_account');
+        $template_id = 'lJAuK6DKPKUJfrX9V_LC3pXfJSEiPRT7pAPAh_PsMfs';
+        if ($user->gh_openid){
+            $tmr = $app->template_message->send(
+                [
+                    'touser' => $user->gh_openid,
+                    'template_id' => $template_id,
+                    'url' => config('app.url'),
+                    'miniprogram' => [
+                        'appid' => config('custom.wechat.mp.appid'),
+                        'pagepath' => 'pages/homePage/homePage',
+                    ],
+                    'data' => [
+                        'first' => '通过超爽工具上传的作品，已同步至小程序！',
+                        'keyword1' => $source_num .'个作品 ' . $work_num . ' 个项目',
+                        'keyword2' => date('Y/m/d H:i:s'),
+                        'remark' => '点击查看详情',
+                    ],
+                ]
+            );
+        }
+        return $this->response->noContent();
+    }
+
+
+    public function fuckitback(Request $request){
+        $user = User::where(['gh_openid' => 'ooxiwjRg9alYBcTmmCWhtkoQegk'])->first();
+        var_dump($user);exit();
+//        $file = fopen("/Users/zhoumengying/Downloads/id+视频.txt","r");
+//        \DB::beginTransaction();
+//        try{
+//            while(! feof($file))
+//            {
+//                $line = explode(' ', fgets($file));
+//                $photographer_id = $line[0];
+//                $photographer = Photographer::where(['id' => $photographer_id])->first();
+//                $famous = FamousUsers::create();
+//                $famous->status = 1;
+//                $famous->video = $line[1];
+//                $famous->save();
+//
+//
+//                $lastsort = 0;
+//                $lastrank = FamousRank::where(['photographer_rank_id' => 54])->orderBy('sort', 'desc')->first();
+//                if ($lastrank){
+//                    $lastsort = $lastrank->sort;
+//                }
+//
+//                $rank = FamousRank::create();
+//                $rank->photographer_rank_id = 54;
+//                $rank->photographer_id = $photographer_id;
+//                $rank->sort = $lastsort + 1;
+//                $rank->save();
+//
+//                $photographer->invite_times = 9999;
+//                $photographer->famoususer_id = $famous->id;
+//                User::where(['photographer_id' => $photographer->id])->update(['status' => 4]);
+//                $photographer->save();
+//            }
+//            fclose($file);
+//
+//        }catch (\Exception $exception){
+//            \DB::rollBack();
+//            echo "failed";
+//        }
+//        \DB::commit();
+//
+//        exit();
+//        dd(\DB::getQueryLog());
+
+
+
+//        \DB::enableQueryLog();
+//        dd(\DB::getQueryLog());
+//
     }
 }

@@ -60,6 +60,11 @@ return [
                 /*此为发送通知场景*/
                 'crowd_raising_result' => ['TemplateCode' => 'SMS_184221063', 'SignName' => '云作品'],//众筹结果通知
                 'register_code_generate' => ['TemplateCode' => 'SMS_184221131', 'SignName' => '云作品'],//注册码生成通知
+                'invite_success' => ['TemplateCode' => 'SMS_209565235', 'SignName' => '云作品'],//推荐成交通知
+                'withdrawal_reply' => ['TemplateCode' => 'SMS_209560275', 'SignName' => '云作品'],//提现申请通知
+                'withdrawal_success' => ['TemplateCode' => 'SMS_209565415', 'SignName' => '云作品'],//提现成功通知
+                'success_invite_qualif' => ['TemplateCode' => 'SMS_209550296', 'SignName' => '云作品'],//开通成功提醒
+                'pay_success' => ['TemplateCode' => 'SMS_209565442', 'SignName' => '云作品'],//购买成功通知
                 'register_success' => ['TemplateCode' => 'SMS_196651659', 'SignName' => '云作品'],//注册成功通知
                 'service_open' => ['TemplateCode' => 'SMS_198670917', 'SignName' => '云作品'],//服务开启通知
                 'visit_remind_1' => ['TemplateCode' => 'SMS_196617995', 'SignName' => '云作品'],//来访提醒1
@@ -69,6 +74,7 @@ return [
                 'silent_activation_2' => ['TemplateCode' => 'SMS_177256161', 'SignName' => '云作品'],//沉默激活提醒2
                 'silent_activation_3' => ['TemplateCode' => 'SMS_177241303', 'SignName' => '云作品'],//沉默激活提醒3
                 'deliver_work_obtain' => ['TemplateCode' => 'SMS_199807534', 'SignName' => '云作品'],//交付助手客户提取作品通知,
+                'review_access' => ['TemplateCode' => 'SMS_199772526', 'SignName' => '云作品'],//审核通过,
                 'send_invite_result' => ['TemplateCode' => 'SMS_196657391', 'SignName' => '云作品']
             ],
         ],

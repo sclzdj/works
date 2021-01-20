@@ -151,35 +151,9 @@ class TargetUserController extends BaseController
         return response()->json(compact('data', 'count'));
     }
 
-    /*** 添加来源
-     * @param Request $request
-     * @return \Illuminate\Http\Response
-     */
-    public function sourcestore(Request $request){
-        $id = $request->input('id');
-        $name = $request->input('name');
-        if ($id){
-            Sources::where(['id' => $id])->update(['name' => $name]);
-        }else{
-            $result = Sources::insert([
-                'name' => $name
-            ]);
-        }
 
-        return response()->noContent();
-    }
 
-    /**
-     * 添加邀请次数
-     * @param Request $request
-     * @return \Illuminate\Http\Response
-     */
-    public function addinvite(Request $request){
-        $photographer_id = $request['photographer_id '];
-        Photographer::where(['id' => $photographer_id])->increment('invite', 3);
 
-        return response()->noContent();
-    }
 
     /***
      * 裂变(全部)

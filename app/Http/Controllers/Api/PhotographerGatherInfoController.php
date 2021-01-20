@@ -25,12 +25,20 @@ class PhotographerGatherInfoController extends UserGuardController
      * 合集资料列表
      * @return mixed
      */
-    public function index()
+    public function index(Request $request)
     {
-        $photographer = $this->_photographer();
+
+        if ($request->photographer_id > 0) {
+            $photographer = $this->_photographer($request->photographer_id);
+        } else {
+            $photographer = $this->_photographer(null, $this->guards['user']);
+        }
+        if (!$photographer || $photographer->status != 200) {
+            return $this->response->error('用户不存在', 500);
+        }
         $photographerGatherInfos = PhotographerGatherInfo::where(
             ['photographer_id' => $photographer->id]
-        )->where(['status' => 200])->get()->toArray();
+        )->where(['status' => 200])->orderBy('sort', 'desc')->orderBy('created_at')->get()->toArray();
         foreach ($photographerGatherInfos as $k => $photographerGatherInfo) {
             $brand_tags = PhotographerInfoTag::where(
                 [
@@ -39,6 +47,7 @@ class PhotographerGatherInfoController extends UserGuardController
                     'type' => 'brand',
                 ]
             )->get();
+            $photographerGatherInfos[$k]['count'] = PhotographerGather::where(['photographer_gather_info_id' => $photographerGatherInfo['id'], 'status' => 200])->count();
             $photographerGatherInfos[$k]['brand_tags'] = [];
             foreach ($brand_tags as $brand_tag) {
                 $photographerGatherInfos[$k]['brand_tags'][] = $brand_tag['name'];
@@ -82,6 +91,15 @@ class PhotographerGatherInfoController extends UserGuardController
             $photographerGatherInfo->start_year = $request->start_year;
             $photographerGatherInfo->is_default = $is_default;
             $photographerGatherInfo->status = 200;
+
+            $lastpgw = PhotographerGatherInfo::where(['photographer_id' => $photographer->id])->where('photographer_rank_id', '<>', '')->select(
+                \DB::raw("MAX(sort) as maxsort")
+            )->first();
+            $photographerGatherInfo->sort = 1;
+            if ($lastpgw){
+                $photographerGatherInfo->sort = $lastpgw->maxsort + 1;
+            }
+
             $photographerGatherInfo->save();
             \DB::commit();//提交事务
 
@@ -201,13 +219,23 @@ class PhotographerGatherInfoController extends UserGuardController
             ['photographer_gather_info_id' => $photographerGatherInfo->id]
         )->whereIn('status', [0, 200])->get()->toArray();
         if ($photographerGathers) {
-            return $this->response->error('有合集正在使用该资料，不可删除', 500);
+            PhotographerGather::where(
+                ['photographer_gather_info_id' => $photographerGatherInfo->id]
+            )->whereIn('status', [0, 200])->update(['photographer_gather_info_id' => 0]);
+//            return $this->response->error('有合集正在使用该资料，不可删除', 500);
         }
         \DB::beginTransaction();//开启事务
         try {
             PhotographerGatherInfo::where(
                 ['id' => $request->photographer_gather_info_id, 'photographer_id' => $photographer->id]
             )->update(['status' => 400]);
+
+            if ($photographerGatherInfo->is_default == 1){
+                $lastinfo = PhotographerGatherInfo::where(['photographer_id' => $photographer->id])->orderBy('id', 'desc')->first();
+                $lastinfo->is_default = 1;
+                $photographerGatherInfo->is_default = 0;
+            }
+
             \DB::commit();//提交事务
 
             return $this->response()->noContent();
@@ -259,6 +287,7 @@ class PhotographerGatherInfoController extends UserGuardController
             $new_photographerGatherInfo->start_year = $photographerGatherInfo->start_year;
             $new_photographerGatherInfo->is_default = 0;
             $new_photographerGatherInfo->status = 200;
+            $new_photographerGatherInfo->sort = $photographerGatherInfo->sort;
             $new_photographerGatherInfo->save();
             \DB::commit();//提交事务
             $new_photographerGatherInfo = PhotographerGatherInfo::find($new_photographerGatherInfo->id)->toArray();

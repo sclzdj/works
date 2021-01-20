@@ -83,6 +83,11 @@ class User extends Authenticatable implements JWTSubject
             'country',
             'province',
             'city',
+            'is_invite',
+            'status',
+            'photographer_id',
+            'openid',
+            'gh_openid',
             'created_at',
         ];
     }
@@ -116,6 +121,35 @@ class User extends Authenticatable implements JWTSubject
         $photographer_work = PhotographerWork::create();
         $photographer_work->photographer_id = $photographer->id;
         $photographer_work->save();
+
+        $photographerGather = PhotographerGather::create();
+        $scene = '2/'. $photographer->id . '/' . $photographerGather->id;
+        if (!$photographerGather->xacode) {
+            $xacode_res = WechatServer::generateXacode($scene, false);
+            if ($xacode_res['code'] == 200) {
+                $photographerGather->xacode = $xacode_res['xacode'];
+            }
+
+        }
+        if (!$photographerGather->xacode_hyaline) {
+            $xacode_res = WechatServer::generateXacode($scene);
+            if ($xacode_res['code'] == 200) {
+                $photographerGather->xacode_hyaline = $xacode_res['xacode'];
+            }
+        }
+
+        $photographerGather->photographer_id = $photographer->id;
+        $photographerGather->name = '我的全部项目';
+        $photographerGather->status = 200;
+        $photographerGather->type = 3;
+        $photographerGather->save();
+
+        $photographerGatherWork = PhotographerGatherWork::create();
+        $photographerGatherWork->photographer_gather_id = $photographerGather->id;
+        $photographerGatherWork->photographer_work_id = $photographer_work->id;
+        $photographerGatherWork->sort = 1;
+        $photographerGatherWork->save();
+        $photographer->save();
 
         return [
             'photographer_id' => $photographer->id,

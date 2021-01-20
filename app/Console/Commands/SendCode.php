@@ -65,43 +65,43 @@ class SendCode extends Command
                 }
                 $userInfo = User::where('id', $data['user_id'])->first();
                 if ($userInfo->gh_openid) {
-                    $tmr = $app->template_message->send(
-                        [
-                            'touser' => $userInfo->gh_openid,
-                            'template_id' => 'eQ4Aj2Sb7VvVF-0is1Pg7wO1QU43UcVkJ36wHlhCTFE',
-                            'miniprogram' => [
-                                'appid' => config('wechat.payment.default.app_id'),
-                                'pagepath' => 'pages/web/web',
-                            ],
-                            'url' => config('app.url'),
-                            'data' => [
-                                'first' => '你的云作品创建码已经生成！点击此处，即可开始创建。',
-                                'keyword1' => $userInfo->nickname,
-                                'keyword2' => $userInfo->phoneNumber,
-                                'keyword3' => $data['code'],
-                                'remark' => '云作品客服微信'.SystemConfig::getVal('customer_wechat','works'),
-                            ],
-                        ]
-                    );
-                    Log::error(json_encode($tmr, JSON_UNESCAPED_UNICODE));
-                    if ($tmr['errmsg'] == "ok") {
-                        InvoteCode::where('id', $data['id'])->update(['is_send' => 1]);
-                    }
+//                    $tmr = $app->template_message->send(
+//                        [
+//                            'touser' => $userInfo->gh_openid,
+//                            'template_id' => 'eQ4Aj2Sb7VvVF-0is1Pg7wO1QU43UcVkJ36wHlhCTFE',
+//                            'miniprogram' => [
+//                                'appid' => config('wechat.payment.default.app_id'),
+//                                'pagepath' => 'pages/web/web',
+//                            ],
+//                            'url' => config('app.url'),
+//                            'data' => [
+//                                'first' => '你的云作品创建码已经生成！点击此处，即可开始创建。',
+//                                'keyword1' => $userInfo->nickname,
+//                                'keyword2' => $userInfo->phoneNumber,
+//                                'keyword3' => $data['code'],
+//                                'remark' => '云作品客服微信'.SystemConfig::getVal('customer_wechat','works'),
+//                            ],
+//                        ]
+//                    );
+//                    Log::error(json_encode($tmr, JSON_UNESCAPED_UNICODE));
+//                    if ($tmr['errmsg'] == "ok") {
+//                        InvoteCode::where('id', $data['id'])->update(['is_send' => 1]);
+//                    }
                 }
                 if ($userInfo->purePhoneNumber != '') {
                     //发送短信
                     $third_type = config('custom.send_short_message.third_type');
                     $TemplateCodes = config('custom.send_short_message.' . $third_type . '.TemplateCodes');
                     if ($third_type == 'ali') {
-                        AliSendShortMessageServer::quickSendSms(
-                            $userInfo->purePhoneNumber,
-                            $TemplateCodes,
-                            'register_code_generate',
-                            [
-                                'name' => $userInfo->is_wx_authorize == 1 ? $userInfo->nickname : '亲',
-                                'code' => $data['code'],
-                            ]
-                        );
+//                        AliSendShortMessageServer::quickSendSms(
+//                            $userInfo->purePhoneNumber,
+//                            $TemplateCodes,
+//                            'register_code_generate',
+//                            [
+//                                'name' => $userInfo->is_wx_authorize == 1 ? $userInfo->nickname : '亲',
+//                                'code' => $data['code'],
+//                            ]
+//                        );
                     }
                 }
             } catch (\Exception $exception) {

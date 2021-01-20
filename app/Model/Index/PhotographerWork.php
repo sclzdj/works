@@ -381,7 +381,7 @@ class  PhotographerWork extends Model
      * @param $photographer_work_id 项目id
      * @return string
      */
-    public function generateShare($photographer_work_id)
+    public function generateShare($photographer_work_id, $photographer=null)
     {
         $work = PhotographerWork::find($photographer_work_id);
         if (empty($work)) {
@@ -391,7 +391,9 @@ class  PhotographerWork extends Model
         $sheets_number = $work->hide_sheets_number == 1 ? '保密' : $work->sheets_number . '张';
         $project_number = $work->hide_project_amount == 1 ? '保密' : $work->project_amount . '元';
         $shooting_duration = $work->hide_shooting_duration == 1 ? '保密' : $work->shooting_duration . '小时';
-        $customer_name = $work->customer_name;
+//        $customer_name = $work->customer_name;
+        //项目名改为用户名称
+        $customer_name = $work->name;
         $buttonText = $project_number . '·' . $sheets_number . '·' . $shooting_duration;
 
         $firstPhoto = PhotographerWorkSource::where(
@@ -418,16 +420,38 @@ class  PhotographerWork extends Model
         $handleUrl = array();
         $handleUrl[0] = $sharePhoto;
         $handleUrl[1] = "|watermark/3/image/" . \Qiniu\base64_urlSafeEncode($bg) . "/gravity/North/dx/0/dy/0";
-        $handleUrl[2] = "/text/" . \Qiniu\base64_urlSafeEncode(
-                $customer_name
-            ) . "/fontsize/1000/fill/" . base64_urlSafeEncode("#FEFEFE") . "/fontstyle/" . base64_urlSafeEncode(
-                "Bold"
-            ) . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/30/dy/35";
 
-        $handleUrl[3] = "/text/" . \Qiniu\base64_urlSafeEncode(
-                "点击看项目金额"
-            ) . "/fontsize/700/fill/" . base64_urlSafeEncode("#FEFEFE") .
-            "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/30/dy/110";
+        $len = mb_strlen($customer_name);
+        if ($len > 10){
+            $handleUrl[2] = "/text/" . \Qiniu\base64_urlSafeEncode(
+                    mb_substr($customer_name, 0, 10)
+                ) . "/fontsize/1000/fill/" . base64_urlSafeEncode("#FEFEFE") . "/fontstyle/" . base64_urlSafeEncode(
+                    "Bold"
+                ) . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/30/dy/35";
+            $handleUrl[3] = "/text/" . \Qiniu\base64_urlSafeEncode(
+                    mb_substr($customer_name, 10)
+                ) . "/fontsize/1000/fill/" . base64_urlSafeEncode("#FEFEFE") . "/fontstyle/" . base64_urlSafeEncode(
+                    "Bold"
+                ) . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/30/dy/90";
+
+            $handleUrl[4] = "/text/" . \Qiniu\base64_urlSafeEncode(
+                    "点击查看详情"
+                ) . "/fontsize/700/fill/" . base64_urlSafeEncode("#FEFEFE") .
+                "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/30/dy/165";
+        }else{
+            $handleUrl[2] = "/text/" . \Qiniu\base64_urlSafeEncode(
+                    $customer_name
+                ) . "/fontsize/1000/fill/" . base64_urlSafeEncode("#FEFEFE") . "/fontstyle/" . base64_urlSafeEncode(
+                    "Bold"
+                ) . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/30/dy/35";
+
+
+            $handleUrl[3] = "/text/" . \Qiniu\base64_urlSafeEncode(
+                    "点击查看详情"
+                ) . "/fontsize/700/fill/" . base64_urlSafeEncode("#FEFEFE") .
+                "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/NorthWest/dx/30/dy/110";
+        }
+
 //        $handleUrl[3] = "/text/" . \Qiniu\base64_urlSafeEncode($buttonText) . "/fontsize/1140/fill/" . base64_urlSafeEncode(
 //                "#969696"
 //            ) . "/font/" . base64_urlSafeEncode("Microsoft YaHei") . "/gravity/South/dx/0/dy/20";
@@ -454,4 +478,12 @@ class  PhotographerWork extends Model
             return 1;
         }
     }
+
+
+    public static function getWorkGatherInfo($photographer_work_id){
+        $gathers = PhotographerGatherWork::where(['photographer_work_id' => $photographer_work_id])->get()->pluck('photographer_gather_id');
+
+        return $gathers;
+    }
+
 }

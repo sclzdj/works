@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Sources extends Model
 {
-    protected $table = "target_users";
+    protected $table = "sources";
     /**
      * The attributes that are mass assignable.
      *

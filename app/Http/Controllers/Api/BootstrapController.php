@@ -22,7 +22,8 @@ class BootstrapController extends UserGuardController
         2 => 'user',
         3 => 'relation',
         4 => 'storage',
-        5 => 'clear'
+        5 => 'clear',
+        6 => 'preview'
     ];
 
     public function query(Request $request)

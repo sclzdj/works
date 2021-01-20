@@ -100,24 +100,24 @@ class MiniProgramController extends BaseController
 //                        $time = date('Y年m月d日', $crowdFunding->send_date);
                         if ($userInfo->gh_openid) {
                             $nickeName = $userInfo->is_wx_authorize == 1 ? $userInfo->nickname : '亲';
-                            $tmr = $app->template_message->send(
-                                [
-                                    'touser' => $userInfo->gh_openid,
-                                    'template_id' => '27lQ_hHMeYWzB5NYddMbpcfCZHyx24_sBNKOcb2E7Nw',
-                                    'url' => config('app.url'),
-                                    'miniprogram' => [
-                                        'appid' => config('wechat.payment.default.app_id'),
-                                        'pagepath' => 'subPage/crouwdPay/crouwdPay',
-                                    ],
-                                    'data' => [
-                                        'first' => '谢谢你对云作品团队的信任和支持！我们将于'.$send_date.'，通过云作品微信公众号向你推送创建码。',
-                                        'keyword1' => '云作品众筹',
-                                        'keyword2' => "成功",
-                                        'remark' => '云作品客服微信'.SystemConfig::getVal('customer_wechat','works'),
-                                    ],
-                                ]
-                            );
-                            Log::error(json_encode($tmr, JSON_UNESCAPED_UNICODE));
+//                            $tmr = $app->template_message->send(
+//                                [
+//                                    'touser' => $userInfo->gh_openid,
+//                                    'template_id' => '27lQ_hHMeYWzB5NYddMbpcfCZHyx24_sBNKOcb2E7Nw',
+//                                    'url' => config('app.url'),
+//                                    'miniprogram' => [
+//                                        'appid' => config('wechat.payment.default.app_id'),
+//                                        'pagepath' => 'subPage/crouwdPay/crouwdPay',
+//                                    ],
+//                                    'data' => [
+//                                        'first' => '谢谢你对云作品团队的信任和支持！我们将于'.$send_date.'，通过云作品微信公众号向你推送创建码。',
+//                                        'keyword1' => '云作品众筹',
+//                                        'keyword2' => "成功",
+//                                        'remark' => '云作品客服微信'.SystemConfig::getVal('customer_wechat','works'),
+//                                    ],
+//                                ]
+//                            );
+//                            Log::error(json_encode($tmr, JSON_UNESCAPED_UNICODE));
                         }
 
                         CrowdFundingLog::where(
@@ -137,15 +137,7 @@ class MiniProgramController extends BaseController
                             $third_type = config('custom.send_short_message.third_type');
                             $TemplateCodes = config('custom.send_short_message.'.$third_type.'.TemplateCodes');
                             if ($third_type == 'ali') {
-                                AliSendShortMessageServer::quickSendSms(
-                                    $userInfo->purePhoneNumber,
-                                    $TemplateCodes,
-                                    'crowd_raising_result',
-                                    [
-                                        'nickname' => $userInfo->is_wx_authorize == 1 ? $userInfo->nickname : '亲',
-                                        'date' => $send_date,
-                                    ]
-                                );
+
                             }
                         }
 

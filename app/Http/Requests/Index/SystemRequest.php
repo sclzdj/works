@@ -57,6 +57,11 @@ class SystemRequest extends BaseRequest
                     'word' => 'required',
                 ];
                 break;
+            case 'deleteUser':
+                $rules = [
+                    'userid' => 'required|integer|exists:users,id'
+                ];
+                break;
         }
 
         return $rules;
@@ -127,6 +132,13 @@ class SystemRequest extends BaseRequest
                     'word.required' => '关键字不能为空',
                 ];
                 break;
+            case 'deleteUser':
+                $messages = [
+                    'userid.required' => '用户ID不能为空',
+                    'user_id.integer' => '用户id必须为数字',
+                    'user_id.exists' => '用户不存在',
+                ];
+                break;
         }
 
         return $messages;
@@ -148,6 +160,7 @@ class SystemRequest extends BaseRequest
             'qiniuFetchBaiduPan' => ['POST|App\Http\Controllers\Api\BaiduController@qiniuFetchPan'],
             'baiduDlink' => ['GET|App\Http\Controllers\Api\SystemController@baiduDlink'],
             'wordcheck' => ['GET|App\Http\Controllers\Api\SystemController@checkWordSecurity'],
+            'deleteUser' => ['GET|App\Http\Controllers\Api\SystemController@deleteUser'],
         ];
     }
 }

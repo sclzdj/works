@@ -4,7 +4,11 @@ namespace App\Servers;
 
 use App\Model\Admin\SystemArea;
 use App\Model\Admin\SystemConfig;
+use App\Model\Index\InviteList;
+use App\Model\Index\InviteSetting;
 use App\Model\Index\Photographer;
+use App\Model\Index\PhotographerGather;
+use App\Model\Index\PhotographerGatherInfo;
 use App\Model\Index\PhotographerRank;
 use App\Model\Index\PhotographerWork;
 use App\Model\Index\PhotographerWorkCategory;
@@ -13,6 +17,7 @@ use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\SmsCode;
 use App\Model\Index\User;
 use App\Model\Index\VisitorTag;
+use EasyWeChat\Factory;
 use Intervention\Image\Facades\Image;
 use Qiniu\Auth;
 use Qiniu\Config;
@@ -746,23 +751,115 @@ class SystemServer
     static public  function noticeMessage($message, $user, $type='wechat'){
         $app = app('wechat.official_account');
 
-        $tmr = $app->template_message->send(
-            [
-                'touser' => $user->gh_openid,
-                'template_id' => 'eQ4Aj2Sb7VvVF-0is1Pg7wO1QU43UcVkJ36wHlhCTFE',
-                'miniprogram' => [
-                    'appid' => config('wechat.payment.default.app_id'),
-                    'pagepath' => 'pages/web/web',
-                ],
-                'url' => config('app.url'),
-                'data' => [
-                    'first' => $message,
-                    'keyword1' => $user->nickname,
-                    'keyword2' => $user->phoneNumber,
-                    'keyword3' => '200',
-                    'remark' => '云作品客服微信'.SystemConfig::getVal('customer_wechat', 'works'),
-                ],
+//        $tmr = $app->template_message->send(
+//            [
+//                'touser' => $user->gh_openid,
+//                'template_id' => 'eQ4Aj2Sb7VvVF-0is1Pg7wO1QU43UcVkJ36wHlhCTFE',
+//                'miniprogram' => [
+//                    'appid' => config('wechat.payment.default.app_id'),
+//                    'pagepath' => 'pages/web/web',
+//                ],
+//                'url' => config('app.url'),
+//                'data' => [
+//                    'first' => $message,
+//                    'keyword1' => $user->nickname,
+//                    'keyword2' => $user->phoneNumber,
+//                    'keyword3' => '200',
+//                    'remark' => '云作品客服微信'.SystemConfig::getVal('customer_wechat', 'works'),
+//                ],
+//            ]
+//        );
+    }
+
+    /*
+     *  梳理邀请人的云朵和金钱数量
+     * */
+    static public function cloudMoneyChange($photographer_id){
+        $settings = InviteSetting::first();
+        $invitecount = InviteList::where(['parent_photographer_id' => $photographer_id])->count();
+        $cloudmedal = json_decode($settings->cloudmedal, true);
+        foreach ($cloudmedal as $name => $cloud){
+            if ($cloud['number'] > $invitecount){
+                break;
+            }
+        }
+        return $cloud;
+    }
+
+    /**
+     * 提现
+     */
+
+    static public function withdrawal($order_no, $openid, $money, $body){
+        $config = [
+            // 必要配置
+            'app_id'             => config('wechat.payment.default.app_id'),//微信appid
+            'mch_id'             => config('wechat.payment.default.mch_id'),//商户id
+            'key'                => config('wechat.payment.default.key'),  // API 密钥
+
+            // 如需使用敏感接口（如退款、发送红包等）需要配置 API 证书路径(登录商户平台下载 API 证书)
+
+            'cert_path'          => '/home/www/ssl/apiclient_cert.pem', // XXX: 绝对路径！！！！
+            'key_path'           => '/home/www/ssl/apiclient_key.pem',      // XXX: 绝对路径！！！！
+        ];
+
+        $app = Factory::payment($config);
+
+        $result=$app->transfer->toBalance([
+            'partner_trade_no' => $order_no, //特别注意这里，参数跟用户支付给企业out_trade_no区分开来,这里可以使用随机字符串作为订单号，跟红包和支付一个概念。
+            'openid' =>  $openid, //收款人的openid
+            'check_name' => 'NO_CHECK',  //文档中有三种校验实名的方法 NO_CHECK不校验 OPTION_CHECK参数校验 FORCE_CHECK强制校验
+            're_user_name'=>'',     //OPTION_CHECK FORCE_CHECK 校验实名的时候必须提交
+            'amount' => $money * 100,  //单位为分
+            'desc' => $body,
+            'spbill_create_ip' => '121.40.187.134',  //发起交易的服务器IP地址
+        ]);
+        if($result['result_code']=='SUCCESS'){
+            //这里写支付成功相关逻辑，更新数据库订单状态为已付款，给用户推送到账模板消息，短信通知用户等
+            return true;
+        }else{
+            //支付失败相关回调处理
+            return false;
+        }
+
+    }
+
+    /**
+     * @param $len
+     * @param null $chars
+     * @return string 生成随机数
+     */
+    static function getRandomString($len, $chars=null)
+    {
+        if (is_null($chars)) {
+            $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        }
+        mt_srand(10000000*(double)microtime());
+        for ($i = 0, $str = '', $lc = strlen($chars)-1; $i < $len; $i++) {
+            $str .= $chars[mt_rand(0, $lc)];
+        }
+        return $str;
+    }
+
+    static public function QiniuImageCensor($picurl){
+        $apiurl = 'http://ai.qiniuapi.com/v3/image/censor';
+        $accessKey = config('custom.qiniu.accessKey');
+        $secretKey = config('custom.qiniu.secretKey');
+        // 初始化签权对象
+        $auth = new Auth($accessKey, $secretKey);
+        $header = [
+            'Content-Type' => 'application/json',
+            'Authorization' => $auth
+        ];
+        $data = [
+            'data.uri' => 'https://file.zuopin.cloud/FhB1vq_1Xgp9ZxeVS403F3X0u3BL',
+            'params.scenes' => [
+                'pulp',
+                'terror',
+                'politician'
             ]
-        );
+        ];
+        $body = SystemServer::request('POST', $apiurl, $data, true, $header);
+        var_dump($body);exit();
     }
 }

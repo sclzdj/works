@@ -72,7 +72,7 @@ class PhotographerGatherRequest extends BaseRequest
             case 'infoSetDefault':
                 $rules = [
                     'photographer_gather_info_id' => 'required|exists:photographer_gather_infos,id',
-                    'is_default' => 'required|in:0,1',
+//                    'is_default' => 'required|in:0,1',
                 ];
                 break;
             case 'info':

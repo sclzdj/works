@@ -29,6 +29,12 @@ class UserRequest extends BaseRequest
                     'password' => 'required',
                 ];
                 break;
+            case 'accept':
+                $rules = [
+                    'photographer_id' => 'required|integer|exists:photographers,id',
+                    'request_photographer_id' => 'required',
+                ];
+                break;
             case 'save_info':
                 $rules = [
                     'encryptedData' => 'required',
@@ -73,14 +79,14 @@ class UserRequest extends BaseRequest
             case 'savePhotographerWorkInfo':
                 $rules = [
                     'photographer_work_id' => 'required|integer',
-                    'sources' => 'array',
-                    'sources.*.key' => 'required',
-                    'sources.*.url' => 'required',
-                    'sources.*.type' => 'required|in:image,video',
-                    'sources.*.sort' => 'required|integer',
-                    'fsids' => 'array',
-                    'fsids.*.fsid' => 'required',
-                    'fsids.*.sort' => 'required|integer',
+//                    'sources' => 'array',
+//                    'sources.*.key' => 'required',
+//                    'sources.*.url' => 'required',
+//                    'sources.*.type' => 'required|in:image,video',
+//                    'sources.*.sort' => 'required|integer',
+//                    'fsids' => 'array',
+//                    'fsids.*.fsid' => 'required',
+//                    'fsids.*.sort' => 'required|integer',
 //                    'name' => 'required|max:50',
 //                    'describe' => 'present|max:2000',
 //                    'is_business' => 'required|in:0,1',
@@ -88,17 +94,17 @@ class UserRequest extends BaseRequest
 //                    'address' => 'required|max:2000',
 //                    'latitude' => 'required|max:100',
 //                    'longitude' => 'required|max:100',
-                    'customer_name' => ['string', new ValidationName, new ValidateWordSecurity],
-                    'photographer_work_customer_industry_id' => 'integer|exists:photographer_work_customer_industries,id',
-                    'project_amount' => 'integer|min:0',
-                    'hide_project_amount' => 'integer|in:0,1',
-                    'sheets_number' => 'integer|min:0',
-                    'hide_sheets_number' => 'integer|in:0,1',
-                    'shooting_duration' => 'integer|min:0',
-                    'hide_shooting_duration' => 'integer|in:0,1',
-                    'photographer_work_category_id' => 'integer|exists:photographer_work_categories,id',
-                    'tags' => 'array',
-                    'tags.*' => 'max:50',
+//                    'customer_name' => ['string', new ValidationName, new ValidateWordSecurity],
+//                    'photographer_work_customer_industry_id' => 'integer|exists:photographer_work_customer_industries,id',
+//                    'project_amount' => 'integer|min:0',
+//                    'hide_project_amount' => 'integer|in:0,1',
+//                    'sheets_number' => 'integer|min:0',
+//                    'hide_sheets_number' => 'integer|in:0,1',
+//                    'shooting_duration' => 'integer|min:0',
+//                    'hide_shooting_duration' => 'integer|in:0,1',
+//                    'photographer_work_category_id' => 'integer|exists:photographer_work_categories,id',
+//                    'tags' => 'array',
+//                    'tags.*' => 'max:50',
                 ];
                 break;
             case 'viewRecords':
@@ -157,6 +163,13 @@ class UserRequest extends BaseRequest
                     'username.required' => '微信用户名不能为空',
                     'username.alpha_dash' => '微信用户名格式错误',
                     'password.required' => '密码必须传递',
+                ];
+                break;
+            case 'accept':
+                $messages = [
+                    'photographer_id.required' => '摄影师id不能为空',
+                    'photographer_id.exists' => '摄影师不存在',
+                    'request_photographer_id.required' => '受邀者用户id不能为空',
                 ];
                 break;
             case 'save_info':
@@ -305,6 +318,7 @@ class UserRequest extends BaseRequest
         return [
             'mp_login' => ['GET|App\Http\Controllers\Api\LoginController@mpLogin'],
             'login' => ['POST|App\Http\Controllers\Api\LoginController@login'],
+            'accept' => ['POST|App\Http\Controllers\Api\InviteController@accept'],
             'save_info' => ['POST|App\Http\Controllers\Api\MyController@saveInfo'],
             'saveMobile' => ['POST|App\Http\Controllers\Api\MyController@saveMobile'],
             'photographerWorks' => ['GET|App\Http\Controllers\Api\MyController@photographerWorks'],

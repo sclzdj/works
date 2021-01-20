@@ -229,7 +229,7 @@ class QiniuController extends BaseController
                             /*平均色调 END*/
                         }
                         //检查图片
-                        SystemServer::checkImgSecurity($photographerWorkSource->id);
+                        //SystemServer::checkImgSecurity($photographerWorkSource->id);
 
                         PhotographerWorkSource::dealNotifyRunGenerateWatermark($photographerWorkSource->id);
                     }

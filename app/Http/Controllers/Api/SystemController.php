@@ -33,6 +33,7 @@ use App\Model\Index\PhotographerWorkCustomerIndustry;
 use App\Model\Index\PhotographerWorkSource;
 use App\Model\Index\QuesionUser;
 use App\Model\Index\RecodeScence;
+use App\Model\Index\Settings;
 use App\Model\Index\SmsCode;
 use App\Model\Index\TargetUser;
 use App\Model\Index\User;
@@ -520,5 +521,15 @@ class SystemController extends BaseController
 
         return $this->response->noContent();
 
+    }
+
+    public function settings(){
+        $settings = Settings::find(1);
+        $activity1 = json_decode($settings, true);
+        $data = [
+            'activity1_time' => json_decode($activity1['activity1'], true),
+            'online' => $settings->online
+        ];
+        return $this->responseParseArray($data);
     }
 }

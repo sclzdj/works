@@ -134,17 +134,42 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::get('invite/lists', 'Works\InviteController@lists');
         Route::resource('invite' , 'Works\InviteController');
 
+        Route::get('getsuggestwork', 'Works\InviteController@getsuggestwork');
 
     });
     //这下面写不需要登录的路由
     Route::get('login', 'Auth\LoginController@showLoginForm');//账号登录
     Route::post('login', 'Auth\LoginController@login');
     Route::post('logout', 'Auth\LoginController@logout');//账号退出
+    //操作
+    Route::post('api/staff/notice', 'Api\StaffController@Notice');
+    Route::post('api/staff/addinvitetimes', 'Api\StaffController@addinvitetimes');
+    Route::post('api/staff/deletefamous', 'Api\StaffController@deletefamous');
+    Route::get('api/staff/searchphotographer', 'Api\StaffController@searchphotographer');
+    Route::post('api/staff/addfamoususers', 'Api\StaffController@addfamoususers');
+    Route::post('api/staff/modifysettings', 'Api\StaffController@modifysettings');
+    Route::post('api/staff/modifyfamoussort', 'Api\StaffController@modifyfamoussort');
+    Route::any('api/staff/withdrawal', 'Api\StaffController@withdrawal');
+    Route::get('api/staff/getxacode', 'Api\StaffController@getxacode');
+    Route::get('api/staff/updateuser', 'Api\StaffController@getxacode');
 
     //用户管理
-    Route::get('usermanage/photographers', 'Api\UserManagerController@photographers');
-    Route::get('usermanage/Guest', 'Api\UserManagerController@Guest');
-    Route::get('usermanage/targetuserlist', 'Api\UserManagerController@targetuserlist');
+    Route::get('api/usermanage/photographers', 'Api\UserManagerController@photographers');
+    Route::get('api/usermanage/Guest', 'Api\UserManagerController@Guest');
+    Route::get('api/usermanage/targetuserlist', 'Api\UserManagerController@targetuserlist');
+    Route::get('api/usermanage/users', 'Api\UserManagerController@users');
+    Route::get('api/usermanage/usertypecount', 'Api\UserManagerController@usertypecount');
+    Route::get('api/usermanage/getContact', 'Api\UserManagerController@getContact');
+    Route::get('api/usermanage/inviteusers', 'Api\UserManagerController@inviteusers');
+    Route::get('api/usermanage/allinviters', 'Api\UserManagerController@allinviters');
+    Route::get('api/usermanage/getfamousranks', 'Api\UserManagerController@getfamousranks');
+    Route::get('api/usermanage/famousinvites', 'Api\UserManagerController@famousinvites');
+    Route::get('api/usermanage/clouds', 'Api\UserManagerController@clouds');
+    Route::get('api/usermanage/getsettings', 'Api\UserManagerController@getsettings');
+
+    //来源管理
+    Route::get('api/sources', 'Api\SourceController@index');
+    Route::post('api/sources/add', 'Api\SourceController@add');
 });
 
 Auth::routes();
