@@ -71,8 +71,10 @@ class MyController extends UserGuardController
             $errCode = $pc->decryptData($encryptedData, $iv, $data);
             if ($errCode == 0) {
                 $data = json_decode($data, true);
-                if ($data['openId'] == $user->openid) {
-                    if (isset($data['unionId']) && $data['unionId'] != '') {
+                //if ($data['openId'] == $user->openid) {
+                if (true) { // modify by chenchen 2021/4/18 加密数据里没有了openid和unionid 小程序登录、用户信息相关接口调整说明 https://developers.weixin.qq.com/community/develop/doc/000cacfa20ce88df04cb468bc52801
+                    //if (isset($data['unionId']) && $data['unionId'] != '') {
+                    if (true) {
                         $user->nickname = $data['nickName'];
                         if (!WechatServer::checkContentSecurity($user->nickname)){
                             return $this->response->error("用户名称带有非法字符！", 500);
@@ -103,7 +105,7 @@ class MyController extends UserGuardController
                         $user->gender = $data['gender'];
                         $user->country = $data['country'];
                         $user->province = $data['province'];
-                        $user->unionid = $data['unionId'];
+                        //$user->unionid = $data['unionId'];
                         $user->city = $data['city'];
                         $user->is_wx_authorize = 1;
                         $photographer->save();
